@@ -79,6 +79,6 @@ output-file: grind75.pdf
 pdf-engine: xelatex 
 toc: true
 toc-depth: 2
-
+resource-path: ["./problems/"]  # Add more paths as needed
 metadata:
   title: "Grind75"
