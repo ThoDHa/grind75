@@ -9,21 +9,25 @@ together the nodes of the first two lists.
 
 Return the head of the merged linked list.
 
-## Example 1
+## Examples
 
-![merge two sorted list example 1](./assets/merge_two_sorted_list_ex1.jpg)
+### Example 1
 
+![merged](https://assets.leetcode.com/uploads/2020/10/03/merge_ex1.jpg)
 **Input:** list1 = [1,2,4], list2 = [1,3,4]
+
 **Output:** [1,1,2,3,4,4]
 
-## Example 2
+### Example 2
 
 **Input:** list1 = [], list2 = []
+
 **Output:** []
 
-## Example 3
+### Example 3
 
 **Input:** list1 = [], list2 = [0]
+
 **Output:** [0]
 
 ## Constraints

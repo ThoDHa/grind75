@@ -76,7 +76,17 @@ input-files:
   - problems/binary_tree_maximum_path_sum.md
   - problems/maximum_frequency_stack.md
 output-file: grind75.pdf
-pdf-engine: xelatex 
+pdf-engine: xelatex
+variables:
+  papersize: letter
+  geometry:
+    - margin=1in
+  monofont: "DejaVu Sans Mono"
+  monofontoptions:
+    - Scale=0.85
+  linkcolor: blue
+  listings: true
+  breaklines: true
 toc: true
 toc-depth: 1
 resource-path: ["./problems/"]  # Add more paths as needed
