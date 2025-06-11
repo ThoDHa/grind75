@@ -44,3 +44,76 @@ You can return the answer in any order.
 Can you come up with an algorithm that is less than O(n²) time complexity?
 
 ## Solutions
+
+### BruteForce
+
+```python
+def twoSum(self, nums: List[int], target: int) -> List[int]:
+    # Get the length of the input array
+    length = len(nums)
+    # Iterate through each element in the array
+    for x in range(length):
+        # Calculate the complement (value needed to reach target)
+        complement = target - nums[x]
+        # Check all elements after the current element
+        for y in range(x+1, length):
+            # If complement is found, return both indices
+            if nums[y] == complement:
+                return [x, y]
+```
+
+#### Solution Approach
+
+This brute force approach examines every possible pair of numbers in the array. For each element, it calculates the complement (target - current number) and checks all remaining elements to find this complement.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: O(n²)
+
+The solution uses nested loops - for each of the n elements, we potentially check n-1 other elements, resulting in O(n²) time complexity.
+
+##### Space Complexity: O(1)
+
+Only a constant amount of extra space is used regardless of input size.
+
+#### Key Insights
+
+- Simple and intuitive approach that works for all valid inputs
+- Inefficient for large arrays due to quadratic time complexity
+- No additional data structures required
+
+### Hash Map
+
+```python
+def twoSum(self, nums: List[int], target: int) -> List[int]:
+    length = len(nums)
+    nums_dict = {}
+    for x in range(length):
+        complement = target - nums[x]
+        # Check if the complement exists in dictionary
+        if complement in nums_dict:
+            return [x, nums_dict[complement]]
+        # Store current number and its index
+        nums_dict[nums[x]] = x
+    return []
+```
+
+#### Solution Approach
+
+This solution uses a hash map to store previously encountered numbers and their indices. For each element, we check if its complement (target - current number) already exists in the hash map. If found, we've identified our pair. Otherwise, we add the current number and its index to the hash map.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: O(n)
+
+We traverse the array only once, and hash map operations (lookups and insertions) are O(1) on average.
+
+##### Space Complexity: O(n)
+
+In worst case, we might need to store nearly all elements in the hash map before finding a solution.
+
+#### Key Insights
+
+- Trades space for time efficiency by using a hash map
+- Single-pass algorithm with linear time complexity
+- Demonstrates how auxiliary data structures can optimize solutions
