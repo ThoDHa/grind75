@@ -8,7 +8,7 @@ Given the `root` of a binary tree, invert the tree, and return its root.
 
 ### Example 1
 
-![Invert Binary Tree Example 1](invert_binary_tree_example1.jpg)
+![Invert Binary Tree Example 1](assets/invert_binary_tree_example1.jpg)
 
 **Input:** `root = [4,2,7,1,3,6,9]`
 
@@ -16,7 +16,7 @@ Given the `root` of a binary tree, invert the tree, and return its root.
 
 ### Example 2
 
-![Invert Binary Tree Example 2](invert_binary_tree_example1.jpg)
+![Invert Binary Tree Example 2](assets/invert_binary_tree_example2.jpg)
 
 **Input:** `root = [2,1,3]`
 
