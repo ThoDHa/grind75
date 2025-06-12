@@ -77,7 +77,7 @@ class Solution:
         return not valid
 ```
 
-### Solution Approach
+### Approach
 
 This problem is solved using a stack data structure:
 
@@ -88,17 +88,17 @@ This problem is solved using a stack data structure:
 
 ### Time and Space Complexity Analysis
 
-#### Time Complexity: O(n)
+#### Time Complexity: `O(n)`
 
 - We iterate through each character in the string exactly once, where n is the
   length of the string.
-- All operations inside the loop (append, pop, dictionary lookup) are O(1) operations.
+- All operations inside the loop (append, pop, dictionary lookup) are `O(1)` operations.
 
-#### Space Complexity: O(n)
+#### Space Complexity: `O(n)`
 
 - In the worst case, the stack could contain all characters of the string
-  (e.g., for a string like "((((").
-- The dictionary of parentheses mappings uses constant space O(1).
+  (e.g., for a string like `"(((("`).
+- The dictionary of parentheses mappings uses constant space `O(1)`.
 
 ## Key Insights
 

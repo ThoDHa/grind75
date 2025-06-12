@@ -50,7 +50,7 @@ class Solution:
 
 ```
 
-### Solution Approach
+### Approach
 
 This solution uses a one-pass algorithm to find the maximum profit. As we iterate through the array of prices:
 
@@ -63,11 +63,11 @@ This approach works because to maximize profit, we need to buy at the lowest pri
 
 ### Time and Space Complexity Analysis
 
-#### Time Complexity: O(n)
+#### Time Complexity: `O(n)`
 
 We only need a single pass through the array of prices. Each price is processed in constant time with simple comparison and arithmetic operations.
 
-#### Space Complexity: O(1)
+#### Space Complexity: `O(1)`
 
 The solution uses only two variables (`maxProfit` and `lowest`) regardless of the input size, resulting in constant space complexity.
 
@@ -75,5 +75,5 @@ The solution uses only two variables (`maxProfit` and `lowest`) regardless of th
 
 - The key insight is that we don't need to try all possible buy/sell combinations (which would be O(n²))
 - Instead, we can track the minimum price seen so far and calculate the maximum profit in a single pass
-- This approach elegantly handles cases where no profit is possible by initializing `maxProfit` to 0
+- This approach elegantly handles cases where no profit is possible by initializing `maxProfit` to `0`
 - The algorithm naturally enforces the constraint that we must buy before selling by maintaining the lowest price seen up to the current point

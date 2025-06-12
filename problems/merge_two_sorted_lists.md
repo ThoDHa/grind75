@@ -77,11 +77,11 @@ This solution uses a dummy head node technique with an iterative approach to mer
 
 ## Time and Space Complexity Analysis
 
-### Time Complexity: O(n + m)
+### Time Complexity: `O(n + m)`
 
-Where n and m are the lengths of list1 and list2 respectively. We traverse each node in both lists exactly once.
+Where `n` and `m` are the lengths of `list1` and `list2` respectively. We traverse each node in both lists exactly once.
 
-### Space Complexity: O(1)
+### Space Complexity: `O(1)`
 
 We only use a constant amount of extra space for pointers. The solution reuses the existing nodes without allocating additional memory for the merged list structure.
 

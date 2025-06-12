@@ -13,7 +13,7 @@ As you work through each problem, document your solutions, optimizations, and in
 | [x] [3](https://leetcode.com/problems/merge-two-sorted-lists/) | [Merge Two Sorted Lists](problems/merge_two_sorted_lists.md) | Easy | Linked List | 20 min |
 | [x] [4](https://leetcode.com/problems/best-time-to-buy-and-sell-stock/) | [Best Time to Buy and Sell Stock](problems/best_time_to_buy_and_sell_stock.md) | Easy | Array | 20 min |
 | [x] [5](https://leetcode.com/problems/valid-palindrome/) | [Valid Palindrome](problems/valid_palindrome.md) | Easy | String | 15 min |
-| [ ] [6](https://leetcode.com/problems/invert-binary-tree/) | [Invert Binary Tree](problems/invert_binary_tree.md) | Easy | Tree | 15 min |
+| [x] [6](https://leetcode.com/problems/invert-binary-tree/) | [Invert Binary Tree](problems/invert_binary_tree.md) | Easy | Tree | 15 min |
 | [ ] [7](https://leetcode.com/problems/binary-search/) | [Binary Search](problems/binary_search.md) | Easy | Binary Search | 15 min |
 | [ ] [8](https://leetcode.com/problems/flood-fill/) | [Flood Fill](problems/flood_fill.md) | Easy | Graph, DFS | 20 min |
 | [ ] [9](https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree/) | [Lowest Common Ancestor of a BST](problems/lowest_common_ancestor_of_a_bst.md) | Easy | Tree | 20 min |

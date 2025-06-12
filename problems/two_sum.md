@@ -60,7 +60,7 @@ def twoSum(self, nums: List[int], target: int) -> List[int]:
                 return [x, y]
 ```
 
-### Solution Approach
+### Approach
 
 This brute force approach examines every possible pair of numbers in the array. For each element, it calculates the complement (target - current number) and checks all remaining elements to find this complement.
 
@@ -96,17 +96,17 @@ def twoSum(self, nums: List[int], target: int) -> List[int]:
     return []
 ```
 
-### Solution Approach
+### Approach
 
 This solution uses a hash map to store previously encountered numbers and their indices. For each element, we check if its complement (target - current number) already exists in the hash map. If found, we've identified our pair. Otherwise, we add the current number and its index to the hash map.
 
 ### Time and Space Complexity Analysis
 
-#### Time Complexity: O(n)
+#### Time Complexity: `O(n)`
 
-We traverse the array only once, and hash map operations (lookups and insertions) are O(1) on average.
+We traverse the array only once, and hash map operations (lookups and insertions) are `O(1)` on average.
 
-#### Space Complexity: O(n)
+#### Space Complexity: `O(n)`
 
 In worst case, we might need to store nearly all elements in the hash map before finding a solution.
 
@@ -120,12 +120,12 @@ In worst case, we might need to store nearly all elements in the hash map before
 
 ### Time Complexity
 
-- **Brute Force**: O(n²) - Requires nested loops to check all possible pairs
-- **Hash Map**: O(n) - Single-pass approach with constant-time lookups
+- **Brute Force**: `O(n²)` - Requires nested loops to check all possible pairs
+- **Hash Map**: `O(n)` - Single-pass approach with constant-time lookups
 
 ### Space Complexity
 
-- **Brute Force**: O(1) - Uses only a constant amount of extra space
+- **Brute Force**: `O(1)` - Uses only a constant amount of extra space
 - **Hash Map**: O(n) - Requires additional storage proportional to input size
 
 ### Trade-offs
