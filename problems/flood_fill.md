@@ -17,7 +17,7 @@ Return the modified image after performing the flood fill.
 
 ### Example 1
 
-![Flood Fill Example](assets/flood_fille_example1.jpg)
+![Flood Fill Example](assets/flood_fill_example1.jpg)
 
 **Input:** `image = [[1,1,1],[1,1,0],[1,0,1]]`, `sr = 1`, `sc = 1`, `color = 2`
 
