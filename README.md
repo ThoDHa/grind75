@@ -19,8 +19,8 @@ As you work through each problem, document your solutions, optimizations, and in
 | [x] [9](https://leetcode.com/problems/flood-fill/) | [Flood Fill](problems/flood_fill.md) | Easy | Graph, DFS | 20 minutes |
 | [x] [10](https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree/) | [Lowest Common Ancestor of a BST](problems/lowest_common_ancestor_of_a_binary_search_tree.md) | Easy | Tree | 20 minutes |
 | [x] [11](https://leetcode.com/problems/balanced-binary-tree/) | [Balanced Binary Tree](problems/balanced_binary_tree.md) | Easy | Tree | 15 minutes |
-| [ ] [12](https://leetcode.com/problems/linked-list-cycle/) | [Linked List Cycle](problems/linked_list_cycle.md) | Easy | Linked List | 20 minutes |
-| [ ] [13](https://leetcode.com/problems/implement-queue-using-stacks/) | [Implement Queue using Stacks](problems/implement_queue_using_stacks.md) | Easy | Stack | 20 minutes |
+| [x] [12](https://leetcode.com/problems/linked-list-cycle/) | [Linked List Cycle](problems/linked_list_cycle.md) | Easy | Linked List | 20 minutes |
+| [x] [13](https://leetcode.com/problems/implement-queue-using-stacks/) | [Implement Queue using Stacks](problems/implement_queue_using_stacks.md) | Easy | Stack | 20 minutes |
 | [ ] [14](https://leetcode.com/problems/first-bad-version/) | [First Bad Version](problems/first_bad_version.md) | Easy | Binary Search | 20 minutes |
 | [ ] [15](https://leetcode.com/problems/ransom-note/) | [Ransom Note](problems/ransom_note.md) | Easy | Hash Table | 15 minutes |
 | [ ] [16](https://leetcode.com/problems/climbing-stairs/) | [Climbing Stairs](problems/climbing_stairs.md) | Easy | Dynamic Programming | 20 minutes |
