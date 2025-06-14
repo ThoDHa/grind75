@@ -15,10 +15,10 @@ As you work through each problem, document your solutions, optimizations, and in
 | [x] [5](https://leetcode.com/problems/valid-palindrome/) | [Valid Palindrome](problems/valid_palindrome.md) | Easy | String | 15 minutes |
 | [x] [6](https://leetcode.com/problems/invert-binary-tree/) | [Invert Binary Tree](problems/invert_binary_tree.md) | Easy | Tree | 15 minutes |
 | [x] [7](https://leetcode.com/problems/valid-anagram/) | [Valid Anagram](problems/valid_anagram.md) | Easy | String | 15 Minutes |
-| [ ] [8](https://leetcode.com/problems/binary-search/) | [Binary Search](problems/binary_search.md) | Easy | Binary Search | 15 minutes |
-| [ ] [9](https://leetcode.com/problems/flood-fill/) | [Flood Fill](problems/flood_fill.md) | Easy | Graph, DFS | 20 minutes |
-| [ ] [10](https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree/) | [Lowest Common Ancestor of a BST](problems/lowest_common_ancestor_of_a_binary_search_tree.md) | Easy | Tree | 20 minutes |
-| [ ] [11](https://leetcode.com/problems/balanced-binary-tree/) | [Balanced Binary Tree](problems/balanced_binary_tree.md) | Easy | Tree | 15 minutes |
+| [x] [8](https://leetcode.com/problems/binary-search/) | [Binary Search](problems/binary_search.md) | Easy | Binary Search | 15 minutes |
+| [x] [9](https://leetcode.com/problems/flood-fill/) | [Flood Fill](problems/flood_fill.md) | Easy | Graph, DFS | 20 minutes |
+| [x] [10](https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree/) | [Lowest Common Ancestor of a BST](problems/lowest_common_ancestor_of_a_binary_search_tree.md) | Easy | Tree | 20 minutes |
+| [x] [11](https://leetcode.com/problems/balanced-binary-tree/) | [Balanced Binary Tree](problems/balanced_binary_tree.md) | Easy | Tree | 15 minutes |
 | [ ] [12](https://leetcode.com/problems/linked-list-cycle/) | [Linked List Cycle](problems/linked_list_cycle.md) | Easy | Linked List | 20 minutes |
 | [ ] [13](https://leetcode.com/problems/implement-queue-using-stacks/) | [Implement Queue using Stacks](problems/implement_queue_using_stacks.md) | Easy | Stack | 20 minutes |
 | [ ] [14](https://leetcode.com/problems/first-bad-version/) | [First Bad Version](problems/first_bad_version.md) | Easy | Binary Search | 20 minutes |
