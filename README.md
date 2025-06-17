@@ -23,9 +23,9 @@ As you work through each problem, document your solutions, optimizations, and in
 | [x] [13](https://leetcode.com/problems/implement-queue-using-stacks/) | [Implement Queue using Stacks](problems/implement_queue_using_stacks.md) | Easy | Stack | 20 minutes |
 | [x] [14](https://leetcode.com/problems/first-bad-version/) | [First Bad Version](problems/first_bad_version.md) | Easy | Binary Search | 20 minutes |
 | [x] [15](https://leetcode.com/problems/ransom-note/) | [Ransom Note](problems/ransom_note.md) | Easy | Hash Table | 15 minutes |
-| [ ] [16](https://leetcode.com/problems/climbing-stairs/) | [Climbing Stairs](problems/climbing_stairs.md) | Easy | Dynamic Programming | 20 minutes |
-| [ ] [17](https://leetcode.com/problems/longest-palindrome/) | [Longest Palindrome](problems/longest_palindrome.md) | Easy | String | 20 minutes |
-| [ ] [18](https://leetcode.com/problems/reverse-linked-list/) | [Reverse Linked List](problems/reverse_linked_list.md) | Easy | Linked List | 20 minutes |
+| [x] [16](https://leetcode.com/problems/climbing-stairs/) | [Climbing Stairs](problems/climbing_stairs.md) | Easy | Dynamic Programming | 20 minutes |
+| [x] [17](https://leetcode.com/problems/longest-palindrome/) | [Longest Palindrome](problems/longest_palindrome.md) | Easy | String | 20 minutes |
+| [x] [18](https://leetcode.com/problems/reverse-linked-list/) | [Reverse Linked List](problems/reverse_linked_list.md) | Easy | Linked List | 20 minutes |
 | [ ] [19](https://leetcode.com/problems/majority-element/) | [Majority Element](problems/majority_element.md) | Easy | Array | 20 minutes |
 | [ ] [20](https://leetcode.com/problems/add-binary/) | [Add Binary](problems/add_binary.md) | Easy | String | 15 minutes |
 | [ ] [21](https://leetcode.com/problems/diameter-of-binary-tree/) | [Diameter of Binary Tree](problems/diameter_of_binary_tree.md) | Easy | Tree | 30 minutes |
