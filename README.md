@@ -64,7 +64,6 @@ As you work through each problem, document your solutions, optimizations, and in
 | [ ] [54](https://leetcode.com/problems/subsets/) | [Subsets](problems/subsets.md) | Medium | Backtracking | 30 minutes |
 | [ ] [55](https://leetcode.com/problems/binary-tree-right-side-view/) | [Binary Tree Right Side View](problems/binary_tree_right_side_view.md) | Medium | Tree | 20 minutes |
 | [ ] [56](https://leetcode.com/problems/longest-palindromic-substring/) | [Longest Palindromic Substring](longest_palindromic_substring.md) | Medium | String | 25 minutes |
-| [ ] [56](https://leetcode.com/problems/longest-palindromic-substring/) | [Longest Palindromic Substring](problems/longest_palindromic_substring.md) | Medium | String | 25 minutes |
 | [ ] [57](https://leetcode.com/problems/unique-paths/) | [Unique Paths](problems/unique_paths.md) | Medium | Dynamic Programming | 20 minutes |
 | [ ] [58](https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/) | [Construct Binary Tree from Preorder and Inorder Traversal](problems/construct_binary_tree_from_preorder_and_inorder_traversal.md) | Medium | Tree | 25 minutes |
 | [ ] [59](https://leetcode.com/problems/container-with-most-water/) | [Container With Most Water](problems/container_with_most_water.md) | Medium | Array | 35 minutes |
@@ -84,8 +83,6 @@ As you work through each problem, document your solutions, optimizations, and in
 | [ ] [73](https://leetcode.com/problems/maximum-profit-in-job-scheduling/) | [Maximum Profit in Job Scheduling](problems/maximum_profit_in_job_scheduling.md) | Hard | Binary Search | 45 minutes |
 | [ ] [74](https://leetcode.com/problems/merge-k-sorted-lists/) | [Merge k Sorted Lists](problems/merge_k_sorted_lists.md) | Hard | Linked List | 30 minutes |
 | [ ] [75](https://leetcode.com/problems/largest-rectangle-in-histogram/) | [Largest Rectangle in Histogram](problems/largest_rectangle_in_histogram.md) | Hard | Stack | 35 minutes |
-| [ ] [76](https://leetcode.com/problems/binary-tree-maximum-path-sum/) | [Binary Tree Maximum Path Sum](problems/binary_tree_maximum_path_sum.md) | Hard | Tree | 35 minutes |
-| [ ] [77](https://leetcode.com/problems/maximum-frequency-stack/) | [Maximum Frequency Stack](problems/maximum_frequency_stack.md) | Hard | Stack | 40 minutes |
 
 ## 8-Week Schedule
 
@@ -97,22 +94,20 @@ As you work through each problem, document your solutions, optimizations, and in
 - Best Time to Buy and Sell Stock
 - Valid Palindrome
 - Invert Binary Tree
+- Valid Anagram
 - Binary Search
 - Flood Fill
-
-### Week 2: Easy Problems - Trees, Stacks, Linked Lists
-
 - Lowest Common Ancestor of a BST
 - Balanced Binary Tree
 - Linked List Cycle
 - Implement Queue using Stacks
+
+### Week 2: Easy Problems - Trees, Stacks, Linked Lists
+
 - First Bad Version
 - Ransom Note
 - Climbing Stairs
 - Longest Palindrome
-
-### Week 3: Easy Problems & Medium Intro
-
 - Reverse Linked List
 - Majority Element
 - Add Binary
@@ -120,10 +115,11 @@ As you work through each problem, document your solutions, optimizations, and in
 - Middle of the Linked List
 - Maximum Depth of Binary Tree
 - Contains Duplicate
-- Insert Interval (Medium)
+- Maximum Subarray
 
-### Week 4: Medium Problems - Arrays & Matrices
+### Week 3: Easy Problems & Medium Intro
 
+- Insert Interval
 - 01 Matrix
 - K Closest Points to Origin
 - Longest Substring Without Repeating Characters
@@ -131,10 +127,10 @@ As you work through each problem, document your solutions, optimizations, and in
 - Binary Tree Level Order Traversal
 - Clone Graph
 - Evaluate Reverse Polish Notation
+
+### Week 4: Medium Problems - Arrays & Matrices
+
 - Course Schedule
-
-### Week 5: Medium Problems - Data Structures
-
 - Implement Trie (Prefix Tree)
 - Coin Change
 - Product of Array Except Self
@@ -142,10 +138,10 @@ As you work through each problem, document your solutions, optimizations, and in
 - Validate Binary Search Tree
 - Number of Islands
 - Rotting Oranges
+
+### Week 5: Medium Problems - Data Structures
+
 - Search in Rotated Sorted Array
-
-### Week 6: Medium Problems - Algorithms
-
 - Combination Sum
 - Permutations
 - Merge Intervals
@@ -153,9 +149,8 @@ As you work through each problem, document your solutions, optimizations, and in
 - Time Based Key-Value Store
 - Accounts Merge
 - Sort Colors
-- Word Break
 
-### Week 7: Medium Problems - Advanced
+### Week 6: Medium Problems - Algorithms
 
 - Partition Equal Subset Sum
 - String to Integer (atoi)
@@ -165,13 +160,21 @@ As you work through each problem, document your solutions, optimizations, and in
 - Longest Palindromic Substring
 - Unique Paths
 - Construct Binary Tree from Preorder and Inorder Traversal
+ Word Break
 
-### Week 8: Hard Problems
+### Week 7: Medium Problems - Advanced
 
 - Container With Most Water
 - Letter Combinations of a Phone Number
 - Word Search
 - Find All Anagrams in a String
+- Minimum Height Trees
+- Task Scheduler
+- LRU Cache
+
+### Week 8: Hard Problems
+
+- Kth Smallest Element in a BST
 - Minimum Window Substring
 - Serialize and Deserialize Binary Tree
 - Trapping Rain Water
@@ -181,8 +184,6 @@ As you work through each problem, document your solutions, optimizations, and in
 - Maximum Profit in Job Scheduling
 - Merge k Sorted Lists
 - Largest Rectangle in Histogram
-- Binary Tree Maximum Path Sum
-- Maximum Frequency Stack
 
 This 8-week schedule organizes the problems in increasing order of difficulty, with related problem types grouped together. Each week has a manageable number of problems, and earlier weeks focus on foundational concepts while later weeks tackle more advanced topics.
 
