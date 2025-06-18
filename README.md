@@ -64,7 +64,6 @@ As you work through each problem, document your solutions, optimizations, and in
 | [ ] [54](https://leetcode.com/problems/subsets/) | [Subsets](problems/subsets.md) | Medium | Backtracking | 30 minutes |
 | [ ] [55](https://leetcode.com/problems/binary-tree-right-side-view/) | [Binary Tree Right Side View](problems/binary_tree_right_side_view.md) | Medium | Tree | 20 minutes |
 | [ ] [56](https://leetcode.com/problems/longest-palindromic-substring/) | [Longest Palindromic Substring](longest_palindromic_substring.md) | Medium | String | 25 minutes |
-| [ ] [56](https://leetcode.com/problems/longest-palindromic-substring/) | [Longest Palindromic Substring](problems/longest_palindromic_substring.md) | Medium | String | 25 minutes |
 | [ ] [57](https://leetcode.com/problems/unique-paths/) | [Unique Paths](problems/unique_paths.md) | Medium | Dynamic Programming | 20 minutes |
 | [ ] [58](https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/) | [Construct Binary Tree from Preorder and Inorder Traversal](problems/construct_binary_tree_from_preorder_and_inorder_traversal.md) | Medium | Tree | 25 minutes |
 | [ ] [59](https://leetcode.com/problems/container-with-most-water/) | [Container With Most Water](problems/container_with_most_water.md) | Medium | Array | 35 minutes |
@@ -84,106 +83,107 @@ As you work through each problem, document your solutions, optimizations, and in
 | [ ] [73](https://leetcode.com/problems/maximum-profit-in-job-scheduling/) | [Maximum Profit in Job Scheduling](problems/maximum_profit_in_job_scheduling.md) | Hard | Binary Search | 45 minutes |
 | [ ] [74](https://leetcode.com/problems/merge-k-sorted-lists/) | [Merge k Sorted Lists](problems/merge_k_sorted_lists.md) | Hard | Linked List | 30 minutes |
 | [ ] [75](https://leetcode.com/problems/largest-rectangle-in-histogram/) | [Largest Rectangle in Histogram](problems/largest_rectangle_in_histogram.md) | Hard | Stack | 35 minutes |
-| [ ] [76](https://leetcode.com/problems/binary-tree-maximum-path-sum/) | [Binary Tree Maximum Path Sum](problems/binary_tree_maximum_path_sum.md) | Hard | Tree | 35 minutes |
-| [ ] [77](https://leetcode.com/problems/maximum-frequency-stack/) | [Maximum Frequency Stack](problems/maximum_frequency_stack.md) | Hard | Stack | 40 minutes |
 
 ## 8-Week Schedule
 
 ### Week 1: Easy Problems - Array, String, Linked List
 
-- Two Sum
-- Valid Parentheses
-- Merge Two Sorted Lists
-- Best Time to Buy and Sell Stock
-- Valid Palindrome
-- Invert Binary Tree
-- Binary Search
-- Flood Fill
+- [Two Sum](problems/two_sum.md)
+- [Valid Parentheses](problems/valid_parentheses.md)
+- [Merge Two Sorted Lists](problems/merge_two_sorted_lists.md)
+- [Best Time to Buy and Sell Stock](problems/best_time_to_buy_and_sell_stock.md)
+- [Valid Palindrome](problems/valid_palindrome.md)
+- [Invert Binary Tree](problems/invert_binary_tree.md)
+- [Valid Anagram](problems/valid_anagram.md)
+- [Binary Search](problems/binary_search.md)
+- [Flood Fill](problems/flood_fill.md)
+- [Lowest Common Ancestor of a BST](problems/lowest_common_ancestor_of_a_binary_search_tree.md)
+- [Balanced Binary Tree](problems/balanced_binary_tree.md)
+- [Linked List Cycle](problems/linked_list_cycle.md)
+- [Implement Queue using Stacks](problems/implement_queue_using_stacks.md)
 
 ### Week 2: Easy Problems - Trees, Stacks, Linked Lists
 
-- Lowest Common Ancestor of a BST
-- Balanced Binary Tree
-- Linked List Cycle
-- Implement Queue using Stacks
-- First Bad Version
-- Ransom Note
-- Climbing Stairs
-- Longest Palindrome
+- [First Bad Version](problems/first_bad_version.md)
+- [Ransom Note](problems/ransom_note.md)
+- [Climbing Stairs](problems/climbing_stairs.md)
+- [Longest Palindrome](problems/longest_palindrome.md)
+- [Reverse Linked List](problems/reverse_linked_list.md)
+- [Majority Element](problems/majority_element.md)
+- [Add Binary](problems/add_binary.md)
+- [Diameter of Binary Tree](problems/diameter_of_binary_tree.md)
+- [Middle of the Linked List](problems/middle_of_the_linked_list.md)
+- [Maximum Depth of Binary Tree](problems/maximum_depth_of_binary_tree.md)
+- [Contains Duplicate](problems/contains_duplicate.md)
+- [Maximum Subarray](problems/maximum_subarray.md)
 
 ### Week 3: Easy Problems & Medium Intro
 
-- Reverse Linked List
-- Majority Element
-- Add Binary
-- Diameter of Binary Tree
-- Middle of the Linked List
-- Maximum Depth of Binary Tree
-- Contains Duplicate
-- Insert Interval (Medium)
+- [Insert Interval](problems/insert_interval.md)
+- [01 Matrix](problems/01_matrix.md)
+- [K Closest Points to Origin](problems/k_closest_points_to_origin.md)
+- [Longest Substring Without Repeating Characters](problems/longest_substring_without_repeating_characters.md)
+- [3Sum](problems/3sum.md)
+- [Binary Tree Level Order Traversal](problems/binary_tree_level_order_traversal.md)
+- [Clone Graph](problems/clone_graph.md)
+- [Evaluate Reverse Polish Notation](problems/evaluate_reverse_polish_notation.md)
 
 ### Week 4: Medium Problems - Arrays & Matrices
 
-- 01 Matrix
-- K Closest Points to Origin
-- Longest Substring Without Repeating Characters
-- 3Sum
-- Binary Tree Level Order Traversal
-- Clone Graph
-- Evaluate Reverse Polish Notation
-- Course Schedule
+- [Course Schedule](problems/course_schedule.md)
+- [Implement Trie (Prefix Tree)](problems/implement_trie_prefix_tree.md)
+- [Coin Change](problems/coin_change.md)
+- [Product of Array Except Self](problems/product_of_array_except_self.md)
+- [Min Stack](problems/min_stack.md)
+- [Validate Binary Search Tree](problems/validate_binary_search_tree.md)
+- [Number of Islands](problems/number_of_islands.md)
+- [Rotting Oranges](problems/rotting_oranges.md)
 
 ### Week 5: Medium Problems - Data Structures
 
-- Implement Trie (Prefix Tree)
-- Coin Change
-- Product of Array Except Self
-- Min Stack
-- Validate Binary Search Tree
-- Number of Islands
-- Rotting Oranges
-- Search in Rotated Sorted Array
+- [Search in Rotated Sorted Array](problems/search_in_rotated_sorted_array.md)
+- [Combination Sum](problems/combination_sum.md)
+- [Permutations](problems/permutations.md)
+- [Merge Intervals](problems/merge_intervals.md)
+- [Lowest Common Ancestor of a Binary Tree](problems/lowest_common_ancestor_of_a_binary_tree.md)
+- [Time Based Key-Value Store](problems/time_based_key_value_store.md)
+- [Accounts Merge](problems/accounts_merge.md)
+- [Sort Colors](problems/sort_colors.md)
 
 ### Week 6: Medium Problems - Algorithms
 
-- Combination Sum
-- Permutations
-- Merge Intervals
-- Lowest Common Ancestor of a Binary Tree
-- Time Based Key-Value Store
-- Accounts Merge
-- Sort Colors
-- Word Break
+- [Word Break](problems/word_break.md)
+- [Partition Equal Subset Sum](problems/partition_equal_subset_sum.md)
+- [String to Integer (atoi)](problems/string_to_integer_atoi.md)
+- [Spiral Matrix](problems/spiral_matrix.md)
+- [Subsets](problems/subsets.md)
+- [Binary Tree Right Side View](problems/binary_tree_right_side_view.md)
+- [Longest Palindromic Substring](problems/longest_palindromic_substring.md)
+- [Unique Paths](problems/unique_paths.md)
+- [Construct Binary Tree from Preorder and Inorder Traversal](problems/construct_binary_tree_from_preorder_and_inorder_traversal.md)
 
 ### Week 7: Medium Problems - Advanced
 
-- Partition Equal Subset Sum
-- String to Integer (atoi)
-- Spiral Matrix
-- Subsets
-- Binary Tree Right Side View
-- Longest Palindromic Substring
-- Unique Paths
-- Construct Binary Tree from Preorder and Inorder Traversal
+- [Container With Most Water](problems/container_with_most_water.md)
+- [Letter Combinations of a Phone Number](problems/letter_combinations_of_a_phone_number.md)
+- [Word Search](problems/word_search.md)
+- [Find All Anagrams in a String](problems/find_all_anagrams_in_a_string.md)
+- [Minimum Height Trees](problems/minimum_height_trees.md)
+- [Task Scheduler](problems/task_scheduler.md)
+- [LRU Cache](problems/lru_cache.md)
 
 ### Week 8: Hard Problems
 
-- Container With Most Water
-- Letter Combinations of a Phone Number
-- Word Search
-- Find All Anagrams in a String
-- Minimum Window Substring
-- Serialize and Deserialize Binary Tree
-- Trapping Rain Water
-- Find Median from Data Stream
-- Word Ladder
-- Basic Calculator
-- Maximum Profit in Job Scheduling
-- Merge k Sorted Lists
-- Largest Rectangle in Histogram
-- Binary Tree Maximum Path Sum
-- Maximum Frequency Stack
-
+- [Kth Smallest Element in a BST](problems/kth_smallest_element_in_a_bst.md)
+- [Minimum Window Substring](problems/minimum_window_substring.md)
+- [Serialize and Deserialize Binary Tree](problems/serialize_and_deserialize_binary_tree.md)
+- [Trapping Rain Water](problems/trapping_rain_water.md)
+- [Find Median from Data Stream](problems/find_median_from_data_stream.md)
+- [Word Ladder](problems/word_ladder.md)
+- [Basic Calculator](problems/basic_calculator.md)
+- [Maximum Profit in Job Scheduling](problems/maximum_profit_in_job_scheduling.md)
+- [Merge k Sorted Lists](problems/merge_k_sorted_lists.md)
+- [Largest Rectangle in Histogram](problems/largest_rectangle_in_histogram.md)
 This 8-week schedule organizes the problems in increasing order of difficulty, with related problem types grouped together. Each week has a manageable number of problems, and earlier weeks focus on foundational concepts while later weeks tackle more advanced topics.
 
 ## Creating a PDF with Pandoc
