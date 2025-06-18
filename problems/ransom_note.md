@@ -186,19 +186,21 @@ The solution uses a fixed-size array of 26 elements, regardless of the input siz
 - **Python Counter**: `O(k)` - Same as dictionary approach, effectively `O(1)`
 - **Array Counter**: `O(1)` - Fixed size array (26 elements) regardless of input size
 
-### Trade-offs
+### Comparison of Solutions
+
+#### Trade-offs
 
 - The dictionary solution works with any character set but has slight hash table overhead
 - The Counter solution is most concise and leverages Python's built-in optimizations
 - The array solution has the best memory efficiency but is limited to lowercase letters only
 
-### When to Use Each
+#### When to Use Each
 
 - **Dictionary Counter**: When dealing with arbitrary character sets or in languages without specialized counter structures
 - **Python Counter**: When working in Python and prioritizing code readability and conciseness
 - **Array Counter**: When memory optimization is critical and character set is limited to lowercase letters
 
-### Optimization Notes
+#### Optimization Notes
 
 - Early length check (`len(ransomNote) > len(magazine)`) provides a quick fail path
 - For very large inputs with limited character set, the array-based approach may have better cache locality

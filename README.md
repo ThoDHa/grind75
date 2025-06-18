@@ -26,8 +26,8 @@ As you work through each problem, document your solutions, optimizations, and in
 | [x] [16](https://leetcode.com/problems/climbing-stairs/) | [Climbing Stairs](problems/climbing_stairs.md) | Easy | Dynamic Programming | 20 minutes |
 | [x] [17](https://leetcode.com/problems/longest-palindrome/) | [Longest Palindrome](problems/longest_palindrome.md) | Easy | String | 20 minutes |
 | [x] [18](https://leetcode.com/problems/reverse-linked-list/) | [Reverse Linked List](problems/reverse_linked_list.md) | Easy | Linked List | 20 minutes |
-| [ ] [19](https://leetcode.com/problems/majority-element/) | [Majority Element](problems/majority_element.md) | Easy | Array | 20 minutes |
-| [ ] [20](https://leetcode.com/problems/add-binary/) | [Add Binary](problems/add_binary.md) | Easy | String | 15 minutes |
+| [x] [19](https://leetcode.com/problems/majority-element/) | [Majority Element](problems/majority_element.md) | Easy | Array | 20 minutes |
+| [x] [20](https://leetcode.com/problems/add-binary/) | [Add Binary](problems/add_binary.md) | Easy | String | 15 minutes |
 | [ ] [21](https://leetcode.com/problems/diameter-of-binary-tree/) | [Diameter of Binary Tree](problems/diameter_of_binary_tree.md) | Easy | Tree | 30 minutes |
 | [ ] [22](https://leetcode.com/problems/middle-of-the-linked-list/) | [Middle of the Linked List](problems/middle_of_the_linked_list.md) | Easy | Linked List | 20 minutes |
 | [ ] [23](https://leetcode.com/problems/maximum-depth-of-binary-tree/) | [Maximum Depth of Binary Tree](problems/maximum_depth_of_binary_tree.md) | Easy | Tree | 15 minutes |
