@@ -43,7 +43,9 @@ You can return the answer in any order.
 
 Can you come up with an algorithm that is less than O(n²) time complexity?
 
-## Solutions 1: Brute-Force
+## Solutions
+
+### Solution 1: Brute-Force
 
 ```python
 def twoSum(self, nums: List[int], target: int) -> List[int]:
@@ -60,27 +62,27 @@ def twoSum(self, nums: List[int], target: int) -> List[int]:
                 return [x, y]
 ```
 
-### Approach
+#### Approach
 
-This brute force approach examines every possible pair of numbers in the array. For each element, it calculates the complement (target - current number) and checks all remaining elements to find this complement.
+This brute force approach examines every possible pair of numbers in the array. For each element, it calculates the complement (`target - current number`) and checks all remaining elements to find this complement.
 
-### Time and Space Complexity Analysis
+#### Time and Space Complexity Analysis
 
-#### Time Complexity: O(n²)
+##### Time Complexity: `O(n²)`
 
-The solution uses nested loops - for each of the n elements, we potentially check n-1 other elements, resulting in O(n²) time complexity.
+The solution uses nested loops - for each of the `n` elements, we potentially check `n-1` other elements, resulting in `O(n²)` time complexity.
 
-#### Space Complexity: O(1)
+##### Space Complexity: `O(1)`
 
 Only a constant amount of extra space is used regardless of input size.
 
-### Key Insights
+#### Key Insights
 
 - Simple and intuitive approach that works for all valid inputs
 - Inefficient for large arrays due to quadratic time complexity
 - No additional data structures required
 
-## Solution 2: Hash Map
+### Solution 2: Hash Map
 
 ```python
 def twoSum(self, nums: List[int], target: int) -> List[int]:
@@ -90,27 +92,27 @@ def twoSum(self, nums: List[int], target: int) -> List[int]:
         complement = target - nums[x]
         # Check if the complement exists in dictionary
         if complement in nums_dict:
-            return [x, nums_dict[complement]]
+            return [nums_dict[complement], x]
         # Store current number and its index
         nums_dict[nums[x]] = x
     return []
 ```
 
-### Approach
+#### Approach
 
-This solution uses a hash map to store previously encountered numbers and their indices. For each element, we check if its complement (target - current number) already exists in the hash map. If found, we've identified our pair. Otherwise, we add the current number and its index to the hash map.
+This solution uses a hash map to store previously encountered numbers and their indices. For each element, we check if its complement (`target - current number`) already exists in the hash map. If found, we've identified our pair. Otherwise, we add the current number and its index to the hash map.
 
-### Time and Space Complexity Analysis
+#### Time and Space Complexity Analysis
 
-#### Time Complexity: `O(n)`
+##### Time Complexity: `O(n)`
 
 We traverse the array only once, and hash map operations (lookups and insertions) are `O(1)` on average.
 
-#### Space Complexity: `O(n)`
+##### Space Complexity: `O(n)`
 
 In worst case, we might need to store nearly all elements in the hash map before finding a solution.
 
-### Key Insights
+#### Key Insights
 
 - Trades space for time efficiency by using a hash map
 - Single-pass algorithm with linear time complexity
@@ -126,7 +128,7 @@ In worst case, we might need to store nearly all elements in the hash map before
 ### Space Complexity
 
 - **Brute Force**: `O(1)` - Uses only a constant amount of extra space
-- **Hash Map**: O(n) - Requires additional storage proportional to input size
+- **Hash Map**: `O(n)` - Requires additional storage proportional to input size
 
 ### Trade-offs
 
@@ -143,3 +145,5 @@ In worst case, we might need to store nearly all elements in the hash map before
 - The hash map approach demonstrates the classic space-time tradeoff in algorithm design
 - By using a hash map to store previously seen values, we eliminate the need for the inner loop in the brute force approach
 - This is a common pattern in solving array problems: using additional data structures to achieve linear time complexity
+
+```
