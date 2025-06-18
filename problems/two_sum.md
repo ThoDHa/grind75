@@ -145,5 +145,3 @@ In worst case, we might need to store nearly all elements in the hash map before
 - The hash map approach demonstrates the classic space-time tradeoff in algorithm design
 - By using a hash map to store previously seen values, we eliminate the need for the inner loop in the brute force approach
 - This is a common pattern in solving array problems: using additional data structures to achieve linear time complexity
-
-```

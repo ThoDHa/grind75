@@ -40,6 +40,8 @@ Since an empty string reads the same forward and backward, it is a palindrome.
 - `1 <= s.length <= 2 * 10^5`
 - `s` consists only of printable ASCII characters.
 
+## Solutions
+
 ### Solution 1: Two-Pointer Approach
 
 ```python
@@ -77,7 +79,7 @@ class Solution:
         return True
 ```
 
-### Approach
+#### Approach
 
 This solution uses the two-pointer technique to check if a string is a palindrome after removing non-alphanumeric characters:
 
@@ -88,19 +90,24 @@ This solution uses the two-pointer technique to check if a string is a palindrom
 5. If any pair of characters doesn't match, the string is not a palindrome.
 6. If the pointers meet or cross without finding any mismatches, the string is a palindrome.
 
-### Time and Space Complexity
+#### Time and Space Complexity Analysis
 
-- **Time Complexity**: O(n) - We traverse the string at most once, where n is the length of the string.
-- **Space Complexity**: O(1) - We only use a constant amount of extra space for the pointers and condition variables.
+##### Time Complexity: O(n)
 
-### Key Insights
+We traverse the string at most once, where n is the length of the string.
+
+##### Space Complexity: O(1)
+
+We only use a constant amount of extra space for the pointers and condition variables.
+
+#### Key Insights
 
 - Two-pointer technique is ideal for palindrome problems as it allows us to compare elements from both ends efficiently.
 - Handling non-alphanumeric characters by simply skipping them avoids the need for a separate cleaning step.
 - Case-insensitive comparison is performed on-the-fly without modifying the original string.
 - The approach is more space-efficient than creating a new cleaned string and then checking if it's a palindrome.
 
-## Solution 2: Filter and Reverse
+### Solution 2: Filter and Reverse
 
 ```python
 class Solution:
@@ -109,7 +116,7 @@ class Solution:
         return s == s[::-1]
 ```
 
-### Approach
+#### Approach
 
 This solution takes a more concise, Pythonic approach using built-in functions:
 
@@ -117,12 +124,17 @@ This solution takes a more concise, Pythonic approach using built-in functions:
 2. Then it converts all remaining characters to lowercase using `.lower()`
 3. Finally, it checks if the cleaned string equals its reverse using string slicing `s[::-1]`
 
-### Time and Space Complexity
+#### Time and Space Complexity Analysis
 
-- **Time Complexity**: O(n) - Filtering the string and reversing both require iterating through each character once.
-- **Space Complexity**: O(n) - This approach creates new strings that scale with the input size.
+##### Time Complexity: O(n)
 
-### Key Insights
+Filtering the string and reversing both require iterating through each character once.
+
+##### Space Complexity: O(n)
+
+This approach creates new strings that scale with the input size.
+
+#### Key Insights
 
 - This approach is more concise and leverages Python's built-in functions for string manipulation.
 - While less space-efficient, it offers excellent readability and simplicity.

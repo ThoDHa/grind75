@@ -227,48 +227,39 @@ The space needed for the result string, which is at most max(n, m) + 1 bits.
 - Works efficiently for strings of different lengths
 - Avoids unnecessary string padding or multiple loops
 
-## Solution Comparisons
+## Comparison of Solutions
 
-### Time and Space Complexity Comparison
+### Time Complexity
 
-| Solution | Time Complexity | Space Complexity |
-|----------|----------------|------------------|
-| Solution 1: Three-Phase Iterative | O(max(n, m)) | O(max(n, m)) |
-| Solution 2: Bit-by-bit Computation | O(max(n, m)) | O(max(n, m)) |
-| Solution 3: Built-in Functions | O(n + m) | O(max(n, m)) |
-| Solution 4: Single-Loop Iterative | O(max(n, m)) | O(max(n, m)) |
+- **Solution 1 (Three-Phase)**: `O(max(n, m))` - Processes each bit position once across three phases
+- **Solution 2 (Bit-by-bit)**: `O(max(n, m))` - Single loop over padded strings
+- **Solution 3 (Built-in Functions)**: `O(n + m)` - Linear time for conversion operations
+- **Solution 4 (Single-Loop)**: `O(max(n, m))` - One-pass approach with index tracking
 
-### Solution Trade-offs
+### Space Complexity
 
-#### Solution 1: Three-Phase Iterative
+- **Solution 1 (Three-Phase)**: `O(max(n, m))` - Result string size
+- **Solution 2 (Bit-by-bit)**: `O(max(n, m))` - Padded strings and result
+- **Solution 3 (Built-in Functions)**: `O(max(n, m))` for output, `O(1)` for computation
+- **Solution 4 (Single-Loop)**: `O(max(n, m))` - Result string only
 
-- **Pros**: Explicitly handles all cases, follows a logical three-phase approach
-- **Cons**: Contains repetitive code across the three phases, uses string slicing which can be inefficient, more verbose than other solutions
+### Trade-offs
 
-#### Solution 2: Bit-by-bit Computation
+- Solution 1 has explicit logic but requires three separate loops
+- Solution 2 is more elegant with padding but still requires a separate step
+- Solution 3 is extremely concise but may not work in languages without arbitrary precision integers
+- Solution 4 offers the best balance of readability and efficiency with a single loop
 
-- **Pros**: Clean implementation, uses mathematical approach for bit manipulation
-- **Cons**: Requires padding input strings which creates additional memory overhead
+### When to Use Each
 
-#### Solution 3: Built-in Functions
+- **Solution 1**: When clarity and explicit handling of each case is preferred
+- **Solution 2**: When a more structured approach with consistent string lengths is desired
+- **Solution 3**: When code brevity is paramount and language supports large integers
+- **Solution 4**: For most practical applications - best balance of efficiency and readability
 
-- **Pros**: Extremely concise and readable, leverages language features effectively
-- **Cons**: Obscures the binary addition algorithm, may not work for extremely large inputs in languages with fixed-size integers
+### Optimization Notes
 
-#### Solution 4: Single-Loop Iterative
-
-- **Pros**: Efficient single loop implementation, no string padding needed, clean index-based approach
-- **Cons**: Slightly more complex pointer management than padding-based solutions
-
-### When to Use Each Solution
-
-- **Use Solution 1** when you need explicit handling of each bit combination and prefer a step-by-step approach.
-- **Use Solution 2** when you want a clean mathematical approach and input size isn't a concern.
-- **Use Solution 3** when working in Python and want the most concise, readable code.
-- **Use Solution 4** when you need an efficient solution that works well for strings of different lengths.
-
-### Overall Recommendation
-
-Solution 4 (Single-Loop Iterative) offers the best balance of efficiency and readability. It avoids the repetition in Solution 1, the padding overhead in Solution 2, and the potential limitations of Solution 3.
-
-For interviews, Solution 4 demonstrates good understanding of the problem while being concise. Solution 3 might be preferred if you want to show knowledge of built-in functions, but be prepared to explain a manual approach as well.
+- All solutions have the same time complexity for this problem, but with different constants
+- Solution 4 avoids unnecessary string operations present in Solutions 1 and 2
+- Solution 3 leverages built-in functionality but may have hidden overhead
+- The single-loop approach (Solution 4) demonstrates how to handle asymmetric inputs efficiently without padding

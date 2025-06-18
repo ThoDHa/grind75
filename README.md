@@ -32,7 +32,7 @@ As you work through each problem, document your solutions, optimizations, and in
 | [x] [22](https://leetcode.com/problems/middle-of-the-linked-list/) | [Middle of the Linked List](problems/middle_of_the_linked_list.md) | Easy | Linked List | 20 minutes |
 | [x] [23](https://leetcode.com/problems/maximum-depth-of-binary-tree/) | [Maximum Depth of Binary Tree](problems/maximum_depth_of_binary_tree.md) | Easy | Tree | 15 minutes |
 | [x] [24](https://leetcode.com/problems/contains-duplicate/) | [Contains Duplicate](problems/contains_duplicate.md) | Easy | Array | 15 minutes |
-| [x] [25](https://leetcode.com/problems/maximum-subarray/) | [Maximum Subarray](problems/maximum_subarray.md) | Easy | Array, Dynamic Programming | 20 minutes |
+| [x] [25](https://leetcode.com/problems/maximum-subarray/) | [Maximum Subarray](problems/maximum_subarray.md) | Medium| Array, Dynamic Programming | 20 minutes |
 | [ ] [26](https://leetcode.com/problems/insert-interval/) | [Insert Interval](problems/insert_interval.md) | Medium | Array | 25 minutes |
 | [ ] [27](https://leetcode.com/problems/01-matrix/) | [01 Matrix](problems/01_matrix.md) | Medium | BFS | 30 minutes |
 | [ ] [28](https://leetcode.com/problems/k-closest-points-to-origin/) | [K Closest Points to Origin](k_closest_points_to_origin.md) | Medium | Heap | 30 minutes |
