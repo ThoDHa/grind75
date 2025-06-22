@@ -81,7 +81,8 @@ This repository is designed to be a comprehensive personal reference where you c
 | 󰄰 | [73](https://leetcode.com/problems/maximum-profit-in-job-scheduling/) | [Maximum Profit in Job Scheduling](problems/maximum_profit_in_job_scheduling.md) | Hard | Binary Search | 45 minutes |
 | 󰄰 | [74](https://leetcode.com/problems/merge-k-sorted-lists/) | [Merge k Sorted Lists](problems/merge_k_sorted_lists.md) | Hard | Linked List | 30 minutes |
 | 󰄰 | [75](https://leetcode.com/problems/largest-rectangle-in-histogram/) | [Largest Rectangle in Histogram](problems/largest_rectangle_in_histogram.md) | Hard | Stack | 35 minutes |
-`This 8-week schedule organizes the problems in increasing order of difficulty, with related problem types grouped together. Each week has a manageable number of problems, and earlier weeks focus on foundational concepts while later weeks tackle more advanced topics.
+
+This 8-week schedule organizes the problems in increasing order of difficulty, with related problem types grouped together. Each week has a manageable number of problems, and earlier weeks focus on foundational concepts while later weeks tackle more advanced topics.
 
 ## Creating a PDF with Pandoc
 

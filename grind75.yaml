@@ -23,6 +23,7 @@ input-files:
   - problems/middle_of_the_linked_list.md
   - problems/maximum_depth_of_binary_tree.md
   - problems/contains_duplicate.md
+  - problems/maximum_subarray.md
   - problems/insert_interval.md
   - problems/01_matrix.md
   - problems/k_closest_points_to_origin.md
@@ -73,8 +74,6 @@ input-files:
   - problems/maximum_profit_in_job_scheduling.md
   - problems/merge_k_sorted_lists.md
   - problems/largest_rectangle_in_histogram.md
-  - problems/binary_tree_maximum_path_sum.md
-  - problems/maximum_frequency_stack.md
 output-file: grind75.pdf
 pdf-engine: xelatex
 variables:
