@@ -41,9 +41,7 @@ The **height** of a rooted tree is the number of edges on the longest downward p
 - All the pairs `(ai, bi)` are distinct.
 - The given input is **guaranteed** to be a tree and there will be **no repeated** edges.
 
-## Solutions
-
-### Python
+## Solution
 
 ```python
 def findMinHeightTrees(n, edges):
@@ -53,38 +51,4 @@ def findMinHeightTrees(n, edges):
     :rtype: List[int]
     """
     pass
-```
-
-### JavaScript
-
-```javascript
-/**
- * @param {number} n
- * @param {number[][]} edges
- * @return {number[]}
- */
-var findMinHeightTrees = function(n, edges) {
-    
-};
-```
-
-### Java
-
-```java
-class Solution {
-    public List<Integer> findMinHeightTrees(int n, int[][] edges) {
-        
-    }
-}
-```
-
-### C++
-
-```cpp
-class Solution {
-public:
-    vector<int> findMinHeightTrees(int n, vector<vector<int>>& edges) {
-        
-    }
-};
 ```

@@ -27,8 +27,6 @@ Given an `m x n` matrix, return all elements of the `matrix` in spiral order.
 
 ## Solution
 
-### Python
-
 ```python
 def spiralOrder(matrix):
     """
@@ -36,37 +34,4 @@ def spiralOrder(matrix):
     :rtype: List[int]
     """
     pass
-```
-
-### JavaScript
-
-```javascript
-/**
- * @param {number[][]} matrix
- * @return {number[]}
- */
-var spiralOrder = function(matrix) {
-    
-};
-```
-
-### Java
-
-```java
-class Solution {
-    public List<Integer> spiralOrder(int[][] matrix) {
-        
-    }
-}
-```
-
-### C++
-
-```cpp
-class Solution {
-public:
-    vector<int> spiralOrder(vector<vector<int>>& matrix) {
-        
-    }
-};
 ```

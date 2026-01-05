@@ -34,8 +34,6 @@ Could you come up with a one-pass algorithm using only constant extra space?
 
 ## Solution
 
-### Python
-
 ```python
 def sortColors(nums):
     """
@@ -43,37 +41,4 @@ def sortColors(nums):
     :rtype: None Do not return anything, modify nums in-place instead.
     """
     pass
-```
-
-### JavaScript
-
-```javascript
-/**
- * @param {number[]} nums
- * @return {void} Do not return anything, modify nums in-place instead.
- */
-var sortColors = function(nums) {
-    
-};
-```
-
-### Java
-
-```java
-class Solution {
-    public void sortColors(int[] nums) {
-        
-    }
-}
-```
-
-### C++
-
-```cpp
-class Solution {
-public:
-    void sortColors(vector<int>& nums) {
-        
-    }
-};
 ```

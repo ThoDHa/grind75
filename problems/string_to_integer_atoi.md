@@ -80,8 +80,6 @@ Since 4193 is in the range `[-2^31, 2^31 - 1]`, the final result is 4193.
 
 ## Solution
 
-### Python
-
 ```python
 def myAtoi(s):
     """
@@ -89,37 +87,4 @@ def myAtoi(s):
     :rtype: int
     """
     pass
-```
-
-### JavaScript
-
-```javascript
-/**
- * @param {string} s
- * @return {number}
- */
-var myAtoi = function(s) {
-    
-};
-```
-
-### Java
-
-```java
-class Solution {
-    public int myAtoi(String s) {
-        
-    }
-}
-```
-
-### C++
-
-```cpp
-class Solution {
-public:
-    int myAtoi(string s) {
-        
-    }
-};
 ```

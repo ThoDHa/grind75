@@ -45,29 +45,3 @@ class Solution(object):
         pass
 ```
 
-```java
-class Solution {
-    public List<String> letterCombinations(String digits) {
-        
-    }
-}
-```
-
-```javascript
-/**
- * @param {string} digits
- * @return {string[]}
- */
-var letterCombinations = function(digits) {
-    
-};
-```
-
-```cpp
-class Solution {
-public:
-    vector<string> letterCombinations(string digits) {
-        
-    }
-};
-```

@@ -29,8 +29,6 @@ Design an algorithm to serialize and deserialize a binary tree. There is no rest
 
 ## Solution
 
-### Python
-
 ```python
 # Definition for a binary tree node.
 # class TreeNode(object):
@@ -63,103 +61,4 @@ class Codec:
 # ser = Codec()
 # deser = Codec()
 # ans = deser.deserialize(ser.serialize(root))
-```
-
-### JavaScript
-
-```javascript
-/**
- * Definition for a binary tree node.
- * function TreeNode(val) {
- *     this.val = val;
- *     this.left = this.right = null;
- * }
- */
-
-/**
- * Encodes a tree to a single string.
- *
- * @param {TreeNode} root
- * @return {string}
- */
-var serialize = function(root) {
-    
-};
-
-/**
- * Decodes your encoded data to tree.
- *
- * @param {string} data
- * @return {TreeNode}
- */
-var deserialize = function(data) {
-    
-};
-
-/**
- * Your functions will be called as such:
- * deserialize(serialize(root));
- */
-```
-
-### Java
-
-```java
-/**
- * Definition for a binary tree node.
- * public class TreeNode {
- *     int val;
- *     TreeNode left;
- *     TreeNode right;
- *     TreeNode(int x) { val = x; }
- * }
- */
-public class Codec {
-
-    // Encodes a tree to a single string.
-    public String serialize(TreeNode root) {
-        
-    }
-
-    // Decodes your encoded data to tree.
-    public TreeNode deserialize(String data) {
-        
-    }
-}
-
-// Your Codec object will be instantiated and called as such:
-// Codec ser = new Codec();
-// Codec deser = new Codec();
-// TreeNode ans = deser.deserialize(ser.serialize(root));
-```
-
-### C++
-
-```cpp
-/**
- * Definition for a binary tree node.
- * struct TreeNode {
- *     int val;
- *     TreeNode *left;
- *     TreeNode *right;
- *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
- * };
- */
-class Codec {
-public:
-
-    // Encodes a tree to a single string.
-    string serialize(TreeNode* root) {
-        
-    }
-
-    // Decodes your encoded data to tree.
-    TreeNode* deserialize(string data) {
-        
-    }
-};
-
-// Your Codec object will be instantiated and called as such:
-// Codec ser, deser;
-// TreeNode* ans = deser.deserialize(ser.serialize(root));
 ```

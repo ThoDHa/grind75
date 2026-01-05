@@ -28,9 +28,7 @@ Given an array of intervals where intervals[i] = [starti, endi], merge all overl
 - `intervals[i].length == 2`
 - `0 <= starti <= endi <= 10^4`
 
-## Solutions
-
-### Python
+## Solution
 
 ```python
 def merge(intervals):
@@ -39,37 +37,4 @@ def merge(intervals):
     :rtype: List[List[int]]
     """
     pass
-```
-
-### JavaScript
-
-```javascript
-/**
- * @param {number[][]} intervals
- * @return {number[][]}
- */
-var merge = function(intervals) {
-    
-};
-```
-
-### Java
-
-```java
-class Solution {
-    public int[][] merge(int[][] intervals) {
-        
-    }
-}
-```
-
-### C++
-
-```cpp
-class Solution {
-public:
-    vector<vector<int>> merge(vector<vector<int>>& intervals) {
-        
-    }
-};
 ```

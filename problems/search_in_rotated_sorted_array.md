@@ -40,8 +40,6 @@ You must write an algorithm with `O(log n)` runtime complexity.
 
 ## Solution
 
-### Python
-
 ```python
 def search(nums, target):
     """
@@ -50,38 +48,4 @@ def search(nums, target):
     :rtype: int
     """
     pass
-```
-
-### JavaScript
-
-```javascript
-/**
- * @param {number[]} nums
- * @param {number} target
- * @return {number}
- */
-var search = function(nums, target) {
-    
-};
-```
-
-### Java
-
-```java
-class Solution {
-    public int search(int[] nums, int target) {
-        
-    }
-}
-```
-
-### C++
-
-```cpp
-class Solution {
-public:
-    int search(vector<int>& nums, int target) {
-        
-    }
-};
 ```

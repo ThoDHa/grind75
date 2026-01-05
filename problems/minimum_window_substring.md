@@ -44,9 +44,7 @@ Since the largest window of s only has one 'a', return empty string.
 
 Could you find an algorithm that runs in `O(m + n)` time?
 
-## Solutions
-
-### Python
+## Solution
 
 ```python
 def minWindow(s, t):
@@ -56,38 +54,4 @@ def minWindow(s, t):
     :rtype: str
     """
     pass
-```
-
-### JavaScript
-
-```javascript
-/**
- * @param {string} s
- * @param {string} t
- * @return {string}
- */
-var minWindow = function(s, t) {
-    
-};
-```
-
-### Java
-
-```java
-class Solution {
-    public String minWindow(String s, String t) {
-        
-    }
-}
-```
-
-### C++
-
-```cpp
-class Solution {
-public:
-    string minWindow(string s, string t) {
-        
-    }
-};
 ```

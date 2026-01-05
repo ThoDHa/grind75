@@ -42,29 +42,3 @@ class Solution(object):
         pass
 ```
 
-```java
-class Solution {
-    public int largestRectangleArea(int[] heights) {
-        
-    }
-}
-```
-
-```javascript
-/**
- * @param {number[]} heights
- * @return {number}
- */
-var largestRectangleArea = function(heights) {
-    
-};
-```
-
-```cpp
-class Solution {
-public:
-    int largestRectangleArea(vector<int>& heights) {
-        
-    }
-};
-```

@@ -45,30 +45,3 @@ def maxProfit(prices):
     """
     pass
 ```
-
-```java
-class Solution {
-    public int maxProfit(int[] prices) {
-        
-    }
-}
-```
-
-```javascript
-/**
- * @param {number[]} prices
- * @return {number}
- */
-var maxProfit = function(prices) {
-    
-};
-```
-
-```cpp
-class Solution {
-public:
-    int maxProfit(vector<int>& prices) {
-        
-    }
-};
-```
