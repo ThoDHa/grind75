@@ -36,3 +36,39 @@ Note that buying on day 2 and selling on day 1 is not allowed because you must b
 - `0 <= prices[i] <= 10^4`
 
 ## Solution
+
+```python
+def maxProfit(prices):
+    """
+    :type prices: List[int]
+    :rtype: int
+    """
+    pass
+```
+
+```java
+class Solution {
+    public int maxProfit(int[] prices) {
+        
+    }
+}
+```
+
+```javascript
+/**
+ * @param {number[]} prices
+ * @return {number}
+ */
+var maxProfit = function(prices) {
+    
+};
+```
+
+```cpp
+class Solution {
+public:
+    int maxProfit(vector<int>& prices) {
+        
+    }
+};
+```

@@ -53,4 +53,11 @@ Evaluate the expression. Return an integer that represents the value of the expr
 - `1 <= tokens.length <= 10^4`
 - `tokens[i]` is either an operator: `"+"`, `"-"`, `"*"`, or `"/"`, or an integer in the range `[-200, 200]`.
 
-## Solutions
+## Solution
+
+```python
+class Solution:
+    def evalRPN(self, tokens: List[str]) -> int:
+        # TODO: Implement solution
+        pass
+```

@@ -1,0 +1,177 @@
+# [Implement Trie (Prefix Tree)](https://leetcode.com/problems/implement-trie-prefix-tree/)
+
+**Medium** | **30 minutes** | **Hash Table, String, Design, Trie**
+
+A trie (pronounced as "try") or prefix tree is a tree data structure used to efficiently store and retrieve keys in a dataset of strings. There are various applications of this data structure, such as autocomplete and spellchecker.
+
+Implement the Trie class:
+
+- `Trie()` Initializes the trie object.
+- `void insert(String word)` Inserts the string `word` into the trie.
+- `boolean search(String word)` Returns `true` if the string `word` is in the trie (i.e., was inserted before), and `false` otherwise.
+- `boolean startsWith(String prefix)` Returns `true` if there is a previously inserted string `word` that has the prefix `prefix`, and `false` otherwise.
+
+## Examples
+
+### Example 1
+
+**Input:**
+```
+["Trie", "insert", "search", "search", "startsWith", "insert", "search"]
+[[], ["apple"], ["apple"], ["app"], ["app"], ["app"], ["app"]]
+```
+
+**Output:**
+```
+[null, null, true, false, true, null, true]
+```
+
+**Explanation:**
+```
+Trie trie = new Trie();
+trie.insert("apple");
+trie.search("apple");   // return True
+trie.search("app");     // return False
+trie.startsWith("app"); // return True
+trie.insert("app");
+trie.search("app");     // return True
+```
+
+## Constraints
+
+- `1 <= word.length, prefix.length <= 2000`
+- `word` and `prefix` consist only of lowercase English letters.
+- At most `3 * 10^4` calls in total will be made to `insert`, `search`, and `startsWith`.
+
+## Solution
+
+```python
+class Trie:
+
+    def __init__(self):
+        
+
+    def insert(self, word):
+        """
+        :type word: str
+        :rtype: None
+        """
+        
+
+    def search(self, word):
+        """
+        :type word: str
+        :rtype: bool
+        """
+        
+
+    def startsWith(self, prefix):
+        """
+        :type prefix: str
+        :rtype: bool
+        """
+        
+
+
+# Your Trie object will be instantiated and used as follows:
+# obj = Trie()
+# obj.insert(word)
+# param_2 = obj.search(word)
+# param_3 = obj.startsWith(prefix)
+```
+
+```java
+class Trie {
+
+    public Trie() {
+        
+    }
+    
+    public void insert(String word) {
+        
+    }
+    
+    public boolean search(String word) {
+        
+    }
+    
+    public boolean startsWith(String prefix) {
+        
+    }
+}
+
+/**
+ * Your Trie object will be instantiated and used as follows:
+ * Trie obj = new Trie();
+ * obj.insert(word);
+ * boolean param_2 = obj.search(word);
+ * boolean param_3 = obj.startsWith(prefix);
+ */
+```
+
+```javascript
+var Trie = function() {
+    
+};
+
+/** 
+ * @param {string} word
+ * @return {void}
+ */
+Trie.prototype.insert = function(word) {
+    
+};
+
+/** 
+ * @param {string} word
+ * @return {boolean}
+ */
+Trie.prototype.search = function(word) {
+    
+};
+
+/** 
+ * @param {string} prefix
+ * @return {boolean}
+ */
+Trie.prototype.startsWith = function(prefix) {
+    
+};
+
+/** 
+ * Your Trie object will be instantiated and used as follows:
+ * var obj = new Trie()
+ * obj.insert(word)
+ * var param_2 = obj.search(word)
+ * var param_3 = obj.startsWith(prefix)
+ */
+```
+
+```cpp
+class Trie {
+public:
+    Trie() {
+        
+    }
+    
+    void insert(string word) {
+        
+    }
+    
+    bool search(string word) {
+        
+    }
+    
+    bool startsWith(string prefix) {
+        
+    }
+};
+
+/**
+ * Your Trie object will be instantiated and used as follows:
+ * Trie* obj = new Trie();
+ * obj->insert(word);
+ * bool param_2 = obj->search(word);
+ * bool param_3 = obj->startsWith(prefix);
+ */
+```
