@@ -1,6 +1,6 @@
 # [Linked List Cycle](https://leetcode.com/problems/linked-list-cycle/)
 
-Easy - 20 minutes - Linked List, Two Pointers
+**Easy** | **20 minutes** | **Linked List, Two Pointers**
 
 Given `head`, the head of a linked list, determine if the linked list has a cycle in it.
 

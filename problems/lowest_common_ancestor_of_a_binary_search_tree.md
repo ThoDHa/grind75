@@ -1,6 +1,6 @@
 # [Lowest Common Ancestor of a Binary Search Tree](https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree/)
 
-Easy - 20 minutes - Binary Search Tree, Tree, Recursion
+**Easy** | **20 minutes** | **Binary Search Tree, Tree, Recursion**
 
 Given a binary search tree (BST), find the lowest common ancestor (LCA) node of two given nodes in the BST.
 

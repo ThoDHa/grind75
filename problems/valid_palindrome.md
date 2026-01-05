@@ -1,6 +1,6 @@
 # [Valid Palindrome](https://leetcode.com/problems/valid-palindrome)
 
-Easy - 15 minutes - String
+**Easy** | **15 minutes** | **String**
 
 A phrase is a palindrome if, after converting all uppercase letters into lowercase letters and
 removing all non-alphanumeric characters, it reads the same forward and backward.

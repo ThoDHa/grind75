@@ -1,6 +1,6 @@
 # [Longest Substring Without Repeating Characters](https://leetcode.com/problems/longest-substring-without-repeating-characters/)
 
-Medium - 25 minutes - Hash Table, String, Sliding Window
+**Medium** | **25 minutes** | **Hash Table, String, Sliding Window**
 
 Given a string `s`, find the length of the longest substring without repeating characters.
 

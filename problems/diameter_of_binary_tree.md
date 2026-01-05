@@ -1,6 +1,6 @@
 # [Diameter of Binary Tree](https://leetcode.com/problems/diameter-of-binary-tree/)
 
-Easy - 20 minutes - Tree, Depth-First Search, Binary Tree
+**Easy** | **20 minutes** | **Tree, Depth-First Search, Binary Tree**
 
 Given the `root` of a binary tree, return the length of the **diameter** of the tree.
 

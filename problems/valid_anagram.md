@@ -1,6 +1,6 @@
 # [Valid Anagram](https://leetcode.com/problems/valid-anagram/)
 
-Easy - 15 Minutes - String
+**Easy** | **15 minutes** | **String**
 
 Given two strings `s` and `t`, return `true` if `t` is an anagram of `s`, and `false` otherwise.
 

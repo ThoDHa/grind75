@@ -1,6 +1,6 @@
 # [Maximum Depth of Binary Tree](https://leetcode.com/problems/maximum-depth-of-binary-tree/)
 
-Easy - 15 minutes - Tree, Depth-First Search, Breadth-First Search, Binary Tree
+**Easy** | **15 minutes** | **Tree, Depth-First Search, Breadth-First Search, Binary Tree**
 
 Given the `root` of a binary tree, return its maximum depth.
 

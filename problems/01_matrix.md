@@ -1,6 +1,6 @@
 # [01 Matrix](https://leetcode.com/problems/01-matrix/)
 
-Medium - 25 minutes - Array, Dynamic Programming, BFS, Matrix
+**Medium** | **25 minutes** | **Array, Dynamic Programming, BFS, Matrix**
 
 Given an `m x n` binary matrix `mat`, return the distance of the nearest `0` for each cell.
 

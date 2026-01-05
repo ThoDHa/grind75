@@ -1,6 +1,6 @@
 # [Add Binary](https://leetcode.com/problems/add-binary/)
 
-Easy - 15 minutes - Math, String, Bit Manipulation
+**Easy** | **15 minutes** | **Math, String, Bit Manipulation**
 
 Given two binary strings `a` and `b`, return their sum as a binary string.
 

@@ -1,6 +1,6 @@
 # [Majority Element](https://leetcode.com/problems/majority-element/)
 
-Easy - 15 minutes - Array, Hash Table, Divide and Conquer
+**Easy** | **15 minutes** | **Array, Hash Table, Divide and Conquer**
 
 Given an array `nums` of size `n`, return the majority element.
 

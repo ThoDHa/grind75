@@ -1,6 +1,6 @@
 # [3Sum](https://leetcode.com/problems/3sum/)
 
-Medium - 25 minutes - Array, Two Pointers, Sorting
+**Medium** | **25 minutes** | **Array, Two Pointers, Sorting**
 
 Given an integer array nums, return all the triplets `[nums[i], nums[j], nums[k]]` such that `i != j`, `i != k`, and `j != k`, and `nums[i] + nums[j] + nums[k] == 0`.
 

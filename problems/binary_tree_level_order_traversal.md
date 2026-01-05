@@ -1,6 +1,6 @@
 # [Binary Tree Level Order Traversal](https://leetcode.com/problems/binary-tree-level-order-traversal/)
 
-Medium - 20 minutes - Tree, BFS, Binary Tree
+**Medium** | **20 minutes** | **Tree, BFS, Binary Tree**
 
 Given the `root` of a binary tree, return the level order traversal of its nodes' values. (i.e., from left to right, level by level).
 

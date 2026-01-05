@@ -1,6 +1,6 @@
 # [Balanced Binary Tree](https://leetcode.com/problems/balanced-binary-tree/)
 
-Easy - 20 minutes - Tree, DFS, Binary Tree
+**Easy** | **20 minutes** | **Tree, DFS, Binary Tree**
 
 Given a binary tree, determine if it is height-balanced.
 

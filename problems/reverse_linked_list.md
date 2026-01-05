@@ -1,6 +1,6 @@
 # [Reverse Linked List](https://leetcode.com/problems/reverse-linked-list/)
 
-Easy - 15 minutes - Linked List, Recursion
+**Easy** | **15 minutes** | **Linked List, Recursion**
 
 Given the `head` of a singly linked list, reverse the list, and return the reversed list.
 

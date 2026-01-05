@@ -1,6 +1,6 @@
 # [Ransom Note](https://leetcode.com/problems/ransom-note/)
 
-Easy - 15 minutes - Hash Table, String, Counting
+**Easy** | **15 minutes** | **Hash Table, String, Counting**
 
 Given two strings `ransomNote` and `magazine`, return `true` if `ransomNote` can be constructed from `magazine` and `false` otherwise.
 

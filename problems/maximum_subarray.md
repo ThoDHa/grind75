@@ -1,6 +1,6 @@
 # [Maximum Subarray](https://leetcode.com/problems/maximum-subarray/)
 
-Easy - 20 minutes - Array, Dynamic Programming, Divide and Conquer
+**Easy** | **20 minutes** | **Array, Dynamic Programming, Divide and Conquer**
 
 Given an integer array `nums`, find the contiguous subarray (containing at least one number) which has the largest sum and return *its sum*.
 

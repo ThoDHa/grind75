@@ -1,6 +1,6 @@
 # [Evaluate Reverse Polish Notation](https://leetcode.com/problems/evaluate-reverse-polish-notation/)
 
-Medium - 25 minutes - Stack, Array, Math
+**Medium** | **25 minutes** | **Stack, Array, Math**
 
 You are given an array of strings `tokens` that represents an arithmetic expression in Reverse Polish Notation (RPN).
 

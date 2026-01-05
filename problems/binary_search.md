@@ -1,6 +1,6 @@
 # [Binary Search](https://leetcode.com/problems/binary-search/)
 
-Easy - 15 minutes - Binary Search
+**Easy** | **15 minutes** | **Binary Search**
 
 Given an array of integers `nums` which is sorted in ascending order, and an
 integer `target`, write a function to search `target` in `nums`. If `target`

@@ -1,6 +1,6 @@
 # [Climbing Stairs](https://leetcode.com/problems/climbing-stairs/)
 
-Easy - 15 minutes - Dynamic Programming
+**Easy** | **15 minutes** | **Dynamic Programming**
 
 You are climbing a staircase. It takes `n` steps to reach the top.
 

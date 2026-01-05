@@ -1,8 +1,10 @@
 # LeetCode Grind75 Study Guide
 
-This repository is a structured study guide for algorithmic problem-solving based on the popular [Grind75](https://www.techinterviewhandbook.org/grind75) list of LeetCode questions developed by the team at [Tech Interview Handbook](https://www.techinterviewhandbook.org/). All credit for the curated problem list goes to them for their excellent work in creating this focused interview preparation resource.
+This repository is a structured study guide for algorithmic problem solving based on the popular [Grind75](https://www.techinterviewhandbook.org/grind75) list of LeetCode questions developed by the team at [Tech Interview Handbook](https://www.techinterviewhandbook.org/). All credit for the curated problem list goes to them for their excellent work in creating this focused interview preparation resource.
 
-This repository is designed to be a comprehensive personal reference where you can:
+## Problem List
+
+The following table tracks your progress through all 75 problems:
 
 | Status | # | Problem | Difficulty | Category | Time |
 |--------|---|---------|------------|----------|------|
@@ -33,7 +35,7 @@ This repository is designed to be a comprehensive personal reference where you c
 | 󰄰 | [25](https://leetcode.com/problems/maximum-subarray/) | [Maximum Subarray](problems/maximum_subarray.md) | Medium| Array, Dynamic Programming | 20 minutes |
 | 󰄰 | [26](https://leetcode.com/problems/insert-interval/) | [Insert Interval](problems/insert_interval.md) | Medium | Array | 25 minutes |
 | 󰄰 | [27](https://leetcode.com/problems/01-matrix/) | [01 Matrix](problems/01_matrix.md) | Medium | BFS | 30 minutes |
-| 󰄰 | [28](https://leetcode.com/problems/k-closest-points-to-origin/) | [K Closest Points to Origin](k_closest_points_to_origin.md) | Medium | Heap | 30 minutes |
+| 󰄰 | [28](https://leetcode.com/problems/k-closest-points-to-origin/) | [K Closest Points to Origin](problems/k_closest_points_to_origin.md) | Medium | Heap | 30 minutes |
 | 󰄰 | [29](https://leetcode.com/problems/longest-substring-without-repeating-characters/) | [Longest Substring Without Repeating Characters](problems/longest_substring_without_repeating_characters.md) | Medium | String | 30 minutes |
 | 󰄰 | [30](https://leetcode.com/problems/3sum/) | [3Sum](problems/3sum.md) | Medium | Array | 30 minutes |
 | 󰄰 | [31](https://leetcode.com/problems/binary-tree-level-order-traversal/) | [Binary Tree Level Order Traversal](problems/binary_tree_level_order_traversal.md) | Medium | Tree | 20 minutes |
@@ -61,7 +63,7 @@ This repository is designed to be a comprehensive personal reference where you c
 | 󰄰 | [53](https://leetcode.com/problems/spiral-matrix/) | [Spiral Matrix](problems/spiral_matrix.md) | Medium | Array | 25 minutes |
 | 󰄰 | [54](https://leetcode.com/problems/subsets/) | [Subsets](problems/subsets.md) | Medium | Backtracking | 30 minutes |
 | 󰄰 | [55](https://leetcode.com/problems/binary-tree-right-side-view/) | [Binary Tree Right Side View](problems/binary_tree_right_side_view.md) | Medium | Tree | 20 minutes |
-| 󰄰 | [56](https://leetcode.com/problems/longest-palindromic-substring/) | [Longest Palindromic Substring](longest_palindromic_substring.md) | Medium | String | 25 minutes |
+| 󰄰 | [56](https://leetcode.com/problems/longest-palindromic-substring/) | [Longest Palindromic Substring](problems/longest_palindromic_substring.md) | Medium | String | 25 minutes |
 | 󰄰 | [57](https://leetcode.com/problems/unique-paths/) | [Unique Paths](problems/unique_paths.md) | Medium | Dynamic Programming | 20 minutes |
 | 󰄰 | [58](https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/) | [Construct Binary Tree from Preorder and Inorder Traversal](problems/construct_binary_tree_from_preorder_and_inorder_traversal.md) | Medium | Tree | 25 minutes |
 | 󰄰 | [59](https://leetcode.com/problems/container-with-most-water/) | [Container With Most Water](problems/container_with_most_water.md) | Medium | Array | 35 minutes |

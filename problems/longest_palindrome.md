@@ -1,6 +1,6 @@
 # [Longest Palindrome](https://leetcode.com/problems/longest-palindrome/)
 
-Easy - 15 minutes - String, Hash Table, Greedy
+**Easy** | **15 minutes** | **String, Hash Table, Greedy**
 
 Given a string `s` which consists of lowercase or uppercase letters, return the length of the longest palindrome that can be built with those letters.
 

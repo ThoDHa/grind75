@@ -1,6 +1,6 @@
 # [Contains Duplicate](https://leetcode.com/problems/contains-duplicate/)
 
-Easy - 10 minutes - Array, Hash Table, Sorting
+**Easy** | **10 minutes** | **Array, Hash Table, Sorting**
 
 Given an integer array `nums`, return `true` if any value appears **at least twice** in the array, and return `false` if every element is distinct.
 

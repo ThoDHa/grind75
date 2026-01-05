@@ -1,3 +1,15 @@
+# Grind75 LeetCode Study Guide PDF Configuration
+# 
+# This Pandoc configuration file compiles all 75 algorithm problems
+# from the Grind75 study guide into a single comprehensive PDF document.
+# 
+# Usage: pandoc --defaults grind75.yaml
+#
+# Prerequisites:
+# - Pandoc (universal document converter)
+# - XeLaTeX distribution for PDF generation
+# - DejaVu Sans Mono font for code formatting
+
 input-files:
   - problems/two_sum.md
   - problems/valid_parentheses.md
@@ -74,8 +86,12 @@ input-files:
   - problems/maximum_profit_in_job_scheduling.md
   - problems/merge_k_sorted_lists.md
   - problems/largest_rectangle_in_histogram.md
+
+# Output configuration
 output-file: grind75.pdf
 pdf-engine: xelatex
+
+# Document formatting
 variables:
   papersize: letter
   geometry:
@@ -86,8 +102,14 @@ variables:
   linkcolor: blue
   listings: true
   breaklines: true
+
+# Table of contents configuration  
 toc: true
 toc-depth: 1
-resource-path: ["./problems/"]  # Add more paths as needed
+
+# Resource paths for images and assets
+resource-path: ["./problems/"]
+
+# Document metadata
 metadata:
   title: "Grind75"

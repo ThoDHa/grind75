@@ -1,6 +1,6 @@
 # [Invert Binary Tree](https://leetcode.com/problems/invert-binary-tree/)
 
-Easy - 15 minutes - Tree, Depth-First Search, Breadth-First Search
+**Easy** | **15 minutes** | **Tree, Depth-First Search, Breadth-First Search**
 
 Given the `root` of a binary tree, invert the tree, and return its root.
 

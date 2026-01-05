@@ -1,6 +1,6 @@
 # [Middle of the Linked List](https://leetcode.com/problems/middle-of-the-linked-list/)
 
-Easy - 10 minutes - Linked List, Two Pointers
+**Easy** | **10 minutes** | **Linked List, Two Pointers**
 
 Given the `head` of a singly linked list, return the middle node of the linked list.
 
