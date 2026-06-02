@@ -8,7 +8,7 @@ Given the `root` of a binary tree, imagine yourself standing on the **right side
 
 ### Example 1
 
-![Binary Tree Right Side View Example1](problems/assets/binary_tree_right_side_view_example1.jpg)
+![Binary Tree Right Side View Example1](assets/binary_tree_right_side_view_example1.jpg)
 
 **Input:** `root = [1,2,3,null,5,null,4]`
 
@@ -30,3 +30,17 @@ Given the `root` of a binary tree, imagine yourself standing on the **right side
 
 - The number of nodes in the tree is in the range `[0, 100]`.
 - `-100 <= Node.val <= 100`
+
+## Solutions
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def rightSideView(self, root: Optional[TreeNode]) -> List[int]:
+        
+```

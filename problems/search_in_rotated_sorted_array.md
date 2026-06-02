@@ -38,9 +38,7 @@ You must write an algorithm with `O(log n)` runtime complexity.
 - `nums` is an ascending array that is possibly rotated.
 - `-10^4 <= target <= 10^4`
 
-## Solution
-
-### Python
+## Solutions
 
 ```python
 def search(nums, target):
@@ -52,36 +50,3 @@ def search(nums, target):
     pass
 ```
 
-### JavaScript
-
-```javascript
-/**
- * @param {number[]} nums
- * @param {number} target
- * @return {number}
- */
-var search = function(nums, target) {
-    
-};
-```
-
-### Java
-
-```java
-class Solution {
-    public int search(int[] nums, int target) {
-        
-    }
-}
-```
-
-### C++
-
-```cpp
-class Solution {
-public:
-    int search(vector<int>& nums, int target) {
-        
-    }
-};
-```

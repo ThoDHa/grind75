@@ -31,7 +31,7 @@ The test cases are generated so that the answer will be less than or equal to `2
 
 - `1 <= m, n <= 100`
 
-## Solution
+## Solutions
 
 ```python
 def uniquePaths(m, n):
@@ -47,3 +47,4 @@ def uniquePaths(m, n):
     """
     pass
 ```
+

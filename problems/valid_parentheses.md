@@ -42,4 +42,10 @@ An input string is valid if:
 - `1 <= s.length <= 10^4`
 - `s` consists of parentheses only `'('`, `')'`, `'{'`, `'}'`, `'['`, `']'`.
 
-## Solution
+## Solutions
+
+```python
+class Solution:
+    def isValid(self, s: str) -> bool:
+        
+```

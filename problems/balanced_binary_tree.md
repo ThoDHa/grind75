@@ -36,3 +36,15 @@ A height-balanced binary tree is defined as a binary tree in which the left and 
 - `-10^4 <= Node.val <= 10^4`
 
 ## Solutions
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def isBalanced(self, root: Optional[TreeNode]) -> bool:
+        
+```

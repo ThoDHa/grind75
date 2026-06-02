@@ -16,7 +16,7 @@ Return the minimum number of minutes that must elapse until no cell has a fresh 
 
 ### Example 1
 
-![Rotting Oranges Example 1](https://assets.leetcode.com/uploads/2019/02/16/oranges.png)
+![Rotting Oranges Example 1](assets/rotting_oranges_example1.png)
 
 **Input:** `grid = [[2,1,1],[1,1,0],[0,1,1]]`
 
@@ -55,3 +55,4 @@ def orangesRotting(grid):
     """
     pass
 ```
+

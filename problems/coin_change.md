@@ -35,3 +35,11 @@ You may assume that you have an infinite number of each kind of coin.
 - `1 <= coins.length <= 12`
 - `1 <= coins[i] <= 2^31 - 1`
 - `0 <= amount <= 10^4`
+
+## Solutions
+
+```python
+class Solution:
+    def coinChange(self, coins: List[int], amount: int) -> int:
+        
+```

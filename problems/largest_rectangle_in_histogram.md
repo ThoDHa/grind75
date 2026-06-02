@@ -8,7 +8,7 @@ Given an array of integers `heights` representing the histogram's bar height whe
 
 ### Example 1
 
-![Histogram Example 1](https://assets.leetcode.com/uploads/2021/01/04/histogram.jpg)
+![Histogram Example 1](assets/largest_rectangle_in_histogram_example1.jpg)
 
 **Input:** `heights = [2,1,5,6,2,3]`
 
@@ -19,7 +19,7 @@ The largest rectangle is shown in the red area, which has an area = `10` units.
 
 ### Example 2
 
-![Histogram Example 2](https://assets.leetcode.com/uploads/2021/01/04/histogram-1.jpg)
+![Histogram Example 2](assets/largest_rectangle_in_histogram_example2.jpg)
 
 **Input:** `heights = [2,4]`
 
@@ -30,7 +30,7 @@ The largest rectangle is shown in the red area, which has an area = `10` units.
 - `1 <= heights.length <= 10^5`
 - `0 <= heights[i] <= 10^4`
 
-## Solution
+## Solutions
 
 ```python
 class Solution(object):
@@ -42,29 +42,3 @@ class Solution(object):
         pass
 ```
 
-```java
-class Solution {
-    public int largestRectangleArea(int[] heights) {
-        
-    }
-}
-```
-
-```javascript
-/**
- * @param {number[]} heights
- * @return {number}
- */
-var largestRectangleArea = function(heights) {
-    
-};
-```
-
-```cpp
-class Solution {
-public:
-    int largestRectangleArea(vector<int>& heights) {
-        
-    }
-};
-```

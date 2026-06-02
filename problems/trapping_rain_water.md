@@ -26,7 +26,7 @@ Given `n` non-negative integers representing an elevation map where the width of
 - `1 <= n <= 2 * 10^4`
 - `0 <= height[i] <= 3 * 10^4`
 
-## Solution
+## Solutions
 
 ```python
 def trap(height):
@@ -41,3 +41,4 @@ def trap(height):
     """
     pass
 ```
+

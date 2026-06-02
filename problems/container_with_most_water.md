@@ -35,7 +35,7 @@ Output: 1
 - `2 <= n <= 10^5`
 - `0 <= height[i] <= 10^4`
 
-## Solution
+## Solutions
 
 ```python
 class Solution:
@@ -43,3 +43,4 @@ class Solution:
         # TODO: Implement solution
         pass
 ```
+

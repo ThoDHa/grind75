@@ -31,7 +31,7 @@ The **length** of a path between two nodes is represented by the number of edges
 - The number of nodes in the tree is in the range `[1, 10^4]`.
 - `-100 <= Node.val <= 100`
 
-## Solution
+## Solutions
 
 ```python
 # Definition for a binary tree node.
@@ -46,3 +46,4 @@ class Solution:
         # TODO: Implement solution
         pass
 ```
+

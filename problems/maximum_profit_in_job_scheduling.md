@@ -46,34 +46,3 @@ def jobScheduling(startTime: List[int], endTime: List[int], profit: List[int]) -
     pass
 ```
 
-```java
-class Solution {
-    public int jobScheduling(int[] startTime, int[] endTime, int[] profit) {
-        // Your solution here
-        return 0;
-    }
-}
-```
-
-```cpp
-class Solution {
-public:
-    int jobScheduling(vector<int>& startTime, vector<int>& endTime, vector<int>& profit) {
-        // Your solution here
-        return 0;
-    }
-};
-```
-
-```javascript
-/**
- * @param {number[]} startTime
- * @param {number[]} endTime
- * @param {number[]} profit
- * @return {number}
- */
-var jobScheduling = function(startTime, endTime, profit) {
-    // Your solution here
-    return 0;
-};
-```

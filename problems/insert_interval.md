@@ -38,3 +38,12 @@ Return `intervals` after the insertion.
 - `intervals` is sorted by `starti` in ascending order.
 - `newInterval.length == 2`
 - `0 <= start <= end <= 10^5`
+
+## Solutions
+
+```python
+class Solution:
+    def insert(self, intervals: List[List[int]], newInterval: List[int]) -> List[List[int]]:
+        
+```
+

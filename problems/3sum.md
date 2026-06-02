@@ -43,3 +43,9 @@ The distinct triplets are [-1,0,1] and [-1,-1,2]. Notice that the order of the o
 - `-10^5 <= nums[i] <= 10^5`
 
 ## Solutions
+
+```python
+class Solution:
+    def threeSum(self, nums: List[int]) -> List[List[int]]:
+        
+```

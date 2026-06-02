@@ -25,3 +25,9 @@ Given two binary strings `a` and `b`, return their sum as a binary string.
 - Each string does not contain leading zeros except for the zero itself.
 
 ## Solutions
+
+```python
+class Solution:
+    def addBinary(self, a: str, b: str) -> str:
+        
+```

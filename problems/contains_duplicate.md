@@ -36,3 +36,9 @@ Given an integer array `nums`, return `true` if any value appears **at least twi
 - `-10^9 <= nums[i] <= 10^9`
 
 ## Solutions
+
+```python
+class Solution:
+    def containsDuplicate(self, nums: List[int]) -> bool:
+        
+```

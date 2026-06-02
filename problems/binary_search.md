@@ -33,4 +33,10 @@ You must write an algorithm with `O(log n)` runtime complexity.
 - All the integers in `nums` are unique.
 - `nums` is sorted in ascending order.
 
-## Solution
+## Solutions
+
+```python
+class Solution:
+    def search(self, nums: List[int], target: int) -> int:
+        
+```

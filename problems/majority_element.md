@@ -32,3 +32,10 @@ The majority element is the element that appears more than `⌊n / 2⌋` times. 
 - Could you solve the problem in linear time and in `O(1)` space?
 
 ## Solutions
+
+```python
+class Solution:
+    def majorityElement(self, nums: List[int]) -> int:
+        
+```
+

@@ -43,3 +43,9 @@ Return the modified image after performing the flood fill.
 - `0 <= sc < n`
 
 ## Solutions
+
+```python
+class Solution:
+    def floodFill(self, image: List[List[int]], sr: int, sc: int, color: int) -> List[List[int]]:
+        
+```

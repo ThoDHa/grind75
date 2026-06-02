@@ -10,7 +10,7 @@ The word can be constructed from letters of sequentially adjacent cells, where a
 
 ### Example 1
 
-![Word Search](https://assets.leetcode.com/uploads/2020/11/04/word2.jpg)
+![Word Search](assets/word_search_example1.jpg)
 
 **Input:** `board = [["A","B","C","E"],["S","F","C","S"],["A","D","E","E"]]`, `word = "ABCCED"`
 
@@ -18,7 +18,7 @@ The word can be constructed from letters of sequentially adjacent cells, where a
 
 ### Example 2
 
-![Word Search](https://assets.leetcode.com/uploads/2020/11/04/word-1.jpg)
+![Word Search](assets/word_search_example2.jpg)
 
 **Input:** `board = [["A","B","C","E"],["S","F","C","S"],["A","D","E","E"]]`, `word = "SEE"`
 
@@ -26,7 +26,7 @@ The word can be constructed from letters of sequentially adjacent cells, where a
 
 ### Example 3
 
-![Word Search](https://assets.leetcode.com/uploads/2020/10/15/word3.jpg)
+![Word Search](assets/word_search_example3.jpg)
 
 **Input:** `board = [["A","B","C","E"],["S","F","C","S"],["A","D","E","E"]]`, `word = "ABCB"`
 
@@ -51,3 +51,4 @@ class Solution:
     def exist(self, board: List[List[str]], word: str) -> bool:
         pass
 ```
+

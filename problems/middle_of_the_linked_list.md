@@ -34,3 +34,14 @@ If there are two middle nodes, return the second middle node.
 - `1 <= Node.val <= 100`
 
 ## Solutions
+
+```python
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
+class Solution:
+    def middleNode(self, head: Optional[ListNode]) -> Optional[ListNode]:
+        
+```

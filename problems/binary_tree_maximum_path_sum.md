@@ -12,7 +12,7 @@ Given the `root` of a binary tree, return the **maximum path sum** of any **non-
 
 ### Example 1
 
-![Binary Tree Maximum Path Sum Example1](problems/assets/binary_tree_maximum_path_sum_example1.jpg)
+![Binary Tree Maximum Path Sum Example1](assets/binary_tree_maximum_path_sum_example1.jpg)
 
 **Input:** `root = [1,2,3]`
 
@@ -22,7 +22,7 @@ Given the `root` of a binary tree, return the **maximum path sum** of any **non-
 
 ### Example 2
 
-![Binary Tree Maximum Path Sum Example2](problems/assets/binary_tree_maximum_path_sum_example2.jpg)
+![Binary Tree Maximum Path Sum Example2](assets/binary_tree_maximum_path_sum_example2.jpg)
 
 **Input:** `root = [-10,9,20,null,null,15,7]`
 
@@ -34,3 +34,17 @@ Given the `root` of a binary tree, return the **maximum path sum** of any **non-
 
 - The number of nodes in the tree is in the range `[1, 3 * 10^4]`.
 - `-1000 <= Node.val <= 1000`
+
+## Solutions
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def maxPathSum(self, root: Optional[TreeNode]) -> int:
+        
+```

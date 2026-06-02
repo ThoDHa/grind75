@@ -34,3 +34,10 @@ Letters are case sensitive, for example, "Aa" is not considered a palindrome her
 - `s` consists of lowercase and/or uppercase English letters only.
 
 ## Solutions
+
+```python
+class Solution:
+    def longestPalindrome(self, s: str) -> int:
+        
+```
+

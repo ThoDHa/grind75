@@ -43,3 +43,11 @@ accounts = [["Gabe","Gabe0@m.co","Gabe3@m.co","Gabe1@m.co"],["Kevin","Kevin3@m.c
 - `1 <= accounts[i][j].length <= 30`
 - `accounts[i][0]` consists of English letters.
 - `accounts[i][j]` (for `j > 0`) is a valid email.
+
+## Solutions
+
+```python
+class Solution:
+    def accountsMerge(self, accounts: List[List[str]]) -> List[List[str]]:
+        
+```

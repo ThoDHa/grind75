@@ -8,7 +8,7 @@ Given the `root` of a binary search tree, and an integer `k`, return the `kth` s
 
 ### Example 1
 
-![BST Tree 1](https://assets.leetcode.com/uploads/2021/01/28/kthtree1.jpg)
+![BST Tree 1](assets/kth_smallest_element_in_a_bst_example1.jpg)
 
 **Input:** `root = [3,1,4,null,2]`, `k = 1`
 
@@ -16,7 +16,7 @@ Given the `root` of a binary search tree, and an integer `k`, return the `kth` s
 
 ### Example 2
 
-![BST Tree 2](https://assets.leetcode.com/uploads/2021/01/28/kthtree2.jpg)
+![BST Tree 2](assets/kth_smallest_element_in_a_bst_example2.jpg)
 
 **Input:** `root = [5,3,6,2,4,null,null,1]`, `k = 3`
 
@@ -32,7 +32,7 @@ Given the `root` of a binary search tree, and an integer `k`, return the `kth` s
 
 If the BST is modified often (i.e., we can do insert and delete operations) and you need to find the kth smallest frequently, how would you optimize?
 
-## Solution
+## Solutions
 
 ```python
 # Definition for a binary tree node.
@@ -51,64 +51,3 @@ class Solution(object):
         pass
 ```
 
-```java
-/**
- * Definition for a binary tree node.
- * public class TreeNode {
- *     int val;
- *     TreeNode left;
- *     TreeNode right;
- *     TreeNode() {}
- *     TreeNode(int val) { this.val = val; }
- *     TreeNode(int val, TreeNode left, TreeNode right) {
- *         this.val = val;
- *         this.left = left;
- *         this.right = right;
- *     }
- * }
- */
-class Solution {
-    public int kthSmallest(TreeNode root, int k) {
-        
-    }
-}
-```
-
-```javascript
-/**
- * Definition for a binary tree node.
- * function TreeNode(val, left, right) {
- *     this.val = (val===undefined ? 0 : val)
- *     this.left = (left===undefined ? null : left)
- *     this.right = (right===undefined ? null : right)
- * }
- */
-/**
- * @param {TreeNode} root
- * @param {number} k
- * @return {number}
- */
-var kthSmallest = function(root, k) {
-    
-};
-```
-
-```cpp
-/**
- * Definition for a binary tree node.
- * struct TreeNode {
- *     int val;
- *     TreeNode *left;
- *     TreeNode *right;
- *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
- *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
- *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
- * };
- */
-class Solution {
-public:
-    int kthSmallest(TreeNode* root, int k) {
-        
-    }
-};
-```

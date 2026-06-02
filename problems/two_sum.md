@@ -44,3 +44,9 @@ You can return the answer in any order.
 Can you come up with an algorithm that is less than O(n²) time complexity?
 
 ## Solutions
+
+```python
+class Solution:
+    def twoSum(self, nums: List[int], target: int) -> List[int]:
+        
+```

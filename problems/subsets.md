@@ -26,7 +26,7 @@ The solution set must not contain duplicate subsets. Return the solution in any 
 - `-10 <= nums[i] <= 10`
 - All the numbers of `nums` are unique.
 
-## Solution
+## Solutions
 
 ```python
 def subsets(nums):
@@ -41,3 +41,4 @@ def subsets(nums):
     """
     pass
 ```
+

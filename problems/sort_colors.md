@@ -32,9 +32,7 @@ You must solve this problem without using the library's sort function.
 
 Could you come up with a one-pass algorithm using only constant extra space?
 
-## Solution
-
-### Python
+## Solutions
 
 ```python
 def sortColors(nums):
@@ -45,35 +43,3 @@ def sortColors(nums):
     pass
 ```
 
-### JavaScript
-
-```javascript
-/**
- * @param {number[]} nums
- * @return {void} Do not return anything, modify nums in-place instead.
- */
-var sortColors = function(nums) {
-    
-};
-```
-
-### Java
-
-```java
-class Solution {
-    public void sortColors(int[] nums) {
-        
-    }
-}
-```
-
-### C++
-
-```cpp
-class Solution {
-public:
-    void sortColors(vector<int>& nums) {
-        
-    }
-};
-```

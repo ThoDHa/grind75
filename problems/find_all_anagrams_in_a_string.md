@@ -33,7 +33,7 @@ The substring with start index = 6 is "abad", which is an anagram of "abab".
 - `1 <= s.length, p.length <= 3 * 10^4`
 - `s` and `p` consist of lowercase English letters only.
 
-## Solution
+## Solutions
 
 ```python
 class Solution:
@@ -41,3 +41,4 @@ class Solution:
         # TODO: Implement solution
         pass
 ```
+

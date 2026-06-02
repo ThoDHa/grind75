@@ -6,7 +6,7 @@ Given a string containing digits from `2-9` inclusive, return all possible lette
 
 A mapping of digits to letters (just like on the telephone buttons) is given below. Note that 1 does not map to any letters.
 
-![Phone Keypad](https://assets.leetcode.com/uploads/2022/03/15/1200px-telephone-keypad2svg.png)
+![Phone Keypad](assets/letter_combinations_keypad.png)
 
 ## Examples
 
@@ -33,7 +33,7 @@ A mapping of digits to letters (just like on the telephone buttons) is given bel
 - `0 <= digits.length <= 4`
 - `digits[i]` is a digit in the range `['2', '9']`.
 
-## Solution
+## Solutions
 
 ```python
 class Solution(object):
@@ -45,29 +45,3 @@ class Solution(object):
         pass
 ```
 
-```java
-class Solution {
-    public List<String> letterCombinations(String digits) {
-        
-    }
-}
-```
-
-```javascript
-/**
- * @param {string} digits
- * @return {string[]}
- */
-var letterCombinations = function(digits) {
-    
-};
-```
-
-```cpp
-class Solution {
-public:
-    vector<string> letterCombinations(string digits) {
-        
-    }
-};
-```

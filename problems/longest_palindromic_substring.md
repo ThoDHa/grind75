@@ -33,32 +33,3 @@ def longestPalindrome(s: str) -> str:
     pass
 ```
 
-```java
-class Solution {
-    public String longestPalindrome(String s) {
-        // Your solution here
-        return "";
-    }
-}
-```
-
-```cpp
-class Solution {
-public:
-    string longestPalindrome(string s) {
-        // Your solution here
-        return "";
-    }
-};
-```
-
-```javascript
-/**
- * @param {string} s
- * @return {string}
- */
-var longestPalindrome = function(s) {
-    // Your solution here
-    return "";
-};
-```

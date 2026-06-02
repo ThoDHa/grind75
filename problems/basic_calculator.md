@@ -35,3 +35,11 @@ Given a string `s` representing a valid expression, implement a basic calculator
 - `'-'` could be used as a unary operation (i.e., `"-1"` and `"-(2 + 3)"` is valid).
 - There will be no two consecutive operators in the input.
 - Every number and running calculation will fit in a signed 32-bit integer.
+
+## Solutions
+
+```python
+class Solution:
+    def calculate(self, s: str) -> int:
+        
+```

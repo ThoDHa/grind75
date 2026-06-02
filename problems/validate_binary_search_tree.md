@@ -14,7 +14,7 @@ A **valid BST** is defined as follows:
 
 ### Example 1
 
-![BST](https://assets.leetcode.com/uploads/2020/12/01/tree1.jpg)
+![BST](assets/validate_binary_search_tree_example1.jpg)
 
 **Input:** `root = [2,1,3]`
 
@@ -22,7 +22,7 @@ A **valid BST** is defined as follows:
 
 ### Example 2
 
-![Invalid BST](https://assets.leetcode.com/uploads/2020/12/01/tree2.jpg)
+![Invalid BST](assets/validate_binary_search_tree_example2.jpg)
 
 **Input:** `root = [5,1,4,null,null,3,6]`
 
@@ -49,3 +49,4 @@ class Solution:
     def isValidBST(self, root: Optional[TreeNode]) -> bool:
         pass
 ```
+

@@ -46,8 +46,6 @@ Could you find an algorithm that runs in `O(m + n)` time?
 
 ## Solutions
 
-### Python
-
 ```python
 def minWindow(s, t):
     """
@@ -58,36 +56,3 @@ def minWindow(s, t):
     pass
 ```
 
-### JavaScript
-
-```javascript
-/**
- * @param {string} s
- * @param {string} t
- * @return {string}
- */
-var minWindow = function(s, t) {
-    
-};
-```
-
-### Java
-
-```java
-class Solution {
-    public String minWindow(String s, String t) {
-        
-    }
-}
-```
-
-### C++
-
-```cpp
-class Solution {
-public:
-    string minWindow(string s, string t) {
-        
-    }
-};
-```

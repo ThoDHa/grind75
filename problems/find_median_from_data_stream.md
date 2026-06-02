@@ -44,7 +44,7 @@ medianFinder.findMedian(); // return 2.0
 - If all integer numbers from the stream are in the range `[0, 100]`, how would you optimize your solution?
 - If `99%` of all integer numbers from the stream are in the range `[0, 100]`, how would you optimize your solution?
 
-## Solution
+## Solutions
 
 ```python
 class MedianFinder:
@@ -67,3 +67,4 @@ class MedianFinder:
 # obj.addNum(num)
 # param_2 = obj.findMedian()
 ```
+

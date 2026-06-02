@@ -53,3 +53,30 @@ myQueue.empty(); // return false
 Follow-up: Can you implement the queue such that each operation is amortized `O(1)` time complexity? In other words, performing n operations will take overall `O(n)` time even if one of those operations may take longer.
 
 ## Solutions
+
+```python
+class MyQueue:
+
+    def __init__(self):
+        
+
+    def push(self, x: int) -> None:
+        
+
+    def pop(self) -> int:
+        
+
+    def peek(self) -> int:
+        
+
+    def empty(self) -> bool:
+        
+
+
+# Your MyQueue object will be instantiated and called as such:
+# obj = MyQueue()
+# obj.push(x)
+# param_2 = obj.pop()
+# param_3 = obj.peek()
+# param_4 = obj.empty()
+```

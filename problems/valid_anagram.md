@@ -26,3 +26,11 @@ An **anagram** is a word or phrase formed by rearranging the letters of a differ
 - `s` and `t` consist of lowercase English letters.
 
 Follow up: What if the inputs contain Unicode characters? How would you adapt your solution to such a case?
+
+## Solutions
+
+```python
+class Solution:
+    def isAnagram(self, s: str, t: str) -> bool:
+        
+```

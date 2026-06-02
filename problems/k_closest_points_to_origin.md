@@ -12,7 +12,7 @@ You may return the answer in any order. The answer is guaranteed to be unique (e
 
 ### Example 1
 
-![KK Cloest Points to Origin Example](problems/assets/k_clostest_points_to_origin.jpg)
+![K Closest Points to Origin Example](assets/k_closest_points_to_origin_example1.jpg)
 **Input:** `points = [[1,3],[-2,2]], k = 1`
 
 **Output:** `[[-2,2]]`
@@ -36,3 +36,10 @@ We only want the closest `k = 1` points from the origin, so the answer is just [
 - `-10^4 <= xi, yi <= 10^4`
 
 ## Solutions
+
+```python
+class Solution:
+    def kClosest(self, points: List[List[int]], k: int) -> List[List[int]]:
+        
+```
+

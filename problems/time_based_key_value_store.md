@@ -44,7 +44,7 @@ timeMap.get("foo", 5);         // return "bar2"
 - All the timestamps `timestamp` of `set` are strictly increasing.
 - At most `2 * 10^5` calls will be made to `set` and `get`.
 
-## Solution
+## Solutions
 
 ```python
 class TimeMap:
@@ -73,3 +73,4 @@ class TimeMap:
 # obj.set(key, value, timestamp)
 # param_2 = obj.get(key, timestamp)
 ```
+

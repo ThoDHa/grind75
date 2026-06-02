@@ -36,7 +36,7 @@ To take course 1 you should have finished course 0, and to take course 0 you sho
 - `0 <= ai, bi < numCourses`
 - All the pairs `prerequisites[i]` are unique.
 
-## Solution
+## Solutions
 
 ```python
 class Solution:
@@ -44,3 +44,4 @@ class Solution:
         # TODO: Implement solution
         pass
 ```
+

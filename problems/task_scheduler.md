@@ -49,7 +49,7 @@ A -> B -> C -> A -> D -> E -> A -> F -> G -> A -> idle -> idle -> A -> idle -> i
 - `tasks[i]` is an uppercase English letter.
 - `0 <= n <= 100`
 
-## Solution
+## Solutions
 
 ```python
 def leastInterval(tasks, n):
@@ -65,3 +65,4 @@ def leastInterval(tasks, n):
     """
     pass
 ```
+

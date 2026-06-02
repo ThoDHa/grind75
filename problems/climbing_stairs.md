@@ -35,4 +35,10 @@ Each time you can either climb 1 or 2 steps. In how many distinct ways can you c
 
 - `1 <= n <= 45`
 
-## Solution
+## Solutions
+
+```python
+class Solution:
+    def climbStairs(self, n: int) -> int:
+        
+```

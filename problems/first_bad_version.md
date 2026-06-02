@@ -29,4 +29,13 @@ Then `4` is the first bad version.
 
 `- 1 <= bad <= n <= 2³¹ - 1`
 
-## Solution
+## Solutions
+
+```python
+# The isBadVersion API is already defined for you.
+# def isBadVersion(version: int) -> bool:
+
+class Solution:
+    def firstBadVersion(self, n: int) -> int:
+        
+```

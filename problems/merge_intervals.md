@@ -30,8 +30,6 @@ Given an array of intervals where intervals[i] = [starti, endi], merge all overl
 
 ## Solutions
 
-### Python
-
 ```python
 def merge(intervals):
     """
@@ -41,35 +39,3 @@ def merge(intervals):
     pass
 ```
 
-### JavaScript
-
-```javascript
-/**
- * @param {number[][]} intervals
- * @return {number[][]}
- */
-var merge = function(intervals) {
-    
-};
-```
-
-### Java
-
-```java
-class Solution {
-    public int[][] merge(int[][] intervals) {
-        
-    }
-}
-```
-
-### C++
-
-```cpp
-class Solution {
-public:
-    vector<vector<int>> merge(vector<vector<int>>& intervals) {
-        
-    }
-};
-```

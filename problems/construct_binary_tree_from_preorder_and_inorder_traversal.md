@@ -32,7 +32,7 @@ Output: [-1]
 - `preorder` is guaranteed to be the preorder traversal of the tree.
 - `inorder` is guaranteed to be the inorder traversal of the tree.
 
-## Solution
+## Solutions
 
 ```python
 # Definition for a binary tree node.
@@ -47,3 +47,4 @@ class Solution:
         # TODO: Implement solution
         pass
 ```
+

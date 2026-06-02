@@ -10,7 +10,7 @@ The distance between two adjacent cells is `1`.
 
 ### Example 1
 
-![01 Matrix Example1](problems/assets/01_matrix_example1.jpg)
+![01 Matrix Example1](assets/01_matrix_example1.jpg)
 
 **Input:** `mat = [[0,0,0],[0,1,0],[0,0,0]]`
 
@@ -20,7 +20,7 @@ The distance between two adjacent cells is `1`.
 
 ### Example 2
 
-![01 Matrix Example1](problems/assets/01_matrix_example2.jpg)
+![01 Matrix Example1](assets/01_matrix_example2.jpg)
 
 **Input:** `mat = [[0,0,0],[0,1,0],[1,1,1]]`
 
@@ -38,3 +38,9 @@ The distance between two adjacent cells is `1`.
 - There is at least one `0` in `mat`
 
 ## Solutions
+
+```python
+class Solution:
+    def updateMatrix(self, mat: List[List[int]]) -> List[List[int]]:
+        
+```

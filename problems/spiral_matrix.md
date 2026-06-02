@@ -25,9 +25,7 @@ Given an `m x n` matrix, return all elements of the `matrix` in spiral order.
 - `1 <= m, n <= 10`
 - `-100 <= matrix[i][j] <= 100`
 
-## Solution
-
-### Python
+## Solutions
 
 ```python
 def spiralOrder(matrix):
@@ -38,35 +36,3 @@ def spiralOrder(matrix):
     pass
 ```
 
-### JavaScript
-
-```javascript
-/**
- * @param {number[][]} matrix
- * @return {number[]}
- */
-var spiralOrder = function(matrix) {
-    
-};
-```
-
-### Java
-
-```java
-class Solution {
-    public List<Integer> spiralOrder(int[][] matrix) {
-        
-    }
-}
-```
-
-### C++
-
-```cpp
-class Solution {
-public:
-    vector<int> spiralOrder(vector<vector<int>>& matrix) {
-        
-    }
-};
-```
