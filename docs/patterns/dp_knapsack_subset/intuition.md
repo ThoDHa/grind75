@@ -138,14 +138,14 @@ Some problems don't look like knapsack but can be transformed:
 
 Solving: **P = (target + total) / 2**
 
-Now it's: "Count subsets summing to P" — a standard 0/1 knapsack!
+Now it's: "Count subsets summing to P": a standard 0/1 knapsack!
 
 ### Partition Transformation
 
 **Problem**: Can array be split into two equal halves?
 **Insight**: Each half must sum to total/2.
 
-Now it's: "Can we select items summing to total/2?" — 0/1 knapsack!
+Now it's: "Can we select items summing to total/2?": 0/1 knapsack!
 
 ---
 
@@ -205,10 +205,10 @@ for a in range(1, amount + 1):
 
 Master Knapsack/Subset DP through this sequence:
 
-1. **LC 416** (Partition Equal Subset Sum) — Basic 0/1 boolean
-2. **LC 494** (Target Sum) — 0/1 count with transformation
-3. **LC 322** (Coin Change) — Unbounded minimize
-4. **LC 518** (Coin Change 2) — Unbounded count combinations
+1. **LC 416** (Partition Equal Subset Sum): Basic 0/1 boolean
+2. **LC 494** (Target Sum): 0/1 count with transformation
+3. **LC 322** (Coin Change): Unbounded minimize
+4. **LC 518** (Coin Change 2): Unbounded count combinations
 
 ---
 

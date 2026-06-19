@@ -6,7 +6,7 @@
 
 ## The Situation That Calls for Binary Search
 
-Imagine a library with a million books arranged by author name. You're looking for "Kafka." You could start at the first shelf and walk forward — that would take forever. Or you could go to the middle, see "Miller," realize Kafka comes before Miller, and instantly know: the entire right half of the library is irrelevant. You'll never look there again.
+Imagine a library with a million books arranged by author name. You're looking for "Kafka." You could start at the first shelf and walk forward. That would take forever. Or you could go to the middle, see "Miller," realize Kafka comes before Miller, and instantly know: the entire right half of the library is irrelevant. You'll never look there again.
 
 **This is the essence of Binary Search.**
 
@@ -16,7 +16,7 @@ You encounter this pattern whenever:
 - The answer to that question tells you which half to keep
 - Once you eliminate a half, it's **gone forever**
 
-The key insight: *You're not searching — you're eliminating. Each question cuts the world in half.*
+The key insight: *You're not searching: you're eliminating. Each question cuts the world in half.*
 
 ---
 
@@ -52,13 +52,13 @@ When you discover that the middle element is too small, you declare: *"Everythin
 
 This is not a guess. This is a proof. The monotonic property guarantees that if `arr[mid]` is too small, then `arr[0], arr[1], ..., arr[mid]` are all too small. You've eliminated half the universe with a single comparison.
 
-This one-directional march — always shrinking, never expanding — is what transforms O(n) linear search into O(log n) binary search. Each step doesn't just make progress; it *halves* the remaining work.
+This one-directional march (always shrinking, never expanding) is what transforms O(n) linear search into O(log n) binary search. Each step doesn't just make progress; it *halves* the remaining work.
 
 ---
 
 ## The Predicate: The Question That Divides
 
-At the heart of every binary search is a **predicate** — a yes/no question you ask about the middle element.
+At the heart of every binary search is a **predicate**: a yes/no question you ask about the middle element.
 
 ```
 The search space, viewed through the predicate:
@@ -143,7 +143,7 @@ Binary search problems come in five distinct shapes. Recognizing the shape tells
 
 ---
 
-### Shape 1: Boundary Search — "Find the First True"
+### Shape 1: Boundary Search: "Find the First True"
 
 **The situation**: You have a sorted array and want to find where a property first becomes true.
 
@@ -172,7 +172,7 @@ arr = [1, 2, 3, 5, 5, 5, 7, 8]
 
 ---
 
-### Shape 2: Exact Match — "Is It Here?"
+### Shape 2: Exact Match: "Is It Here?"
 
 **The situation**: You want to find a specific value, returning its index or -1.
 
@@ -192,9 +192,9 @@ Or use the classic three-way split:
 
 ---
 
-### Shape 3: Rotated Array — "Two Sorted Halves"
+### Shape 3: Rotated Array: "Two Sorted Halves"
 
-**The situation**: A sorted array was rotated at an unknown pivot. The order is broken, but not gone — it's hidden in two pieces.
+**The situation**: A sorted array was rotated at an unknown pivot. The order is broken, but not gone: it's hidden in two pieces.
 
 **What it feels like**: A ring that was cut and unfolded. The elements are still sorted, just wrapped around.
 
@@ -225,15 +225,15 @@ The key observation:
 
 **The invariant**: If target exists, it's still in `[left, right]`. You eliminate the half where target provably cannot exist.
 
-**With duplicates**: When `arr[left] == arr[mid] == arr[right]`, you can't determine which half is sorted. Shrink linearly: `left++, right--`. This is the price of duplicates — worst case becomes O(n).
+**With duplicates**: When `arr[left] == arr[mid] == arr[right]`, you can't determine which half is sorted. Shrink linearly: `left++, right--`. This is the price of duplicates: worst case becomes O(n).
 
 **Classic problems**: Search in Rotated Sorted Array I/II, Find Minimum in Rotated Sorted Array
 
 ---
 
-### Shape 4: Answer Space Search — "Search Over Possibilities"
+### Shape 4: Answer Space Search: "Search Over Possibilities"
 
-**The situation**: You're not searching an array — you're searching over all possible answers to find the optimal one.
+**The situation**: You're not searching an array: you're searching over all possible answers to find the optimal one.
 
 **What it feels like**: You're a quality inspector. You test if a proposed answer works. If it does, you try something more ambitious. If it fails, you try something more conservative.
 
@@ -265,7 +265,7 @@ Binary search finds the minimum speed where predicate is True.
 
 ---
 
-### Shape 5: Peak Finding — "Follow the Slope"
+### Shape 5: Peak Finding: "Follow the Slope"
 
 **The situation**: Find a peak (local maximum) in an array where neighbors are never equal.
 
@@ -290,7 +290,7 @@ Boundary condition: arr[-1] = arr[n] = -∞
 This guarantees at least one peak exists.
 ```
 
-**The key insight**: Unlike exact match, you're not looking for a specific value — you're following a direction. The ascending slope *pulls* you toward a peak. Once you're on a slope, you know a peak exists in that direction.
+**The key insight**: Unlike exact match, you're not looking for a specific value: you're following a direction. The ascending slope *pulls* you toward a peak. Once you're on a slope, you know a peak exists in that direction.
 
 **The invariant**: There is always a peak within `[left, right]`. Moving toward "uphill" preserves this invariant.
 
@@ -312,7 +312,7 @@ Ask yourself these questions:
 │     └── No? → Binary search won't help                          │
 │                                                                 │
 │  3. Does the predicate have a TRANSITION point?                 │
-│     (All False, then all True — or vice versa)                  │
+│     (All False, then all True, or vice versa)                   │
 │     └── No? → Binary search won't work                          │
 │                                                                 │
 │  4. Once I know the answer at mid, can I ELIMINATE half?        │
@@ -471,7 +471,7 @@ Binary search is famous for off-by-one errors. Here's how to avoid them:
 **The `[left, right)` style** is recommended for boundary search because:
 - The loop terminates with `left == right`, giving you exactly one candidate
 - `right = mid` (not `mid - 1`) keeps the true candidate in range
-- The final `left` is directly the answer — no adjustment needed
+- The final `left` is directly the answer, no adjustment needed
 
 ### The Mid Calculation
 
@@ -488,8 +488,8 @@ mid = (left + right) // 2  # Can overflow!
 ### The Termination Guarantee
 
 For `left < right` with `right = mid` and `left = mid + 1`:
-- If predicate is True: range becomes `[left, mid]` — shrinks by at least 1
-- If predicate is False: range becomes `[mid+1, right]` — shrinks by at least 1
+- If predicate is True: range becomes `[left, mid]`, shrinks by at least 1
+- If predicate is False: range becomes `[mid+1, right]`, shrinks by at least 1
 - Range always shrinks → loop always terminates
 
 ---
@@ -513,13 +513,13 @@ Total steps: O(log n)
 
 Each step does O(1) work (one comparison, maybe some arithmetic). Total: O(log n).
 
-This is the magic of elimination. Linear search asks: "Is it here? Is it here? Is it here?" — O(n) questions. Binary search asks: "Is it in this half?" — O(log n) questions. At n = 1 million, that's 1,000,000 vs 20.
+This is the magic of elimination. Linear search asks: "Is it here? Is it here? Is it here?" (O(n) questions). Binary search asks: "Is it in this half?" (O(log n) questions). At n = 1 million, that's 1,000,000 vs 20.
 
 ---
 
 ## From Intuition to Implementation
 
-Only now — after the dance feels inevitable — does code become useful.
+Only now (after the dance feels inevitable) does code become useful.
 
 ### The Universal Template: First True
 
@@ -537,10 +537,10 @@ def binary_search_first_true(left, right, predicate):
         mid = left + (right - left) // 2
 
         if predicate(mid):
-            # True at mid — answer might be here or earlier
+            # True at mid: answer might be here or earlier
             right = mid
         else:
-            # False at mid — answer must be after mid
+            # False at mid: answer must be after mid
             left = mid + 1
 
     return left  # The boundary between False and True
@@ -622,7 +622,7 @@ Python has arbitrary precision integers, so this isn't an issue, but it's a crit
 
 When you see sorted data or monotonic predicates, think of the shrinking universe. Ask your question. Watch half the candidates disappear. Repeat until only the answer remains.
 
-The power of binary search isn't finding — it's eliminating.
+The power of binary search isn't finding: it's eliminating.
 
 ---
 

@@ -1,6 +1,6 @@
 # Simulation: Pattern Intuition Guide
 
-> *"There is no shortcut. The problem describes a process — your job is to become the machine that runs it, faithfully and without error."*
+> *"There is no shortcut. The problem describes a process: your job is to become the machine that runs it, faithfully and without error."*
 
 ---
 
@@ -24,6 +24,7 @@ The key realization: *You are not solving a puzzle. You are modeling a process. 
 
 ## The Core Insight: State, Transitions, Boundaries
 
+
 Every simulation problem reduces to three questions. Answer them precisely before writing a single line of logic.
 
 ### 1. What is the state?
@@ -45,9 +46,9 @@ Once these three are nailed down, the algorithm writes itself: **set up the init
 
 Different simulation problems feel different. Recognizing the shape tells you how to structure the state.
 
-### Model 1: Boundary Shrinking — "Four Walls Closing In"
+### Model 1: Boundary Shrinking: "Four Walls Closing In"
 
-**The situation**: You traverse a matrix in spiral order. You don't track every visited cell. Instead you maintain four walls — `top`, `bottom`, `left`, `right` — that enclose the unvisited region. After walking along an edge, that wall steps inward.
+**The situation**: You traverse a matrix in spiral order. You don't track every visited cell. Instead you maintain four walls (`top`, `bottom`, `left`, `right`) that enclose the unvisited region. After walking along an edge, that wall steps inward.
 
 **The mental model**:
 ```
@@ -67,9 +68,9 @@ Walk down along right → right--     Walk up along left → left++
 
 **Why it works**: The walls are the state. They encode exactly which region remains. Shrinking a wall is the transition; the crossing of walls is the termination condition.
 
-### Model 2: Digit-by-Digit with Carry — "Grade-School Arithmetic"
+### Model 2: Digit-by-Digit with Carry: "Grade-School Arithmetic"
 
-**The situation**: You add two binary strings. There is no built-in big-number trick to lean on — you do it the way you learned addition as a child, one column at a time, right to left, carrying the overflow.
+**The situation**: You add two binary strings. There is no built-in big-number trick to lean on: you do it the way you learned addition as a child, one column at a time, right to left, carrying the overflow.
 
 **The mental model**:
 ```
@@ -83,7 +84,7 @@ Walk down along right → right--     Walk up along left → left++
 
 **Why it works**: The state is the pair of positions plus a single carry bit. The carry is the entire memory of the past needed to compute the future. Forget it, and the answer is wrong.
 
-### Model 3: The Parsing State Machine — "atoi"
+### Model 3: The Parsing State Machine: "atoi"
 
 **The situation**: You convert a messy string into an integer. The input may have leading spaces, an optional sign, digits, then trailing garbage. You move through a fixed sequence of phases, and each phase has its own rule.
 
@@ -97,7 +98,7 @@ Walk down along right → right--     Walk up along left → left++
 
 **The decision rule**: Skip leading whitespace. Read at most one `+` or `-`. Read consecutive digits, accumulating the number. Stop at the first non-digit or the end of input. Clamp the result to the signed 32-bit range if it overflows.
 
-**Why it works**: Each phase is a state. The transition from phase to phase is strictly one-directional — once you've passed the sign, you never look for another. The accumulation and the clamping are the rules that live inside the digit phase.
+**Why it works**: Each phase is a state. The transition from phase to phase is strictly one-directional: once you've passed the sign, you never look for another. The accumulation and the clamping are the rules that live inside the digit phase.
 
 ---
 
@@ -123,7 +124,7 @@ When you see these phrases, think **Simulation**:
 
 **Action**: Build a state machine that walks the input phase by phase.
 
-### Signal: "No obvious data structure or formula — just follow the rules"
+### Signal: "No obvious data structure or formula: just follow the rules"
 > *"Given the rules above, determine the outcome"*
 
 **Action**: Stop searching for cleverness. Identify state, transitions, and boundaries, then advance step by step.
@@ -132,7 +133,7 @@ When you see these phrases, think **Simulation**:
 
 ## Worked Traces
 
-### Trace 1: Boundary Shrinking — Spiral Matrix
+### Trace 1: Boundary Shrinking: Spiral Matrix
 
 **Problem**: Return the elements of the matrix in spiral order.
 **Input**: rows `[1, 2, 3]`, `[4, 5, 6]`, `[7, 8, 9]`.
@@ -176,7 +177,7 @@ def spiral_order(matrix):
     return result
 ```
 
-### Trace 2: The State Machine — atoi
+### Trace 2: The State Machine: atoi
 
 **Problem**: Convert a string to a 32-bit signed integer.
 **Input**: `"   -042"`, then `"4193 with words"`, then `"99999999999"`.
@@ -248,11 +249,11 @@ A simulation that never updates its position loops forever. Every iteration must
 
 Master simulation through this sequence:
 
-1. **Spiral Matrix** — The canonical boundary-shrinking traversal. Maintain four walls and retreat each after its walk. Learn to re-check the loop condition mid-iteration to avoid double-visiting cells.
+1. **Spiral Matrix**: The canonical boundary-shrinking traversal. Maintain four walls and retreat each after its walk. Learn to re-check the loop condition mid-iteration to avoid double-visiting cells.
 
-2. **Add Binary** — Digit-by-digit processing with carry. Walk both strings right to left, sum with carry, and remember to emit the final carry. Trains careful state tracking and termination.
+2. **Add Binary**: Digit-by-digit processing with carry. Walk both strings right to left, sum with carry, and remember to emit the final carry. Trains careful state tracking and termination.
 
-3. **String to Integer (atoi)** — The parsing state machine. Skip whitespace, read an optional sign, consume digits, stop at the first non-digit, and clamp on overflow. The definitive exercise in precise phase handling and edge cases.
+3. **String to Integer (atoi)**: The parsing state machine. Skip whitespace, read an optional sign, consume digits, stop at the first non-digit, and clamp on overflow. The definitive exercise in precise phase handling and edge cases.
 
 Work them in this order: spiral builds boundary discipline, binary addition builds carry discipline, and atoi forces you to handle every messy edge at once.
 
@@ -267,4 +268,4 @@ There is no trick waiting to be discovered. The whole problem is already written
 Before writing code, answer three questions: *What is my state? How does it change? When do I stop?* Get those right, and the implementation is mechanical. Get any one wrong, and no amount of cleverness will save you.
 
 > **Model the process exactly. Track the state honestly. Guard every boundary.**
-> **The machine does not improvise — and neither should you.**
+> **The machine does not improvise, and neither should you.**

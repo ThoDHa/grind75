@@ -1,12 +1,12 @@
 # Greedy Core: Pattern Intuition Guide
 
-> *"Greedy is not about being short-sighted — it's about having the confidence that local wisdom leads to global success."*
+> *"Greedy is not about being short-sighted, it's about having the confidence that local wisdom leads to global success."*
 
 ---
 
 ## The Situation That Calls for Greedy Core
 
-Imagine you're hiking across stepping stones to cross a river. At each stone, you can see how far you can jump. You don't need to plan the entire route — you just need to know: **"Can I reach a stone that gets me closer to the goal?"**
+Imagine you're hiking across stepping stones to cross a river. At each stone, you can see how far you can jump. You don't need to plan the entire route, you just need to know: **"Can I reach a stone that gets me closer to the goal?"**
 
 This is the essence of **Greedy Core**: make the locally best choice, and trust that it leads to the globally best outcome.
 
@@ -18,7 +18,7 @@ Greedy Core problems fall into three distinct patterns, each with its own mental
 
 ### 1. The Farthest Reach (Reachability)
 
-**Mental Model**: You're a frog on lily pads. At each pad, you can see the farthest pad you could possibly reach. You don't need to plan each hop — you just need to track the farthest possible destination.
+**Mental Model**: You're a frog on lily pads. At each pad, you can see the farthest pad you could possibly reach. You don't need to plan each hop, you just need to track the farthest possible destination.
 
 **Key Insight**: If you can reach position X, and from X you can reach Y, then you can reach Y. The exact path doesn't matter for reachability questions.
 
@@ -196,12 +196,12 @@ return candidate_start if total_surplus >= 0 else -1
 
 Master Greedy Core through this sequence:
 
-1. **LC 55** (Jump Game) — Pure reachability tracking
-2. **LC 45** (Jump Game II) — Add level counting
-3. **LC 455** (Assign Cookies) — Simple sort + match
-4. **LC 1029** (Two City Scheduling) — Sort by derived metric
-5. **LC 134** (Gas Station) — Reset logic with feasibility
-6. **LC 135** (Candy) — Two-pass bidirectional constraints
+1. **LC 55** (Jump Game): Pure reachability tracking
+2. **LC 45** (Jump Game II): Add level counting
+3. **LC 455** (Assign Cookies): Simple sort + match
+4. **LC 1029** (Two City Scheduling): Sort by derived metric
+5. **LC 134** (Gas Station): Reset logic with feasibility
+6. **LC 135** (Candy): Two-pass bidirectional constraints
 
 ---
 
@@ -211,7 +211,7 @@ Greedy Core is about **confidence in local decisions**.
 
 Unlike DP, which hedges by considering all possibilities, greedy commits fully to the current best choice. This works when the problem has structure that guarantees local optimality implies global optimality.
 
-The three kernels — reachability, reset, and sort+match — are different manifestations of this principle:
+The three kernels (reachability, reset, and sort+match) are different manifestations of this principle:
 - **Reachability**: "Extend as far as possible; the path will work itself out."
 - **Reset**: "If this start fails, everything before it fails too; try fresh."
 - **Sort+Match**: "Handle the easiest cases first; they won't interfere with harder ones."

@@ -2,7 +2,7 @@
 
 ## The Mental Model
 
-Imagine you're a hospital triage nurse. Patients arrive continuously, but you don't treat them in arrival order—you treat the most critical patient first. You need a system that:
+Imagine you're a hospital triage nurse. Patients arrive continuously, but you don't treat them in arrival order: you treat the most critical patient first. You need a system that:
 
 1. Quickly identifies the most critical patient (O(1) peek)
 2. Efficiently adds new patients (O(log n) insert)
@@ -36,7 +36,7 @@ Process 9: 9 > 3? Yes! heap = [4, 5, 9]
 Answer: heap[0] = 3rd largest
 ```
 
-**Why min-heap for max problem?** The heap root is the "bouncer"—the weakest VIP. Anyone stronger replaces them.
+**Why min-heap for max problem?** The heap root is the "bouncer": the weakest VIP. Anyone stronger replaces them.
 
 ### Signal: "Top k frequent/closest/largest"
 

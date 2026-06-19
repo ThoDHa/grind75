@@ -1,6 +1,6 @@
 # Sliding Window: Pattern Intuition Guide
 
-> *"The window is a moving lens of attention — it forgets the past to focus on what matters now."*
+> *"The window is a moving lens of attention: it forgets the past to focus on what matters now."*
 
 ---
 
@@ -16,7 +16,7 @@ You encounter this pattern whenever:
 - The answer depends on properties of that portion
 - Those properties can be **updated incrementally** as the portion shifts
 
-The key insight: *You don't need to remember everything — only what's currently in view.*
+The key insight: *You don't need to remember everything: only what's currently in view.*
 
 ---
 
@@ -42,7 +42,7 @@ The Explorer is eager and expansive. The Gatekeeper is disciplined and selective
 
 ## The Invariant: The Window's Promise
 
-At every moment, the window makes a promise — an **invariant** that must always be true:
+At every moment, the window makes a promise: an **invariant** that must always be true:
 
 | Problem Type | The Promise |
 |--------------|-------------|
@@ -51,7 +51,7 @@ At every moment, the window makes a promise — an **invariant** that must alway
 | Minimum covering substring | *"I contain everything required"* |
 | Sum at least target | *"My total meets or exceeds the goal"* |
 
-**This promise is sacred.** The moment it's broken, the Gatekeeper must act — shrinking the window until the promise is restored.
+**This promise is sacred.** The moment it's broken, the Gatekeeper must act, shrinking the window until the promise is restored.
 
 ---
 
@@ -340,7 +340,7 @@ Ask yourself these questions:
 **Classic problems**: Minimum window substring, minimum size subarray sum
 
 ### Shape 3: Fixed Window
-**Story**: *"I'm looking through a frame of exact size — does it ever show what I'm looking for?"*
+**Story**: *"I'm looking through a frame of exact size: does it ever show what I'm looking for?"*
 
 - Invariant: Window size exactly K
 - Strategy: Add one, remove one, check condition
@@ -357,9 +357,9 @@ Sequence: [ 1  4  2  10  2  3  1  0  20 ]
 ┌──────┬───────┬─────────┬──────────────────┬───────────────┬────────────────┐
 │ Step │ R→    │ sum     │ L action         │ Window [L,R]  │ Max Sum        │
 ├──────┼───────┼─────────┼──────────────────┼───────────────┼────────────────┤
-│  0   │ 1     │ 1       │ —                │ [1]           │ (building...)  │
-│  1   │ 4     │ 5       │ —                │ [1,4]         │ (building...)  │
-│  2   │ 2     │ 7       │ —                │ [1,4,2]       │ 7 ✨           │
+│  0   │ 1     │ 1       │ -                │ [1]           │ (building...)  │
+│  1   │ 4     │ 5       │ -                │ [1,4]         │ (building...)  │
+│  2   │ 2     │ 7       │ -                │ [1,4,2]       │ 7 ✨           │
 │  3   │ 10    │ 7+10=17 │ 🔴 remove 1 → 16 │ [4,2,10]      │ 16             │
 │  4   │ 2     │ 16+2=18 │ 🔴 remove 4 → 14 │ [2,10,2]      │ 16             │
 │  5   │ 3     │ 14+3=17 │ 🔴 remove 2 → 15 │ [10,2,3]      │ 16             │
@@ -380,7 +380,7 @@ Answer: Maximum sum = 21 (subarray [1, 0, 20])
 
 ## The State: What the Window Remembers
 
-The window isn't just boundaries — it carries **state** about its contents:
+The window isn't just boundaries: it carries **state** about its contents:
 
 | What You're Tracking | State Structure | Update Cost |
 |---------------------|-----------------|-------------|
@@ -397,13 +397,13 @@ The magic of sliding window is that these states are **incrementally maintainabl
 ## Visualizing the Dance
 
 **Problem**: Longest substring without repeating characters  
-**Input**: `"abcabcbb"` — Find the longest window where all characters are unique.
+**Input**: `"abcabcbb"`. Find the longest window where all characters are unique.
 
 | Step | $R$ (char) | State: `last_seen` | $L$ move? | Window `[L, R]` | Max Length |
 |:----:|:----------:|:-------------------|:---------:|:---------------:|:----------:|
-| 0 | `a` | `{a:0}` | — | `[0,0]` = "a" | 1 |
-| 1 | `b` | `{a:0, b:1}` | — | `[0,1]` = "ab" | 2 |
-| 2 | `c` | `{a:0, b:1, c:2}` | — | `[0,2]` = "abc" | 3 |
+| 0 | `a` | `{a:0}` | - | `[0,0]` = "a" | 1 |
+| 1 | `b` | `{a:0, b:1}` | - | `[0,1]` = "ab" | 2 |
+| 2 | `c` | `{a:0, b:1, c:2}` | - | `[0,2]` = "abc" | 3 |
 | 3 | `a` | `{a:3, b:1, c:2}` | 🔴 `L→1` (skip past old 'a') | `[1,3]` = "bca" | 3 |
 | 4 | `b` | `{a:3, b:4, c:2}` | 🔴 `L→2` (skip past old 'b') | `[2,4]` = "cab" | 3 |
 | 5 | `c` | `{a:3, b:4, c:5}` | 🔴 `L→3` (skip past old 'c') | `[3,5]` = "abc" | 3 |
@@ -413,7 +413,7 @@ The magic of sliding window is that these states are **incrementally maintainabl
 **Answer**: 3 (substring `"abc"`)
 
 **Key observations**:
-- $R$ (Explorer) advances every single step — never skips, never retreats
+- $R$ (Explorer) advances every single step: never skips, never retreats
 - $L$ (Gatekeeper) only moves when a duplicate is found in the current window
 - The jump optimization: $L$ jumps directly to `last_seen[char] + 1` instead of incrementing one by one
 - Window length = `R - L + 1`
@@ -437,7 +437,7 @@ That's your cue. The Explorer and Gatekeeper are ready. The window wants to slid
 
 ## From Intuition to Implementation
 
-Only now — after the dance is clear — does code become useful.
+Only now (after the dance is clear) does code become useful.
 
 The template is always the same skeleton:
 
@@ -504,7 +504,7 @@ def length_of_longest_substring(s: str) -> int:
         We maintain a window [left, right] where all characters are unique.
         The Explorer (right pointer) advances one character at a time.
         When a duplicate is detected, the Gatekeeper (left pointer) jumps
-        directly past the previous occurrence — no incremental crawling needed.
+        directly past the previous occurrence: no incremental crawling needed.
     
     The Jump Optimization:
         Instead of shrinking one position at a time (while loop), we record
@@ -548,7 +548,7 @@ def length_of_longest_substring(s: str) -> int:
     for right, char in enumerate(s):
         # Duplicate detection: Is this char already in our current window?
         # Key insight: We only care if the previous occurrence is at or after 'left'
-        # Characters before 'left' are outside our window — they don't count
+        # Characters before 'left' are outside our window: they don't count
         if char in last_seen_at and last_seen_at[char] >= left:
             # Gatekeeper acts: Jump past the previous occurrence
             # The +1 ensures we exclude the duplicate itself
@@ -598,7 +598,7 @@ The left pointer never retreats. Each character index is visited by `left` at mo
 
 **The Promise**: *"I contain no more than K different characters."*
 
-**The Difference from Problem 1**: We can't jump — we must shrink incrementally because removing one character might still leave us with too many distinct characters.
+**The Difference from Problem 1**: We can't jump: we must shrink incrementally because removing one character might still leave us with too many distinct characters.
 
 ```python
 def length_of_longest_substring_k_distinct(s: str, k: int) -> int:
@@ -657,7 +657,7 @@ def length_of_longest_substring_k_distinct(s: str, k: int) -> int:
         char_count[char] = char_count.get(char, 0) + 1
         
         # Gatekeeper shrinks window while we have too many distinct characters
-        # This is a while-loop, not an if — we may need multiple shrinks
+        # This is a while-loop, not an if: we may need multiple shrinks
         while len(char_count) > k:
             left_char = s[left]
             char_count[left_char] -= 1
@@ -717,12 +717,12 @@ def min_window(s: str, t: str) -> str:
     
     Time Complexity: O(|s| + |t|)
         - Building need_count: O(|t|)
-        - Main loop: O(|s|) — each character enters and exits once
+        - Main loop: O(|s|), each character enters and exits once
         - All dictionary operations: O(1) each
     
     Space Complexity: O(|t|)
         - need_count: O(unique chars in t)
-        - have_count: O(unique chars in t) — we only track needed chars
+        - have_count: O(unique chars in t), we only track needed chars
     
     Args:
         s: Source string to search in
@@ -772,7 +772,7 @@ def min_window(s: str, t: str) -> str:
         
         # Gatekeeper: Try to shrink while window remains valid
         while chars_satisfied == chars_required:
-            # Current window is valid — record if it's the smallest
+            # Current window is valid: record if it's the smallest
             window_length = right - left + 1
             if window_length < min_length:
                 min_length = window_length
@@ -1004,7 +1004,7 @@ def min_subarray_len(target: int, nums: list[int]) -> int:
         # Gatekeeper: Shrink while sum meets target
         # We want the SMALLEST valid window, so shrink aggressively
         while window_sum >= target:
-            # Current window is valid — record its size
+            # Current window is valid: record its size
             current_length = right - left + 1
             min_length = min(min_length, current_length)
             
@@ -1065,7 +1065,7 @@ Both pointers only move forward → Each element enters the window once, exits o
 
 > *Sliding Window is the art of maintaining a valid contiguous view by advancing eagerly and retreating only when necessary.*
 
-When you see a problem about optimizing over contiguous sequences with incrementally checkable properties — you've found your window.
+When you see a problem about optimizing over contiguous sequences with incrementally checkable properties, you've found your window.
 
 Let it slide.
 

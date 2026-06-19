@@ -6,7 +6,7 @@ Imagine you're exploring a maze. You have two fundamental strategies:
 
 1. **DFS (Depth-First Search)**: Follow one path as far as it goes before backtracking. Like exploring a maze by always turning right until you hit a dead end, then backing up.
 
-2. **BFS (Breadth-First Search)**: Explore all paths simultaneously, one step at a time. Like water spreading from a source—it reaches all points at distance 1 before reaching points at distance 2.
+2. **BFS (Breadth-First Search)**: Explore all paths simultaneously, one step at a time. Like water spreading from a source: it reaches all points at distance 1 before reaching points at distance 2.
 
 The key insight: **BFS naturally measures distance** (levels = steps from source), while **DFS naturally finds existence** (is there any path?).
 

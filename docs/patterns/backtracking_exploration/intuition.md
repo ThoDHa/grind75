@@ -1,6 +1,6 @@
 # Backtracking: The Art of Reversible Exploration
 
-> **Core Intuition**: You're exploring a maze of choices. You walk forward, leaving footprints. When you hit a dead end, you walk backward—erasing each footprint—until you find an untried path.
+> **Core Intuition**: You're exploring a maze of choices. You walk forward, leaving footprints. When you hit a dead end, you walk backward (erasing each footprint) until you find an untried path.
 
 ---
 
@@ -27,7 +27,7 @@ Imagine standing at the entrance of a cave with many branching tunnels. You need
 - A ball of thread (your *path*)
 - Chalk to mark visited junctions (your *state*)
 
-You unroll thread as you walk deeper. When a tunnel ends (dead end) or you find treasure (valid solution), you *rewind* the thread and *erase* your chalk marks—returning to the last junction to try a different tunnel.
+You unroll thread as you walk deeper. When a tunnel ends (dead end) or you find treasure (valid solution), you *rewind* the thread and *erase* your chalk marks, returning to the last junction to try a different tunnel.
 
 **This is backtracking**: systematic exploration where every choice is reversible, every path is fully explored, and the explorer always returns to a clean state before trying alternatives.
 
@@ -80,7 +80,7 @@ Here's the subtle truth: backtracking *feels* reversible, but something *is* per
 
 > Once you've explored a branch completely, that branch is **forever finished**.
 
-You've extracted every treasure from that path. When you backtrack past a junction, you're not erasing the treasures you found—you're just erasing your footprints so you can walk a different path.
+You've extracted every treasure from that path. When you backtrack past a junction, you're not erasing the treasures you found, you're just erasing your footprints so you can walk a different path.
 
 ---
 
@@ -88,7 +88,7 @@ You've extracted every treasure from that path. When you backtrack past a juncti
 
 ### The State Consistency Invariant
 
-> **At every moment, the current state reflects exactly the path taken to reach this point—nothing more, nothing less.**
+> **At every moment, the current state reflects exactly the path taken to reach this point: nothing more, nothing less.**
 
 If your path is `[A, B, C]`, then:
 - `A` is marked as used
@@ -149,7 +149,7 @@ You're walking this tree. At each node, you:
 
 Backtracking problems fall into five distinct shapes. Recognizing the shape tells you exactly what to track and how to recurse.
 
-### Shape 1: Permutation — "Arrange All, Order Matters"
+### Shape 1: Permutation: "Arrange All, Order Matters"
 
 **The situation**: You have n distinct items. You want every possible ordering.
 
@@ -169,7 +169,7 @@ Who goes second? → [1,2] or [1,3] (not [1,1])
 ...
 ```
 
-### Shape 2: Subset — "Include or Exclude, Order Doesn't Matter"
+### Shape 2: Subset: "Include or Exclude, Order Doesn't Matter"
 
 **The situation**: You have n items. You want every possible subset.
 
@@ -189,7 +189,7 @@ Item 2: [1,2] or [1] or [2] or []
 
 **Key insight**: Using a start index automatically enforces canonical order. You never look backward.
 
-### Shape 3: Target Sum — "Reach a Goal"
+### Shape 3: Target Sum: "Reach a Goal"
 
 **The situation**: Find combinations that add up to a target.
 
@@ -206,7 +206,7 @@ Pick 3 → remaining: 2
 Pick 2 → remaining: 0 ← FOUND!
 ```
 
-### Shape 4: Constraint Satisfaction — "Place Without Conflict"
+### Shape 4: Constraint Satisfaction: "Place Without Conflict"
 
 **The situation**: Place items (queens, numbers) so no two conflict.
 
@@ -223,7 +223,7 @@ Row 1: Only columns not forbidden are valid
 ...
 ```
 
-### Shape 5: Segmentation — "Cut Into Valid Pieces"
+### Shape 5: Segmentation: "Cut Into Valid Pieces"
 
 **The situation**: Partition a sequence into parts where each part is valid.
 
@@ -252,7 +252,7 @@ Not all paths lead to treasure. Some lead to dead ends. The earlier you recogniz
 
 ### Four Pruning Strategies
 
-#### 1. Feasibility Bound — "Not Enough Left"
+#### 1. Feasibility Bound: "Not Enough Left"
 
 *"I need 3 more items, but only 2 remain. No point continuing."*
 
@@ -262,7 +262,7 @@ If remaining_elements < elements_needed:
     stop exploring
 ```
 
-#### 2. Target Bound — "Already Too Much"
+#### 2. Target Bound: "Already Too Much"
 
 *"I'm looking for sum 10, but I'm already at 12. Going deeper only adds more."*
 
@@ -272,7 +272,7 @@ If current_sum > target:
     stop exploring
 ```
 
-#### 3. Sorted Early Exit — "Everything After Is Worse"
+#### 3. Sorted Early Exit: "Everything After Is Worse"
 
 *"Items are sorted. If this one is too big, all following are too big."*
 
@@ -281,7 +281,7 @@ If candidates are sorted and candidates[i] > remaining:
     break (not just continue)
 ```
 
-#### 4. Constraint Propagation — "No Valid Move Exists"
+#### 4. Constraint Propagation: "No Valid Move Exists"
 
 *"Every column is attacked by existing queens. No legal placement at this row."*
 
@@ -381,13 +381,13 @@ Each problem below shows the shape recognition and implementation.
 
 ### 9.1 Permutations (LeetCode 46)
 
-**Shape**: Permutation — arrange all, order matters.
+**Shape**: Permutation: arrange all, order matters.
 
 **Recognition**: "Return all possible permutations" + all elements must appear once.
 
 **What to track**: `used[]` array marking which elements are in current path.
 
-**Time**: O(n! × n) — n! permutations, O(n) to copy each.
+**Time**: O(n! × n): n! permutations, O(n) to copy each.
 
 ```python
 def permute(nums: list[int]) -> list[list[int]]:
@@ -420,7 +420,7 @@ def permute(nums: list[int]) -> list[list[int]]:
     return results
 ```
 
-### 9.2 Permutations II — With Duplicates (LeetCode 47)
+### 9.2 Permutations II: With Duplicates (LeetCode 47)
 
 **Shape**: Permutation with deduplication.
 
@@ -458,13 +458,13 @@ def permute_unique(nums: list[int]) -> list[list[int]]:
 
 ### 9.3 Subsets (LeetCode 78)
 
-**Shape**: Subset — include or exclude, canonical order.
+**Shape**: Subset: include or exclude, canonical order.
 
 **Recognition**: "Return all possible subsets (the power set)."
 
 **What to track**: Start index to enforce forward-only selection.
 
-**Time**: O(2^n × n) — 2^n subsets, O(n) to copy each.
+**Time**: O(2^n × n): 2^n subsets, O(n) to copy each.
 
 ```python
 def subsets(nums: list[int]) -> list[list[int]]:
@@ -485,7 +485,7 @@ def subsets(nums: list[int]) -> list[list[int]]:
     return results
 ```
 
-### 9.4 Subsets II — With Duplicates (LeetCode 90)
+### 9.4 Subsets II: With Duplicates (LeetCode 90)
 
 **Shape**: Subset with deduplication.
 
@@ -642,7 +642,7 @@ def combination_sum3(k: int, n: int) -> list[list[int]]:
 
 ### 9.9 N-Queens (LeetCode 51/52)
 
-**Shape**: Constraint satisfaction — place without conflict.
+**Shape**: Constraint satisfaction: place without conflict.
 
 **Recognition**: "Place n queens on n×n board with no attacks."
 
@@ -716,7 +716,7 @@ def total_n_queens(n: int) -> int:
 
 ### 9.10 Palindrome Partitioning (LeetCode 131)
 
-**Shape**: Segmentation — cut into valid pieces.
+**Shape**: Segmentation: cut into valid pieces.
 
 **Recognition**: "Partition such that every substring is a palindrome."
 
@@ -962,4 +962,4 @@ Unroll the thread. Mark the junctions. Collect the treasures. Rewind. Repeat.
 
 ---
 
-*Document generated for NeetCode Practice Framework — Pattern: BacktrackingExploration*
+*Document generated for NeetCode Practice Framework: Pattern: BacktrackingExploration*

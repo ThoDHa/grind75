@@ -8,7 +8,7 @@
 
 Imagine standing in a city skyline, looking right. You want to know: for each building, which is the first taller building to its right?
 
-You could check every building to the right of each one — that's O(n²). But there's a pattern: **once a tall building appears, all the shorter buildings before it will never be the answer for anything further right**. They're "shadowed" by the tall one.
+You could check every building to the right of each one: that's O(n²). But there's a pattern: **once a tall building appears, all the shorter buildings before it will never be the answer for anything further right**. They're "shadowed" by the tall one.
 
 **This is the essence of Monotonic Stack.**
 
@@ -18,7 +18,7 @@ You encounter this pattern whenever:
 - The answer for each element is determined by a **boundary** element
 - Processing order matters: **resolve on pop, not on push**
 
-The key insight: *You're not searching — you're eliminating candidates. When a dominant element appears, weaker candidates are resolved and discarded forever.*
+The key insight: *You're not searching: you're eliminating candidates. When a dominant element appears, weaker candidates are resolved and discarded forever.*
 
 ---
 
@@ -52,7 +52,7 @@ Monotonic Decreasing Stack (for Next Greater Element):
 The invariant is your compass. Every element either:
 1. **Resolves** existing candidates (by being their boundary)
 2. **Becomes** a new candidate (pushed onto stack)
-3. **Both** — first resolve, then join
+3. **Both**: first resolve, then join
 
 ---
 

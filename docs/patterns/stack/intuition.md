@@ -1,12 +1,12 @@
 # Stack: Pattern Intuition Guide
 
-> *"A stack is a memory of unfinished business — the last thing you started is the first thing you must finish."*
+> *"A stack is a memory of unfinished business: the last thing you started is the first thing you must finish."*
 
 ---
 
 ## The Situation That Calls for a Stack
 
-Imagine you're reading a deeply nested document: a chapter that opens a section, which opens a sub-section, which opens a footnote. To make sense of the footnote, you must remember everything that's still open above it. And when the footnote closes, you return to exactly where you left the sub-section — not the chapter, not some earlier point, but the **most recent unfinished thing**.
+Imagine you're reading a deeply nested document: a chapter that opens a section, which opens a sub-section, which opens a footnote. To make sense of the footnote, you must remember everything that's still open above it. And when the footnote closes, you return to exactly where you left the sub-section, not the chapter, not some earlier point, but the **most recent unfinished thing**.
 
 You could try to track all of this in your head. But the structure is nested, and the rule is rigid: whatever you opened last must close first. The moment you violate that order, the document is malformed.
 
@@ -20,7 +20,7 @@ You encounter this pattern whenever:
 - Each element is paired with its **most recent unmatched** counterpart
 - You need to **undo** or **backtrack** to the last open item
 
-The key insight: *You are not scanning for a global answer — you are tracking what is still open, and resolving each thing in reverse order of arrival.*
+The key insight: *You are not scanning for a global answer. You are tracking what is still open, and resolving each thing in reverse order of arrival.*
 
 ---
 
@@ -30,7 +30,7 @@ Every stack algorithm rests on a single promise:
 
 > **The stack holds the unfinished work, with the most recent on top. You resolve in reverse order of arrival.**
 
-When you read input left to right, some pieces cannot be acted on immediately. An opening bracket means nothing until its closing partner appears. An operand sits idle until an operator tells it what to do. So you set these pieces aside — push them — and carry on.
+When you read input left to right, some pieces cannot be acted on immediately. An opening bracket means nothing until its closing partner appears. An operand sits idle until an operator tells it what to do. So you set these pieces aside (push them) and carry on.
 
 When the resolving signal arrives, it always pairs with the **top** of the stack: the most recent unfinished item. Not the oldest, not some middle element. The top. This is what makes the stack the right tool: nesting is inherently last-opened-first-closed, and the stack enforces exactly that order for free.
 
@@ -61,7 +61,7 @@ A stack wears several disguises. Recognizing each one tells you what to push and
 ### Model 1: Matching and Balancing Nested Delimiters
 > *"Every opener must close, and in the right order."*
 
-Push each opening symbol. On a closing symbol, the top of the stack must be its matching opener. If it matches, pop and continue. If it doesn't match — or the stack is empty — the structure is invalid.
+Push each opening symbol. On a closing symbol, the top of the stack must be its matching opener. If it matches, pop and continue. If it doesn't match (or the stack is empty), the structure is invalid.
 
 ```python
 pairs = {')': '(', ']': '[', '}': '{'}
@@ -78,7 +78,7 @@ return not stack   # leftover openers mean unbalanced
 ### Model 2: Postfix (Expression) Evaluation
 > *"Operands wait on the stack until an operator resolves them."*
 
-In Reverse Polish Notation, numbers have no meaning alone — they wait. When an operator arrives, it reaches back for the two most recent operands (the top two on the stack), computes, and pushes the result. The result then waits to become an operand for a later operator.
+In Reverse Polish Notation, numbers have no meaning alone: they wait. When an operator arrives, it reaches back for the two most recent operands (the top two on the stack), computes, and pushes the result. The result then waits to become an operand for a later operator.
 
 ```python
 stack = []
@@ -95,12 +95,12 @@ return stack[-1]
 ### Model 3: Parsing with Nested Context
 > *"Push your current state when context opens, restore it when context closes."*
 
-When you enter a parenthesized sub-expression, you don't lose what you were building — you set it aside. Push the accumulated result and the pending sign onto the stack on `(`. When `)` arrives, pop them and fold the inner result back into the outer context. The stack carries the suspended outer scopes.
+When you enter a parenthesized sub-expression, you don't lose what you were building: you set it aside. Push the accumulated result and the pending sign onto the stack on `(`. When `)` arrives, pop them and fold the inner result back into the outer context. The stack carries the suspended outer scopes.
 
 ### Model 4: An Explicit Stack Replaces the Call Stack
 > *"Recursion is a stack you didn't write down."*
 
-Every recursive call quietly pushes a frame onto the program's call stack and pops it on return. Any recursive traversal can be rewritten with an explicit stack: push the work you'd recurse into, pop to process it. This is why iterative DFS uses a stack — it is the call stack made visible, useful when recursion depth would overflow or when you want manual control.
+Every recursive call quietly pushes a frame onto the program's call stack and pops it on return. Any recursive traversal can be rewritten with an explicit stack: push the work you'd recurse into, pop to process it. This is why iterative DFS uses a stack: it is the call stack made visible, useful when recursion depth would overflow or when you want manual control.
 
 ---
 
@@ -132,7 +132,7 @@ When you see these phrases, think **Stack**:
 
 **Action**: Push on descent, pop to backtrack to the previous level.
 
-If the problem is specifically *"for each element, find the next greater or smaller element,"* reach for the **monotonic stack** instead — it is a specialization of this pattern that keeps the stack ordered so dominated candidates can be discarded.
+If the problem is specifically *"for each element, find the next greater or smaller element,"* reach for the **monotonic stack** instead: it is a specialization of this pattern that keeps the stack ordered so dominated candidates can be discarded.
 
 ---
 
@@ -265,11 +265,11 @@ return len(stack) == 0
 
 Master the stack through this sequence of Grind75 problems:
 
-1. **Valid Parentheses** — the canonical delimiter-matching problem. Push openers, match on closers, require an empty stack at the end. This builds the core push/pop/match reflex.
+1. **Valid Parentheses**: the canonical delimiter-matching problem. Push openers, match on closers, require an empty stack at the end. This builds the core push/pop/match reflex.
 
-2. **Evaluate Reverse Polish Notation** — postfix evaluation. Operands wait on the stack; each operator pops two and pushes a result. Learn to respect operand order for `-` and `/`.
+2. **Evaluate Reverse Polish Notation**: postfix evaluation. Operands wait on the stack; each operator pops two and pushes a result. Learn to respect operand order for `-` and `/`.
 
-3. **Basic Calculator** — parsing with a sign/number/paren stack. Push the suspended outer context on `(` and fold the inner result back on `)`. This combines matching, evaluation, and nested context into one algorithm.
+3. **Basic Calculator**: parsing with a sign/number/paren stack. Push the suspended outer context on `(` and fold the inner result back on `)`. This combines matching, evaluation, and nested context into one algorithm.
 
 Work them in order: each one adds a layer onto the last. Matching teaches the mechanics, postfix teaches deferred evaluation, and the calculator teaches nested context.
 
@@ -279,6 +279,6 @@ Work them in order: each one adds a layer onto the last. Matching teaches the me
 
 A stack is about **deferring work until the right moment to resolve it**.
 
-You push what you cannot finish yet, and the stack guarantees that when resolution comes, the right partner is always on top — the most recent unfinished thing. Nesting, matching, evaluation, and backtracking are all the same idea wearing different clothes: last in, first out.
+You push what you cannot finish yet, and the stack guarantees that when resolution comes, the right partner is always on top: the most recent unfinished thing. Nesting, matching, evaluation, and backtracking are all the same idea wearing different clothes: last in, first out.
 
 *Push what you can't finish. Pop when the answer arrives. The top of the stack is always the next thing to resolve.*

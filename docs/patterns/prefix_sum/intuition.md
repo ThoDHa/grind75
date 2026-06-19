@@ -1,6 +1,6 @@
 # Prefix Sum: Pattern Intuition Guide
 
-> *"The prefix sum is a ledger of the past — it remembers everything you've accumulated so you don't have to count again."*
+> *"The prefix sum is a ledger of the past: it remembers everything you've accumulated so you don't have to count again."*
 
 ---
 
@@ -12,7 +12,7 @@ You could add up each transaction from day 5 to day 20. But if another customer 
 
 **There's a better way.**
 
-At the end of each day, you write down the **running total** — the cumulative balance from day 1 to now. This is your prefix sum.
+At the end of each day, you write down the **running total**: the cumulative balance from day 1 to now. This is your prefix sum.
 
 Now when anyone asks about any range, you simply subtract: *balance at end of range* minus *balance just before the start*. Instant answer.
 
@@ -64,7 +64,7 @@ prefix[j] - prefix[?] = K
 prefix[j] - K = 0
 ```
 
-We need a prefix of **0** to have existed. That's the "empty prefix" — the sum before the array even started. By initializing with `{0: 1}`, we say: *"Yes, there was one occurrence of sum=0 at the imaginary position -1."*
+We need a prefix of **0** to have existed. That's the "empty prefix": the sum before the array even started. By initializing with `{0: 1}`, we say: *"Yes, there was one occurrence of sum=0 at the imaginary position -1."*
 
 Without this, we'd miss every subarray that starts from index 0.
 
@@ -125,7 +125,7 @@ When you see these phrases, think **Prefix Sum**:
 
 ## The 2D Extension: Inclusion-Exclusion
 
-When you have a 2D grid and need rectangle sums, prefix sum extends naturally — but with a twist.
+When you have a 2D grid and need rectangle sums, prefix sum extends naturally, but with a twist.
 
 Building the 2D prefix:
 ```
@@ -179,14 +179,14 @@ The top-left corner (A) gets subtracted twice (once in B, once in C), so we add 
 
 Master prefix sum through this sequence:
 
-1. **LC 303** (Range Sum Query) — Build basic intuition
-2. **LC 560** (Subarray Sum = K) — Add hash map technique
-3. **LC 525** (Contiguous Array) — Transform technique (0→-1)
-4. **LC 523** (Continuous Subarray Sum) — Modular arithmetic variant
-5. **LC 304** (2D Range Sum) — Extend to 2D
-6. **LC 238** (Product Except Self) — Prefix/suffix products
-7. **LC 1094** (Car Pooling) — Difference array
-8. **LC 1109** (Flight Bookings) — Canonical difference array
+1. **LC 303** (Range Sum Query): Build basic intuition
+2. **LC 560** (Subarray Sum = K): Add hash map technique
+3. **LC 525** (Contiguous Array): Transform technique (0→-1)
+4. **LC 523** (Continuous Subarray Sum): Modular arithmetic variant
+5. **LC 304** (2D Range Sum): Extend to 2D
+6. **LC 238** (Product Except Self): Prefix/suffix products
+7. **LC 1094** (Car Pooling): Difference array
+8. **LC 1109** (Flight Bookings): Canonical difference array
 
 ---
 
@@ -196,6 +196,6 @@ Prefix sum is about **trading space for time** through **precomputation**.
 
 Instead of answering each question from scratch, you invest upfront to build a structure that makes every future answer immediate.
 
-The prefix sum array is a **cumulative summary** of the past. It lets you query any historical range by looking at just two points — the boundaries.
+The prefix sum array is a **cumulative summary** of the past. It lets you query any historical range by looking at just two points: the boundaries.
 
 *"The best time to build a prefix sum was at the start. The second best time is now."*

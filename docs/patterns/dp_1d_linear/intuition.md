@@ -1,6 +1,6 @@
 # DP 1D Linear: Pattern Intuition Guide
 
-> *"Dynamic programming is just careful brute force — you solve every subproblem, but you remember what you've already solved."*
+> *"Dynamic programming is just careful brute force: you solve every subproblem, but you remember what you've already solved."*
 
 ---
 
@@ -203,11 +203,11 @@ Take the better of the two results.
 
 Master 1D Linear DP through this sequence:
 
-1. **LC 70** (Climbing Stairs) — Pure Fibonacci, additive DP
-2. **LC 746** (Min Cost Climbing) — Add cost, switch to min
-3. **LC 198** (House Robber) — Include/exclude framework
-4. **LC 213** (House Robber II) — Circular decomposition
-5. **LC 121** (Best Time Buy/Sell) — Implicit DP with running min
+1. **LC 70** (Climbing Stairs): Pure Fibonacci, additive DP
+2. **LC 746** (Min Cost Climbing): Add cost, switch to min
+3. **LC 198** (House Robber): Include/exclude framework
+4. **LC 213** (House Robber II): Circular decomposition
+5. **LC 121** (Best Time Buy/Sell): Implicit DP with running min
 
 ---
 

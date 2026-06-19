@@ -1,6 +1,6 @@
 # Hashing & Frequency Counting: Pattern Intuition Guide
 
-> *"A hash map is memory with an instant recall — it remembers everything you've seen so you never have to look twice."*
+> *"A hash map is memory with an instant recall: it remembers everything you've seen so you never have to look twice."*
 
 ---
 
@@ -12,14 +12,14 @@ You could read the list top to bottom every time a guest arrives. With one guest
 
 **There's a better way.**
 
-Before the doors open, you memorize the list — not as an ordered sequence, but as a *set of names you can recall instantly*. Now each arrival is a single question: *"Is this name on the list?"* The answer comes immediately, no scanning required.
+Before the doors open, you memorize the list (not as an ordered sequence, but as a *set of names you can recall instantly*). Now each arrival is a single question: *"Is this name on the list?"* The answer comes immediately, no scanning required.
 
 **This is the essence of Hashing.**
 
 You encounter this pattern whenever:
-- You ask *"have I seen this before?"* — **membership**
-- You ask *"is there another element that pairs with this one?"* — **complement lookup**
-- You ask *"how many of each thing are there?"* — **counting**
+- You ask *"have I seen this before?"*: **membership**
+- You ask *"is there another element that pairs with this one?"*: **complement lookup**
+- You ask *"how many of each thing are there?"*: **counting**
 
 The unifying move: instead of searching the data again and again, you build an index of what you've seen and query it in constant time.
 
@@ -39,7 +39,7 @@ The map (or set) is **an index of the past**. As you walk the data once, you rec
 
 The trade is explicit: *you spend space to buy time.* When the array is unsorted and you cannot afford repeated scans, this is almost always the right bargain.
 
-The key shift in thinking: *You're not searching the data — you're asking the data a question it has already answered.*
+The key shift in thinking: *You're not searching the data, you're asking the data a question it has already answered.*
 
 ---
 
@@ -47,7 +47,7 @@ The key shift in thinking: *You're not searching the data — you're asking the 
 
 Hashing problems wear four faces. Recognizing the face tells you what structure to reach for and what question to ask it.
 
-### Model 1: The Complement Search — "Have I seen target − x?"
+### Model 1: The Complement Search: "Have I seen target − x?"
 
 You walk the array once. For each element `x`, you don't search for a matching partner ahead of you. Instead you ask the past: *"Did an earlier element equal what I still need?"*
 
@@ -64,7 +64,7 @@ for i, x in enumerate(nums):
 
 **Why it works**: every pair has two members. By the time you reach the second member, the first is already recorded. You only ever look backward, and backward is O(1).
 
-### Model 2: The Frequency Map — "How many of each?"
+### Model 2: The Frequency Map: "How many of each?"
 
 When the question is about *counts* rather than presence, the map stores `element -> count`. One pass builds the tally; comparisons become arithmetic on counts.
 
@@ -75,7 +75,7 @@ freq = Counter(s)              # {'a': 3, 'b': 1, ...}
 
 Anagrams, character budgets, and "can I build X from Y" questions all reduce to comparing two frequency maps or subtracting one from another.
 
-### Model 3: The "Seen" Set — Membership
+### Model 3: The "Seen" Set: Membership
 
 When you only care *whether* something appeared, not how many times, a set is leaner than a map. No values, just keys.
 
@@ -90,7 +90,7 @@ return False
 
 A set answers a yes/no question. A map answers a how-many question. Pick the lighter tool for the job.
 
-### Model 4: Boyer-Moore Voting — Counting Without a Map
+### Model 4: Boyer-Moore Voting: Counting Without a Map
 
 There is one counting problem that needs **no hash structure at all**: finding a *strict majority* element (one appearing more than ⌊n/2⌋ times).
 
@@ -105,7 +105,7 @@ for x in nums:
 return candidate
 ```
 
-**Why it works**: a strict majority outnumbers *everything else combined*. Pairing each majority element against a non-majority element cancels both, but the majority has surplus votes that nothing can cancel. The survivor is the answer — in O(1) space.
+**Why it works**: a strict majority outnumbers *everything else combined*. Pairing each majority element against a non-majority element cancels both, but the majority has surplus votes that nothing can cancel. The survivor is the answer: in O(1) space.
 
 This is a special case worth knowing: it shows that "counting" does not always mean "build a frequency map." When one element dominates, voting beats tallying.
 
@@ -148,7 +148,7 @@ When you see these phrases, think **Hashing & Frequency Counting**:
 
 ## Worked Intuition Traces
 
-### Trace 1: Complement Lookup — Two Sum
+### Trace 1: Complement Lookup: Two Sum
 
 **Problem**: Return indices of two numbers that add up to `target`.
 **Input**: `nums = [3, 2, 4]`, `target = 6`
@@ -165,12 +165,12 @@ When you see these phrases, think **Hashing & Frequency Counting**:
 └──────────────────────────────────────────────────────────────────┘
 
 Key observations:
-• We never compared 3 with 4 directly — the complement check did it.
+• We never compared 3 with 4 directly: the complement check did it.
 • Each element is looked at once; each lookup is O(1).
 • Only the past is consulted, so no pair is ever counted twice.
 ```
 
-### Trace 2: Frequency Map — Valid Anagram
+### Trace 2: Frequency Map: Valid Anagram
 
 **Problem**: Is `t` a rearrangement of `s`?
 **Input**: `s = "anagram"`, `t = "nagaram"`
@@ -215,7 +215,7 @@ A set cannot answer "how many times?" and a frequency map is wasteful when you o
 
 ### Pitfall 3: Equality and Hashing of Keys
 
-A hash map can only find a key if that key hashes and compares equal to what you stored. Mutable types (lists in Python) are unhashable. Composite keys must be made hashable and canonical — for grouping anagrams, sort the characters or use a count tuple so `"abc"` and `"bca"` map to the same key. If your keys are custom objects, ensure their equality and hash definitions agree.
+A hash map can only find a key if that key hashes and compares equal to what you stored. Mutable types (lists in Python) are unhashable. Composite keys must be made hashable and canonical: for grouping anagrams, sort the characters or use a count tuple so `"abc"` and `"bca"` map to the same key. If your keys are custom objects, ensure their equality and hash definitions agree.
 
 ### Pitfall 4: Reaching for Hashing When Sorting or Two Pointers Fits Better
 
@@ -227,12 +227,12 @@ Hashing costs O(n) extra space and gives unordered results. When the input is al
 
 Master hashing through this sequence of Grind75 problems:
 
-1. **Two Sum** — the canonical complement lookup. Store seen values, query for `target - x`.
-2. **Contains Duplicate** — the seen-set in its purest form. Check before insert, or compare set size to length.
-3. **Valid Anagram** — build a frequency map of one string, subtract the other, verify all counts return to zero.
-4. **Ransom Note** — frequency map as a budget. Count letters in the magazine, then subtract the note; if any count goes negative, you cannot build it. This is counter subtraction.
-5. **Longest Palindrome** — frequency *parity* counting. Every character used in pairs contributes to the palindrome; at most one odd-count character sits in the center. Count, then sum the even portions.
-6. **Majority Element** — frequency map for the straightforward solution, then Boyer-Moore voting for the O(1)-space refinement.
+1. **Two Sum**: the canonical complement lookup. Store seen values, query for `target - x`.
+2. **Contains Duplicate**: the seen-set in its purest form. Check before insert, or compare set size to length.
+3. **Valid Anagram**: build a frequency map of one string, subtract the other, verify all counts return to zero.
+4. **Ransom Note**: frequency map as a budget. Count letters in the magazine, then subtract the note; if any count goes negative, you cannot build it. This is counter subtraction.
+5. **Longest Palindrome**: frequency *parity* counting. Every character used in pairs contributes to the palindrome; at most one odd-count character sits in the center. Count, then sum the even portions.
+6. **Majority Element**: frequency map for the straightforward solution, then Boyer-Moore voting for the O(1)-space refinement.
 
 The arc moves from membership (Contains Duplicate) to complement lookup (Two Sum) to counting (Anagram, Ransom Note, Longest Palindrome) and finally to the space-free counting trick (Majority Element).
 

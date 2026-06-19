@@ -1,6 +1,6 @@
 # Two Pointers: Pattern Intuition Guide
 
-> *"Two points of attention, moving in coordinated rhythm — each step permanently narrows the world of possibilities."*
+> *"Two points of attention, moving in coordinated rhythm: each step permanently narrows the world of possibilities."*
 
 ---
 
@@ -8,23 +8,23 @@
 
 Imagine you're standing at the edge of a long corridor with doors on both sides. You know the answer lies somewhere in this corridor, but checking every possible pair of doors would take forever.
 
-Then you realize: you don't need to check everything. You can place one hand on the leftmost door and one on the rightmost door. Based on what you find, you know which hand to move. With each movement, doors behind you become irrelevant — forever excluded from consideration.
+Then you realize: you don't need to check everything. You can place one hand on the leftmost door and one on the rightmost door. Based on what you find, you know which hand to move. With each movement, doors behind you become irrelevant, forever excluded from consideration.
 
 **This is the essence of Two Pointers.**
 
 You encounter this pattern whenever:
 - You're working with a **sorted** or **ordered** sequence
 - You need to find **pairs, tuples, or regions** with certain properties
-- The relationship between elements is **monotonic** — changing one pointer predictably affects the outcome
+- The relationship between elements is **monotonic**: changing one pointer predictably affects the outcome
 - You can **eliminate possibilities** based on the current state
 
-The key insight: *You're not searching — you're eliminating. Every pointer movement permanently shrinks the problem.*
+The key insight: *You're not searching. You're eliminating. Every pointer movement permanently shrinks the problem.*
 
 ---
 
 ## The Invariant: The Space Between
 
-Every two pointers algorithm maintains a **sacred region** — the space where the answer must exist.
+Every two pointers algorithm maintains a **sacred region**: the space where the answer must exist.
 
 ```
 ┌───────────────────────────────────────────────────────────────────────────┐
@@ -39,7 +39,7 @@ Every two pointers algorithm maintains a **sacred region** — the space where t
 
 The invariant says: *If a valid answer exists, it lies within the current boundaries.* Moving a pointer is a declaration: "I've proven that nothing behind this pointer can be part of the answer."
 
-**This is what makes two pointers work**: each movement is a proof of exclusion. You're not guessing — you're eliminating with certainty.
+**This is what makes two pointers work**: each movement is a proof of exclusion. You're not guessing. You're eliminating with certainty.
 
 ---
 
@@ -63,7 +63,7 @@ Two pointer problems come in six distinct flavors. Recognizing the shape tells y
 
 ---
 
-### Shape 1: Opposite Approach — "Closing the Gap"
+### Shape 1: Opposite Approach: "Closing the Gap"
 
 **The situation**: Two sentinels stand at opposite ends of a corridor. They walk toward each other, meeting somewhere in the middle.
 
@@ -93,7 +93,7 @@ Final:                   L R  (or L crosses R)
 
 ---
 
-### Shape 2: Same Direction — "The Writer Following the Reader"
+### Shape 2: Same Direction: "The Writer Following the Reader"
 
 **The situation**: Two people walk the same corridor. One is a **Reader** who examines every door. The other is a **Writer** who only records the doors worth keeping.
 
@@ -137,7 +137,7 @@ Final:      [a] [c] [x] [x] [x] [x]
 
 ---
 
-### Shape 3: Fast and Slow — "The Tortoise and the Hare"
+### Shape 3: Fast and Slow: "The Tortoise and the Hare"
 
 **The situation**: Two runners on a track. One runs twice as fast as the other. If the track is a loop, the fast runner will eventually lap the slow one.
 
@@ -185,11 +185,11 @@ This works because of the mathematical relationship between the meeting point an
 
 ---
 
-### Shape 4: Partitioning — "The Bouncer Sorting the Queue"
+### Shape 4: Partitioning: "The Bouncer Sorting the Queue"
 
 **The situation**: A bouncer at a club entrance directs each person to one of three sections: left, middle, or right. Each person is examined once and placed in their final position.
 
-**What it feels like**: You're sorting without sorting — classifying elements into regions in a single pass.
+**What it feels like**: You're sorting without sorting: classifying elements into regions in a single pass.
 
 **The mental model** (Dutch National Flag):
 ```
@@ -220,9 +220,9 @@ This works because of the mathematical relationship between the meeting point an
 
 ---
 
-### Shape 5: Dedup Enumeration — "Pinning Down the Triangle"
+### Shape 5: Dedup Enumeration: "Pinning Down the Triangle"
 
-**The situation**: You need to find all unique triplets (or quadruplets) with a target property. You've seen Two Sum with a hash map — now imagine finding *all* Two Sum pairs, without duplicates, inside a loop.
+**The situation**: You need to find all unique triplets (or quadruplets) with a target property. You've seen Two Sum with a hash map. Now imagine finding *all* Two Sum pairs, without duplicates, inside a loop.
 
 **What it feels like**: You pin down one corner, then use opposite pointers to sweep the remaining candidates.
 
@@ -258,7 +258,7 @@ For each i (the anchor):
 
 ---
 
-### Shape 6: Merge — "Two Rivers Joining"
+### Shape 6: Merge: "Two Rivers Joining"
 
 **The situation**: Two sorted streams need to become one. You hold a cup at the head of each stream. You pour from whichever cup has the smaller value.
 
@@ -333,12 +333,12 @@ Ask yourself these questions:
 
 You're reading a problem. You notice:
 
-- *"Given a **sorted** array..."* — Sorting enables deterministic pointer movement
-- *"Find **two elements** that sum to..."* — Pair search screams opposite pointers
-- *"Remove ... **in-place** with O(1) extra space"* — Same-direction writer
-- *"Detect if there's a **cycle**..."* — Fast-slow pointers
-- *"**Sort** the array so that all X come before Y..."* — Partitioning
-- *"**Merge** two sorted..."* — Merge pattern
+- *"Given a **sorted** array..."*: Sorting enables deterministic pointer movement
+- *"Find **two elements** that sum to..."*: Pair search screams opposite pointers
+- *"Remove ... **in-place** with O(1) extra space"*: Same-direction writer
+- *"Detect if there's a **cycle**..."*: Fast-slow pointers
+- *"**Sort** the array so that all X come before Y..."*: Partitioning
+- *"**Merge** two sorted..."*: Merge pattern
 
 And you feel it: *This is a two pointers problem. I know exactly which shape.*
 
@@ -405,7 +405,7 @@ The magic: *No element is ever reconsidered.* This is the irreversibility that t
 
 ## Detailed Traces: Seeing the Pattern in Motion
 
-### Trace 1: Opposite Pointers — Two Sum II
+### Trace 1: Opposite Pointers: Two Sum II
 
 **Problem**: Find two numbers in sorted array that sum to target.  
 **Input**: `nums = [2, 7, 11, 15]`, `target = 9`
@@ -426,13 +426,13 @@ The magic: *No element is ever reconsidered.* This is the irreversibility that t
 └────────────────────────────────────────────────────────────────────────┘
 
 Key observations:
-• We never examined (2,11) or (7,11) or (7,15) — they were eliminated!
+• We never examined (2,11) or (7,11) or (7,15): they were eliminated!
 • Each step provably excluded possibilities based on monotonicity.
 ```
 
 ---
 
-### Trace 2: Same-Direction — Remove Duplicates
+### Trace 2: Same-Direction: Remove Duplicates
 
 **Problem**: Remove duplicates from sorted array in-place.  
 **Input**: `nums = [1, 1, 2, 2, 2, 3]`
@@ -477,7 +477,7 @@ Invariant maintained throughout:
 
 ---
 
-### Trace 3: Fast-Slow — Cycle Detection
+### Trace 3: Fast-Slow: Cycle Detection
 
 **Problem**: Detect if linked list has a cycle.  
 **Input**: `1 → 2 → 3 → 4 → 5 → 3` (cycle back to node 3)
@@ -522,7 +522,7 @@ Why they MUST meet:
 
 ---
 
-### Trace 4: Dutch National Flag — Sort Colors
+### Trace 4: Dutch National Flag: Sort Colors
 
 **Problem**: Sort array containing only 0s, 1s, and 2s.  
 **Input**: `nums = [2, 0, 2, 1, 1, 0]`
@@ -560,19 +560,19 @@ Why they MUST meet:
 │                      L            M (M > H, done!)                     │
 │                               H                                        │
 │                                                                        │
-│  Result: [0, 0, 1, 1, 2, 2] — sorted in single pass!                   │
+│  Result: [0, 0, 1, 1, 2, 2]: sorted in single pass!                    │
 └────────────────────────────────────────────────────────────────────────┘
 
 Key insight:
-• When swapping with high, we DON'T advance mid — the swapped element is unclassified
-• When swapping with low, we DO advance mid — the swapped element is known to be 0 or 1
+• When swapping with high, we DON'T advance mid: the swapped element is unclassified
+• When swapping with low, we DO advance mid: the swapped element is known to be 0 or 1
 ```
 
 ---
 
 ## From Intuition to Implementation
 
-Only now — after the patterns feel inevitable — does code become useful.
+Only now (after the patterns feel inevitable) does code become useful.
 
 ### Opposite Pointers Template
 
@@ -652,7 +652,7 @@ def partition_three_way(arr, pivot=1):
             mid += 1
         elif arr[mid] > pivot:
             arr[mid], arr[high] = arr[high], arr[mid]
-            high -= 1  # Don't advance mid — swapped element is unknown
+            high -= 1  # Don't advance mid: swapped element is unknown
         else:
             mid += 1
 ```
@@ -718,7 +718,7 @@ if i > 0 and nums[i] == nums[i-1]:
 
 ### Pitfall 4: Advancing Mid in Dutch Flag After High Swap
 
-When you swap `arr[mid]` with `arr[high]`, the new value at `mid` is unclassified. Don't advance `mid` — examine it in the next iteration.
+When you swap `arr[mid]` with `arr[high]`, the new value at `mid` is unclassified. Don't advance `mid`. Examine it in the next iteration.
 
 ---
 

@@ -1,6 +1,6 @@
 # Data-Structure Design: Pattern Intuition Guide
 
-> *"Design is not about inventing new structures — it is about composing old ones so each operation pays the price it promised."*
+> *"Design is not about inventing new structures: it is about composing old ones so each operation pays the price it promised."*
 
 ---
 
@@ -8,7 +8,7 @@
 
 Most problems hand you an input and ask for an answer. **Design problems hand you a contract.**
 
-You are asked to implement a class — `MinStack`, `LRUCache`, `FreqStack` — that supports a fixed menu of operations. Alongside each operation comes a promise about its cost:
+You are asked to implement a class (`MinStack`, `LRUCache`, `FreqStack`) that supports a fixed menu of operations. Alongside each operation comes a promise about its cost:
 
 > *"All operations must run in O(1)."*
 > *"`get` and `put` must each be O(1) on average."*
@@ -16,7 +16,7 @@ You are asked to implement a class — `MinStack`, `LRUCache`, `FreqStack` — t
 
 A naive single structure usually satisfies *some* operations cheaply and others expensively. A plain stack gives O(1) `push` and `pop`, but `getMin` costs O(n) because you must scan. A plain array gives O(1) random access, but maintaining recency order costs O(n) on every touch.
 
-**The craft is choosing and composing primitive structures so that every operation in the contract meets its guarantee — and keeping those structures in sync as the data changes.**
+**The craft is choosing and composing primitive structures so that every operation in the contract meets its guarantee, and keeping those structures in sync as the data changes.**
 
 ---
 
@@ -90,6 +90,7 @@ The invariant: **the hash map and the list always describe the same set of keys.
 
 ## Mental Model 3: Amortized Analysis (Two Stacks as a Queue)
 
+
 Sometimes an operation looks expensive in the worst case but is cheap *on average* over a sequence of calls. That is **amortized** cost, and it is a legitimate way to meet an O(1) contract.
 
 A queue needs FIFO order; a stack gives LIFO. Use two stacks:
@@ -145,7 +146,7 @@ class FreqStack:
         return x
 ```
 
-The top of `groups[maxfreq]` is always the most-frequent, most-recent element — exactly what `pop` needs, in O(1). The stack inside each frequency layer preserves recency for free, and `maxfreq` is a cached pointer to the layer that matters.
+The top of `groups[maxfreq]` is always the most-frequent, most-recent element: exactly what `pop` needs, in O(1). The stack inside each frequency layer preserves recency for free, and `maxfreq` is a cached pointer to the layer that matters.
 
 ---
 
@@ -170,7 +171,7 @@ When you see these phrases, think **Data-Structure Design**:
 > *"Support `push`, `pop`, `getMin`."*
 > *"Support `insert`, `remove`, `getRandom`."*
 
-**Action**: Find the operation that the obvious single structure handles *poorly* — that gap tells you which auxiliary structure to add.
+**Action**: Find the operation that the obvious single structure handles *poorly*: that gap tells you which auxiliary structure to add.
 
 ---
 
@@ -219,7 +220,7 @@ Notice the discipline at `put(3,C)`: we evict from **both** structures. We unlin
 ## Common Pitfalls
 
 ### Pitfall 1: Confusing Amortized with Worst-Case
-A two-stack queue is O(1) *amortized*, not O(1) per call — a single `pop` can be O(n). If the contract demands O(1) *worst-case*, an amortized design does not satisfy it. Read the budget precisely.
+A two-stack queue is O(1) *amortized*, not O(1) per call: a single `pop` can be O(n). If the contract demands O(1) *worst-case*, an amortized design does not satisfy it. Read the budget precisely.
 
 ### Pitfall 2: Structures Drifting Out of Sync
 When two structures mirror the same data, a mutation that updates one but not the other leaves them inconsistent. The bug surfaces *later*, on a read that trusts the structure you forgot to update. Make it a rule: **every mutating operation updates every mirror.**
@@ -239,13 +240,13 @@ Reaching for an array when the contract needs O(1) middle-deletion, or a list wh
 
 Build mastery of design through this sequence:
 
-1. **Min Stack** — Carry an auxiliary min-stack so `getMin` is O(1). The cleanest introduction to "a second structure pre-computes the hard query."
+1. **Min Stack**: Carry an auxiliary min-stack so `getMin` is O(1). The cleanest introduction to "a second structure pre-computes the hard query."
 
-2. **Implement Queue using Stacks** — Two stacks give FIFO order; each element moves at most twice, so the cost is O(1) amortized. Learn to reason about amortized cost.
+2. **Implement Queue using Stacks**: Two stacks give FIFO order; each element moves at most twice, so the cost is O(1) amortized. Learn to reason about amortized cost.
 
-3. **LRU Cache** — Hash map for O(1) lookup plus a doubly linked list for O(1) recency updates. The canonical "compose two structures and keep them in sync" problem.
+3. **LRU Cache**: Hash map for O(1) lookup plus a doubly linked list for O(1) recency updates. The canonical "compose two structures and keep them in sync" problem.
 
-4. **Maximum Frequency Stack** — Frequency-indexed stacks, where elements are bucketed by how many times they appear and a cached `maxfreq` points at the live layer. Layered indexing in its purest form.
+4. **Maximum Frequency Stack**: Frequency-indexed stacks, where elements are bucketed by how many times they appear and a cached `maxfreq` points at the live layer. Layered indexing in its purest form.
 
 ---
 
@@ -253,11 +254,11 @@ Build mastery of design through this sequence:
 
 Design is **composition under a contract**.
 
-You are given operations and their costs. You do not invent new structures; you assemble known ones so that each operation lands on a primitive that handles it cheaply — and you uphold the invariants that bind those primitives together through every mutation.
+You are given operations and their costs. You do not invent new structures; you assemble known ones so that each operation lands on a primitive that handles it cheaply, and you uphold the invariants that bind those primitives together through every mutation.
 
 Two questions carry every design:
 
 1. *Which primitive makes this operation cheap?*
 2. *What must stay true after every change, and does every operation keep it true?*
 
-*"A design is only as correct as its invariants — and an invariant is only as strong as the operation most likely to forget it."*
+*"A design is only as correct as its invariants, and an invariant is only as strong as the operation most likely to forget it."*
