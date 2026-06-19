@@ -14,6 +14,14 @@ from typing import Optional
 from harness import NotSolved, TreeNode, build_tree, tree_to_list, pick_case
 
 
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+
+
 class Solution:
     def invertTree(self, root: Optional[TreeNode]) -> Optional[TreeNode]:
         """State the time and space complexity of your approach, and explain why.
