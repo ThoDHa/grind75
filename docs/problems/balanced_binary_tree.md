@@ -4,7 +4,7 @@
 
 **Pattern:** [Tree Traversal](../patterns/tree/intuition.md)
 
-**Practice:** [`practice/balanced_binary_tree/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/balanced_binary_tree/solution.py)
+**Practice:** [`practice/balanced_binary_tree/solution.py`](../../practice/balanced_binary_tree/solution.py)
 
 Given a binary tree, determine if it is height-balanced.
 

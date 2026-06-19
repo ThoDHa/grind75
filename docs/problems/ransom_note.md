@@ -4,7 +4,7 @@
 
 **Pattern:** [Hashing & Frequency Counting](../patterns/hashing/intuition.md)
 
-**Practice:** [`practice/ransom_note/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/ransom_note/solution.py)
+**Practice:** [`practice/ransom_note/solution.py`](../../practice/ransom_note/solution.py)
 
 Given two strings `ransomNote` and `magazine`, return `true` if `ransomNote` can be constructed from `magazine` and `false` otherwise.
 

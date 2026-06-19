@@ -4,7 +4,7 @@
 
 **Pattern:** [Two Pointers](../patterns/two_pointers/intuition.md)
 
-**Practice:** [`practice/3sum/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/3sum/solution.py)
+**Practice:** [`practice/3sum/solution.py`](../../practice/3sum/solution.py)
 
 Given an integer array nums, return all the triplets `[nums[i], nums[j], nums[k]]` such that `i != j`, `i != k`, and `j != k`, and `nums[i] + nums[j] + nums[k] == 0`.
 

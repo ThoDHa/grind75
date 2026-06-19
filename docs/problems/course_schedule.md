@@ -4,7 +4,7 @@
 
 **Pattern:** [Graph Traversal](../patterns/graph/intuition.md), [Topological Sort](../patterns/topological_sort/intuition.md)
 
-**Practice:** [`practice/course_schedule/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/course_schedule/solution.py)
+**Practice:** [`practice/course_schedule/solution.py`](../../practice/course_schedule/solution.py)
 
 There are a total of `numCourses` courses you have to take, labeled from `0` to
 `numCourses - 1`. You are given an array `prerequisites` where

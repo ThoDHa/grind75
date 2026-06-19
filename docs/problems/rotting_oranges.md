@@ -4,7 +4,7 @@
 
 **Pattern:** [Multi-Source BFS](../patterns/grid_bfs_multi_source/intuition.md)
 
-**Practice:** [`practice/rotting_oranges/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/rotting_oranges/solution.py)
+**Practice:** [`practice/rotting_oranges/solution.py`](../../practice/rotting_oranges/solution.py)
 
 You are given an `m x n` grid where each cell can have one of three values:
 

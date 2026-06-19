@@ -4,7 +4,7 @@
 
 **Pattern:** [Tree DP](../patterns/tree_dp/intuition.md)
 
-**Practice:** [`practice/diameter_of_binary_tree/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/diameter_of_binary_tree/solution.py)
+**Practice:** [`practice/diameter_of_binary_tree/solution.py`](../../practice/diameter_of_binary_tree/solution.py)
 
 Given the `root` of a binary tree, return the length of the **diameter** of the tree.
 

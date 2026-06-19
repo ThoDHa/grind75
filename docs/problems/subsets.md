@@ -4,7 +4,7 @@
 
 **Pattern:** [Backtracking](../patterns/backtracking_exploration/intuition.md)
 
-**Practice:** [`practice/subsets/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/subsets/solution.py)
+**Practice:** [`practice/subsets/solution.py`](../../practice/subsets/solution.py)
 
 Given an integer array `nums` of unique elements, return all possible subsets (the power set).
 

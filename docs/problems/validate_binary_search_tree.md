@@ -4,7 +4,7 @@
 
 **Pattern:** [Tree Traversal](../patterns/tree/intuition.md)
 
-**Practice:** [`practice/validate_binary_search_tree/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/validate_binary_search_tree/solution.py)
+**Practice:** [`practice/validate_binary_search_tree/solution.py`](../../practice/validate_binary_search_tree/solution.py)
 
 Given the `root` of a binary tree, determine if it is a valid binary search tree (BST).
 

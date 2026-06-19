@@ -4,7 +4,7 @@
 
 **Pattern:** [DP Knapsack/Subset](../patterns/dp_knapsack_subset/intuition.md)
 
-**Practice:** [`practice/coin_change/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/coin_change/solution.py)
+**Practice:** [`practice/coin_change/solution.py`](../../practice/coin_change/solution.py)
 
 You are given an integer array `coins` representing coins of different denominations and an integer `amount` representing a total amount of money.
 

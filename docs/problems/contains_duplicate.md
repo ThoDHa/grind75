@@ -4,7 +4,7 @@
 
 **Pattern:** [Hashing & Frequency Counting](../patterns/hashing/intuition.md)
 
-**Practice:** [`practice/contains_duplicate/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/contains_duplicate/solution.py)
+**Practice:** [`practice/contains_duplicate/solution.py`](../../practice/contains_duplicate/solution.py)
 
 Given an integer array `nums`, return `true` if any value appears **at least twice** in the array, and return `false` if every element is distinct.
 

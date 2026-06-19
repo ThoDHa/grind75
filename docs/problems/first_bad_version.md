@@ -4,7 +4,7 @@
 
 **Pattern:** [Binary Search](../patterns/binary_search/intuition.md)
 
-**Practice:** [`practice/first_bad_version/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/first_bad_version/solution.py)
+**Practice:** [`practice/first_bad_version/solution.py`](../../practice/first_bad_version/solution.py)
 
 You are a product manager and currently leading a team to develop a new product. Unfortunately, the latest version of your product fails the quality check. Since each version is developed based on the previous version, all the versions after a bad version are also bad.
 

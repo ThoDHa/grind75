@@ -4,7 +4,7 @@
 
 **Pattern:** [Tree Traversal](../patterns/tree/intuition.md)
 
-**Practice:** [`practice/construct_binary_tree_from_preorder_and_inorder_traversal/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/construct_binary_tree_from_preorder_and_inorder_traversal/solution.py)
+**Practice:** [`practice/construct_binary_tree_from_preorder_and_inorder_traversal/solution.py`](../../practice/construct_binary_tree_from_preorder_and_inorder_traversal/solution.py)
 
 Given two integer arrays `preorder` and `inorder` where `preorder` is the preorder traversal of a binary tree and `inorder` is the inorder traversal of the same tree, construct and return the binary tree.
 

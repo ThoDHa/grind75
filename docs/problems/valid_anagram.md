@@ -4,7 +4,7 @@
 
 **Pattern:** [Hashing & Frequency Counting](../patterns/hashing/intuition.md)
 
-**Practice:** [`practice/valid_anagram/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/valid_anagram/solution.py)
+**Practice:** [`practice/valid_anagram/solution.py`](../../practice/valid_anagram/solution.py)
 
 Given two strings `s` and `t`, return `true` if `t` is an anagram of `s`, and `false` otherwise.
 

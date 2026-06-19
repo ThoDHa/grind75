@@ -4,7 +4,7 @@
 
 **Pattern:** [Two Pointers](../patterns/two_pointers/intuition.md)
 
-**Practice:** [`practice/valid_palindrome/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/valid_palindrome/solution.py)
+**Practice:** [`practice/valid_palindrome/solution.py`](../../practice/valid_palindrome/solution.py)
 
 A phrase is a palindrome if, after converting all uppercase letters into lowercase letters and
 removing all non-alphanumeric characters, it reads the same forward and backward.

@@ -8,6 +8,13 @@ docs_dir: docs
 exclude_docs: |
   _TEMPLATE.md
 
+# The practice/ workspace lives outside docs_dir: it is for local repo use,
+# not the deployed site. Problem pages link to it relatively, which resolves
+# in the repo but not in the built site, so don't fail the build on those.
+validation:
+  links:
+    not_found: ignore
+
 theme:
   name: material
   palette:

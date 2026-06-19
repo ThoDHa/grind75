@@ -4,7 +4,7 @@
 
 **Pattern:** [Binary Search](../patterns/binary_search/intuition.md)
 
-**Practice:** [`practice/search_in_rotated_sorted_array/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/search_in_rotated_sorted_array/solution.py)
+**Practice:** [`practice/search_in_rotated_sorted_array/solution.py`](../../practice/search_in_rotated_sorted_array/solution.py)
 
 There is an integer array `nums` sorted in ascending order (with distinct values).
 

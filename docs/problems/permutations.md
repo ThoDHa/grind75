@@ -4,7 +4,7 @@
 
 **Pattern:** [Backtracking](../patterns/backtracking_exploration/intuition.md)
 
-**Practice:** [`practice/permutations/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/permutations/solution.py)
+**Practice:** [`practice/permutations/solution.py`](../../practice/permutations/solution.py)
 
 Given an array `nums` of distinct integers, return all the possible permutations. You can return the answer in any order.
 

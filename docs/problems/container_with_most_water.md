@@ -4,7 +4,7 @@
 
 **Pattern:** [Two Pointers](../patterns/two_pointers/intuition.md)
 
-**Practice:** [`practice/container_with_most_water/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/container_with_most_water/solution.py)
+**Practice:** [`practice/container_with_most_water/solution.py`](../../practice/container_with_most_water/solution.py)
 
 You are given an integer array `height` of length `n`. There are `n` vertical lines drawn such that the two endpoints of the `i`th line are `(i, 0)` and `(i, height[i])`.
 

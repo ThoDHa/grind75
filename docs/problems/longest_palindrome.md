@@ -4,7 +4,7 @@
 
 **Pattern:** [Hashing & Frequency Counting](../patterns/hashing/intuition.md)
 
-**Practice:** [`practice/longest_palindrome/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/longest_palindrome/solution.py)
+**Practice:** [`practice/longest_palindrome/solution.py`](../../practice/longest_palindrome/solution.py)
 
 Given a string `s` which consists of lowercase or uppercase letters, return the length of the longest palindrome that can be built with those letters.
 

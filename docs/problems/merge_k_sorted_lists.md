@@ -4,7 +4,7 @@
 
 **Pattern:** [Heap / Priority Queue](../patterns/heap/intuition.md), [K-Way Merge](../patterns/k_way_merge/intuition.md)
 
-**Practice:** [`practice/merge_k_sorted_lists/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/merge_k_sorted_lists/solution.py)
+**Practice:** [`practice/merge_k_sorted_lists/solution.py`](../../practice/merge_k_sorted_lists/solution.py)
 
 You are given an array of k linked-lists lists, each linked-list is sorted in ascending order.
 

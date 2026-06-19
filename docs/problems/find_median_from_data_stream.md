@@ -4,7 +4,7 @@
 
 **Pattern:** [Heap / Priority Queue](../patterns/heap/intuition.md)
 
-**Practice:** [`practice/find_median_from_data_stream/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/find_median_from_data_stream/solution.py)
+**Practice:** [`practice/find_median_from_data_stream/solution.py`](../../practice/find_median_from_data_stream/solution.py)
 
 The **median** is the middle value in an ordered integer list. If the size of the list is even, there is no middle value, and the median is the mean of the two middle values.
 

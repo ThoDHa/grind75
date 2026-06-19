@@ -4,7 +4,7 @@
 
 **Pattern:** [Hashing & Frequency Counting](../patterns/hashing/intuition.md)
 
-**Practice:** [`practice/two_sum/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/two_sum/solution.py)
+**Practice:** [`practice/two_sum/solution.py`](../../practice/two_sum/solution.py)
 
 Given an array of integers nums and an integer target, return indices of the two
 numbers such that they add up to target.
