@@ -1,0 +1,27 @@
+/* Widen the content area so wide screens are not left with large empty
+   margins. Material caps .md-grid at 61rem (~960px) by default. */
+.md-grid {
+  max-width: 1600px;
+}
+
+/* Make typeset tables (e.g. the problem catalog on the homepage) fill the
+   available width and wrap long cells instead of forcing a horizontal
+   scrollbar. Material defaults these tables to display:inline-block, which
+   leaves them narrow and scrollable. */
+.md-typeset table:not([class]) {
+  display: table;
+  width: 100%;
+}
+
+.md-typeset table:not([class]) th,
+.md-typeset table:not([class]) td {
+  white-space: normal;
+}
+
+/* On very wide viewports, give the prose a comfortable measure while still
+   using the extra room for code blocks and tables, which benefit from width. */
+@media screen and (min-width: 76.25em) {
+  .md-content {
+    max-width: 100%;
+  }
+}

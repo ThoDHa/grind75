@@ -1,0 +1,8 @@
+[
+  {
+    "id": "example_1",
+    "operations": ["TimeMap", "set", "get", "get", "set", "get", "get"],
+    "arguments": [[], ["foo", "bar", 1], ["foo", 1], ["foo", 3], ["foo", "bar2", 4], ["foo", 4], ["foo", 5]],
+    "expected": [null, null, "bar", "bar", null, "bar2", "bar2"]
+  }
+]

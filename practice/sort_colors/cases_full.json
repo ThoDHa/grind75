@@ -1,0 +1,22 @@
+[
+  {"id": "single_zero", "args": [[0]], "expected": [0]},
+  {"id": "single_one", "args": [[1]], "expected": [1]},
+  {"id": "single_two", "args": [[2]], "expected": [2]},
+  {"id": "already_sorted", "args": [[0, 0, 1, 1, 2, 2]], "expected": [0, 0, 1, 1, 2, 2]},
+  {"id": "reverse_sorted", "args": [[2, 2, 1, 1, 0, 0]], "expected": [0, 0, 1, 1, 2, 2]},
+  {"id": "all_zeros", "args": [[0, 0, 0, 0]], "expected": [0, 0, 0, 0]},
+  {"id": "all_ones", "args": [[1, 1, 1]], "expected": [1, 1, 1]},
+  {"id": "all_twos", "args": [[2, 2, 2, 2, 2]], "expected": [2, 2, 2, 2, 2]},
+  {"id": "only_zeros_and_twos", "args": [[2, 0, 2, 0, 2, 0]], "expected": [0, 0, 0, 2, 2, 2]},
+  {"id": "only_zeros_and_ones", "args": [[1, 0, 1, 0, 1, 0]], "expected": [0, 0, 0, 1, 1, 1]},
+  {"id": "only_ones_and_twos", "args": [[2, 1, 2, 1, 2, 1]], "expected": [1, 1, 1, 2, 2, 2]},
+  {"id": "two_elements_swap", "args": [[2, 0]], "expected": [0, 2]},
+  {"id": "two_elements_sorted", "args": [[0, 1]], "expected": [0, 1]},
+  {"id": "two_identical", "args": [[1, 1]], "expected": [1, 1]},
+  {"id": "leading_twos", "args": [[2, 2, 2, 0, 0, 1]], "expected": [0, 0, 1, 2, 2, 2]},
+  {"id": "trailing_zeros", "args": [[2, 1, 0, 0, 0, 0]], "expected": [0, 0, 0, 0, 1, 2]},
+  {"id": "interleaved", "args": [[0, 1, 2, 0, 1, 2, 0, 1, 2]], "expected": [0, 0, 0, 1, 1, 1, 2, 2, 2]},
+  {"id": "single_one_repeated_pattern", "args": [[1, 2, 0, 1, 2, 0, 1, 2, 0]], "expected": [0, 0, 0, 1, 1, 1, 2, 2, 2]},
+  {"id": "large_mixed", "args": [[2, 0, 1, 1, 0, 2, 2, 1, 0, 0, 2, 1, 0, 2, 1, 0, 1, 2, 0, 1]], "expected": [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2]},
+  {"id": "max_length_boundary", "args": [[2, 1, 0, 2, 1, 0, 2, 1, 0, 2, 1, 0, 2, 1, 0, 2, 1, 0, 2, 1, 0, 2, 1, 0, 2, 1, 0, 2, 1, 0]], "expected": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]}
+]

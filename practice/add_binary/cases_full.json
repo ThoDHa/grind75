@@ -1,0 +1,22 @@
+[
+  {"id": "both_zero", "args": ["0", "0"], "expected": "0"},
+  {"id": "zero_plus_one", "args": ["0", "1"], "expected": "1"},
+  {"id": "one_plus_zero", "args": ["1", "0"], "expected": "1"},
+  {"id": "one_plus_one_carry", "args": ["1", "1"], "expected": "10"},
+  {"id": "zero_plus_long", "args": ["0", "1101"], "expected": "1101"},
+  {"id": "long_plus_zero", "args": ["100100", "0"], "expected": "100100"},
+  {"id": "no_carry_anywhere", "args": ["1010", "0101"], "expected": "1111"},
+  {"id": "all_ones_equal_len", "args": ["1111", "1111"], "expected": "11110"},
+  {"id": "single_one_plus_all_ones", "args": ["1", "1111"], "expected": "10000"},
+  {"id": "all_ones_plus_single_one", "args": ["11111", "1"], "expected": "100000"},
+  {"id": "different_lengths_carry", "args": ["1011", "11"], "expected": "1110"},
+  {"id": "different_lengths_chain", "args": ["110010", "10111"], "expected": "1001001"},
+  {"id": "long_carry_chain", "args": ["1111111", "1"], "expected": "10000000"},
+  {"id": "mixed_carry_ripple", "args": ["10110", "1101"], "expected": "100011"},
+  {"id": "both_single_zero_vs_one", "args": ["1", "0"], "expected": "1"},
+  {"id": "asymmetric_short_long", "args": ["1", "100000000"], "expected": "100000001"},
+  {"id": "large_equal_length", "args": ["1101011011", "1011010110"], "expected": "11000110001"},
+  {"id": "trailing_zeros_sum", "args": ["10000", "10000"], "expected": "100000"},
+  {"id": "near_boundary_repeat", "args": ["101010101010", "010101010101"], "expected": "111111111111"},
+  {"id": "carry_propagates_full", "args": ["111111111111", "1"], "expected": "1000000000000"}
+]

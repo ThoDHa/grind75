@@ -1,0 +1,4 @@
+[
+  {"id": "example_1", "args": [[3, 2, 3]], "expected": 3},
+  {"id": "example_2", "args": [[2, 2, 1, 1, 1, 2, 2]], "expected": 2}
+]

@@ -1,0 +1,22 @@
+[
+  {"id": "single_empty", "args": [[[0]]], "expected": 0},
+  {"id": "single_fresh_unreachable", "args": [[[1]]], "expected": -1},
+  {"id": "single_rotten", "args": [[[2]]], "expected": 0},
+  {"id": "all_empty", "args": [[[0, 0], [0, 0]]], "expected": 0},
+  {"id": "all_rotten", "args": [[[2, 2], [2, 2]]], "expected": 0},
+  {"id": "all_fresh_no_source", "args": [[[1, 1], [1, 1]]], "expected": -1},
+  {"id": "one_fresh_one_rotten_adjacent", "args": [[[2, 1]]], "expected": 1},
+  {"id": "fresh_isolated_by_empty", "args": [[[2, 0, 1]]], "expected": -1},
+  {"id": "row_spread", "args": [[[2, 1, 1, 1, 1]]], "expected": 4},
+  {"id": "column_spread", "args": [[[2], [1], [1], [1]]], "expected": 3},
+  {"id": "rotten_in_middle", "args": [[[1, 1, 2, 1, 1]]], "expected": 2},
+  {"id": "two_sources_meet", "args": [[[2, 1, 1, 1, 2]]], "expected": 2},
+  {"id": "diagonal_unreachable", "args": [[[2, 0], [0, 1]]], "expected": -1},
+  {"id": "corner_to_corner", "args": [[[2, 1, 1], [1, 1, 1], [1, 1, 1]]], "expected": 4},
+  {"id": "empty_blocks_path", "args": [[[2, 1, 0], [0, 1, 1], [1, 0, 1]]], "expected": -1},
+  {"id": "full_grid_one_source", "args": [[[2, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1]]], "expected": 5},
+  {"id": "max_grid_corner_source", "args": [[[2, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]], "expected": 18},
+  {"id": "tall_single_column_unreachable", "args": [[[2], [1], [0], [1]]], "expected": -1},
+  {"id": "checkerboard_rotten_fresh", "args": [[[2, 1, 2], [1, 2, 1], [2, 1, 2]]], "expected": 1},
+  {"id": "surrounded_fresh_center", "args": [[[2, 2, 2], [2, 1, 2], [2, 2, 2]]], "expected": 1}
+]

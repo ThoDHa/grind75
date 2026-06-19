@@ -1,0 +1,9 @@
+[
+  {"id": "two_elements_min", "args": [[1, 2], 3], "expected": [0, 1]},
+  {"id": "mixed_sign", "args": [[-3, 4, 3, 90], 0], "expected": [0, 2]},
+  {"id": "all_negative", "args": [[-1, -2, -3, -4, -5], -8], "expected": [2, 4]},
+  {"id": "duplicate_zeros", "args": [[0, 4, 3, 0], 0], "expected": [0, 3]},
+  {"id": "answer_at_end", "args": [[5, 75, 25], 100], "expected": [1, 2]},
+  {"id": "boundary_values", "args": [[1000000000, -1000000000, 3, 4], 7], "expected": [2, 3]},
+  {"id": "first_and_last", "args": [[2, 5, 5, 11], 13], "expected": [0, 3]}
+]

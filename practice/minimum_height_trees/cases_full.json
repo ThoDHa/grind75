@@ -1,0 +1,17 @@
+[
+  {"id": "single_node", "args": [1, []], "expected": [0]},
+  {"id": "two_nodes", "args": [2, [[0, 1]]], "expected": [0, 1]},
+  {"id": "path_three_one_center", "args": [3, [[0, 1], [1, 2]]], "expected": [1]},
+  {"id": "path_four_two_centers", "args": [4, [[0, 1], [1, 2], [2, 3]]], "expected": [1, 2]},
+  {"id": "path_five_one_center", "args": [5, [[0, 1], [1, 2], [2, 3], [3, 4]]], "expected": [2]},
+  {"id": "path_six_two_centers", "args": [6, [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5]]], "expected": [2, 3]},
+  {"id": "star_five_leaves", "args": [6, [[0, 1], [0, 2], [0, 3], [0, 4], [0, 5]]], "expected": [0]},
+  {"id": "balanced_binary_seven", "args": [7, [[0, 1], [0, 2], [1, 3], [1, 4], [2, 5], [2, 6]]], "expected": [0]},
+  {"id": "y_shape_two_centers", "args": [7, [[0, 1], [1, 2], [2, 3], [2, 4], [2, 5], [5, 6]]], "expected": [2]},
+  {"id": "caterpillar_two_centers", "args": [8, [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7]]], "expected": [3, 4]},
+  {"id": "spider_long_legs", "args": [9, [[0, 1], [1, 2], [3, 4], [4, 2], [5, 6], [6, 2], [7, 8], [8, 2]]], "expected": [2]},
+  {"id": "two_stars_bridge", "args": [10, [[0, 1], [0, 2], [0, 3], [0, 4], [4, 5], [5, 6], [5, 7], [5, 8], [5, 9]]], "expected": [4]},
+  {"id": "long_path_eleven", "args": [11, [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8], [8, 9], [9, 10]]], "expected": [5]},
+  {"id": "shuffled_edges_center", "args": [5, [[3, 2], [0, 2], [2, 4], [2, 1]]], "expected": [2]},
+  {"id": "balanced_binary_fifteen", "args": [15, [[0, 1], [0, 2], [1, 3], [1, 4], [2, 5], [2, 6], [3, 7], [3, 8], [4, 9], [4, 10], [5, 11], [5, 12], [6, 13], [6, 14]]], "expected": [0]}
+]

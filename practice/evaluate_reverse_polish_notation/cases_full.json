@@ -1,0 +1,112 @@
+[
+  {
+    "id": "single_operand_positive",
+    "args": [["42"]],
+    "expected": 42
+  },
+  {
+    "id": "single_operand_negative",
+    "args": [["-200"]],
+    "expected": -200
+  },
+  {
+    "id": "single_operand_zero",
+    "args": [["0"]],
+    "expected": 0
+  },
+  {
+    "id": "simple_addition",
+    "args": [["3", "4", "+"]],
+    "expected": 7
+  },
+  {
+    "id": "subtraction_order_matters",
+    "args": [["5", "3", "-"]],
+    "expected": 2
+  },
+  {
+    "id": "subtraction_negative_result",
+    "args": [["3", "5", "-"]],
+    "expected": -2
+  },
+  {
+    "id": "simple_multiplication",
+    "args": [["6", "7", "*"]],
+    "expected": 42
+  },
+  {
+    "id": "division_exact",
+    "args": [["20", "4", "/"]],
+    "expected": 5
+  },
+  {
+    "id": "division_truncates_positive",
+    "args": [["7", "2", "/"]],
+    "expected": 3
+  },
+  {
+    "id": "division_truncates_toward_zero_negative_dividend",
+    "args": [["-7", "2", "/"]],
+    "expected": -3
+  },
+  {
+    "id": "division_truncates_toward_zero_negative_divisor",
+    "args": [["7", "-2", "/"]],
+    "expected": -3
+  },
+  {
+    "id": "division_both_negative",
+    "args": [["-7", "-2", "/"]],
+    "expected": 3
+  },
+  {
+    "id": "division_order_matters",
+    "args": [["13", "5", "/"]],
+    "expected": 2
+  },
+  {
+    "id": "division_smaller_over_larger",
+    "args": [["3", "5", "/"]],
+    "expected": 0
+  },
+  {
+    "id": "multiply_by_zero",
+    "args": [["0", "200", "*"]],
+    "expected": 0
+  },
+  {
+    "id": "negative_times_negative",
+    "args": [["-200", "-200", "*"]],
+    "expected": 40000
+  },
+  {
+    "id": "boundary_operands_addition",
+    "args": [["200", "-200", "+"]],
+    "expected": 0
+  },
+  {
+    "id": "nested_left_associative",
+    "args": [["10", "2", "-", "3", "-"]],
+    "expected": 5
+  },
+  {
+    "id": "all_operators_mixed",
+    "args": [["2", "3", "*", "4", "+", "5", "-"]],
+    "expected": 5
+  },
+  {
+    "id": "deep_addition_chain",
+    "args": [["1", "2", "+", "3", "+", "4", "+", "5", "+"]],
+    "expected": 15
+  },
+  {
+    "id": "two_independent_subexpressions",
+    "args": [["4", "13", "5", "/", "+"]],
+    "expected": 6
+  },
+  {
+    "id": "long_balanced_expression",
+    "args": [["100", "50", "/", "3", "*", "1", "+", "7", "-"]],
+    "expected": 0
+  }
+]

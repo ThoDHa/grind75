@@ -1,0 +1,17 @@
+[
+  {"id": "single_exact", "args": [[5], 5], "expected": [[5]]},
+  {"id": "single_no_solution", "args": [[3], 7], "expected": []},
+  {"id": "single_multiple_use", "args": [[2], 6], "expected": [[2, 2, 2]]},
+  {"id": "two_candidates", "args": [[3, 5], 8], "expected": [[3, 5]]},
+  {"id": "target_equals_min", "args": [[2, 3, 6, 7], 2], "expected": [[2]]},
+  {"id": "no_combination", "args": [[5, 7, 9], 3], "expected": []},
+  {"id": "all_used_once", "args": [[1, 2, 3], 6], "expected": [[1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 2], [1, 1, 1, 3], [1, 1, 2, 2], [1, 2, 3], [2, 2, 2], [3, 3]]},
+  {"id": "large_target_small_candidate", "args": [[2, 3, 5], 10], "expected": [[2, 2, 2, 2, 2], [2, 2, 3, 3], [2, 3, 5], [5, 5]]},
+  {"id": "descending_input", "args": [[7, 6, 3, 2], 7], "expected": [[2, 2, 3], [7]]},
+  {"id": "many_candidates", "args": [[2, 3, 4, 5, 6, 7], 8], "expected": [[2, 2, 2, 2], [2, 2, 4], [2, 3, 3], [2, 6], [3, 5], [4, 4]]},
+  {"id": "prime_candidates", "args": [[2, 3, 5, 7, 11], 11], "expected": [[2, 2, 2, 2, 3], [2, 2, 2, 5], [2, 2, 7], [2, 3, 3, 3], [3, 3, 5], [11]]},
+  {"id": "single_one_repeated", "args": [[1], 4], "expected": [[1, 1, 1, 1]]},
+  {"id": "target_one_with_one", "args": [[1, 2], 1], "expected": [[1]]},
+  {"id": "unsorted_candidates", "args": [[8, 7, 4, 3], 11], "expected": [[3, 4, 4], [3, 8], [4, 7]]},
+  {"id": "full_target_min_candidate", "args": [[4, 6, 8], 8], "expected": [[4, 4], [8]]}
+]

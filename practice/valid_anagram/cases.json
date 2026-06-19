@@ -1,0 +1,4 @@
+[
+  {"id": "example_1", "args": ["anagram", "nagaram"], "expected": true},
+  {"id": "example_2", "args": ["rat", "car"], "expected": false}
+]

@@ -1,0 +1,20 @@
+[
+  {"id": "single_element", "args": [[1]], "expected": 1},
+  {"id": "single_negative", "args": [[-7]], "expected": -7},
+  {"id": "single_zero", "args": [[0]], "expected": 0},
+  {"id": "two_same", "args": [[5, 5]], "expected": 5},
+  {"id": "majority_at_front", "args": [[4, 4, 4, 1, 2]], "expected": 4},
+  {"id": "majority_at_back", "args": [[1, 2, 3, 3, 3]], "expected": 3},
+  {"id": "alternating_majority", "args": [[1, 2, 1, 2, 1]], "expected": 1},
+  {"id": "exactly_over_half_even", "args": [[6, 6, 6, 7, 8, 6]], "expected": 6},
+  {"id": "all_negative", "args": [[-3, -3, -3, -1, -2]], "expected": -3},
+  {"id": "mixed_sign", "args": [[-1, 5, -1, 5, -1, -1, -1]], "expected": -1},
+  {"id": "zeros_majority", "args": [[0, 0, 0, 9, 9]], "expected": 0},
+  {"id": "candidate_resets", "args": [[7, 8, 9, 7, 7, 7, 7]], "expected": 7},
+  {"id": "boundary_max", "args": [[1000000000, 1000000000, -1000000000]], "expected": 1000000000},
+  {"id": "boundary_min", "args": [[-1000000000, -1000000000, 1000000000]], "expected": -1000000000},
+  {"id": "duplicates_with_distractors", "args": [[2, 1, 2, 3, 2, 4, 2]], "expected": 2},
+  {"id": "majority_scattered", "args": [[8, 1, 8, 2, 8, 3, 8, 4, 8]], "expected": 8},
+  {"id": "large_uniform", "args": [[5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5]], "expected": 5},
+  {"id": "large_just_majority", "args": [[3, 0, 3, 0, 3, 0, 3, 0, 3]], "expected": 3}
+]

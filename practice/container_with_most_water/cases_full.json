@@ -1,0 +1,21 @@
+[
+  {"id": "three_lines_peak", "args": [[1, 2, 1]], "expected": 2},
+  {"id": "min_length_equal", "args": [[5, 5]], "expected": 5},
+  {"id": "min_length_zero_left", "args": [[0, 7]], "expected": 0},
+  {"id": "min_length_zero_right", "args": [[7, 0]], "expected": 0},
+  {"id": "all_zeros", "args": [[0, 0, 0, 0]], "expected": 0},
+  {"id": "strictly_increasing", "args": [[1, 2, 3, 4, 5]], "expected": 6},
+  {"id": "strictly_decreasing", "args": [[5, 4, 3, 2, 1]], "expected": 6},
+  {"id": "tall_ends_short_middle", "args": [[8, 1, 1, 1, 8]], "expected": 32},
+  {"id": "best_pair_in_middle", "args": [[1, 9, 9, 1]], "expected": 9},
+  {"id": "plateau_equal_heights", "args": [[4, 4, 4, 4, 4]], "expected": 16},
+  {"id": "single_tall_spike", "args": [[2, 100, 2]], "expected": 4},
+  {"id": "duplicates_with_gap", "args": [[6, 2, 6, 2, 6]], "expected": 24},
+  {"id": "max_height_boundary", "args": [[10000, 1, 10000]], "expected": 20000},
+  {"id": "two_max_heights_adjacent", "args": [[10000, 10000]], "expected": 10000},
+  {"id": "ascending_then_descending", "args": [[1, 3, 7, 5, 2]], "expected": 6},
+  {"id": "many_lines_optimal_wide", "args": [[7, 1, 2, 3, 9, 4, 1, 8, 6, 7]], "expected": 63},
+  {"id": "long_flat_run", "args": [[3, 3, 3, 3, 3, 3, 3, 3, 3, 3]], "expected": 27},
+  {"id": "zeros_around_peak", "args": [[0, 0, 5, 0, 0]], "expected": 0},
+  {"id": "edges_tallest", "args": [[9, 6, 2, 4, 8, 5, 3, 9]], "expected": 63}
+]

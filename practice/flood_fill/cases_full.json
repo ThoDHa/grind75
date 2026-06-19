@@ -1,0 +1,20 @@
+[
+  {"id": "single_pixel_recolor", "args": [[[5]], 0, 0, 9], "expected": [[9]]},
+  {"id": "single_pixel_same_color", "args": [[[7]], 0, 0, 7], "expected": [[7]]},
+  {"id": "single_row_uniform", "args": [[[1, 1, 1, 1]], 0, 2, 3], "expected": [[3, 3, 3, 3]]},
+  {"id": "single_column_uniform", "args": [[[2], [2], [2]], 1, 0, 8], "expected": [[8], [8], [8]]},
+  {"id": "single_row_with_barrier", "args": [[[1, 1, 0, 1, 1]], 0, 0, 4], "expected": [[4, 4, 0, 1, 1]]},
+  {"id": "fill_entire_grid", "args": [[[0, 0], [0, 0]], 1, 1, 1], "expected": [[1, 1], [1, 1]]},
+  {"id": "start_already_target", "args": [[[3, 3], [3, 4]], 0, 0, 3], "expected": [[3, 3], [3, 4]]},
+  {"id": "diagonal_not_connected", "args": [[[1, 0], [0, 1]], 0, 0, 9], "expected": [[9, 0], [0, 1]]},
+  {"id": "isolated_pixel", "args": [[[1, 2, 1], [2, 1, 2], [1, 2, 1]], 1, 1, 5], "expected": [[1, 2, 1], [2, 5, 2], [1, 2, 1]]},
+  {"id": "snake_path", "args": [[[1, 1, 1], [0, 0, 1], [1, 1, 1]], 0, 0, 2], "expected": [[2, 2, 2], [0, 0, 2], [2, 2, 2]]},
+  {"id": "corner_start", "args": [[[1, 1, 0], [1, 0, 0], [0, 0, 0]], 0, 0, 6], "expected": [[6, 6, 0], [6, 0, 0], [0, 0, 0]]},
+  {"id": "ring_not_center", "args": [[[1, 1, 1], [1, 0, 1], [1, 1, 1]], 0, 0, 7], "expected": [[7, 7, 7], [7, 0, 7], [7, 7, 7]]},
+  {"id": "all_distinct_no_spread", "args": [[[1, 2, 3], [4, 5, 6], [7, 8, 9]], 1, 1, 0], "expected": [[1, 2, 3], [4, 0, 6], [7, 8, 9]]},
+  {"id": "large_uniform_fill", "args": [[[1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 1, 1, 1, 1]], 2, 3, 9], "expected": [[9, 9, 9, 9, 9], [9, 9, 9, 9, 9], [9, 9, 9, 9, 9], [9, 9, 9, 9, 9]]},
+  {"id": "max_color_value", "args": [[[0, 0], [0, 0]], 0, 0, 215], "expected": [[215, 215], [215, 215]]},
+  {"id": "two_regions_same_color", "args": [[[1, 0, 1], [0, 0, 0], [1, 0, 1]], 0, 0, 5], "expected": [[5, 0, 1], [0, 0, 0], [1, 0, 1]]},
+  {"id": "fill_zero_region", "args": [[[1, 1, 1], [1, 0, 1], [1, 1, 1]], 1, 1, 4], "expected": [[1, 1, 1], [1, 4, 1], [1, 1, 1]]},
+  {"id": "spiral_connected", "args": [[[1, 1, 1, 1], [0, 0, 0, 1], [1, 1, 0, 1], [1, 0, 0, 1]], 0, 0, 2], "expected": [[2, 2, 2, 2], [0, 0, 0, 2], [1, 1, 0, 2], [1, 0, 0, 2]]}
+]

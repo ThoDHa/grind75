@@ -1,0 +1,21 @@
+[
+  {"id": "single_char_match", "args": ["a", "a"], "expected": true},
+  {"id": "single_char_mismatch", "args": ["z", "a"], "expected": false},
+  {"id": "note_longer_than_magazine", "args": ["aaa", "aa"], "expected": false},
+  {"id": "exact_same_string", "args": ["abc", "abc"], "expected": true},
+  {"id": "magazine_permuted", "args": ["abc", "cab"], "expected": true},
+  {"id": "magazine_has_surplus", "args": ["abc", "aabbccdd"], "expected": true},
+  {"id": "needs_repeat_available", "args": ["aabb", "abab"], "expected": true},
+  {"id": "needs_repeat_missing", "args": ["aabb", "abcc"], "expected": false},
+  {"id": "missing_one_letter", "args": ["hello", "helo"], "expected": false},
+  {"id": "all_same_letter_ok", "args": ["bbbbb", "bbbbbbb"], "expected": true},
+  {"id": "all_same_letter_short", "args": ["ccccc", "cccc"], "expected": false},
+  {"id": "equal_length_mismatch", "args": ["abcd", "abce"], "expected": false},
+  {"id": "full_alphabet_match", "args": ["abcdefghijklmnopqrstuvwxyz", "zyxwvutsrqponmlkjihgfedcba"], "expected": true},
+  {"id": "full_alphabet_one_short", "args": ["abcdefghijklmnopqrstuvwxyz", "zyxwvutsrqponmlkjihgfedcb"], "expected": false},
+  {"id": "subset_of_magazine", "args": ["aa", "aaaaaaaaaa"], "expected": true},
+  {"id": "interleaved_counts", "args": ["aabbbccccd", "abcabcabcabc"], "expected": false},
+  {"id": "large_repeat_ok", "args": ["aaaaaaaaaaaaaaaaaaaa", "aaaaaaaaaaaaaaaaaaaaaaaaa"], "expected": true},
+  {"id": "large_repeat_short_by_one", "args": ["aaaaaaaaaaaaaaaaaaaaa", "aaaaaaaaaaaaaaaaaaaa"], "expected": false},
+  {"id": "magazine_missing_only_needed", "args": ["fg", "abcdefh"], "expected": false}
+]

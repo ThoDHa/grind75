@@ -1,0 +1,104 @@
+[
+  {
+    "id": "neetcode_1",
+    "operations": ["LRUCache", "put", "put", "get", "put", "get", "put", "get", "get", "get"],
+    "arguments": [[2], [1, 1], [2, 2], [1], [3, 3], [2], [4, 4], [1], [3], [4]],
+    "expected": [null, null, null, 1, null, -1, null, -1, 3, 4]
+  },
+  {
+    "id": "neetcode_2",
+    "operations": ["LRUCache", "put", "get", "put", "get", "get"],
+    "arguments": [[1], [2, 1], [2], [3, 2], [2], [3]],
+    "expected": [null, null, 1, null, -1, 2]
+  },
+  {
+    "id": "neetcode_3",
+    "operations": ["LRUCache", "put", "put", "put", "put", "get", "get"],
+    "arguments": [[2], [2, 1], [1, 1], [2, 3], [4, 1], [1], [2]],
+    "expected": [null, null, null, null, null, -1, 3]
+  },
+  {
+    "id": "get_missing_on_empty",
+    "operations": ["LRUCache", "get"],
+    "arguments": [[2], [1]],
+    "expected": [null, -1]
+  },
+  {
+    "id": "single_put_get",
+    "operations": ["LRUCache", "put", "get"],
+    "arguments": [[2], [1, 100], [1]],
+    "expected": [null, null, 100]
+  },
+  {
+    "id": "capacity_one_eviction",
+    "operations": ["LRUCache", "put", "get", "put", "get", "get"],
+    "arguments": [[1], [1, 1], [1], [2, 2], [1], [2]],
+    "expected": [null, null, 1, null, -1, 2]
+  },
+  {
+    "id": "capacity_one_overwrite_same_key",
+    "operations": ["LRUCache", "put", "put", "get"],
+    "arguments": [[1], [5, 10], [5, 20], [5]],
+    "expected": [null, null, null, 20]
+  },
+  {
+    "id": "update_existing_value",
+    "operations": ["LRUCache", "put", "put", "get"],
+    "arguments": [[2], [1, 1], [1, 99], [1]],
+    "expected": [null, null, null, 99]
+  },
+  {
+    "id": "update_refreshes_recency",
+    "operations": ["LRUCache", "put", "put", "put", "put", "get", "get"],
+    "arguments": [[2], [1, 1], [2, 2], [1, 10], [3, 3], [2], [1]],
+    "expected": [null, null, null, null, null, -1, 10]
+  },
+  {
+    "id": "get_refreshes_recency",
+    "operations": ["LRUCache", "put", "put", "get", "put", "get", "get"],
+    "arguments": [[2], [1, 1], [2, 2], [1], [3, 3], [2], [1]],
+    "expected": [null, null, null, 1, null, -1, 1]
+  },
+  {
+    "id": "repeated_get_same_key",
+    "operations": ["LRUCache", "put", "get", "get", "get"],
+    "arguments": [[2], [7, 7], [7], [7], [7]],
+    "expected": [null, null, 7, 7, 7]
+  },
+  {
+    "id": "value_zero_distinct_from_missing",
+    "operations": ["LRUCache", "put", "get", "get"],
+    "arguments": [[2], [0, 0], [0], [1]],
+    "expected": [null, null, 0, -1]
+  },
+  {
+    "id": "fill_exactly_to_capacity",
+    "operations": ["LRUCache", "put", "put", "put", "get", "get", "get"],
+    "arguments": [[3], [1, 1], [2, 2], [3, 3], [1], [2], [3]],
+    "expected": [null, null, null, null, 1, 2, 3]
+  },
+  {
+    "id": "evict_lru_after_full",
+    "operations": ["LRUCache", "put", "put", "put", "put", "get", "get", "get", "get"],
+    "arguments": [[3], [1, 1], [2, 2], [3, 3], [4, 4], [1], [2], [3], [4]],
+    "expected": [null, null, null, null, null, -1, 2, 3, 4]
+  },
+  {
+    "id": "sequential_overflow_keeps_recent",
+    "operations": ["LRUCache", "put", "put", "put", "put", "put", "get", "get", "get", "get", "get"],
+    "arguments": [[3], [1, 1], [2, 2], [3, 3], [4, 4], [5, 5], [1], [2], [3], [4], [5]],
+    "expected": [null, null, null, null, null, null, -1, -1, 3, 4, 5]
+  },
+  {
+    "id": "max_value_boundary",
+    "operations": ["LRUCache", "put", "get"],
+    "arguments": [[2], [10000, 100000], [10000]],
+    "expected": [null, null, 100000]
+  },
+  {
+    "id": "reinsert_after_eviction",
+    "operations": ["LRUCache", "put", "put", "put", "get", "put", "get"],
+    "arguments": [[2], [1, 1], [2, 2], [3, 3], [1], [1, 11], [1]],
+    "expected": [null, null, null, null, -1, null, 11]
+  }
+]

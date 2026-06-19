@@ -1,0 +1,15 @@
+[
+  {"id": "neetcode_origin_included", "args": [[[0, 0], [1, 1]], 2], "expected": [[0, 0], [1, 1]]},
+  {"id": "single_point_k1", "args": [[[5, 5]], 1], "expected": [[5, 5]]},
+  {"id": "k_equals_n", "args": [[[1, 2], [3, 4], [-1, -1]], 3], "expected": [[1, 2], [3, 4], [-1, -1]]},
+  {"id": "origin_point", "args": [[[0, 0], [3, 4], [1, 0]], 2], "expected": [[0, 0], [1, 0]]},
+  {"id": "negatives_only", "args": [[[-1, -1], [-5, -5], [-2, -2]], 1], "expected": [[-1, -1]]},
+  {"id": "axis_points", "args": [[[10, 0], [0, 1], [-3, 0], [0, 2]], 2], "expected": [[0, 1], [0, 2]]},
+  {"id": "mixed_signs", "args": [[[2, -2], [-3, 1], [1, 1], [4, 4]], 2], "expected": [[1, 1], [2, -2]]},
+  {"id": "k1_from_many", "args": [[[6, 7], [3, 1], [8, 8], [2, 9]], 1], "expected": [[3, 1]]},
+  {"id": "boundary_max_coords", "args": [[[10000, 10000], [1, 1], [-9999, 0]], 1], "expected": [[1, 1]]},
+  {"id": "clear_ordering", "args": [[[1, 0], [2, 0], [3, 0], [4, 0], [5, 0]], 3], "expected": [[1, 0], [2, 0], [3, 0]]},
+  {"id": "negative_axis", "args": [[[0, -1], [0, -10], [0, -3], [0, -2]], 2], "expected": [[0, -1], [0, -2]]},
+  {"id": "k_equals_n_single", "args": [[[7, -3]], 1], "expected": [[7, -3]]},
+  {"id": "spread_out", "args": [[[5, 4], [3, 0], [0, 0], [-1, 7], [2, 2]], 3], "expected": [[0, 0], [3, 0], [2, 2]]}
+]

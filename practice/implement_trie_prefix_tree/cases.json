@@ -1,0 +1,8 @@
+[
+  {
+    "id": "example_1",
+    "operations": ["Trie", "insert", "search", "search", "startsWith", "insert", "search"],
+    "arguments": [[], ["apple"], ["apple"], ["app"], ["app"], ["app"], ["app"]],
+    "expected": [null, null, true, false, true, null, true]
+  }
+]

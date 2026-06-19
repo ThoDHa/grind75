@@ -1,0 +1,16 @@
+[
+  {"id": "single_course_no_prereqs", "args": [1, []], "expected": true},
+  {"id": "self_loop", "args": [1, [[0, 0]]], "expected": false},
+  {"id": "no_prereqs_many", "args": [5, []], "expected": true},
+  {"id": "linear_chain", "args": [4, [[1, 0], [2, 1], [3, 2]]], "expected": true},
+  {"id": "linear_chain_with_back_edge", "args": [4, [[1, 0], [2, 1], [3, 2], [0, 3]]], "expected": false},
+  {"id": "diamond_dependency", "args": [4, [[1, 0], [2, 0], [3, 1], [3, 2]]], "expected": true},
+  {"id": "two_disjoint_chains_ok", "args": [4, [[1, 0], [3, 2]]], "expected": true},
+  {"id": "one_chain_one_cycle", "args": [5, [[1, 0], [3, 2], [4, 3], [2, 4]]], "expected": false},
+  {"id": "longer_cycle", "args": [3, [[0, 1], [1, 2], [2, 0]]], "expected": false},
+  {"id": "valid_topo_unordered_pairs", "args": [4, [[3, 2], [2, 1], [1, 0]]], "expected": true},
+  {"id": "fan_out", "args": [4, [[1, 0], [2, 0], [3, 0]]], "expected": true},
+  {"id": "fan_in", "args": [4, [[3, 0], [3, 1], [3, 2]]], "expected": true},
+  {"id": "cycle_among_isolated_nodes", "args": [6, [[2, 3], [3, 2]]], "expected": false},
+  {"id": "two_courses_no_prereqs", "args": [2, []], "expected": true}
+]

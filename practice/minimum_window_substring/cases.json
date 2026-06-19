@@ -1,0 +1,5 @@
+[
+  {"id": "example_1", "args": ["ADOBECODEBANC", "ABC"], "expected": "BANC"},
+  {"id": "example_2", "args": ["a", "a"], "expected": "a"},
+  {"id": "example_3", "args": ["a", "aa"], "expected": ""}
+]

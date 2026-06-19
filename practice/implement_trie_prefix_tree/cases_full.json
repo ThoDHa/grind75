@@ -1,0 +1,92 @@
+[
+  {
+    "id": "empty_trie_search_and_prefix",
+    "operations": ["Trie", "search", "startsWith"],
+    "arguments": [[], ["a"], ["a"]],
+    "expected": [null, false, false]
+  },
+  {
+    "id": "single_char_word",
+    "operations": ["Trie", "insert", "search", "startsWith", "search"],
+    "arguments": [[], ["a"], ["a"], ["a"], ["b"]],
+    "expected": [null, null, true, true, false]
+  },
+  {
+    "id": "search_unrelated_word",
+    "operations": ["Trie", "insert", "search", "startsWith"],
+    "arguments": [[], ["hello"], ["world"], ["wor"]],
+    "expected": [null, null, false, false]
+  },
+  {
+    "id": "prefix_of_inserted_word_not_a_word",
+    "operations": ["Trie", "insert", "search", "search", "startsWith"],
+    "arguments": [[], ["apple"], ["app"], ["appl"], ["appl"]],
+    "expected": [null, null, false, false, true]
+  },
+  {
+    "id": "word_then_longer_word_same_prefix",
+    "operations": ["Trie", "insert", "insert", "search", "search", "startsWith"],
+    "arguments": [[], ["app"], ["apple"], ["app"], ["apple"], ["appl"]],
+    "expected": [null, null, null, true, true, true]
+  },
+  {
+    "id": "longer_word_then_prefix_word",
+    "operations": ["Trie", "insert", "search", "insert", "search"],
+    "arguments": [[], ["apple"], ["app"], ["app"], ["app"]],
+    "expected": [null, null, false, null, true]
+  },
+  {
+    "id": "search_longer_than_inserted",
+    "operations": ["Trie", "insert", "search", "startsWith"],
+    "arguments": [[], ["app"], ["apple"], ["apple"]],
+    "expected": [null, null, false, false]
+  },
+  {
+    "id": "duplicate_inserts_idempotent",
+    "operations": ["Trie", "insert", "insert", "insert", "search", "startsWith"],
+    "arguments": [[], ["cat"], ["cat"], ["cat"], ["cat"], ["ca"]],
+    "expected": [null, null, null, null, true, true]
+  },
+  {
+    "id": "branching_words_share_prefix",
+    "operations": ["Trie", "insert", "insert", "search", "search", "startsWith", "startsWith", "search"],
+    "arguments": [[], ["car"], ["card"], ["car"], ["card"], ["ca"], ["cards"], ["ca"]],
+    "expected": [null, null, null, true, true, true, false, false]
+  },
+  {
+    "id": "diverging_branches",
+    "operations": ["Trie", "insert", "insert", "insert", "startsWith", "search", "search", "search", "startsWith"],
+    "arguments": [[], ["bat"], ["bath"], ["bad"], ["ba"], ["bat"], ["bath"], ["bad"], ["be"]],
+    "expected": [null, null, null, null, true, true, true, true, false]
+  },
+  {
+    "id": "empty_string_prefix_after_insert",
+    "operations": ["Trie", "insert", "startsWith", "search"],
+    "arguments": [[], ["dog"], [""], [""]],
+    "expected": [null, null, true, false]
+  },
+  {
+    "id": "empty_string_prefix_on_empty_trie",
+    "operations": ["Trie", "startsWith"],
+    "arguments": [[], [""]],
+    "expected": [null, true]
+  },
+  {
+    "id": "full_alphabet_word",
+    "operations": ["Trie", "insert", "search", "startsWith", "startsWith"],
+    "arguments": [[], ["abcdefghijklmnopqrstuvwxyz"], ["abcdefghijklmnopqrstuvwxyz"], ["abcdefghijklm"], ["abcdefghijklmnopqrstuvwxyzz"]],
+    "expected": [null, null, true, true, false]
+  },
+  {
+    "id": "many_words_mixed_queries",
+    "operations": ["Trie", "insert", "insert", "insert", "insert", "search", "search", "startsWith", "startsWith", "search", "startsWith"],
+    "arguments": [[], ["the"], ["there"], ["their"], ["thesis"], ["the"], ["thes"], ["the"], ["thei"], ["theory"], ["t"]],
+    "expected": [null, null, null, null, null, true, false, true, true, false, true]
+  },
+  {
+    "id": "reinsert_after_partial_match",
+    "operations": ["Trie", "insert", "search", "startsWith", "insert", "search", "search"],
+    "arguments": [[], ["abc"], ["ab"], ["ab"], ["ab"], ["ab"], ["abc"]],
+    "expected": [null, null, false, true, null, true, true]
+  }
+]

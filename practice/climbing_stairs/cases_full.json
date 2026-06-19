@@ -1,0 +1,8 @@
+[
+  {"id": "n_equals_1", "args": [1], "expected": 1},
+  {"id": "n_equals_4", "args": [4], "expected": 5},
+  {"id": "n_equals_5", "args": [5], "expected": 8},
+  {"id": "n_equals_10", "args": [10], "expected": 89},
+  {"id": "n_equals_20", "args": [20], "expected": 10946},
+  {"id": "n_equals_45_upper_bound", "args": [45], "expected": 1836311903}
+]

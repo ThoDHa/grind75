@@ -1,0 +1,15 @@
+[
+  {"id": "empty_tree", "args": [[]], "expected": 0},
+  {"id": "single_node", "args": [[0]], "expected": 1},
+  {"id": "single_negative", "args": [[-100]], "expected": 1},
+  {"id": "two_levels_full", "args": [[1, 2, 3]], "expected": 2},
+  {"id": "left_skewed", "args": [[1, 2, null, 3, null, 4]], "expected": 4},
+  {"id": "right_skewed", "args": [[1, null, 2, null, 3, null, 4]], "expected": 4},
+  {"id": "right_only_chain", "args": [[1, null, 2]], "expected": 2},
+  {"id": "left_deeper_than_right", "args": [[1, 2, 3, 4, null, null, null, 5]], "expected": 4},
+  {"id": "balanced_three_levels", "args": [[1, 2, 3, 4, 5, 6, 7]], "expected": 3},
+  {"id": "negatives_and_duplicates", "args": [[-5, -5, -5, null, -5]], "expected": 3},
+  {"id": "boundary_values", "args": [[100, -100, 100, -100]], "expected": 3},
+  {"id": "neetcode_case_1", "args": [[3, 9, 20, null, null, 15, 7]], "expected": 3},
+  {"id": "neetcode_case_2", "args": [[1, null, 2]], "expected": 2}
+]

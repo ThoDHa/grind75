@@ -1,0 +1,23 @@
+[
+  {"id": "neetcode_1", "args": ["hit", "cog", ["hot", "dot", "dog", "lot", "log", "cog"]], "expected": 5},
+  {"id": "neetcode_2", "args": ["hit", "cog", ["hot", "dot", "dog", "lot", "log"]], "expected": 0},
+  {"id": "neetcode_3_single_letter", "args": ["a", "c", ["a", "b", "c"]], "expected": 2},
+  {"id": "single_letter_direct", "args": ["a", "b", ["b"]], "expected": 2},
+  {"id": "single_letter_unreachable", "args": ["a", "z", ["b", "c", "d"]], "expected": 0},
+  {"id": "begin_one_away_from_end", "args": ["cat", "bat", ["bat"]], "expected": 2},
+  {"id": "end_not_in_list", "args": ["cat", "dog", ["cot", "cog", "cag"]], "expected": 0},
+  {"id": "empty_word_list", "args": ["cat", "dog", []], "expected": 0},
+  {"id": "no_bridge_two_apart", "args": ["cat", "dog", ["cog", "dog"]], "expected": 0},
+  {"id": "two_step_bridge", "args": ["cat", "cog", ["cot", "cog"]], "expected": 3},
+  {"id": "begin_in_list_ignored", "args": ["hot", "dog", ["hot", "dog", "dot"]], "expected": 3},
+  {"id": "longer_chain", "args": ["lead", "gold", ["load", "goad", "gold", "load", "good"]], "expected": 4},
+  {"id": "multiple_paths_same_length", "args": ["red", "tax", ["ted", "tex", "red", "tax", "tad", "den", "rex", "pee"]], "expected": 4},
+  {"id": "branching_choose_shortest", "args": ["hit", "cog", ["hot", "dot", "dog", "lot", "log", "cog", "hog", "hig"]], "expected": 4},
+  {"id": "isolated_target", "args": ["aaa", "bbb", ["aab", "abb", "bbb"]], "expected": 4},
+  {"id": "dead_end_words_present", "args": ["aaa", "bbb", ["aab", "abb", "bbb", "zzz", "qqq"]], "expected": 4},
+  {"id": "all_words_connected", "args": ["abc", "bcd", ["abd", "abc", "acd", "bcd"]], "expected": 4},
+  {"id": "two_letter_swap", "args": ["ab", "cd", ["ad", "cd", "cb"]], "expected": 3},
+  {"id": "duplicate_not_in_list_no_path", "args": ["foo", "bar", ["fao", "fbo", "fbr"]], "expected": 0},
+  {"id": "five_letter_chain", "args": ["abcde", "fghie", ["abcie", "abhie", "afhie", "fghie"]], "expected": 0},
+  {"id": "five_letter_path", "args": ["aaaaa", "bbbbb", ["aaaab", "aaabb", "aabbb", "abbbb", "bbbbb"]], "expected": 6}
+]

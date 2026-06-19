@@ -1,0 +1,20 @@
+[
+  {"id": "t_longer_than_s", "args": ["a", "aa"], "expected": ""},
+  {"id": "no_valid_window", "args": ["abc", "d"], "expected": ""},
+  {"id": "missing_one_char", "args": ["aaab", "abz"], "expected": ""},
+  {"id": "single_char_match", "args": ["b", "b"], "expected": "b"},
+  {"id": "whole_string_is_answer", "args": ["abc", "abc"], "expected": "abc"},
+  {"id": "duplicates_in_t", "args": ["aa", "aa"], "expected": "aa"},
+  {"id": "duplicate_requirement", "args": ["aaaflslflsassdf", "aaa"], "expected": "aaa"},
+  {"id": "window_at_start", "args": ["abcdef", "ab"], "expected": "ab"},
+  {"id": "window_at_end", "args": ["xxxxab", "ab"], "expected": "ab"},
+  {"id": "answer_is_suffix", "args": ["cabwefgewcwaefgcf", "cae"], "expected": "cwae"},
+  {"id": "case_sensitive", "args": ["aA", "A"], "expected": "A"},
+  {"id": "mixed_case_target", "args": ["bBaA", "Aa"], "expected": "aA"},
+  {"id": "shrink_past_extras", "args": ["acbbaca", "aba"], "expected": "baca"},
+  {"id": "overlapping_needs", "args": ["aabdec", "abc"], "expected": "abdec"},
+  {"id": "long_sparse", "args": ["abxxxxxxxxxxxxxxxxxxxxxxxxxxc", "abc"], "expected": "abxxxxxxxxxxxxxxxxxxxxxxxxxxc"},
+  {"id": "repeated_full_target", "args": ["ABCABC", "ABC"], "expected": "ABC"},
+  {"id": "trailing_minimum", "args": ["aaaaaaaaaab", "ab"], "expected": "ab"},
+  {"id": "two_distinct_counts", "args": ["aabbbcdd", "abc"], "expected": "abbbc"}
+]

@@ -1,0 +1,15 @@
+[
+  {"id": "single_zero", "args": [[[0]]], "expected": [[0]]},
+  {"id": "far_corner", "args": [[[1, 1, 1], [1, 1, 1], [1, 1, 0]]], "expected": [[4, 3, 2], [3, 2, 1], [2, 1, 0]]},
+  {"id": "single_row", "args": [[[0, 1, 1, 1, 0]]], "expected": [[0, 1, 2, 1, 0]]},
+  {"id": "single_column", "args": [[[0], [1], [1], [1], [0]]], "expected": [[0], [1], [2], [1], [0]]},
+  {"id": "zero_only_first", "args": [[[0, 1, 1, 1, 1]]], "expected": [[0, 1, 2, 3, 4]]},
+  {"id": "zero_only_last", "args": [[[1, 1, 1, 1, 0]]], "expected": [[4, 3, 2, 1, 0]]},
+  {"id": "all_zeros", "args": [[[0, 0], [0, 0]]], "expected": [[0, 0], [0, 0]]},
+  {"id": "single_one_with_zero", "args": [[[0, 1]]], "expected": [[0, 1]]},
+  {"id": "checkerboard", "args": [[[0, 1, 0], [1, 0, 1], [0, 1, 0]]], "expected": [[0, 1, 0], [1, 0, 1], [0, 1, 0]]},
+  {"id": "zero_in_center", "args": [[[1, 1, 1], [1, 0, 1], [1, 1, 1]]], "expected": [[2, 1, 2], [1, 0, 1], [2, 1, 2]]},
+  {"id": "diagonal_zeros", "args": [[[0, 1, 1], [1, 1, 1], [1, 1, 0]]], "expected": [[0, 1, 2], [1, 2, 1], [2, 1, 0]]},
+  {"id": "wide_row_center_zero", "args": [[[1, 1, 0, 1, 1, 1, 1]]], "expected": [[2, 1, 0, 1, 2, 3, 4]]},
+  {"id": "tall_grid", "args": [[[1, 0], [1, 1], [1, 1], [0, 1]]], "expected": [[1, 0], [2, 1], [1, 2], [0, 1]]}
+]

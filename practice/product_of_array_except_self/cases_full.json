@@ -1,0 +1,22 @@
+[
+  {"id": "two_elements", "args": [[2, 3]], "expected": [3, 2]},
+  {"id": "two_ones", "args": [[1, 1]], "expected": [1, 1]},
+  {"id": "single_zero", "args": [[0, 4, 5]], "expected": [20, 0, 0]},
+  {"id": "two_zeros", "args": [[0, 0, 3, 4]], "expected": [0, 0, 0, 0]},
+  {"id": "all_zeros", "args": [[0, 0, 0]], "expected": [0, 0, 0]},
+  {"id": "zero_pair_only", "args": [[0, 5]], "expected": [5, 0]},
+  {"id": "all_negative", "args": [[-1, -2, -3, -4]], "expected": [-24, -12, -8, -6]},
+  {"id": "mixed_signs", "args": [[-2, 3, -4, 5]], "expected": [-60, 40, -30, 24]},
+  {"id": "with_ones", "args": [[1, 2, 1, 2]], "expected": [4, 2, 4, 2]},
+  {"id": "duplicates", "args": [[3, 3, 3, 3]], "expected": [27, 27, 27, 27]},
+  {"id": "boundary_max", "args": [[30, 30, 30]], "expected": [900, 900, 900]},
+  {"id": "boundary_min", "args": [[-30, -30]], "expected": [-30, -30]},
+  {"id": "boundary_mixed", "args": [[30, -30, 1]], "expected": [-30, 30, -900]},
+  {"id": "negative_with_zero", "args": [[-5, 0, -2, 4]], "expected": [0, 40, 0, 0]},
+  {"id": "leading_one", "args": [[1, 6, 7, 8]], "expected": [336, 56, 48, 42]},
+  {"id": "trailing_zero", "args": [[2, 3, 4, 0]], "expected": [0, 0, 0, 24]},
+  {"id": "single_negative", "args": [[-7, 2, 5]], "expected": [10, -35, -14]},
+  {"id": "larger_array", "args": [[1, 2, 3, 4, 5, 6]], "expected": [720, 360, 240, 180, 144, 120]},
+  {"id": "alternating_sign", "args": [[2, -2, 2, -2, 2]], "expected": [16, -16, 16, -16, 16]},
+  {"id": "many_ones_one_value", "args": [[1, 1, 1, 9]], "expected": [9, 9, 9, 1]}
+]

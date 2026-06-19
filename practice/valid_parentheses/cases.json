@@ -1,0 +1,6 @@
+[
+  {"id": "example_1", "args": ["()"], "expected": true},
+  {"id": "example_2", "args": ["()[]{}"], "expected": true},
+  {"id": "example_3", "args": ["(]"], "expected": false},
+  {"id": "example_4", "args": ["([])"], "expected": true}
+]

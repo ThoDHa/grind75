@@ -1,0 +1,77 @@
+[
+  {
+    "id": "single_node",
+    "args": [[1], 1],
+    "expected": 1
+  },
+  {
+    "id": "two_node_left_skew_first",
+    "args": [[2, 1], 1],
+    "expected": 1
+  },
+  {
+    "id": "two_node_left_skew_second",
+    "args": [[2, 1], 2],
+    "expected": 2
+  },
+  {
+    "id": "three_node_balanced_middle",
+    "args": [[2, 1, 3], 2],
+    "expected": 2
+  },
+  {
+    "id": "three_node_balanced_last",
+    "args": [[2, 1, 3], 3],
+    "expected": 3
+  },
+  {
+    "id": "k_equals_n_example2",
+    "args": [[5, 3, 6, 2, 4, null, null, 1], 6],
+    "expected": 6
+  },
+  {
+    "id": "first_smallest_example2",
+    "args": [[5, 3, 6, 2, 4, null, null, 1], 1],
+    "expected": 1
+  },
+  {
+    "id": "right_skewed_tree",
+    "args": [[1, null, 2, null, 3], 3],
+    "expected": 3
+  },
+  {
+    "id": "left_skewed_tree_first",
+    "args": [[3, 2, null, 1], 1],
+    "expected": 1
+  },
+  {
+    "id": "left_skewed_tree_last",
+    "args": [[3, 2, null, 1], 3],
+    "expected": 3
+  },
+  {
+    "id": "zero_valued_root",
+    "args": [[1, 0, 2], 1],
+    "expected": 0
+  },
+  {
+    "id": "max_value_node",
+    "args": [[10000, 0, null], 2],
+    "expected": 10000
+  },
+  {
+    "id": "larger_balanced_tree_median",
+    "args": [[8, 4, 12, 2, 6, 10, 14, 1, 3, 5, 7, 9, 11, 13, 15], 8],
+    "expected": 8
+  },
+  {
+    "id": "larger_balanced_tree_first",
+    "args": [[8, 4, 12, 2, 6, 10, 14, 1, 3, 5, 7, 9, 11, 13, 15], 1],
+    "expected": 1
+  },
+  {
+    "id": "larger_balanced_tree_last",
+    "args": [[8, 4, 12, 2, 6, 10, 14, 1, 3, 5, 7, 9, 11, 13, 15], 15],
+    "expected": 15
+  }
+]

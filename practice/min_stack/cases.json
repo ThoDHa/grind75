@@ -1,0 +1,8 @@
+[
+  {
+    "id": "example_1",
+    "operations": ["MinStack", "push", "push", "push", "getMin", "pop", "top", "getMin"],
+    "arguments": [[], [-2], [0], [-3], [], [], [], []],
+    "expected": [null, null, null, null, -3, null, 0, -2]
+  }
+]

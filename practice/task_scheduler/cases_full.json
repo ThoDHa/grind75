@@ -1,0 +1,17 @@
+[
+  {"id": "single_task", "args": [["A"], 0], "expected": 1},
+  {"id": "single_task_with_cooldown", "args": [["A"], 100], "expected": 1},
+  {"id": "two_distinct_no_cooldown", "args": [["A", "B"], 1], "expected": 2},
+  {"id": "all_same_large_cooldown", "args": [["A", "A", "A"], 3], "expected": 9},
+  {"id": "neetcode_n1", "args": [["A", "C", "A", "B", "D", "B"], 1], "expected": 6},
+  {"id": "neetcode_n3", "args": [["A", "A", "A", "B", "B", "B"], 3], "expected": 10},
+  {"id": "no_cooldown_many", "args": [["A", "B", "C", "D", "E"], 0], "expected": 5},
+  {"id": "two_peaks_tie", "args": [["A", "A", "B", "B"], 2], "expected": 5},
+  {"id": "idle_dominated", "args": [["A", "A", "A", "A"], 3], "expected": 13},
+  {"id": "dense_no_idle", "args": [["A", "B", "A", "B", "A", "B"], 1], "expected": 6},
+  {"id": "full_alphabet_once", "args": [["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"], 5], "expected": 26},
+  {"id": "repeated_with_fillers", "args": [["A", "A", "A", "A", "B", "C", "D", "E", "F"], 3], "expected": 13},
+  {"id": "max_cooldown_two_tasks", "args": [["A", "B"], 100], "expected": 2},
+  {"id": "peak_overflow", "args": [["A", "A", "B", "B", "C", "C", "D", "D"], 1], "expected": 8},
+  {"id": "all_same_no_cooldown", "args": [["A", "A", "A", "A", "A"], 0], "expected": 5}
+]

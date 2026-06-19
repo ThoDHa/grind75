@@ -1,0 +1,7 @@
+[
+  {"id": "single_element", "args": [[1]], "expected": [1]},
+  {"id": "two_equal_values", "args": [[7, 7]], "expected": [7, 7]},
+  {"id": "negative_values", "args": [[-1, -2, -3]], "expected": [-3, -2, -1]},
+  {"id": "ten_elements", "args": [[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]], "expected": [10, 9, 8, 7, 6, 5, 4, 3, 2, 1]},
+  {"id": "boundary_values", "args": [[5000, -5000, 0]], "expected": [0, -5000, 5000]}
+]

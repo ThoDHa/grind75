@@ -1,0 +1,17 @@
+[
+  {"id": "single_version", "args": [1, 1], "expected": 1},
+  {"id": "bad_is_first_of_many", "args": [10, 1], "expected": 1},
+  {"id": "bad_is_last", "args": [10, 10], "expected": 10},
+  {"id": "bad_in_middle", "args": [10, 5], "expected": 5},
+  {"id": "two_versions_bad_first", "args": [2, 1], "expected": 1},
+  {"id": "two_versions_bad_last", "args": [2, 2], "expected": 2},
+  {"id": "three_versions_bad_middle", "args": [3, 2], "expected": 2},
+  {"id": "power_of_two_size", "args": [16, 9], "expected": 9},
+  {"id": "odd_size_bad_near_end", "args": [99, 98], "expected": 98},
+  {"id": "large_n_bad_early", "args": [1000000, 7], "expected": 7},
+  {"id": "large_n_bad_mid", "args": [1000000, 500000], "expected": 500000},
+  {"id": "large_n_bad_last", "args": [1000000, 1000000], "expected": 1000000},
+  {"id": "max_n_bad_first", "args": [2147483647, 1], "expected": 1},
+  {"id": "max_n_bad_last", "args": [2147483647, 2147483647], "expected": 2147483647},
+  {"id": "max_n_bad_mid", "args": [2147483647, 1073741824], "expected": 1073741824}
+]

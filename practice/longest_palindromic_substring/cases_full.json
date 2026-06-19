@@ -1,0 +1,20 @@
+[
+  {"id": "single_char", "args": ["a"], "expected": 1},
+  {"id": "two_same", "args": ["aa"], "expected": 2},
+  {"id": "two_distinct", "args": ["ab"], "expected": 1},
+  {"id": "no_repeat_chars", "args": ["abcde"], "expected": 1},
+  {"id": "all_same", "args": ["aaaa"], "expected": 4},
+  {"id": "whole_is_palindrome_odd", "args": ["racecar"], "expected": 7},
+  {"id": "whole_is_palindrome_even", "args": ["abccba"], "expected": 6},
+  {"id": "palindrome_at_start", "args": ["abacdfg"], "expected": 3},
+  {"id": "palindrome_at_end", "args": ["fgcdaba"], "expected": 3},
+  {"id": "even_center_unique", "args": ["cbbd"], "expected": 2},
+  {"id": "digits_only", "args": ["12321"], "expected": 5},
+  {"id": "mixed_alnum", "args": ["a1b2b1a"], "expected": 7},
+  {"id": "trailing_long_palindrome", "args": ["xyzabcddcba"], "expected": 8},
+  {"id": "two_competing_runs", "args": ["aaaabbbbb"], "expected": 5},
+  {"id": "longer_no_palindrome", "args": ["abcdefghij"], "expected": 1},
+  {"id": "embedded_odd_palindrome", "args": ["xyabcbazz"], "expected": 5},
+  {"id": "repeated_pattern", "args": ["abababab"], "expected": 7},
+  {"id": "uppercase_distinct", "args": ["ABCDEDCBA"], "expected": 9}
+]

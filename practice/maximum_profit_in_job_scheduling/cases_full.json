@@ -1,0 +1,17 @@
+[
+  {"id": "single_job", "args": [[1], [2], [100]], "expected": 100},
+  {"id": "two_disjoint_jobs", "args": [[1, 3], [3, 5], [10, 20]], "expected": 30},
+  {"id": "two_overlapping_pick_richer", "args": [[1, 2], [4, 3], [50, 10]], "expected": 50},
+  {"id": "chain_back_to_back", "args": [[1, 2, 3, 4], [2, 3, 4, 5], [1, 1, 1, 1]], "expected": 4},
+  {"id": "all_same_interval", "args": [[1, 1, 1, 1], [5, 5, 5, 5], [7, 3, 9, 2]], "expected": 9},
+  {"id": "nested_intervals", "args": [[1, 2, 3], [10, 4, 6], [100, 5, 5]], "expected": 100},
+  {"id": "end_equals_next_start", "args": [[1, 3, 3], [3, 6, 4], [50, 70, 1]], "expected": 120},
+  {"id": "skip_low_profit_overlap", "args": [[1, 1, 1], [4, 2, 3], [3, 1, 1]], "expected": 3},
+  {"id": "all_overlap_one_winner", "args": [[1, 1, 1, 1, 1], [9, 8, 7, 6, 5], [4, 8, 1, 6, 3]], "expected": 8},
+  {"id": "two_chains_compete", "args": [[1, 2, 1, 4], [2, 4, 5, 6], [5, 6, 9, 4]], "expected": 15},
+  {"id": "many_unit_jobs", "args": [[1, 2, 3, 4, 5, 6, 7, 8], [2, 3, 4, 5, 6, 7, 8, 9], [5, 5, 5, 5, 5, 5, 5, 5]], "expected": 40},
+  {"id": "large_profit_values", "args": [[1, 2], [3, 4], [10000, 10000]], "expected": 10000},
+  {"id": "wide_time_range", "args": [[1, 100, 1000000000], [50, 1000, 1000000000], [10, 20, 30]], "expected": 60},
+  {"id": "duplicate_times_varied_profit", "args": [[1, 1, 2, 2], [2, 2, 3, 3], [10, 20, 30, 40]], "expected": 60},
+  {"id": "interleaved_optimal", "args": [[1, 3, 0, 5, 3], [2, 4, 6, 10, 9], [20, 20, 100, 70, 60]], "expected": 110}
+]

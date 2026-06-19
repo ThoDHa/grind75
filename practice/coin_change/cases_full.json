@@ -1,0 +1,20 @@
+[
+  {"id": "neetcode_1_basic", "args": [[1, 2, 5], 11], "expected": 3},
+  {"id": "neetcode_2_impossible", "args": [[2], 3], "expected": -1},
+  {"id": "neetcode_3_zero_amount", "args": [[1], 0], "expected": 0},
+  {"id": "neetcode_4_single_coin", "args": [[1], 1], "expected": 1},
+  {"id": "neetcode_5_large_amount", "args": [[1, 2, 5], 100], "expected": 20},
+  {"id": "zero_amount_nonunit_coin", "args": [[2], 0], "expected": 0},
+  {"id": "greedy_trap_canonical", "args": [[1, 3, 4], 6], "expected": 2},
+  {"id": "exact_single_coin", "args": [[1, 2, 5], 5], "expected": 1},
+  {"id": "amount_one_smallest", "args": [[1, 2, 5], 1], "expected": 1},
+  {"id": "no_unit_unreachable", "args": [[5], 7], "expected": -1},
+  {"id": "parity_unreachable", "args": [[7, 9], 17], "expected": -1},
+  {"id": "us_coins_make_change", "args": [[1, 5, 10, 25], 63], "expected": 6},
+  {"id": "two_three_combo", "args": [[2, 3], 7], "expected": 3},
+  {"id": "mixed_denominations", "args": [[1, 2, 5, 10], 27], "expected": 4},
+  {"id": "classic_hard_6249", "args": [[186, 419, 83, 408], 6249], "expected": 20},
+  {"id": "classic_hard_8839", "args": [[3, 7, 405, 436], 8839], "expected": 25},
+  {"id": "huge_coin_small_amount", "args": [[2147483647], 2], "expected": -1},
+  {"id": "all_unreachable_even_coins", "args": [[2, 4, 6], 5], "expected": -1}
+]

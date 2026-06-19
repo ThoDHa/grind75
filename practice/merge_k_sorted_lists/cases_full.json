@@ -1,0 +1,20 @@
+[
+  {"id": "single_list", "args": [[[1, 2, 3, 4, 5]]], "expected": [1, 2, 3, 4, 5]},
+  {"id": "single_empty_list", "args": [[[]]], "expected": []},
+  {"id": "all_empty_lists", "args": [[[], [], []]], "expected": []},
+  {"id": "empty_lists_among_nonempty", "args": [[[], [1, 3], [], [2, 4], []]], "expected": [1, 2, 3, 4]},
+  {"id": "two_single_node_lists", "args": [[[1], [0]]], "expected": [0, 1]},
+  {"id": "interleaved_values", "args": [[[1, 3, 5], [2, 4, 6]]], "expected": [1, 2, 3, 4, 5, 6]},
+  {"id": "duplicates_across_lists", "args": [[[1, 1, 1], [1, 1], [1]]], "expected": [1, 1, 1, 1, 1, 1]},
+  {"id": "negatives", "args": [[[-5, -3, -1], [-4, -2, 0]]], "expected": [-5, -4, -3, -2, -1, 0]},
+  {"id": "negative_and_positive", "args": [[[-10000, 0, 10000], [-1, 1]]], "expected": [-10000, -1, 0, 1, 10000]},
+  {"id": "boundary_values", "args": [[[-10000], [10000], [0]]], "expected": [-10000, 0, 10000]},
+  {"id": "disjoint_ranges", "args": [[[7, 8, 9], [1, 2, 3], [4, 5, 6]]], "expected": [1, 2, 3, 4, 5, 6, 7, 8, 9]},
+  {"id": "one_long_one_short", "args": [[[1, 2, 3, 4, 5, 6, 7, 8], [0, 9]]], "expected": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]},
+  {"id": "many_single_node_lists", "args": [[[5], [3], [8], [1], [9], [2], [7], [4], [6], [0]]], "expected": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]},
+  {"id": "odd_number_of_lists", "args": [[[1, 6], [2, 7], [3, 8], [4, 9], [5, 10]]], "expected": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]},
+  {"id": "all_same_value", "args": [[[2, 2, 2], [2, 2, 2]]], "expected": [2, 2, 2, 2, 2, 2]},
+  {"id": "neetcode_case_1", "args": [[[1, 4, 5], [1, 3, 4], [2, 6]]], "expected": [1, 1, 2, 3, 4, 4, 5, 6]},
+  {"id": "neetcode_case_2", "args": [[]], "expected": []},
+  {"id": "neetcode_case_3", "args": [[[]]], "expected": []}
+]

@@ -1,0 +1,74 @@
+[
+  {
+    "id": "empty_immediately",
+    "operations": ["MyQueue", "empty"],
+    "arguments": [[], []],
+    "expected": [null, true]
+  },
+  {
+    "id": "single_push_empty_false",
+    "operations": ["MyQueue", "push", "empty"],
+    "arguments": [[], [9], []],
+    "expected": [null, null, false]
+  },
+  {
+    "id": "single_push_peek_pop",
+    "operations": ["MyQueue", "push", "peek", "pop", "empty"],
+    "arguments": [[], [5], [], [], []],
+    "expected": [null, null, 5, 5, true]
+  },
+  {
+    "id": "fifo_order_three",
+    "operations": ["MyQueue", "push", "push", "push", "pop", "pop", "pop", "empty"],
+    "arguments": [[], [1], [2], [3], [], [], [], []],
+    "expected": [null, null, null, null, 1, 2, 3, true]
+  },
+  {
+    "id": "interleaved_push_pop",
+    "operations": ["MyQueue", "push", "push", "pop", "push", "peek", "pop", "pop", "empty"],
+    "arguments": [[], [1], [2], [], [3], [], [], [], []],
+    "expected": [null, null, null, 1, null, 2, 2, 3, true]
+  },
+  {
+    "id": "refill_after_drain",
+    "operations": ["MyQueue", "push", "pop", "empty", "push", "push", "peek", "pop", "peek", "empty"],
+    "arguments": [[], [7], [], [], [4], [6], [], [], [], []],
+    "expected": [null, null, 7, true, null, null, 4, 4, 6, false]
+  },
+  {
+    "id": "peek_does_not_remove",
+    "operations": ["MyQueue", "push", "peek", "peek", "pop", "empty"],
+    "arguments": [[], [8], [], [], [], []],
+    "expected": [null, null, 8, 8, 8, true]
+  },
+  {
+    "id": "boundary_values_min_max",
+    "operations": ["MyQueue", "push", "push", "peek", "pop", "peek", "pop", "empty"],
+    "arguments": [[], [1], [9], [], [], [], [], []],
+    "expected": [null, null, null, 1, 1, 9, 9, true]
+  },
+  {
+    "id": "duplicates_preserved",
+    "operations": ["MyQueue", "push", "push", "push", "pop", "pop", "pop", "empty"],
+    "arguments": [[], [5], [5], [5], [], [], [], []],
+    "expected": [null, null, null, null, 5, 5, 5, true]
+  },
+  {
+    "id": "alternating_push_pop_single",
+    "operations": ["MyQueue", "push", "pop", "push", "pop", "push", "pop", "empty"],
+    "arguments": [[], [1], [], [2], [], [3], [], []],
+    "expected": [null, null, 1, null, 2, null, 3, true]
+  },
+  {
+    "id": "peek_before_each_pop",
+    "operations": ["MyQueue", "push", "push", "push", "peek", "pop", "peek", "pop", "peek", "pop", "empty"],
+    "arguments": [[], [2], [4], [6], [], [], [], [], [], [], []],
+    "expected": [null, null, null, null, 2, 2, 4, 4, 6, 6, true]
+  },
+  {
+    "id": "larger_sequence_within_constraints",
+    "operations": ["MyQueue", "push", "push", "push", "push", "push", "push", "push", "push", "push", "pop", "pop", "pop", "pop", "pop", "pop", "pop", "pop", "pop", "empty"],
+    "arguments": [[], [1], [2], [3], [4], [5], [6], [7], [8], [9], [], [], [], [], [], [], [], [], [], []],
+    "expected": [null, null, null, null, null, null, null, null, null, null, 1, 2, 3, 4, 5, 6, 7, 8, 9, true]
+  }
+]

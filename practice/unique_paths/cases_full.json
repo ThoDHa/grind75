@@ -1,0 +1,16 @@
+[
+  {"id": "one_by_one", "args": [1, 1], "expected": 1},
+  {"id": "single_row", "args": [1, 100], "expected": 1},
+  {"id": "single_column", "args": [100, 1], "expected": 1},
+  {"id": "single_row_small", "args": [1, 5], "expected": 1},
+  {"id": "single_column_small", "args": [5, 1], "expected": 1},
+  {"id": "two_by_two", "args": [2, 2], "expected": 2},
+  {"id": "two_by_three", "args": [2, 3], "expected": 3},
+  {"id": "three_by_three", "args": [3, 3], "expected": 6},
+  {"id": "neetcode_1", "args": [3, 7], "expected": 28},
+  {"id": "neetcode_2", "args": [3, 2], "expected": 3},
+  {"id": "tall_two_wide", "args": [100, 2], "expected": 100},
+  {"id": "square_ten", "args": [10, 10], "expected": 48620},
+  {"id": "rectangular_large", "args": [23, 12], "expected": 193536720},
+  {"id": "near_answer_cap", "args": [19, 14], "expected": 206253075}
+]

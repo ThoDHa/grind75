@@ -1,0 +1,22 @@
+[
+  {"id": "single_char_match", "args": ["a", ["a"]], "expected": true},
+  {"id": "single_char_no_match", "args": ["a", ["b"]], "expected": false},
+  {"id": "exact_single_word", "args": ["hello", ["hello"]], "expected": true},
+  {"id": "word_longer_than_string", "args": ["ab", ["abc"]], "expected": false},
+  {"id": "reuse_same_word", "args": ["aaaa", ["a", "aa"]], "expected": true},
+  {"id": "reuse_required", "args": ["aaaaaaa", ["aaaa", "aaa"]], "expected": true},
+  {"id": "trailing_unmatched", "args": ["leetcodex", ["leet", "code"]], "expected": false},
+  {"id": "leading_unmatched", "args": ["xleetcode", ["leet", "code"]], "expected": false},
+  {"id": "overlapping_prefixes", "args": ["cars", ["car", "ca", "rs"]], "expected": true},
+  {"id": "no_words_usable", "args": ["abcd", ["e", "f", "g"]], "expected": false},
+  {"id": "dict_has_extra_words", "args": ["bb", ["a", "b", "bbb", "cccc"]], "expected": true},
+  {"id": "greedy_trap", "args": ["aaaaaaa", ["aaaa", "aaaaa"]], "expected": false},
+  {"id": "whole_string_in_dict", "args": ["abcd", ["abcd", "ab"]], "expected": true},
+  {"id": "repeated_segment", "args": ["abababab", ["ab", "abab"]], "expected": true},
+  {"id": "near_miss_suffix", "args": ["catsandcat", ["cat", "cats", "and", "sand", "dog"]], "expected": true},
+  {"id": "long_a_run_breakable", "args": ["aaaaaaaaaaaaaaaaaaaa", ["a", "aa", "aaa"]], "expected": true},
+  {"id": "long_a_run_with_b_block", "args": ["aaaaaaaaaaaaaaaaaaab", ["a", "aa", "aaa"]], "expected": false},
+  {"id": "common_prefix_only", "args": ["applepie", ["apple", "pie", "app"]], "expected": true},
+  {"id": "single_letter_dict_full", "args": ["abcabc", ["a", "b", "c"]], "expected": true},
+  {"id": "single_letter_dict_gap", "args": ["abcabd", ["a", "b", "c"]], "expected": false}
+]

@@ -1,0 +1,17 @@
+[
+  {"id": "p_longer_than_s", "args": ["a", "abc"], "expected": []},
+  {"id": "equal_length_match", "args": ["ab", "ba"], "expected": [0]},
+  {"id": "equal_length_no_match", "args": ["ab", "cd"], "expected": []},
+  {"id": "single_char_s_and_p_match", "args": ["a", "a"], "expected": [0]},
+  {"id": "single_char_no_match", "args": ["a", "b"], "expected": []},
+  {"id": "single_char_p_multiple_hits", "args": ["aaaa", "a"], "expected": [0, 1, 2, 3]},
+  {"id": "no_anagram_present", "args": ["abcdefg", "xyz"], "expected": []},
+  {"id": "all_same_char", "args": ["aaaaaaaaaa", "aaaaaaaaaaaaa"], "expected": []},
+  {"id": "overlapping_windows", "args": ["baa", "aa"], "expected": [1]},
+  {"id": "full_string_is_anagram", "args": ["dcba", "abcd"], "expected": [0]},
+  {"id": "repeated_pattern", "args": ["abcabcabc", "abc"], "expected": [0, 1, 2, 3, 4, 5, 6]},
+  {"id": "p_with_duplicates", "args": ["aabbcc", "abcabc"], "expected": [0]},
+  {"id": "match_at_very_end", "args": ["xyzabc", "cba"], "expected": [3]},
+  {"id": "match_at_very_start", "args": ["cbaxyz", "abc"], "expected": [0]},
+  {"id": "long_alternating", "args": ["abababab", "ab"], "expected": [0, 1, 2, 3, 4, 5, 6]}
+]

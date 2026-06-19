@@ -1,0 +1,16 @@
+[
+  {"id": "neetcode_1", "args": [[["John", "johnsmith@mail.com", "john_newyork@mail.com"], ["John", "johnsmith@mail.com", "john00@mail.com"], ["Mary", "mary@mail.com"], ["John", "johnnybravo@mail.com"]]], "expected": [["John", "john00@mail.com", "john_newyork@mail.com", "johnsmith@mail.com"], ["Mary", "mary@mail.com"], ["John", "johnnybravo@mail.com"]]},
+  {"id": "single_account_single_email", "args": [[["Alice", "alice@mail.com"]]], "expected": [["Alice", "alice@mail.com"]]},
+  {"id": "single_account_many_emails", "args": [[["Bob", "b3@mail.com", "b1@mail.com", "b2@mail.com"]]], "expected": [["Bob", "b1@mail.com", "b2@mail.com", "b3@mail.com"]]},
+  {"id": "all_disjoint", "args": [[["A", "a@x.com"], ["B", "b@x.com"], ["C", "c@x.com"]]], "expected": [["A", "a@x.com"], ["B", "b@x.com"], ["C", "c@x.com"]]},
+  {"id": "two_accounts_merge", "args": [[["Joe", "joe@mail.com", "x@mail.com"], ["Joe", "joe@mail.com", "y@mail.com"]]], "expected": [["Joe", "joe@mail.com", "x@mail.com", "y@mail.com"]]},
+  {"id": "transitive_chain_merge", "args": [[["N", "a@m.com", "b@m.com"], ["N", "b@m.com", "c@m.com"], ["N", "c@m.com", "d@m.com"]]], "expected": [["N", "a@m.com", "b@m.com", "c@m.com", "d@m.com"]]},
+  {"id": "merge_via_middle_account", "args": [[["P", "p1@m.com"], ["P", "p1@m.com", "p2@m.com"], ["P", "p2@m.com"]]], "expected": [["P", "p1@m.com", "p2@m.com"]]},
+  {"id": "same_name_different_people", "args": [[["Sam", "sam_a@mail.com"], ["Sam", "sam_b@mail.com"]]], "expected": [["Sam", "sam_a@mail.com"], ["Sam", "sam_b@mail.com"]]},
+  {"id": "all_merge_into_one", "args": [[["K", "k1@m.com", "k2@m.com"], ["K", "k2@m.com", "k3@m.com"], ["K", "k3@m.com", "k1@m.com"]]], "expected": [["K", "k1@m.com", "k2@m.com", "k3@m.com"]]},
+  {"id": "duplicate_emails_within_account", "args": [[["D", "d@m.com", "d@m.com", "e@m.com"]]], "expected": [["D", "d@m.com", "e@m.com"]]},
+  {"id": "two_groups_one_shared_one_not", "args": [[["X", "x1@m.com", "shared@m.com"], ["X", "shared@m.com", "x2@m.com"], ["Y", "y1@m.com"]]], "expected": [["X", "shared@m.com", "x1@m.com", "x2@m.com"], ["Y", "y1@m.com"]]},
+  {"id": "first_email_is_link", "args": [[["L", "link@m.com", "a@m.com"], ["L", "link@m.com", "b@m.com"], ["L", "link@m.com", "c@m.com"]]], "expected": [["L", "a@m.com", "b@m.com", "c@m.com", "link@m.com"]]},
+  {"id": "interleaved_merges", "args": [[["G", "g1@m.com", "g2@m.com"], ["H", "h1@m.com"], ["G", "g2@m.com", "g3@m.com"], ["H", "h1@m.com", "h2@m.com"]]], "expected": [["G", "g1@m.com", "g2@m.com", "g3@m.com"], ["H", "h1@m.com", "h2@m.com"]]},
+  {"id": "emails_sorted_lexicographically", "args": [[["Z", "z10@m.com", "z2@m.com", "z1@m.com"]]], "expected": [["Z", "z1@m.com", "z10@m.com", "z2@m.com"]]}
+]

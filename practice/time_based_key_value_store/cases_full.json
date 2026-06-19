@@ -1,0 +1,86 @@
+[
+  {
+    "id": "get_missing_key_returns_empty",
+    "operations": ["TimeMap", "get"],
+    "arguments": [[], ["nope", 5]],
+    "expected": [null, ""]
+  },
+  {
+    "id": "get_before_earliest_timestamp",
+    "operations": ["TimeMap", "set", "get"],
+    "arguments": [[], ["a", "x", 5], ["a", 4]],
+    "expected": [null, null, ""]
+  },
+  {
+    "id": "get_exact_timestamp_match",
+    "operations": ["TimeMap", "set", "get"],
+    "arguments": [[], ["a", "x", 5], ["a", 5]],
+    "expected": [null, null, "x"]
+  },
+  {
+    "id": "get_after_last_timestamp",
+    "operations": ["TimeMap", "set", "get"],
+    "arguments": [[], ["a", "x", 5], ["a", 100]],
+    "expected": [null, null, "x"]
+  },
+  {
+    "id": "single_set_then_get",
+    "operations": ["TimeMap", "set", "get"],
+    "arguments": [[], ["love", "high", 10], ["love", 15]],
+    "expected": [null, null, "high"]
+  },
+  {
+    "id": "get_between_two_timestamps",
+    "operations": ["TimeMap", "set", "set", "get", "get", "get"],
+    "arguments": [[], ["k", "v1", 10], ["k", "v2", 20], ["k", 14], ["k", 20], ["k", 25]],
+    "expected": [null, null, null, "v1", "v2", "v2"]
+  },
+  {
+    "id": "independent_keys_do_not_interfere",
+    "operations": ["TimeMap", "set", "set", "get", "get", "get"],
+    "arguments": [[], ["a", "alpha", 1], ["b", "beta", 1], ["a", 1], ["b", 1], ["c", 1]],
+    "expected": [null, null, null, "alpha", "beta", ""]
+  },
+  {
+    "id": "same_key_overwritten_view_at_each_time",
+    "operations": ["TimeMap", "set", "set", "set", "get", "get", "get", "get"],
+    "arguments": [[], ["x", "one", 1], ["x", "two", 2], ["x", "three", 3], ["x", 1], ["x", 2], ["x", 3], ["x", 4]],
+    "expected": [null, null, null, null, "one", "two", "three", "three"]
+  },
+  {
+    "id": "duplicate_values_across_timestamps",
+    "operations": ["TimeMap", "set", "set", "get", "get"],
+    "arguments": [[], ["k", "same", 1], ["k", "same", 5], ["k", 3], ["k", 5]],
+    "expected": [null, null, null, "same", "same"]
+  },
+  {
+    "id": "boundary_timestamp_one",
+    "operations": ["TimeMap", "set", "get"],
+    "arguments": [[], ["k", "earliest", 1], ["k", 1]],
+    "expected": [null, null, "earliest"]
+  },
+  {
+    "id": "boundary_timestamp_max",
+    "operations": ["TimeMap", "set", "get", "get"],
+    "arguments": [[], ["k", "latest", 10000000], ["k", 9999999], ["k", 10000000]],
+    "expected": [null, null, "", "latest"]
+  },
+  {
+    "id": "digits_in_keys_and_values",
+    "operations": ["TimeMap", "set", "get"],
+    "arguments": [[], ["k9", "v42", 7], ["k9", 8]],
+    "expected": [null, null, "v42"]
+  },
+  {
+    "id": "gap_between_timestamps_returns_lower",
+    "operations": ["TimeMap", "set", "set", "get", "get", "get"],
+    "arguments": [[], ["k", "lo", 5], ["k", "hi", 100], ["k", 50], ["k", 99], ["k", 100]],
+    "expected": [null, null, null, "lo", "lo", "hi"]
+  },
+  {
+    "id": "many_versions_binary_search_midrange",
+    "operations": ["TimeMap", "set", "set", "set", "set", "set", "set", "set", "get", "get", "get", "get"],
+    "arguments": [[], ["k", "a", 1], ["k", "b", 3], ["k", "c", 5], ["k", "d", 7], ["k", "e", 9], ["k", "f", 11], ["k", "g", 13], ["k", 0], ["k", 6], ["k", 12], ["k", 99]],
+    "expected": [null, null, null, null, null, null, null, null, "", "c", "f", "g"]
+  }
+]

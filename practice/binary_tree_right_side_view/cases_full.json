@@ -1,0 +1,14 @@
+[
+  {"id": "single_node", "args": [[1]], "expected": [1]},
+  {"id": "left_skewed", "args": [[1, 2, null, 3, null, 4]], "expected": [1, 2, 3, 4]},
+  {"id": "right_skewed", "args": [[1, null, 2, null, 3, null, 4]], "expected": [1, 2, 3, 4]},
+  {"id": "left_child_visible_deeper", "args": [[1, 2, 3, 4]], "expected": [1, 3, 4]},
+  {"id": "complete_tree", "args": [[1, 2, 3, 4, 5, 6, 7]], "expected": [1, 3, 7]},
+  {"id": "deep_left_branch", "args": [[1, 2, 3, 4, null, null, null, 5]], "expected": [1, 3, 4, 5]},
+  {"id": "negative_values", "args": [[-10, -20, -30, null, -50, null, -40]], "expected": [-10, -30, -40]},
+  {"id": "duplicate_values", "args": [[5, 5, 5, 5, 5, 5, 5]], "expected": [5, 5, 5]},
+  {"id": "zero_root_only", "args": [[0]], "expected": [0]},
+  {"id": "boundary_values", "args": [[100, -100, 100, -100, null, null, 100]], "expected": [100, 100, 100]},
+  {"id": "right_subtree_shorter", "args": [[1, 2, 3, 4, 5, 6, null, 8]], "expected": [1, 3, 6, 8]},
+  {"id": "rightmost_then_deep_left", "args": [[1, 2, 3, null, null, 4, 5, null, null, 6, null]], "expected": [1, 3, 5, 6]}
+]

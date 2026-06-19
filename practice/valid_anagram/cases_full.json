@@ -1,0 +1,10 @@
+[
+  {"id": "single_char_equal", "args": ["a", "a"], "expected": true},
+  {"id": "single_char_differ", "args": ["a", "b"], "expected": false},
+  {"id": "different_lengths", "args": ["ab", "a"], "expected": false},
+  {"id": "t_longer_than_s", "args": ["a", "ab"], "expected": false},
+  {"id": "both_empty", "args": ["", ""], "expected": true},
+  {"id": "same_letters_diff_counts", "args": ["aacc", "ccac"], "expected": false},
+  {"id": "repeated_letters_equal", "args": ["aabbcc", "abcabc"], "expected": true},
+  {"id": "identical_strings", "args": ["listen", "listen"], "expected": true}
+]

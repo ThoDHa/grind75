@@ -1,0 +1,18 @@
+[
+  {"id": "single_element", "args": [[1]], "expected": false},
+  {"id": "two_distinct", "args": [[1, 2]], "expected": false},
+  {"id": "two_same", "args": [[7, 7]], "expected": true},
+  {"id": "all_same", "args": [[5, 5, 5, 5, 5]], "expected": true},
+  {"id": "duplicate_at_end", "args": [[1, 2, 3, 4, 5, 6, 1]], "expected": true},
+  {"id": "duplicate_adjacent", "args": [[10, 20, 20, 30]], "expected": true},
+  {"id": "negatives_distinct", "args": [[-1, -2, -3, -4]], "expected": false},
+  {"id": "negatives_duplicate", "args": [[-5, -5, 0, 3]], "expected": true},
+  {"id": "mixed_sign_distinct", "args": [[-3, 4, 3, 90, 0]], "expected": false},
+  {"id": "zero_duplicate", "args": [[0, 1, 2, 0]], "expected": true},
+  {"id": "boundary_values_distinct", "args": [[1000000000, -1000000000, 3, 4]], "expected": false},
+  {"id": "boundary_values_duplicate", "args": [[1000000000, -1000000000, 1000000000]], "expected": true},
+  {"id": "sorted_no_dup", "args": [[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]], "expected": false},
+  {"id": "reverse_sorted_dup", "args": [[10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 5]], "expected": true},
+  {"id": "larger_no_dup", "args": [[100, 200, 300, 400, 500, 600, 700, 800]], "expected": false},
+  {"id": "larger_dup_first_last", "args": [[42, 17, 99, 8, 63, 21, 55, 42]], "expected": true}
+]

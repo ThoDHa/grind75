@@ -1,0 +1,8 @@
+[
+  {
+    "id": "example_1",
+    "operations": ["MyQueue", "push", "push", "peek", "pop", "empty"],
+    "arguments": [[], [1], [2], [], [], []],
+    "expected": [null, null, null, 1, 1, false]
+  }
+]

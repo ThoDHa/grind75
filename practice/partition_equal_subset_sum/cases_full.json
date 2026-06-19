@@ -1,0 +1,19 @@
+[
+  {"id": "single_element", "args": [[1]], "expected": false},
+  {"id": "two_equal", "args": [[1, 1]], "expected": true},
+  {"id": "two_unequal", "args": [[1, 2]], "expected": false},
+  {"id": "odd_total", "args": [[1, 2, 5]], "expected": false},
+  {"id": "all_same_even_count", "args": [[2, 2, 2, 2]], "expected": true},
+  {"id": "all_same_odd_count", "args": [[3, 3, 3]], "expected": false},
+  {"id": "large_with_duplicates", "args": [[3, 3, 3, 4, 5]], "expected": true},
+  {"id": "max_value_pair", "args": [[100, 100]], "expected": true},
+  {"id": "cannot_partition_single_big", "args": [[100, 1, 1]], "expected": false},
+  {"id": "mixed_partitionable", "args": [[2, 4, 6, 8]], "expected": true},
+  {"id": "mixed_not_partitionable", "args": [[1, 2, 4, 8, 16]], "expected": false},
+  {"id": "all_ones_even", "args": [[1, 1, 1, 1, 1, 1]], "expected": true},
+  {"id": "all_ones_odd", "args": [[1, 1, 1, 1, 1]], "expected": false},
+  {"id": "larger_partitionable", "args": [[23, 13, 11, 7, 6, 5, 5]], "expected": true},
+  {"id": "two_hundred_ones", "args": [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]], "expected": true},
+  {"id": "boundary_max_sum", "args": [[100, 100, 100, 100]], "expected": true},
+  {"id": "sum_just_odd", "args": [[1, 1, 1, 2]], "expected": false}
+]
