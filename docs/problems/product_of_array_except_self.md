@@ -2,6 +2,8 @@
 
 **Medium** | **30 minutes** | **Array, Prefix Sum**
 
+**Pattern:** [Prefix Sum](../patterns/prefix_sum/intuition.md)
+
 **Practice:** [`practice/product_of_array_except_self/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/product_of_array_except_self/solution.py)
 
 Given an integer array `nums`, return an array `answer` such that `answer[i]` is

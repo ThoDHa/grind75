@@ -2,6 +2,8 @@
 
 **Medium** | **30 minutes** | **Depth-First Search, Breadth-First Search, Graph, Topological Sort**
 
+**Pattern:** [Topological Sort](../patterns/topological_sort/intuition.md)
+
 **Practice:** [`practice/minimum_height_trees/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/minimum_height_trees/solution.py)
 
 A tree is an undirected graph in which any two vertices are connected by exactly one path. In other words, any connected graph without simple cycles is a tree.

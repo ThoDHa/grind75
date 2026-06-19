@@ -2,6 +2,8 @@
 
 **Hard** | **40 minutes** | **Array, Binary Search, Dynamic Programming, Sorting**
 
+**Pattern:** [Binary Search](../patterns/binary_search/intuition.md)
+
 **Practice:** [`practice/maximum_profit_in_job_scheduling/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/maximum_profit_in_job_scheduling/solution.py)
 
 We have `n` jobs, where every job is scheduled to be done from `startTime[i]` to `endTime[i]`, obtaining a profit of `profit[i]`.

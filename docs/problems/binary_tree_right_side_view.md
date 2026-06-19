@@ -2,6 +2,8 @@
 
 **Medium** | **20 minutes** | **Tree**
 
+**Pattern:** [Tree Traversal](../patterns/tree/intuition.md)
+
 **Practice:** [`practice/binary_tree_right_side_view/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/binary_tree_right_side_view/solution.py)
 
 Given the `root` of a binary tree, imagine yourself standing on the **right side** of it, return the values of the nodes you can see ordered from top to bottom.

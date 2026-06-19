@@ -2,6 +2,8 @@
 
 **Easy** | **15 minutes** | **Linked List, Recursion**
 
+**Pattern:** [Linked List Reversal](../patterns/linked_list_in_place_reversal/intuition.md)
+
 **Practice:** [`practice/reverse_linked_list/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/reverse_linked_list/solution.py)
 
 Given the `head` of a singly linked list, reverse the list, and return the reversed list.

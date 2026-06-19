@@ -2,6 +2,8 @@
 
 **Easy** | **20 minutes** | **Binary Search Tree, Tree, Recursion**
 
+**Pattern:** [Tree Traversal](../patterns/tree/intuition.md)
+
 **Practice:** [`practice/lowest_common_ancestor_of_a_binary_search_tree/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/lowest_common_ancestor_of_a_binary_search_tree/solution.py)
 
 Given a binary search tree (BST), find the lowest common ancestor (LCA) node of two given nodes in the BST.

@@ -2,6 +2,8 @@
 
 **Medium** | **25 minutes** | **Tree, Depth-First Search, Binary Search Tree**
 
+**Pattern:** [Tree Traversal](../patterns/tree/intuition.md)
+
 **Practice:** [`practice/kth_smallest_element_in_a_bst/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/kth_smallest_element_in_a_bst/solution.py)
 
 Given the `root` of a binary search tree, and an integer `k`, return the `kth` smallest value (1-indexed) of all the values of the nodes in the tree.

@@ -2,6 +2,8 @@
 
 **Hard** | **45 minutes** | **Tree, Design, String, Binary Tree**
 
+**Pattern:** [Tree Traversal](../patterns/tree/intuition.md)
+
 **Practice:** [`practice/serialize_and_deserialize_binary_tree/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/serialize_and_deserialize_binary_tree/solution.py)
 
 Serialization is the process of converting a data structure or object into a sequence of bits so that it can be stored in a file or memory buffer, or transmitted across a network connection link to be reconstructed later in the same or another computer environment.

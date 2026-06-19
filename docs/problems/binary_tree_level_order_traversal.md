@@ -2,6 +2,8 @@
 
 **Medium** | **20 minutes** | **Tree, BFS, Binary Tree**
 
+**Pattern:** [Tree Traversal](../patterns/tree/intuition.md)
+
 **Practice:** [`practice/binary_tree_level_order_traversal/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/binary_tree_level_order_traversal/solution.py)
 
 Given the `root` of a binary tree, return the level order traversal of its nodes' values. (i.e., from left to right, level by level).

@@ -2,6 +2,8 @@
 
 **Medium** | **30 minutes** | **Array, Sorting**
 
+**Pattern:** [Interval](../patterns/interval/intuition.md)
+
 **Practice:** [`practice/merge_intervals/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/merge_intervals/solution.py)
 
 Given an array of `intervals` where `intervals[i] = [start_i, end_i]`, merge all

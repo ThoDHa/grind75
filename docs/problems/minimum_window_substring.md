@@ -2,6 +2,8 @@
 
 **Hard** | **45 minutes** | **Hash Table, String, Sliding Window**
 
+**Pattern:** [Sliding Window](../patterns/sliding_window/intuition.md)
+
 **Practice:** [`practice/minimum_window_substring/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/minimum_window_substring/solution.py)
 
 Given two strings s and t of lengths m and n respectively, return the **minimum window substring** of s such that every character in t (including duplicates) is included in the window. If there is no such substring, return the empty string "".

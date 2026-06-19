@@ -2,6 +2,8 @@
 
 **Medium** | **25 minutes** | **Hash Table, String, Sliding Window**
 
+**Pattern:** [Sliding Window](../patterns/sliding_window/intuition.md)
+
 **Practice:** [`practice/longest_substring_without_repeating_characters/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/longest_substring_without_repeating_characters/solution.py)
 
 Given a string `s`, find the length of the longest substring without repeating characters.

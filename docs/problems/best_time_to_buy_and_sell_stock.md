@@ -2,6 +2,8 @@
 
 **Easy** | **20 minutes** | **Array**
 
+**Pattern:** [DP 1D Linear](../patterns/dp_1d_linear/intuition.md)
+
 **Practice:** [`practice/best_time_to_buy_and_sell_stock/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/best_time_to_buy_and_sell_stock/solution.py)
 
 You are given an array `prices` where `prices[i]` is the price of a given stock on the

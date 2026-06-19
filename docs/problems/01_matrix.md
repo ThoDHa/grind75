@@ -2,6 +2,8 @@
 
 **Medium** | **25 minutes** | **Array, Dynamic Programming, BFS, Matrix**
 
+**Pattern:** [Multi-Source BFS](../patterns/grid_bfs_multi_source/intuition.md)
+
 **Practice:** [`practice/01_matrix/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/01_matrix/solution.py)
 
 Given an `m x n` binary matrix `mat`, return the distance of the nearest `0` for each cell.

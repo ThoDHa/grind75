@@ -2,6 +2,8 @@
 
 **Medium** | **25 minutes** | **Array, DFS, BFS, Union Find, Matrix**
 
+**Pattern:** [Graph Traversal](../patterns/graph/intuition.md)
+
 **Practice:** [`practice/number_of_islands/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/number_of_islands/solution.py)
 
 Given an `m x n` 2D binary grid `grid` which represents a map of `'1'`s (land) and `'0'`s (water), return the number of islands.

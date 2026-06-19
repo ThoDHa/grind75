@@ -2,6 +2,8 @@
 
 **Medium** | **30 minutes** | **Depth-First Search, Breadth-First Search, Graph, Topological Sort**
 
+**Pattern:** [Graph Traversal](../patterns/graph/intuition.md), [Topological Sort](../patterns/topological_sort/intuition.md)
+
 **Practice:** [`practice/course_schedule/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/course_schedule/solution.py)
 
 There are a total of `numCourses` courses you have to take, labeled from `0` to

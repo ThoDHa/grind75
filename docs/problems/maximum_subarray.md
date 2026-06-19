@@ -2,6 +2,8 @@
 
 **Easy** | **20 minutes** | **Array, Dynamic Programming, Divide and Conquer**
 
+**Pattern:** [Prefix Sum](../patterns/prefix_sum/intuition.md), [DP 1D Linear](../patterns/dp_1d_linear/intuition.md)
+
 **Practice:** [`practice/maximum_subarray/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/maximum_subarray/solution.py)
 
 Given an integer array `nums`, find the contiguous subarray (containing at least one number) which has the largest sum and return *its sum*.

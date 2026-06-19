@@ -2,6 +2,8 @@
 
 **Easy** | **15 minutes** | **Binary Search**
 
+**Pattern:** [Binary Search](../patterns/binary_search/intuition.md)
+
 **Practice:** [`practice/binary_search/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/binary_search/solution.py)
 
 Given an array of integers `nums` which is sorted in ascending order, and an

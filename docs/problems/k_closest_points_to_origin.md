@@ -2,6 +2,8 @@
 
 **Medium** | **25 minutes** | **Array, Math, Divide and Conquer, Geometry, Sorting, Heap (Priority Queue), Quickselect**
 
+**Pattern:** [Heap / Priority Queue](../patterns/heap/intuition.md)
+
 **Practice:** [`practice/k_closest_points_to_origin/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/k_closest_points_to_origin/solution.py)
 
 Given an array of points where `points[i] = [xi, yi]` represents a point on the X-Y plane and an integer `k`, return the `k` closest points to the origin `(0, 0)`.

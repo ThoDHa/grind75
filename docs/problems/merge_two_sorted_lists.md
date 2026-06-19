@@ -2,6 +2,8 @@
 
 **Easy** | **20 minutes** | **Linked List**
 
+**Pattern:** [K-Way Merge](../patterns/k_way_merge/intuition.md)
+
 **Practice:** [`practice/merge_two_sorted_lists/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/merge_two_sorted_lists/solution.py)
 
 You are given the heads of two sorted linked lists `list1` and `list2`.

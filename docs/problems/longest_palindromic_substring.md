@@ -2,6 +2,8 @@
 
 **Medium** | **25 minutes** | **String, Dynamic Programming**
 
+**Pattern:** [String DP](../patterns/string_dp/intuition.md)
+
 **Practice:** [`practice/longest_palindromic_substring/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/longest_palindromic_substring/solution.py)
 
 Given a string `s`, return the longest palindromic substring in `s`.

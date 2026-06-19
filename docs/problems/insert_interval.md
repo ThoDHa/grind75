@@ -2,6 +2,8 @@
 
 **Medium** | **25 minutes** | **Array, Sorting**
 
+**Pattern:** [Interval](../patterns/interval/intuition.md)
+
 **Practice:** [`practice/insert_interval/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/insert_interval/solution.py)
 
 You are given an array of non-overlapping intervals where `intervals[i] = [starti, endi]` represent the start and the end of the `ith` interval and `intervals` is sorted in ascending order by `starti`. You are also given an interval `newInterval = [start, end]` that represents the start and end of another interval.

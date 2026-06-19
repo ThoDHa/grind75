@@ -2,6 +2,8 @@
 
 **Medium** | **30 minutes** | **Hash Table, String, Design, Trie**
 
+**Pattern:** [Trie](../patterns/trie/intuition.md)
+
 **Practice:** [`practice/implement_trie_prefix_tree/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/implement_trie_prefix_tree/solution.py)
 
 A trie (pronounced as "try") or prefix tree is a tree data structure used to efficiently store and retrieve keys in a dataset of strings. There are various applications of this data structure, such as autocomplete and spellchecker.

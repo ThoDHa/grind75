@@ -2,6 +2,8 @@
 
 **Medium** | **30 minutes** | **Array, Backtracking, Matrix**
 
+**Pattern:** [Graph Traversal](../patterns/graph/intuition.md), [Backtracking](../patterns/backtracking_exploration/intuition.md)
+
 **Practice:** [`practice/word_search/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/word_search/solution.py)
 
 Given an `m x n` grid of characters `board` and a string `word`, return `true` if `word` exists in the grid.

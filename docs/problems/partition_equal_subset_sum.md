@@ -2,6 +2,8 @@
 
 **Medium** | **30 minutes** | **Array, Dynamic Programming**
 
+**Pattern:** [DP Knapsack/Subset](../patterns/dp_knapsack_subset/intuition.md)
+
 **Practice:** [`practice/partition_equal_subset_sum/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/partition_equal_subset_sum/solution.py)
 
 Given an integer array `nums`, return `true` if you can partition the array into two subsets such that the sum of the elements in both subsets is equal.

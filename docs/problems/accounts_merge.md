@@ -2,6 +2,8 @@
 
 **Medium** | **30 minutes** | **Graph**
 
+**Pattern:** [Union-Find](../patterns/union_find/intuition.md)
+
 **Practice:** [`practice/accounts_merge/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/accounts_merge/solution.py)
 
 Given a list of accounts where each element `accounts[i]` is a list of strings, where the first element `accounts[i][0]` is a name, and the rest of the elements are emails representing emails of the account.
