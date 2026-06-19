@@ -49,3 +49,208 @@ trie.search("app");     // return True
 - `1 <= word.length, prefix.length <= 2000`
 - `word` and `prefix` consist only of lowercase English letters.
 - At most `3 * 10^4` calls in total will be made to `insert`, `search`, and `startsWith`.
+
+## Solutions
+
+### Dictionary Children
+
+```python
+class Trie:
+
+    def __init__(self):
+        # Each node is a dict of child character -> child node.
+        # The sentinel key "$" marks the end of a complete word.
+        self.root: dict = {}
+
+    def insert(self, word: str) -> None:
+        node = self.root
+        for ch in word:
+            node = node.setdefault(ch, {})
+        node["$"] = True
+
+    def search(self, word: str) -> bool:
+        node = self._find(word)
+        return node is not None and "$" in node
+
+    def startsWith(self, prefix: str) -> bool:
+        return self._find(prefix) is not None
+
+    def _find(self, s: str) -> dict | None:
+        # Walk down the trie following s; return the node reached or None.
+        node = self.root
+        for ch in s:
+            if ch not in node:
+                return None
+            node = node[ch]
+        return node
+
+
+# Your Trie object will be instantiated and used as follows:
+# obj = Trie()
+# obj.insert(word)
+# param_2 = obj.search(word)
+# param_3 = obj.startsWith(prefix)
+```
+
+#### Approach
+
+A trie stores strings character by character along tree paths, so shared
+prefixes share nodes. Representing each node as a dictionary mapping a character
+to its child node keeps the implementation compact while giving constant-time
+child access.
+
+1. Each node is a `dict`. A child entry maps a character to the next node; a
+   special sentinel key `"$"` flags that a complete word ends at this node.
+2. `insert` walks the characters of `word`, creating missing child dicts via
+   `setdefault`, then sets the sentinel on the final node.
+3. `search` walks the word with the `_find` helper; it returns `True` only when
+   the path exists and the terminal node carries the `"$"` sentinel.
+4. `startsWith` reuses `_find`; reaching any node along the prefix path is enough,
+   regardless of whether a word ends there.
+
+The sentinel distinguishes a full word from a mere prefix, which is what makes
+`search("app")` return `False` until `"app"` is explicitly inserted.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(L)` per operation
+
+`insert`, `search`, and `startsWith` each traverse one node per character of the
+input string of length `L`, performing constant-time dictionary work at each
+step.
+
+##### Space Complexity: `O(total characters)`
+
+In the worst case, with no shared prefixes, each inserted character creates a new
+node, so storage is proportional to the sum of all inserted word lengths. Shared
+prefixes reduce this in practice.
+
+#### Key Insights
+
+- A dictionary per node gives `O(1)` child lookup over the 26-letter alphabet
+  without preallocating fixed-size arrays.
+- The `"$"` sentinel cleanly separates "a word ends here" from "this is only a
+  prefix," which is the crux of correct `search` versus `startsWith` behavior.
+- `setdefault` collapses the "create child if absent, then descend" pattern into
+  a single expression.
+- Factoring the shared descent into `_find` removes duplication between `search`
+  and `startsWith`.
+
+### Fixed Array Children
+
+```python
+class TrieNode:
+
+    def __init__(self):
+        # One slot per lowercase letter; None means no child along that edge.
+        self.children: list = [None] * 26
+        # Marks whether a complete word ends at this node.
+        self.is_end: bool = False
+
+
+class Trie:
+
+    def __init__(self):
+        self.root = TrieNode()
+
+    def insert(self, word: str) -> None:
+        node = self.root
+        for ch in word:
+            index = ord(ch) - ord("a")
+            if node.children[index] is None:
+                node.children[index] = TrieNode()
+            node = node.children[index]
+        node.is_end = True
+
+    def search(self, word: str) -> bool:
+        node = self._find(word)
+        return node is not None and node.is_end
+
+    def startsWith(self, prefix: str) -> bool:
+        return self._find(prefix) is not None
+
+    def _find(self, s: str) -> "TrieNode | None":
+        # Walk down the trie following s; return the node reached or None.
+        node = self.root
+        for ch in s:
+            index = ord(ch) - ord("a")
+            if node.children[index] is None:
+                return None
+            node = node.children[index]
+        return node
+
+
+# Your Trie object will be instantiated and used as follows:
+# obj = Trie()
+# obj.insert(word)
+# param_2 = obj.search(word)
+# param_3 = obj.startsWith(prefix)
+```
+
+#### Approach
+
+This variant stores each node's children in a fixed-size list of 26 slots, one
+per lowercase letter, instead of a dictionary. The letter `ch` maps to index
+`ord(ch) - ord("a")`, and a dedicated `is_end` boolean replaces the sentinel
+key.
+
+1. Each `TrieNode` holds a 26-element list initialized to `None` and an `is_end`
+   flag that is `False` until a word terminates there.
+2. `insert` converts each character to its slot index, creating a child node when
+   the slot is empty, then marks the final node as a word end.
+3. `search` walks the word via the `_find` helper and checks that the reached
+   node has `is_end` set.
+4. `startsWith` reuses `_find`; any reachable node along the prefix path suffices.
+
+Indexing into a contiguous array is the fastest possible child lookup, which is
+why this layout is common in performance-sensitive trie implementations.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(L)` per operation
+
+`insert`, `search`, and `startsWith` each visit one node per character of the
+input string of length `L`, with constant-time array indexing at each step.
+
+##### Space Complexity: `O(26 × number of nodes)`
+
+Every node allocates a full 26-slot array regardless of how many children it
+actually has, so memory is proportional to the node count times the alphabet
+size. This is wasteful for sparse tries but bounded and predictable.
+
+#### Key Insights
+
+- Array indexing by `ord(ch) - ord("a")` gives the tightest constant-factor child
+  lookup, avoiding hashing entirely.
+- A separate `is_end` flag plays the same role as the dictionary sentinel,
+  distinguishing a stored word from a mere prefix.
+- The fixed alphabet size is what makes the array layout viable; it relies on the
+  constraint that inputs contain only lowercase English letters.
+
+## Comparison of Solutions
+
+### Time Complexity
+
+- **Dictionary Children**: `O(L)` per operation, with constant-time hashed child lookup at each character
+- **Fixed Array Children**: `O(L)` per operation, with constant-time array indexing at each character
+
+### Space Complexity
+
+- **Dictionary Children**: `O(total characters)` - each node stores only the children it actually has
+- **Fixed Array Children**: `O(26 × number of nodes)` - each node reserves a full 26-slot array even when mostly empty
+
+### Trade-offs
+
+- **Dictionary Children** is memory-efficient for sparse tries and adapts to any character set without changes, at the cost of hashing overhead per lookup
+- **Fixed Array Children** offers the fastest possible child access through direct indexing, but wastes memory on empty slots and is tied to a fixed alphabet
+
+### When to Use Each
+
+- **Dictionary Children**: The default choice when the alphabet is large or unknown, or when tries are sparse and memory matters
+- **Fixed Array Children**: When the alphabet is small and fixed (such as lowercase English letters) and raw lookup speed is the priority
+
+### Optimization Notes
+
+- Both layouts share the same `O(L)` time complexity; the real distinction is the constant factor on lookups versus the memory footprint per node
+- The array layout trades memory for speed, which pays off in hot paths over a small fixed alphabet but becomes prohibitive for Unicode-scale character sets
+- The dictionary layout generalizes for free to any character set, making it the safer default unless profiling shows child lookup is a bottleneck

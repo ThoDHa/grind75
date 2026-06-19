@@ -38,3 +38,189 @@ Given an integer array `nums`, return `true` if any value appears **at least twi
 
 - `1 <= nums.length <= 10^5`
 - `-10^9 <= nums[i] <= 10^9`
+
+## Solutions
+
+### Hash Set
+
+```python
+class Solution:
+    def containsDuplicate(self, nums: List[int]) -> bool:
+        seen = set()
+        for num in nums:
+            if num in seen:
+                return True
+            seen.add(num)
+        return False
+```
+
+#### Approach
+
+Track every value as it is encountered and report the first repeat:
+
+1. Initialize an empty set `seen`.
+2. Iterate through `nums`. For each `num`, check whether it is already in `seen`.
+3. If it is, a duplicate exists, so return `True` immediately.
+4. Otherwise add `num` to `seen` and continue.
+5. If the loop finishes without a hit, every element was distinct, so return `False`.
+
+Membership tests and insertions on a hash set are constant time on average, which keeps the whole scan linear. The early return means the work stops the moment the first duplicate appears.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n)`
+
+Each element is processed once, and each set lookup and insertion is `O(1)` on average, giving `O(n)` total.
+
+##### Space Complexity: `O(n)`
+
+In the worst case (all distinct values), the set grows to hold every element.
+
+#### Key Insights
+
+- A hash set turns the "have I seen this before" question into an `O(1)` average operation.
+- The early return avoids scanning the rest of the array once a duplicate is found.
+- The logic is library-free: a plain `set` and a loop are all that is required.
+
+### Sorting
+
+```python
+class Solution:
+    def containsDuplicate(self, nums: List[int]) -> bool:
+        nums = sorted(nums)
+        for i in range(1, len(nums)):
+            if nums[i] == nums[i - 1]:
+                return True
+        return False
+```
+
+#### Approach
+
+Sorting brings equal values next to each other so duplicates can be spotted with a single adjacent-pair scan:
+
+1. Sort a copy of `nums` into ascending order.
+2. Walk from the second element to the last, comparing each element with its predecessor.
+3. If any adjacent pair is equal, return `True`.
+4. If no adjacent pair matches, return `False`.
+
+This trades the extra hash-set memory for the cost of sorting. It is useful when auxiliary space is constrained and the input may be sorted in place.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n log n)`
+
+The sort dominates at `O(n log n)`; the adjacent-pair scan adds only `O(n)`.
+
+##### Space Complexity: `O(n)` or `O(1)`
+
+Sorting a copy uses `O(n)` space; sorting the input in place keeps the extra space at `O(1)` aside from the sort's own overhead.
+
+#### Key Insights
+
+- Sorting collapses the duplicate search to a comparison of neighbors.
+- No hash structure is needed, which can matter under tight memory budgets.
+- It is slower than the hash approach because of the `O(n log n)` sort.
+
+### Set Length Comparison
+
+```python
+class Solution:
+    def containsDuplicate(self, nums: List[int]) -> bool:
+        return len(set(nums)) < len(nums)
+```
+
+#### Approach
+
+A `set` discards duplicate values, so comparing sizes answers the question directly:
+
+1. Build a set from `nums`, which keeps only distinct values.
+2. If the set is smaller than the original list, at least one value was dropped as a duplicate, so return `True`.
+3. Otherwise the sizes match and every element was unique, so return `False`.
+
+The built-in `set` does the core deduplication work here, which is why this concise form is ranked after the hand-written approaches.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n)`
+
+Building the set visits every element once.
+
+##### Space Complexity: `O(n)`
+
+The set stores all distinct values, up to `n` of them.
+
+#### Key Insights
+
+- Reduces the problem to a single length comparison.
+- Reads cleanly but always processes the entire array, with no early exit.
+- Relies on the language's `set` to perform the deduplication.
+
+### Counter
+
+```python
+class Solution:
+    def containsDuplicate(self, nums: List[int]) -> bool:
+        return any(count > 1 for count in Counter(nums).values())
+```
+
+#### Approach
+
+`collections.Counter` tallies how many times each value appears, and any count above one signals a duplicate:
+
+1. Build a `Counter` over `nums` to map each value to its frequency.
+2. Scan the frequency values and return `True` as soon as one exceeds `1`.
+3. If no count is greater than `1`, return `False`.
+
+This leans most heavily on the standard library, so it sits last among the approaches.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n)`
+
+Counting visits every element once, and scanning the distinct counts is at most `O(n)`.
+
+##### Space Complexity: `O(n)`
+
+The counter holds an entry for each distinct value.
+
+#### Key Insights
+
+- Produces full frequency information, which is more than this yes/no question needs.
+- `any` short-circuits on the first count above one.
+- Most library-driven of the options, so it ranks after the from-scratch solutions.
+
+## Comparison of Solutions
+
+### Time Complexity
+
+- **Hash Set**: `O(n)` - single pass with constant-time average lookups.
+- **Sorting**: `O(n log n)` - bounded by the sort step.
+- **Set Length Comparison**: `O(n)` - one pass to build the set.
+- **Counter**: `O(n)` - one pass to tally frequencies.
+
+### Space Complexity
+
+- **Hash Set**: `O(n)` - stores seen values, up to `n` of them.
+- **Sorting**: `O(n)` or `O(1)` - depends on copying versus sorting in place.
+- **Set Length Comparison**: `O(n)` - stores all distinct values.
+- **Counter**: `O(n)` - stores a count per distinct value.
+
+### Trade-offs
+
+- The Hash Set approach is optimal in time and can exit early, at the cost of auxiliary memory.
+- The Sorting approach avoids a hash structure but pays the `O(n log n)` sorting cost.
+- The Set Length Comparison is the most concise but always scans the whole array.
+- The Counter approach computes more information than needed but reads clearly.
+
+### When to Use Each
+
+- **Hash Set**: The default choice when fastest detection with early exit matters.
+- **Sorting**: When memory is tight and an in-place sort is acceptable.
+- **Set Length Comparison**: When brevity and readability outweigh early termination.
+- **Counter**: When frequencies are already needed elsewhere in the code.
+
+### Optimization Notes
+
+- The Hash Set approach terminates the moment the first duplicate is found, which is ideal when duplicates are common and appear early.
+- The Sorting approach can drop to `O(1)` extra space by sorting the input in place when mutation is allowed.
+- The Set Length Comparison and Counter forms favor clarity but process every element regardless of when a duplicate occurs.

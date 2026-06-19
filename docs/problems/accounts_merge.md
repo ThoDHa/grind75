@@ -51,3 +51,219 @@ accounts = [["Gabe","Gabe0@m.co","Gabe3@m.co","Gabe1@m.co"],["Kevin","Kevin3@m.c
 - `1 <= accounts[i][j].length <= 30`
 - `accounts[i][0]` consists of English letters.
 - `accounts[i][j]` (for `j > 0`) is a valid email.
+
+## Solutions
+
+### DFS Connected Components
+
+```python
+from collections import defaultdict
+
+
+class Solution:
+    def accountsMerge(self, accounts: List[List[str]]) -> List[List[str]]:
+        graph = defaultdict(set)  # email -> set of directly connected emails
+        owner = {}                # email -> account name
+
+        # Build an undirected graph: every email in an account links to the
+        # account's first email, so all of them sit in one connected component.
+        for account in accounts:
+            name = account[0]
+            first = account[1]
+            for email in account[1:]:
+                owner[email] = name
+                graph[first].add(email)
+                graph[email].add(first)
+
+        visited = set()
+
+        def dfs(start: str) -> list:
+            # Iterative DFS collects every email reachable from start.
+            stack = [start]
+            component = []
+            while stack:
+                email = stack.pop()
+                if email in visited:
+                    continue
+                visited.add(email)
+                component.append(email)
+                for neighbor in graph[email]:
+                    if neighbor not in visited:
+                        stack.append(neighbor)
+            return component
+
+        result = []
+        for email in graph:
+            if email not in visited:
+                component = dfs(email)
+                # Prefix the sorted emails with the shared account name.
+                result.append([owner[email]] + sorted(component))
+        return result
+```
+
+#### Approach
+
+Two accounts belong to the same person exactly when they share an email. We can
+model this directly as a graph where each email is a node and emails appearing
+together in an account are connected by edges. Each connected component of that
+graph is one merged person, and a depth-first search recovers every component.
+
+1. For each account, add edges between the first email and every other email in
+   that account. Because connectivity is transitive, linking each email to a
+   single representative (the first) suffices to bind the whole account together,
+   and chains across accounts merge through shared emails.
+2. Record each email's owner name as it is registered.
+3. Run a DFS from every unvisited email, collecting all reachable emails into one
+   component.
+4. For each component, emit the owner's name followed by the emails sorted
+   alphabetically.
+
+Building the adjacency graph from scratch keeps the logic explicit: the merge is
+nothing more than enumerating connected components, and DFS is the most direct
+way to walk them.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(N × K + N log K)`
+
+Let `N` be the total number of emails and `K` the size of the largest merged
+account. Building the graph and running DFS visit each email and edge once. Edges
+per account are bounded by its size, so traversal is `O(N × K)` in the worst case
+where one giant component forms. Sorting each component totals `O(N log K)`. In
+practice both terms are commonly summarized as `O(N log N)`.
+
+##### Space Complexity: `O(N × K)`
+
+The adjacency graph stores up to `O(K)` neighbors per email in the worst case,
+the `owner` map and `visited` set are `O(N)`, and the DFS stack is bounded by the
+component size.
+
+#### Key Insights
+
+- Treating emails as graph nodes makes the merge a textbook connected-components
+  problem, no special data structure required beyond a dictionary of adjacency
+  sets.
+- Linking every email to the account's first email (a star within each account)
+  is enough to connect the account; full pairwise edges are unnecessary.
+- An iterative DFS with an explicit stack sidesteps any recursion-depth concern
+  on a component that could span thousands of emails.
+- The owner name comes from any email in the component, since one component maps
+  to exactly one person.
+
+### Union-Find
+
+```python
+from collections import defaultdict
+
+
+class Solution:
+    def accountsMerge(self, accounts: List[List[str]]) -> List[List[str]]:
+        parent = {}          # email -> parent email (union-find forest)
+        owner = {}           # email -> account name
+
+        def find(email: str) -> str:
+            # Path compression: flatten the chain toward the root.
+            while parent[email] != email:
+                parent[email] = parent[parent[email]]
+                email = parent[email]
+            return email
+
+        def union(a: str, b: str) -> None:
+            parent[find(a)] = find(b)
+
+        # Register every email and union all emails that share an account.
+        for account in accounts:
+            name = account[0]
+            first = account[1]
+            for email in account[1:]:
+                if email not in parent:
+                    parent[email] = email
+                    owner[email] = name
+                union(email, first)
+
+        # Group every email under the representative root of its component.
+        groups = defaultdict(list)
+        for email in parent:
+            groups[find(email)].append(email)
+
+        # Build each merged account: name followed by sorted emails.
+        return [[owner[root]] + sorted(emails)
+                for root, emails in groups.items()]
+```
+
+#### Approach
+
+Two accounts belong to the same person exactly when they share an email, and
+"shares an email" is a connectivity relation that is reflexive, symmetric, and
+transitive. That makes union-find the natural fit: treat each email as a node,
+connect all emails that appear together in one account, and each connected
+component becomes one merged person.
+
+1. For every account, register each email in the union-find forest (parent
+   pointing to itself initially) and record its owner name.
+2. Union every email in an account with the account's first email. After
+   processing all accounts, emails reachable through any chain of shared accounts
+   land in the same component.
+3. Walk all emails and group them by their component root via `find`.
+4. For each group, emit the owner's name followed by the emails in sorted order.
+
+Using the email strings themselves as union-find keys avoids a separate
+index-mapping step. Any email in a component can supply the name because all
+accounts in one component share the same person and therefore the same name.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(N × α(N) + N log K)`
+
+Let `N` be the total number of emails across all accounts and `K` the size of
+the largest merged account. The union-find operations cost `O(N × α(N))`, where
+`α` is the inverse Ackermann function (effectively constant). Sorting the emails
+within each group totals `O(N log K)` in the worst case, which dominates and is
+commonly written simply as `O(N log N)`.
+
+##### Space Complexity: `O(N)`
+
+The `parent`, `owner`, and `groups` structures each hold one entry per distinct
+email, so auxiliary space is linear in the number of emails.
+
+#### Key Insights
+
+- Modeling "shares an email" as a connectivity relation turns a fuzzy merge into
+  a clean connected-components problem solvable with union-find.
+- Using the email strings directly as forest keys removes the bookkeeping of
+  mapping emails to integer ids.
+- Unioning every email to the account's first email (rather than pairwise across
+  all emails) is enough to connect the whole account, and it is simpler.
+- Path compression keeps `find` near-constant, so even 1000 accounts with up to
+  10 emails each resolve quickly.
+- The owner name can be pulled from any email in a component, since a merged
+  component always corresponds to a single person with one name.
+
+## Comparison of Solutions
+
+### Time Complexity
+
+- **DFS Connected Components**: `O(N × K + N log K)` - Graph construction and traversal touch each email and edge once, then each component is sorted.
+- **Union-Find**: `O(N × α(N) + N log K)` - Near-constant union/find operations per email, then per-component sorting; the inverse-Ackermann factor makes connectivity effectively faster than explicit traversal.
+
+### Space Complexity
+
+- **DFS Connected Components**: `O(N × K)` - The adjacency graph can store up to `O(K)` neighbors per email when accounts are large.
+- **Union-Find**: `O(N)` - Only flat parent and owner maps, one entry per email.
+
+### Trade-offs
+
+- **DFS Connected Components**: Builds the graph explicitly, which makes the connected-components structure obvious, but the adjacency sets cost more memory than a flat parent array.
+- **Union-Find**: More compact in memory and asymptotically faster on the connectivity step, at the cost of the less-intuitive disjoint-set machinery.
+
+### When to Use Each
+
+- **DFS Connected Components**: When clarity matters or when an explicit graph is already available, since the merge reads as a plain component walk.
+- **Union-Find (Recommended)**: Best for interviews and large inputs - it is the most space-efficient and the standard answer for dynamic-connectivity merges.
+
+### Optimization Notes
+
+- The DFS approach trades extra adjacency-set memory for conceptual simplicity; switching the recursion to an explicit stack (as shown) keeps it safe on huge components.
+- Union-find with path compression keeps the connectivity step near-linear, so for the largest inputs it edges out the explicit graph traversal.
+- Both approaches are dominated by the per-component sort in practice, so neither can drop below `O(N log K)` while emails must be returned in sorted order.
+- Linking each account's emails to a single representative (rather than all pairs) keeps edge count low in both solutions.

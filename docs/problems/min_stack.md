@@ -49,3 +49,187 @@ minStack.getMin(); // return -2
 - `-2^31 <= val <= 2^31 - 1`
 - Methods `pop`, `top` and `getMin` operations will always be called on **non-empty** stacks.
 - At most `3 * 10^4` calls will be made to `push`, `pop`, `top`, and `getMin`.
+
+## Solutions
+
+### Single Stack of Pairs
+
+```python
+class MinStack:
+
+    def __init__(self):
+        # Each entry stores (value, minimum of the stack at and below this entry)
+        self.stack: list[tuple[int, int]] = []
+
+    def push(self, val: int) -> None:
+        current_min = val if not self.stack else min(val, self.stack[-1][1])
+        self.stack.append((val, current_min))
+
+    def pop(self) -> None:
+        self.stack.pop()
+
+    def top(self) -> int:
+        return self.stack[-1][0]
+
+    def getMin(self) -> int:
+        return self.stack[-1][1]
+
+
+# Your MinStack object will be instantiated and used as such:
+# obj = MinStack()
+# obj.push(val)
+# obj.pop()
+# param_3 = obj.top()
+# param_4 = obj.getMin()
+```
+
+#### Approach
+
+The challenge is retrieving the minimum in `O(1)` even after arbitrary pops.
+A plain stack can hold the values, but the running minimum changes as elements
+are removed. The trick is to store the minimum alongside each value so every
+entry remembers what the minimum was when it sat on top.
+
+1. Store each pushed element as a pair `(val, current_min)`, where
+   `current_min` is the smaller of `val` and the minimum currently on top of
+   the stack.
+2. On `push`, look at the previous top's stored minimum (or use `val` itself
+   when the stack is empty) and record the new pair.
+3. On `pop`, simply discard the top pair; the entry now on top already carries
+   the correct minimum for the remaining elements.
+4. `top` returns the value field of the top pair, and `getMin` returns its
+   minimum field.
+
+Because each entry caches the minimum of the entire stack beneath it, removing
+the top never requires recomputation.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(1)` per operation
+
+`push`, `pop`, `top`, and `getMin` each perform a constant number of list
+operations and comparisons, so all four run in constant time as required.
+
+##### Space Complexity: `O(n)`
+
+Each of the `n` pushed elements stores an extra integer for the cached minimum,
+which doubles the storage but remains linear in the number of elements.
+
+#### Key Insights
+
+- Pairing every value with the minimum-so-far converts the `getMin` query into
+  a constant-time lookup of the top entry.
+- The cached minimum is monotonic going down the stack, so popping the top
+  automatically exposes the correct minimum underneath.
+- Bundling both fields in a single list keeps the data structure compact: there
+  is only one container to push to and pop from.
+
+### Two Stacks
+
+```python
+class MinStack:
+
+    def __init__(self):
+        self.stack: list[int] = []
+        # Parallel stack whose top is always the minimum of the value stack.
+        self.mins: list[int] = []
+
+    def push(self, val: int) -> None:
+        self.stack.append(val)
+        # Carry forward the smaller of the new value and the current minimum.
+        current_min = val if not self.mins else min(val, self.mins[-1])
+        self.mins.append(current_min)
+
+    def pop(self) -> None:
+        self.stack.pop()
+        self.mins.pop()
+
+    def top(self) -> int:
+        return self.stack[-1]
+
+    def getMin(self) -> int:
+        return self.mins[-1]
+
+
+# Your MinStack object will be instantiated and used as such:
+# obj = MinStack()
+# obj.push(val)
+# obj.pop()
+# param_3 = obj.top()
+# param_4 = obj.getMin()
+```
+
+#### Approach
+
+This variant splits the two concerns into two separate stacks that move in
+lockstep: one holds the raw values, and the other tracks the running minimum so
+its top always equals the minimum of everything currently in the value stack.
+
+1. On `push`, append the value to the value stack. Then push the smaller of the
+   new value and the current top of the minimum stack (or the value itself when
+   the minimum stack is empty).
+2. On `pop`, pop both stacks together so they stay aligned.
+3. `top` returns the top of the value stack, and `getMin` returns the top of the
+   minimum stack.
+
+Because the minimum stack mirrors the value stack one-for-one, every pop exposes
+the correct minimum for the remaining elements without recomputation.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(1)` per operation
+
+Each method performs a fixed number of list appends, pops, and comparisons, so
+all four operations run in constant time as required.
+
+##### Space Complexity: `O(n)`
+
+The minimum stack grows one entry per push, matching the value stack, so the
+total storage is linear in the number of elements.
+
+#### Key Insights
+
+- Separating values from minimums keeps each stack holding plain integers, which
+  some readers find clearer than reasoning about tuples.
+- The minimum stack is non-increasing from bottom to top, so its top is always
+  the global minimum of the current contents.
+- Pushing and popping both stacks together is what guarantees alignment; the two
+  stacks always have identical heights.
+
+## Comparison of Solutions
+
+### Time Complexity
+
+- **Single Stack of Pairs**: `O(1)` per operation - one tuple append, pop, or
+  index lookup.
+- **Two Stacks**: `O(1)` per operation - one append or pop on each of two stacks.
+
+### Space Complexity
+
+- **Single Stack of Pairs**: `O(n)` - each element stores its value and the
+  cached minimum together.
+- **Two Stacks**: `O(n)` - the parallel minimum stack adds one integer per push.
+
+### Trade-offs
+
+- Both approaches store the same amount of extra information (one cached minimum
+  per element) and meet the `O(1)` requirement for every operation.
+- The single stack keeps everything in one container, so push and pop touch only
+  one list.
+- The two-stack version keeps each container holding plain integers, which some
+  find easier to read, at the cost of maintaining two lists in lockstep.
+
+### When to Use Each
+
+- **Single Stack of Pairs**: When you prefer a single data structure and are
+  comfortable unpacking tuples.
+- **Two Stacks**: When you prefer to keep values and minimums conceptually
+  separate, or when an interviewer asks for the classic two-stack formulation.
+
+### Optimization Notes
+
+- Both solutions cache the running minimum so `getMin` never recomputes; this is
+  the core trick that turns an `O(n)` scan into an `O(1)` lookup.
+- A further memory optimization stores only minimums that actually change (a
+  monotonic minimum stack), shrinking the auxiliary stack when many pushes share
+  the same minimum, at the cost of slightly more bookkeeping on pop.

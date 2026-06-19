@@ -62,3 +62,199 @@ For simplicity, each node's value is the same as the node's index (1-indexed). F
 - `Node.val` is unique for each node.
 - There are no repeated edges and no self-loops in the graph.
 - The Graph is connected and all nodes can be visited starting from the given node.
+
+## Solutions
+
+### Recursive DFS
+
+```python
+"""
+# Definition for a Node.
+class Node:
+    def __init__(self, val = 0, neighbors = None):
+        self.val = val
+        self.neighbors = neighbors if neighbors is not None else []
+"""
+
+
+class Solution:
+    def cloneGraph(self, node: Optional['Node']) -> Optional['Node']:
+        if node is None:
+            return None
+
+        # Maps each original node to its clone, doubling as a visited set.
+        cloned = {}
+
+        def dfs(original: 'Node') -> 'Node':
+            # Return the existing clone if we have seen this node before.
+            if original in cloned:
+                return cloned[original]
+
+            # Create the clone first, then register it before recursing so
+            # cycles resolve to the already-created copy.
+            copy = Node(original.val)
+            cloned[original] = copy
+
+            for neighbor in original.neighbors:
+                copy.neighbors.append(dfs(neighbor))
+
+            return copy
+
+        return dfs(node)
+```
+
+#### Approach
+
+A deep copy must reproduce every node and every edge exactly once, but the graph
+is undirected and may contain cycles, so we need to remember which originals we
+have already cloned. A hash map from each original node to its clone does double
+duty: it is the lookup table for wiring up neighbors and the visited set that
+stops infinite recursion around cycles.
+
+1. Handle the empty graph: if the input `node` is `None`, return `None`.
+2. Keep a `cloned` dictionary mapping each original node to its copy.
+3. In the DFS, if the current original is already in `cloned`, return its
+   existing copy immediately.
+4. Otherwise create the copy, **register it in `cloned` before recursing**, then
+   recurse into each neighbor and append the returned clones to
+   `copy.neighbors`.
+5. Return the clone of the entry node.
+
+Registering the copy before recursing into neighbors is the crucial step.
+Because the graph is undirected, a neighbor will eventually try to clone us back;
+finding our half-built copy already in the map breaks the cycle and lets the two
+clones reference each other correctly.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(V + E)`
+
+Each node is created exactly once (guarded by the `cloned` map) and each edge is
+traversed exactly once when copying a node's neighbor list. With an undirected
+graph stored as `2E` directed entries, the total work is linear in nodes plus
+edges.
+
+##### Space Complexity: `O(V)`
+
+The `cloned` map holds one entry per node, and the DFS recursion stack can reach
+a depth of `V` for a path-shaped graph. The cloned graph itself also uses
+`O(V + E)` space, but that is required output rather than auxiliary overhead.
+
+#### Key Insights
+
+- The original-to-clone hash map is both the memo for neighbor wiring and the
+  visited set that tames cycles, so one structure solves two problems.
+- Inserting the clone into the map *before* recursing is what prevents infinite
+  loops; doing it after would let a cycle recreate the node endlessly.
+- Returning early when a node is already cloned guarantees each node and edge is
+  processed once, keeping the algorithm linear.
+- The `node is None` guard handles the empty-graph test case (`adjList = []`)
+  that would otherwise crash on attribute access.
+
+### Iterative BFS
+
+```python
+from collections import deque
+
+"""
+# Definition for a Node.
+class Node:
+    def __init__(self, val = 0, neighbors = None):
+        self.val = val
+        self.neighbors = neighbors if neighbors is not None else []
+"""
+
+
+class Solution:
+    def cloneGraph(self, node: Optional['Node']) -> Optional['Node']:
+        if node is None:
+            return None
+
+        # Clone the entry node up front so the map is never empty.
+        cloned = {node: Node(node.val)}
+        queue = deque([node])
+
+        while queue:
+            original = queue.popleft()
+            for neighbor in original.neighbors:
+                # First time we see a neighbor: create its clone and enqueue it.
+                if neighbor not in cloned:
+                    cloned[neighbor] = Node(neighbor.val)
+                    queue.append(neighbor)
+                # Wire the current node's clone to the neighbor's clone.
+                cloned[original].neighbors.append(cloned[neighbor])
+
+        return cloned[node]
+```
+
+#### Approach
+
+This variant replaces recursion with an explicit queue while keeping the same
+original-to-clone map at the heart of the algorithm. The map still serves the
+dual role of visited set and lookup table for wiring neighbors.
+
+1. Handle the empty graph: if `node` is `None`, return `None`.
+2. Clone the entry node immediately and seed both the `cloned` map and the queue
+   with the original.
+3. Pop a node, then for each of its neighbors: create and enqueue the neighbor's
+   clone the first time it is seen, and always append the neighbor's clone to the
+   current node's clone neighbor list.
+4. Return the clone of the entry node once the queue drains.
+
+Creating a neighbor's clone the moment it is first encountered (and only then
+enqueuing it) guarantees each node is processed once. Because the clone exists in
+the map before we wire edges, cycles resolve correctly: when a later node points
+back to an already-cloned node, the connection uses the existing copy.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(V + E)`
+
+Each node is enqueued and dequeued exactly once, and every edge is examined once
+when iterating a node's neighbor list. The total is linear in nodes plus edges,
+identical to the recursive version.
+
+##### Space Complexity: `O(V)`
+
+The `cloned` map holds one entry per node and the queue holds at most `O(V)`
+nodes. Unlike the recursive approach, no call stack is consumed, so very large or
+deeply chained graphs cannot trigger a recursion-depth error.
+
+#### Key Insights
+
+- The same original-to-clone map drives both approaches; only the traversal
+  mechanism (call stack versus explicit queue) differs.
+- Cloning a neighbor on first sight before enqueuing prevents the same node from
+  being added to the queue twice.
+- Wiring `cloned[original].neighbors` on every neighbor visit reproduces the
+  undirected edges in both directions naturally.
+- Avoiding recursion makes this the safer choice for graphs deep enough to exceed
+  Python's recursion limit, though with `V ≤ 100` here either is fine.
+
+## Comparison of Solutions
+
+### Time Complexity
+
+- **Recursive DFS**: `O(V + E)` - Each node is created once and each edge traversed once.
+- **Iterative BFS**: `O(V + E)` - Each node is enqueued once and each edge examined once.
+
+### Space Complexity
+
+- **Recursive DFS**: `O(V)` - The clone map plus a recursion stack up to depth `V` on a path-shaped graph.
+- **Iterative BFS**: `O(V)` - The clone map plus a queue holding at most `V` nodes, with no call-stack usage.
+
+### Trade-offs
+
+- **Recursive DFS**: Concise and naturally expresses the deep-copy recursion, but it relies on the call stack and can hit recursion limits on very long graphs.
+- **Iterative BFS**: Slightly more verbose with explicit queue management, but it sidesteps recursion-depth limits entirely.
+
+### When to Use Each
+
+- **Recursive DFS (Recommended)**: Best for interviews and the given constraints (`V ≤ 100`) - the clearest statement of the clone logic.
+- **Iterative BFS**: When the graph could be deep enough to overflow the recursion stack, or when an explicit iterative solution is preferred.
+
+### Optimization Notes
+
+- Both approaches share the single insight that one map serves as visited set and clone lookup; neither can improve on the `O(V + E)` time, which is required to touch every node and edge.
+- The BFS variant trades stack frames for an explicit queue, which is the standard way to make any DFS-based graph routine recursion-safe.
+- Registering a clone the instant a node is first seen (before exploring its edges) is what keeps both versions correct on cyclic, undirected graphs.

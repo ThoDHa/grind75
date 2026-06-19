@@ -38,3 +38,134 @@ A **valid BST** is defined as follows:
 
 - The number of nodes in the tree is in the range `[1, 10^4]`.
 - `-2^31 <= Node.val <= 2^31 - 1`
+
+## Solutions
+
+### Recursive Bounds
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def isValidBST(self, root: Optional[TreeNode]) -> bool:
+        def validate(node: Optional[TreeNode], low: float, high: float) -> bool:
+            if not node:
+                return True
+            # Every node must lie strictly within the open interval (low, high)
+            if not (low < node.val < high):
+                return False
+            return (validate(node.left, low, node.val) and
+                    validate(node.right, node.val, high))
+
+        return validate(root, float("-inf"), float("inf"))
+```
+
+#### Approach
+
+The naive check, comparing a node only against its immediate children, is wrong: a value can satisfy its parent yet still violate an ancestor higher up. The correct invariant is that every node must fall within a `(low, high)` range determined by all of its ancestors.
+
+1. Start at the root with the widest possible bounds, `(-inf, +inf)`.
+2. For each node, verify `low < node.val < high` using a strict comparison so duplicates are rejected.
+3. Recurse left, tightening the upper bound to the current node's value: everything in the left subtree must be smaller.
+4. Recurse right, tightening the lower bound to the current node's value: everything in the right subtree must be larger.
+5. An empty subtree is trivially valid.
+
+Passing the bounds downward propagates every ancestor's constraint to the deepest descendants, which is exactly what the BST definition demands.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n)`
+
+Each node is visited once with constant work per visit.
+
+##### Space Complexity: `O(h)`
+
+The recursion stack reaches the tree's height `h`: `O(log n)` for a balanced tree and `O(n)` for a skewed one.
+
+#### Key Insights
+
+- Comparing against ancestor-derived bounds, not just children, is the crux that defeats the common wrong answer.
+- Using `float("-inf")` and `float("inf")` sidesteps the `-2^31` to `2^31 - 1` value range without special casing.
+- Strict `<` comparisons enforce the "strictly less / strictly greater" rule, correctly rejecting duplicate values.
+- Early return on the first violation prunes the rest of the traversal.
+
+### Inorder Traversal
+
+```python
+class Solution:
+    def isValidBST(self, root: Optional[TreeNode]) -> bool:
+        prev = None
+
+        def inorder(node: Optional[TreeNode]) -> bool:
+            nonlocal prev
+            if not node:
+                return True
+            if not inorder(node.left):
+                return False
+            # Inorder of a valid BST is strictly increasing
+            if prev is not None and node.val <= prev:
+                return False
+            prev = node.val
+            return inorder(node.right)
+
+        return inorder(root)
+```
+
+#### Approach
+
+An inorder traversal of a binary search tree visits values in strictly increasing order. So validating a BST is equivalent to confirming the inorder sequence never decreases or repeats.
+
+1. Traverse in inorder (left, node, right).
+2. Track the previously visited value in `prev`.
+3. At each node, fail if `node.val <= prev`, since a valid BST must strictly increase.
+4. Update `prev` and continue into the right subtree.
+
+This avoids threading bounds through the recursion; instead it leans on the structural property that inorder linearizes a BST into sorted order.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n)`
+
+Each node is visited once during the traversal.
+
+##### Space Complexity: `O(h)`
+
+The recursion stack is bounded by the tree height `h`, ranging from `O(log n)` to `O(n)`.
+
+#### Key Insights
+
+- Inorder traversal of a valid BST yields a strictly ascending sequence: a clean equivalence to exploit.
+- Only the single previous value needs tracking, so no full array of values is required.
+- The strict `<=` rejection again handles duplicates correctly.
+- Comparing adjacent values means an early exit the moment monotonicity breaks.
+
+## Comparison of Solutions
+
+### Time Complexity
+
+- **Recursive Bounds**: `O(n)` - each node checked once against propagated bounds.
+- **Inorder Traversal**: `O(n)` - each node visited once in sorted-order traversal.
+
+### Space Complexity
+
+- **Both solutions**: `O(h)` - dominated by the recursion stack, `O(log n)` balanced to `O(n)` skewed.
+
+### Trade-offs
+
+- **Recursive Bounds** makes the BST invariant explicit by carrying bounds, which generalizes naturally to range-style problems.
+- **Inorder Traversal** is conceptually elegant, relying on the sorted-order property, and stores only one prior value.
+
+### When to Use Each
+
+- **Recursive Bounds**: When you want the validity constraint stated directly, or need to adapt it to subtree range queries.
+- **Inorder Traversal**: When you prefer leaning on the BST's sorted-order property, or plan to reuse the inorder sequence for other checks.
+
+### Optimization Notes
+
+- Both approaches short-circuit on the first violation, avoiding unnecessary traversal.
+- The Inorder Traversal can be rewritten with an explicit stack to remove recursion depth limits on extremely skewed trees.
+- Neither approach needs to materialize the full value list, keeping auxiliary space at `O(h)` rather than `O(n)`.

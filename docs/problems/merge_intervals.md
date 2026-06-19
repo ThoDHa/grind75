@@ -34,3 +34,278 @@ cover all the intervals in the input. Touching intervals such as `[1,4]` and
 - `1 <= intervals.length <= 10^4`
 - `intervals[i].length == 2`
 - `0 <= start_i <= end_i <= 10^4`
+
+## Solutions
+
+### Sort and Merge
+
+```python
+class Solution:
+    def merge(self, intervals: List[List[int]]) -> List[List[int]]:
+        if not intervals:
+            return []
+
+        # Sort by start time so overlapping intervals become adjacent.
+        intervals.sort(key=lambda interval: interval[0])
+
+        merged = [intervals[0]]
+        for start, end in intervals[1:]:
+            last = merged[-1]
+            if start <= last[1]:
+                # Overlap: extend the current interval's end.
+                last[1] = max(last[1], end)
+            else:
+                # Disjoint: start a fresh interval.
+                merged.append([start, end])
+
+        return merged
+```
+
+#### Approach
+
+After sorting intervals by their start times, every group of intervals that
+should merge becomes a contiguous run, so a single linear pass suffices:
+
+1. **Sort by start time.** Processing left to right then visits intervals in
+   chronological order of their starts.
+2. **Seed the result with the first interval.** It is guaranteed to appear in
+   the output, possibly with an extended end.
+3. **Scan and merge.** For each subsequent interval, compare its start against
+   the end of the last interval in the result:
+   - **Overlap** (`start <= last_end`): extend the last interval's end to
+     `max(last_end, end)` so it absorbs the current one.
+   - **Disjoint** (`start > last_end`): append the current interval as a new
+     entry.
+
+Because the list is sorted by start, the last appended interval always has the
+smallest end among the candidates we still need to compare against, so checking
+only against `merged[-1]` is sufficient. Touching intervals are handled by the
+`<=` comparison, which treats a shared endpoint as an overlap.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n log n)`
+
+Sorting the `n` intervals by start time dominates at `O(n log n)`. The single
+merge pass over the sorted intervals adds `O(n)`, so the total is `O(n log n)`.
+
+##### Space Complexity: `O(n)`
+
+The output list holds up to `n` intervals when none overlap. Sorting adds
+`O(log n)` to `O(n)` auxiliary space depending on the implementation, which the
+output term dominates.
+
+#### Key Insights
+
+- Sorting by start time is what reduces an apparently pairwise problem to a
+  single linear sweep.
+- Comparing only against `merged[-1]` is correct precisely because the sort
+  guarantees its end is the relevant boundary for the next interval.
+- The `<=` overlap test folds the touching-endpoints rule into the same branch,
+  so no special case is needed.
+
+### Sweep Line
+
+```python
+class Solution:
+    def merge(self, intervals: List[List[int]]) -> List[List[int]]:
+        if not intervals:
+            return []
+
+        starts = sorted(interval[0] for interval in intervals)
+        ends = sorted(interval[1] for interval in intervals)
+
+        merged: List[List[int]] = []
+        depth = 0
+        s = e = 0
+        n = len(intervals)
+        cluster_start = starts[0]
+
+        while s < n:
+            if starts[s] <= ends[e]:
+                # A new interval opens before the current cluster closes.
+                depth += 1
+                s += 1
+            else:
+                # An interval closes; the cluster ends when depth returns to 0.
+                depth -= 1
+                if depth == 0:
+                    merged.append([cluster_start, ends[e]])
+                    if s < n:
+                        cluster_start = starts[s]
+                e += 1
+
+        # The final cluster closes against the largest end.
+        merged.append([cluster_start, ends[-1]])
+        return merged
+```
+
+#### Approach
+
+Decouple the endpoints and sweep a vertical line across the number line,
+tracking how many intervals are currently open:
+
+1. **Separate and sort endpoints.** Collect all starts and all ends into two
+   independently sorted arrays.
+2. **Sweep with a depth counter.** Walk the two arrays with pointers `s` and
+   `e`. A start at or before the current end opens an interval (`depth += 1`); a
+   start after the current end means the current interval must close
+   (`depth -= 1`).
+3. **Close clusters at depth zero.** Each time `depth` falls back to `0`, the
+   current overlapping cluster is complete, spanning from the cluster's first
+   start to the closing end. Record it and begin the next cluster at the next
+   pending start.
+4. **Flush the final cluster** after the loop, which closes against the largest
+   end.
+
+The `<=` comparison again treats touching intervals as overlapping, keeping the
+depth nonzero across a shared endpoint.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n log n)`
+
+Building the two endpoint arrays is `O(n)`, and sorting them is `O(n log n)`,
+which dominates. The sweep advances each pointer at most `n` times for `O(n)`.
+
+##### Space Complexity: `O(n)`
+
+The two endpoint arrays and the output each use `O(n)` space.
+
+#### Key Insights
+
+- Splitting intervals into independent start and end streams reframes merging as
+  a balanced-parentheses depth problem.
+- The cluster boundary is exactly the moment `depth` returns to zero, which makes
+  the merge condition explicit rather than implicit in a comparison against the
+  previous result.
+- This view generalizes naturally to related problems such as counting maximum
+  concurrent intervals, where the depth counter is the answer.
+
+### Graph Connected Components
+
+```python
+class Solution:
+    def merge(self, intervals: List[List[int]]) -> List[List[int]]:
+        if not intervals:
+            return []
+
+        n = len(intervals)
+
+        def overlaps(a: List[int], b: List[int]) -> bool:
+            return a[0] <= b[1] and b[0] <= a[1]
+
+        # Build an overlap graph: an edge connects every overlapping pair.
+        graph = [[] for _ in range(n)]
+        for i in range(n):
+            for j in range(i + 1, n):
+                if overlaps(intervals[i], intervals[j]):
+                    graph[i].append(j)
+                    graph[j].append(i)
+
+        visited = [False] * n
+        result: List[List[int]] = []
+
+        def dfs(node: int, component: List[int]) -> None:
+            stack = [node]
+            while stack:
+                cur = stack.pop()
+                if visited[cur]:
+                    continue
+                visited[cur] = True
+                component.append(cur)
+                for nxt in graph[cur]:
+                    if not visited[nxt]:
+                        stack.append(nxt)
+
+        for i in range(n):
+            if not visited[i]:
+                component: List[int] = []
+                dfs(i, component)
+                lo = min(intervals[idx][0] for idx in component)
+                hi = max(intervals[idx][1] for idx in component)
+                result.append([lo, hi])
+
+        return result
+```
+
+#### Approach
+
+Treat overlap as a graph relation and merge by finding connected components:
+
+1. **Build the overlap graph.** Add an undirected edge between every pair of
+   intervals that overlap, where `overlaps(a, b)` is `a[0] <= b[1] and
+   b[0] <= a[1]`.
+2. **Find connected components.** Run depth-first search from each unvisited
+   node to collect every interval reachable through a chain of overlaps.
+3. **Collapse each component.** A component must merge into a single interval
+   spanning from its minimum start to its maximum end, since overlap is
+   transitive within the component.
+
+This approach needs no sort and makes the transitive nature of merging explicit:
+two intervals that do not overlap directly still merge when a chain connects
+them.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n^2)`
+
+Building the overlap graph compares all `O(n^2)` pairs. The depth-first search
+visits each node and edge once, which is bounded by the `O(n^2)` edges in the
+worst case, so the total remains `O(n^2)`.
+
+##### Space Complexity: `O(n^2)`
+
+The adjacency list can store up to `O(n^2)` edges when many intervals mutually
+overlap. The visited array, recursion-free stack, and output add `O(n)`.
+
+#### Key Insights
+
+- Merging is fundamentally about transitive overlap, which the connected-
+  components framing captures directly.
+- An explicit stack avoids Python recursion-depth limits on long overlap chains.
+- The quadratic pair scan makes this the least efficient option, but it
+  illustrates the structural reason intervals merge and adapts cleanly when the
+  overlap relation is more complex than a simple endpoint comparison.
+
+## Comparison of Solutions
+
+### Time Complexity
+
+- **Sort and Merge**: `O(n log n)` - one sort plus a linear merge pass.
+- **Sweep Line**: `O(n log n)` - two endpoint sorts plus a linear sweep.
+- **Graph Connected Components**: `O(n^2)` - compares every pair to build edges.
+
+### Space Complexity
+
+- **Sort and Merge**: `O(n)` - the output list, with `O(log n)` to `O(n)` for
+  sorting.
+- **Sweep Line**: `O(n)` - two endpoint arrays plus the output.
+- **Graph Connected Components**: `O(n^2)` - the adjacency list of overlap edges.
+
+### Trade-offs
+
+- **Sort and Merge** is the most direct and the easiest to get right; it gives up
+  nothing meaningful and is the default choice.
+- **Sweep Line** matches the asymptotics while exposing interval depth, which is
+  reusable for concurrency-style variants, at the cost of more bookkeeping.
+- **Graph Connected Components** trades efficiency for an explicit model of
+  transitive overlap, which is valuable mainly as a conceptual stepping stone.
+
+### When to Use Each
+
+- **Sort and Merge**: The default for this problem and almost every interview
+  setting (recommended).
+- **Sweep Line**: When the same input must also answer depth or concurrency
+  questions, so the endpoint sweep does double duty.
+- **Graph Connected Components**: When teaching or reasoning about the transitive
+  structure of overlap, not for performance.
+
+### Optimization Notes
+
+- The Sort and Merge pass mutates `merged[-1]` in place to extend the end, which
+  avoids allocating a new interval per merge.
+- The Sweep Line keeps starts and ends in separate sorted arrays so each pointer
+  advances monotonically, guaranteeing the linear sweep.
+- The Graph approach uses an explicit stack rather than recursion to stay safe on
+  long overlap chains that would otherwise risk a stack overflow.

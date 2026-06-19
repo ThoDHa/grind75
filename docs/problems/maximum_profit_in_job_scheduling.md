@@ -41,3 +41,275 @@ If you choose a job that ends at time `X` you will be able to start another job 
 - `1 <= startTime.length == endTime.length == profit.length <= 5 * 10^4`
 - `1 <= startTime[i] < endTime[i] <= 10^9`
 - `1 <= profit[i] <= 10^4`
+
+## Solutions
+
+### Quadratic DP
+
+```python
+class Solution:
+    def jobScheduling(
+        self, startTime: List[int], endTime: List[int], profit: List[int]
+    ) -> int:
+        # Bundle and sort the jobs by end time so a job's best predecessor
+        # always lies to its left in the sorted order.
+        jobs = sorted(zip(endTime, startTime, profit))
+        ends = [job[0] for job in jobs]
+
+        n = len(jobs)
+        # best[i] = max profit using only the first i sorted jobs (1-indexed).
+        best = [0] * (n + 1)
+
+        for i in range(1, n + 1):
+            end, start, gain = jobs[i - 1]
+
+            # Linear backward scan: find the latest job j (in sorted order)
+            # whose end time is <= this job's start time.
+            j = i - 1
+            while j > 0 and ends[j - 1] > start:
+                j -= 1
+
+            # best[j] is the best profit using jobs that finish by `start`.
+            take = best[j] + gain
+            best[i] = max(best[i - 1], take)
+
+        return best[n]
+```
+
+#### Approach
+
+This is the weighted interval scheduling problem. Sorting jobs by end time gives a
+clean dynamic programming order: when we consider a job, every job that could legally
+precede it (one that ends at or before this job's start) appears earlier in the sorted
+list, so its answer is already computed.
+
+Let `best[i]` be the maximum profit using only the first `i` jobs in end-time order.
+For the `i`-th job (with start `start` and profit `gain`) we have two choices:
+
+- **Skip it:** the answer is `best[i - 1]`.
+- **Take it:** add `gain` to the best profit achievable from jobs that finish by
+  `start`.
+
+This brute-force version locates the latest non-conflicting predecessor with a plain
+linear backward scan instead of any library helper. Starting at the current position
+and walking left, it stops at the first index whose end time is at most `start`.
+
+The steps:
+
+1. Zip `(endTime, startTime, profit)` and sort by end time.
+2. Extract the sorted end times into `ends` for scanning.
+3. For each job `i`, scan backward over `ends` to find the last non-conflicting job
+   `j`.
+4. Set `best[i] = max(best[i - 1], best[j] + gain)`.
+5. Return `best[n]`.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n^2)`
+
+Sorting the `n` jobs costs `O(n log n)`. The DP loop runs `n` times, and each
+iteration may scan back across up to `n` earlier jobs, contributing `O(n^2)` which
+dominates the overall bound.
+
+##### Space Complexity: `O(n)`
+
+We store the sorted jobs, the `ends` array, and the `best` DP array, each of size
+`O(n)`.
+
+#### Key Insights
+
+- Sorting by end time guarantees that the optimal predecessor of any job is already
+  resolved, which is the linchpin of weighted interval scheduling.
+- The DP keeps a running prefix maximum (`best` is non-decreasing), so `best[j]`
+  already represents the best of all compatible earlier jobs, not just job `j`.
+- The linear backward scan is simple to reason about but redoes work the sorted
+  order makes unnecessary, which is exactly what the binary-search variant fixes.
+
+### DP with Manual Binary Search
+
+```python
+class Solution:
+    def jobScheduling(
+        self, startTime: List[int], endTime: List[int], profit: List[int]
+    ) -> int:
+        # Bundle and sort the jobs by end time so a job's best predecessor
+        # always lies to its left in the sorted order.
+        jobs = sorted(zip(endTime, startTime, profit))
+        ends = [job[0] for job in jobs]
+
+        n = len(jobs)
+        # best[i] = max profit using only the first i sorted jobs (1-indexed).
+        best = [0] * (n + 1)
+
+        for i in range(1, n + 1):
+            end, start, gain = jobs[i - 1]
+
+            # Hand-written binary search over ends[0 .. i-2] for the rightmost
+            # job whose end time is <= start. `lo` ends as the count of such jobs.
+            lo, hi = 0, i - 1
+            while lo < hi:
+                mid = lo + (hi - lo) // 2
+                if ends[mid] <= start:
+                    lo = mid + 1
+                else:
+                    hi = mid
+            j = lo
+
+            take = best[j] + gain
+            best[i] = max(best[i - 1], take)
+
+        return best[n]
+```
+
+#### Approach
+
+The dynamic programming structure is identical to the Quadratic DP approach: sort jobs by end
+time, then for each job choose the better of skipping it or taking it plus the best
+compatible earlier job.
+
+The only change is how we find the latest non-conflicting predecessor. Because
+`ends` is sorted ascending, we replace the linear scan with a hand-written binary
+search that finds the first index whose end time is strictly greater than `start`.
+That index equals the number of jobs ending at or before `start`, which is exactly
+the `best` slot we want (jobs ending at `X` may precede a job starting at `X`).
+
+The binary search restricts itself to the window `[0, i - 1)` so the current job can
+never pair with itself or a later-sorted job sharing the same end time.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n log n)`
+
+Sorting the `n` jobs costs `O(n log n)`. The DP loop runs `n` times, and each
+iteration performs one `O(log n)` binary search, contributing another `O(n log n)`.
+
+##### Space Complexity: `O(n)`
+
+We store the sorted jobs, the `ends` array, and the `best` DP array, each of size
+`O(n)`.
+
+#### Key Insights
+
+- Searching for the first end time strictly greater than `start` lands on the count
+  of compatible jobs, which doubles as the predecessor's `best` index.
+- Using `lo + (hi - lo) // 2` for the midpoint avoids any risk of integer overflow
+  and keeps the bound-tracking search clean.
+- Honoring the half-open window `[0, i - 1)` is what correctly enforces the rule
+  that a job ending at `X` allows another to start at `X` without self-pairing.
+
+### DP with bisect
+
+```python
+import bisect
+
+
+class Solution:
+    def jobScheduling(
+        self, startTime: List[int], endTime: List[int], profit: List[int]
+    ) -> int:
+        # Bundle and sort the jobs by end time so a job's best predecessor
+        # always lies to its left in the sorted order.
+        jobs = sorted(zip(endTime, startTime, profit))
+        ends = [job[0] for job in jobs]
+
+        n = len(jobs)
+        # best[i] = max profit using only the first i sorted jobs (1-indexed).
+        best = [0] * (n + 1)
+
+        for i in range(1, n + 1):
+            end, start, gain = jobs[i - 1]
+
+            # bisect_right over the already-decided window ends[0 .. i-2] returns
+            # the count of jobs whose end time is <= start, which is exactly the
+            # best slot of the latest non-conflicting predecessor.
+            j = bisect.bisect_right(ends, start, 0, i - 1)
+
+            take = best[j] + gain
+            best[i] = max(best[i - 1], take)
+
+        return best[n]
+```
+
+#### Approach
+
+The dynamic programming structure is identical to the previous two approaches: sort
+jobs by end time, then for each job choose the better of skipping it or taking it plus
+the best compatible earlier job.
+
+The only difference from the DP with Manual Binary Search approach is that the manual
+search loop is replaced by `bisect.bisect_right`. Searching the sorted `ends` array for
+`start` returns the insertion point just past every entry that is `<= start`, which is
+the number of jobs ending at or before this job's start. Because a job ending at `X` may
+precede a job starting at `X`, that count is precisely the `best` index we want.
+
+The `hi` argument is set to `i - 1` so the search stays within the half-open window
+`[0, i - 1)`. This restricts the lookup to jobs decided before the current one and
+prevents a job from pairing with itself or a later-sorted job that shares its end time.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n log n)`
+
+Sorting the `n` jobs costs `O(n log n)`. The DP loop runs `n` times, and each
+iteration performs one `O(log n)` `bisect_right` call, contributing another
+`O(n log n)`.
+
+##### Space Complexity: `O(n)`
+
+We store the sorted jobs, the `ends` array, and the `best` DP array, each of size
+`O(n)`.
+
+#### Key Insights
+
+- `bisect_right` directly returns the count of compatible jobs, so no manual bound
+  tracking or off-by-one reasoning is required.
+- Passing the `lo` and `hi` bounds to `bisect_right` confines the search to the
+  already-decided window without slicing, so no temporary copies are created.
+- This is the idiomatic Python form: the standard library handles the search that the
+  earlier approaches spell out by hand, leaving only the DP recurrence to read.
+
+## Comparison of Solutions
+
+### Time Complexity
+
+- **Quadratic DP**: `O(n^2)` - the per-job linear backward scan dominates after the
+  initial sort.
+- **DP with Manual Binary Search**: `O(n log n)` - each predecessor lookup drops from
+  linear to logarithmic, matching the sort cost.
+- **DP with bisect**: `O(n log n)` - identical to the manual search, with the lookup
+  delegated to `bisect_right`.
+
+### Space Complexity
+
+- **Quadratic DP**: `O(n)` - sorted jobs, end times, and the DP array.
+- **DP with Manual Binary Search**: `O(n)` - identical auxiliary storage.
+- **DP with bisect**: `O(n)` - identical auxiliary storage.
+
+### Trade-offs
+
+- The quadratic solution is the easiest to read and verify: a plain scan walks back
+  until it finds a compatible job, with no index arithmetic to get wrong.
+- The manual binary search scales to the largest inputs the constraints allow, but
+  requires careful handling of the search window and the off-by-one boundary.
+- The bisect version matches the manual search's speed while hiding the boundary
+  details inside `bisect_right`, leaving only the DP recurrence in view.
+
+### When to Use Each
+
+- **Quadratic DP**: Suitable for small inputs, teaching the DP recurrence, or sanity
+  checking the faster variant.
+- **DP with Manual Binary Search**: Useful when the search must be understood or
+  ported to a language without a standard binary-search helper.
+- **DP with bisect**: Preferred in Python for the full constraint range (`n` up to
+  `5 * 10^4`), since it is the shortest correct form and the standard choice.
+
+### Optimization Notes
+
+- All three solutions share the same DP recurrence and the same sort-by-end-time setup;
+  the predecessor lookup is the only piece that changes.
+- The sorted `ends` array is what makes binary search legal, so it is worth extracting
+  once rather than re-deriving it inside the loop.
+- The manual and bisect searches are interchangeable: `bisect_right(ends, start, 0, i - 1)`
+  computes the same index the hand-written loop converges on.
+- Because `best` is non-decreasing, the predecessor's stored value already folds in
+  every compatible earlier job, so no extra prefix-maximum bookkeeping is needed.
