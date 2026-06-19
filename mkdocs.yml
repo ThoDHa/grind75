@@ -8,12 +8,11 @@ docs_dir: docs
 exclude_docs: |
   _TEMPLATE.md
 
-# The practice/ workspace lives outside docs_dir: it is for local repo use,
-# not the deployed site. Problem pages link to it relatively, which resolves
-# in the repo but not in the built site, so don't fail the build on those.
-validation:
-  links:
-    not_found: ignore
+# The practice/ workspace is for local repo use, not the deployed site. A build
+# hook strips the per-problem "Practice:" line from rendered pages (it stays in
+# the source for repo navigation), so the relative link never reaches the site.
+hooks:
+  - hooks/strip_practice.py
 
 theme:
   name: material
