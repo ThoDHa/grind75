@@ -1,6 +1,6 @@
 # Grind75 Solutions
 
-Worked solutions for the [Grind75](https://www.techinterviewhandbook.org/grind75) LeetCode study guide. Each problem includes the statement, examples, constraints, and one or more Python solutions, ordered from the most intuitive approach to the most optimized, each with its own complexity analysis, key insights, and a comparison of approaches.
+A study guide for the [Grind75](https://www.techinterviewhandbook.org/grind75) LeetCode list. Each problem page covers the statement, examples, and constraints. The [pattern intuition guides](patterns/index.md) explain the mental models behind the recurring algorithm patterns, and the [`practice/`](https://github.com/ThoDHa/grind75/tree/main/practice) workspace lets you implement and test each solution yourself.
 
 All credit for the curated problem list goes to the [Tech Interview Handbook](https://www.techinterviewhandbook.org/) team.
 
@@ -87,3 +87,11 @@ Use the navigation sidebar (in canonical Grind75 order) or the table below.
 | [75](https://leetcode.com/problems/largest-rectangle-in-histogram/) | [Largest Rectangle in Histogram](problems/largest_rectangle_in_histogram.md) | Hard | Stack | 35 minutes |
 | - | [Binary Tree Maximum Path Sum](problems/binary_tree_maximum_path_sum.md) | - | - | - |
 | - | [Maximum Frequency Stack](problems/maximum_frequency_stack.md) | - | - | - |
+
+## Pattern Intuition
+
+The [pattern intuition guides](patterns/index.md) explain the *why* behind each recurring algorithm pattern: the mental model, when it applies, the invariant that makes it work, and the Grind75 problems that use it. Start there when a problem feels unfamiliar and you need to recognize which pattern fits.
+
+## Practice Workspace
+
+The [`practice/`](https://github.com/ThoDHa/grind75/tree/main/practice) directory is a `pytest` workspace for solving the problems yourself. Each problem has a `solution.py` to implement plus two test sets that mirror LeetCode's Run (the examples) and Submit (a full edge-case gauntlet). See its [README](https://github.com/ThoDHa/grind75/blob/main/practice/README.md) for setup and the practice loop.
