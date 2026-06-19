@@ -4,7 +4,7 @@
 
 **Pattern:** [Stack](../patterns/stack/intuition.md)
 
-**Practice:** [`practice/evaluate_reverse_polish_notation/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/evaluate_reverse_polish_notation/solution.py)
+**Practice:** [`practice/evaluate_reverse_polish_notation/solution.py`](../../practice/evaluate_reverse_polish_notation/solution.py)
 
 You are given an array of strings `tokens` that represents an arithmetic expression in Reverse Polish Notation (RPN).
 

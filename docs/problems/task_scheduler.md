@@ -4,7 +4,7 @@
 
 **Pattern:** [Heap / Priority Queue](../patterns/heap/intuition.md), [Greedy](../patterns/greedy_core/intuition.md)
 
-**Practice:** [`practice/task_scheduler/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/task_scheduler/solution.py)
+**Practice:** [`practice/task_scheduler/solution.py`](../../practice/task_scheduler/solution.py)
 
 Given a characters array `tasks`, representing the tasks a CPU needs to do, where each letter represents a different task. Tasks could be done in any order. Each task is done in one unit of time. For each unit of time, the CPU could complete either one task or just be idle.
 

@@ -4,7 +4,7 @@
 
 **Pattern:** [Data-Structure Design](../patterns/design/intuition.md)
 
-**Practice:** [`practice/implement_queue_using_stacks/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/implement_queue_using_stacks/solution.py)
+**Practice:** [`practice/implement_queue_using_stacks/solution.py`](../../practice/implement_queue_using_stacks/solution.py)
 
 Implement a first in first out (FIFO) queue using only two stacks. The implemented queue should support all the functions of a normal queue (`push`, `pop`, `peek`, and `empty`).
 

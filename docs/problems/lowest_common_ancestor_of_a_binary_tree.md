@@ -4,7 +4,7 @@
 
 **Pattern:** [Tree Traversal](../patterns/tree/intuition.md)
 
-**Practice:** [`practice/lowest_common_ancestor_of_a_binary_tree/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/lowest_common_ancestor_of_a_binary_tree/solution.py)
+**Practice:** [`practice/lowest_common_ancestor_of_a_binary_tree/solution.py`](../../practice/lowest_common_ancestor_of_a_binary_tree/solution.py)
 
 Given a binary tree, find the lowest common ancestor (LCA) of two given nodes in the tree.
 

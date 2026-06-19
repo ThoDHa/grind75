@@ -4,7 +4,7 @@
 
 **Pattern:** [Monotonic Stack](../patterns/monotonic_stack/intuition.md)
 
-**Practice:** [`practice/trapping_rain_water/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/trapping_rain_water/solution.py)
+**Practice:** [`practice/trapping_rain_water/solution.py`](../../practice/trapping_rain_water/solution.py)
 
 Given `n` non-negative integers representing an elevation map where the width of each bar is `1`, compute how much water it can trap after raining.
 

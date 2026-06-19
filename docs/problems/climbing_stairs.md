@@ -4,7 +4,7 @@
 
 **Pattern:** [DP 1D Linear](../patterns/dp_1d_linear/intuition.md)
 
-**Practice:** [`practice/climbing_stairs/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/climbing_stairs/solution.py)
+**Practice:** [`practice/climbing_stairs/solution.py`](../../practice/climbing_stairs/solution.py)
 
 You are climbing a staircase. It takes `n` steps to reach the top.
 

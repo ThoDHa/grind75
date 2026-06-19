@@ -4,7 +4,7 @@
 
 **Pattern:** [Tree Traversal](../patterns/tree/intuition.md)
 
-**Practice:** [`practice/invert_binary_tree/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/invert_binary_tree/solution.py)
+**Practice:** [`practice/invert_binary_tree/solution.py`](../../practice/invert_binary_tree/solution.py)
 
 Given the `root` of a binary tree, invert the tree, and return its root.
 

@@ -4,7 +4,7 @@
 
 **Pattern:** [Two Pointers](../patterns/two_pointers/intuition.md)
 
-**Practice:** [`practice/sort_colors/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/sort_colors/solution.py)
+**Practice:** [`practice/sort_colors/solution.py`](../../practice/sort_colors/solution.py)
 
 Given an array `nums` with `n` objects colored red, white, or blue, sort them in-place so that objects of the same color are adjacent, with the colors in the order red, white, and blue.
 

@@ -4,7 +4,7 @@
 
 **Pattern:** [Graph Traversal](../patterns/graph/intuition.md)
 
-**Practice:** [`practice/flood_fill/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/flood_fill/solution.py)
+**Practice:** [`practice/flood_fill/solution.py`](../../practice/flood_fill/solution.py)
 
 You are given an image represented by an m x n grid of integers `image`, where `image[i][j]` represents the pixel value of the image. You are also given three integers `sr`, `sc`, and `color`. Your task is to perform a flood fill on the image starting from the pixel `image[sr][sc]`.
 

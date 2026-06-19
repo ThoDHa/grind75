@@ -4,7 +4,7 @@
 
 **Pattern:** [DP 1D Linear](../patterns/dp_1d_linear/intuition.md), [Trie](../patterns/trie/intuition.md)
 
-**Practice:** [`practice/word_break/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/word_break/solution.py)
+**Practice:** [`practice/word_break/solution.py`](../../practice/word_break/solution.py)
 
 Given a string `s` and a dictionary of strings `wordDict`, return `true` if `s` can be segmented into a space-separated sequence of one or more dictionary words.
 

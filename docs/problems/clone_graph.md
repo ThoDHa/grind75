@@ -4,7 +4,7 @@
 
 **Pattern:** [Graph Traversal](../patterns/graph/intuition.md)
 
-**Practice:** [`practice/clone_graph/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/clone_graph/solution.py)
+**Practice:** [`practice/clone_graph/solution.py`](../../practice/clone_graph/solution.py)
 
 Given a reference of a node in a connected undirected graph, return a deep copy (clone) of the graph. Each node in the graph contains a value (`int`) and a list of its neighbors.
 

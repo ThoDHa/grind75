@@ -4,7 +4,7 @@
 
 **Pattern:** [Two Pointers](../patterns/two_pointers/intuition.md)
 
-**Practice:** [`practice/middle_of_the_linked_list/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/middle_of_the_linked_list/solution.py)
+**Practice:** [`practice/middle_of_the_linked_list/solution.py`](../../practice/middle_of_the_linked_list/solution.py)
 
 Given the `head` of a singly linked list, return the middle node of the linked list.
 

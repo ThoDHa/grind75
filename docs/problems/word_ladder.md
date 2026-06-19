@@ -4,7 +4,7 @@
 
 **Pattern:** [Shortest Path](../patterns/shortest_path/intuition.md)
 
-**Practice:** [`practice/word_ladder/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/word_ladder/solution.py)
+**Practice:** [`practice/word_ladder/solution.py`](../../practice/word_ladder/solution.py)
 
 A **transformation sequence** from word `beginWord` to word `endWord` using a dictionary `wordList` is a sequence of words `beginWord -> s1 -> s2 -> ... -> sk` such that:
 

@@ -8,6 +8,12 @@ docs_dir: docs
 exclude_docs: |
   _TEMPLATE.md
 
+# The practice/ workspace is for local repo use, not the deployed site. A build
+# hook strips the per-problem "Practice:" line from rendered pages (it stays in
+# the source for repo navigation), so the relative link never reaches the site.
+hooks:
+  - hooks/strip_practice.py
+
 theme:
   name: material
   palette:

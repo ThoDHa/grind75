@@ -4,7 +4,7 @@
 
 **Pattern:** [Two Pointers](../patterns/two_pointers/intuition.md)
 
-**Practice:** [`practice/linked_list_cycle/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/linked_list_cycle/solution.py)
+**Practice:** [`practice/linked_list_cycle/solution.py`](../../practice/linked_list_cycle/solution.py)
 
 Given `head`, the head of a linked list, determine if the linked list has a cycle in it.
 

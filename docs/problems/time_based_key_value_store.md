@@ -4,7 +4,7 @@
 
 **Pattern:** [Binary Search](../patterns/binary_search/intuition.md)
 
-**Practice:** [`practice/time_based_key_value_store/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/time_based_key_value_store/solution.py)
+**Practice:** [`practice/time_based_key_value_store/solution.py`](../../practice/time_based_key_value_store/solution.py)
 
 Design a time-based key-value data structure that can store multiple values for the same key at different time stamps and retrieve the key's value at a certain timestamp.
 

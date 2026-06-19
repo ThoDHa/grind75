@@ -4,7 +4,7 @@
 
 **Pattern:** [Simulation](../patterns/simulation/intuition.md)
 
-**Practice:** [`practice/add_binary/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/add_binary/solution.py)
+**Practice:** [`practice/add_binary/solution.py`](../../practice/add_binary/solution.py)
 
 Given two binary strings `a` and `b`, return their sum as a binary string.
 

@@ -4,7 +4,7 @@
 
 **Pattern:** [Prefix Sum](../patterns/prefix_sum/intuition.md)
 
-**Practice:** [`practice/product_of_array_except_self/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/product_of_array_except_self/solution.py)
+**Practice:** [`practice/product_of_array_except_self/solution.py`](../../practice/product_of_array_except_self/solution.py)
 
 Given an integer array `nums`, return an array `answer` such that `answer[i]` is
 equal to the product of all the elements of `nums` except `nums[i]`.

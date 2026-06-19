@@ -4,7 +4,7 @@
 
 **Pattern:** [Tree Traversal](../patterns/tree/intuition.md)
 
-**Practice:** [`practice/maximum_depth_of_binary_tree/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/maximum_depth_of_binary_tree/solution.py)
+**Practice:** [`practice/maximum_depth_of_binary_tree/solution.py`](../../practice/maximum_depth_of_binary_tree/solution.py)
 
 Given the `root` of a binary tree, return its maximum depth.
 
