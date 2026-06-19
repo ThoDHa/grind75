@@ -13,6 +13,13 @@ from typing import Optional
 from harness import NotSolved, ListNode, build_linked_list, linked_list_to_list, pick_case
 
 
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
+
+
 class Solution:
     def reverseList(self, head: Optional[ListNode]) -> Optional[ListNode]:
         """State the time and space complexity of your approach, and explain why.

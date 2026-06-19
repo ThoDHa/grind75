@@ -15,6 +15,13 @@ from typing import Optional
 from harness import NotSolved, ListNode, build_linked_list_with_cycle, pick_case
 
 
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
+
+
 class Solution:
     def hasCycle(self, head: Optional[ListNode]) -> bool:
         """State the time and space complexity of your approach, and explain why.
