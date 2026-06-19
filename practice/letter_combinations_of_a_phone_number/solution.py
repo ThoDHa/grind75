@@ -16,6 +16,11 @@ from harness import NotSolved, pick_case
 
 class Solution:
     def letterCombinations(self, digits: str) -> List[str]:
+        """State the time and space complexity of your approach, and explain why.
+
+        Time:  O(?):
+        Space: O(?):
+        """
         raise NotSolved
 
 

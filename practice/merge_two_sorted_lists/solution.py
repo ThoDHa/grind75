@@ -18,6 +18,11 @@ class Solution:
     def mergeTwoLists(
         self, list1: Optional[ListNode], list2: Optional[ListNode]
     ) -> Optional[ListNode]:
+        """State the time and space complexity of your approach, and explain why.
+
+        Time:  O(?):
+        Space: O(?):
+        """
         raise NotSolved
 
 

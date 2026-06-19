@@ -18,9 +18,19 @@ class MedianFinder:
         pass
 
     def addNum(self, num: int) -> None:
+        """State the time and space complexity of your approach, and explain why.
+
+        Time:  O(?):
+        Space: O(?):
+        """
         raise NotSolved
 
     def findMedian(self) -> float:
+        """State the time and space complexity of your approach, and explain why.
+
+        Time:  O(?):
+        Space: O(?):
+        """
         raise NotSolved
 
 

@@ -18,15 +18,35 @@ class MinStack:
         pass
 
     def push(self, val: int) -> None:
+        """State the time and space complexity of your approach, and explain why.
+
+        Time:  O(?):
+        Space: O(?):
+        """
         raise NotSolved
 
     def pop(self) -> None:
+        """State the time and space complexity of your approach, and explain why.
+
+        Time:  O(?):
+        Space: O(?):
+        """
         raise NotSolved
 
     def top(self) -> int:
+        """State the time and space complexity of your approach, and explain why.
+
+        Time:  O(?):
+        Space: O(?):
+        """
         raise NotSolved
 
     def getMin(self) -> int:
+        """State the time and space complexity of your approach, and explain why.
+
+        Time:  O(?):
+        Space: O(?):
+        """
         raise NotSolved
 
 

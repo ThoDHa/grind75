@@ -13,6 +13,11 @@ from harness import NotSolved, pick_case
 
 class Solution:
     def addBinary(self, a: str, b: str) -> str:
+        """State the time and space complexity of your approach, and explain why.
+
+        Time:  O(?):
+        Space: O(?):
+        """
         raise NotSolved
 
 

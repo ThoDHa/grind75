@@ -17,6 +17,11 @@ from harness import NotSolved, TreeNode, build_tree, pick_case
 
 class Solution:
     def isValidBST(self, root: Optional[TreeNode]) -> bool:
+        """State the time and space complexity of your approach, and explain why.
+
+        Time:  O(?):
+        Space: O(?):
+        """
         raise NotSolved
 
 

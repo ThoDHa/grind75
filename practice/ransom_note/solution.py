@@ -14,6 +14,11 @@ from harness import NotSolved, pick_case
 
 class Solution:
     def canConstruct(self, ransomNote: str, magazine: str) -> bool:
+        """State the time and space complexity of your approach, and explain why.
+
+        Time:  O(?):
+        Space: O(?):
+        """
         raise NotSolved
 
 

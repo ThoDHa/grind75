@@ -23,6 +23,11 @@ def isBadVersion(v: int) -> bool:
 
 class Solution:
     def firstBadVersion(self, n: int) -> int:
+        """State the time and space complexity of your approach, and explain why.
+
+        Time:  O(?):
+        Space: O(?):
+        """
         raise NotSolved
 
 

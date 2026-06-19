@@ -14,6 +14,11 @@ from harness import NotSolved, pick_case
 
 class Solution:
     def minWindow(self, s: str, t: str) -> str:
+        """State the time and space complexity of your approach, and explain why.
+
+        Time:  O(?):
+        Space: O(?):
+        """
         raise NotSolved
 
 

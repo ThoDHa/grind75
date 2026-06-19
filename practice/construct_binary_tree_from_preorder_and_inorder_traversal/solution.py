@@ -16,6 +16,11 @@ from harness import NotSolved, TreeNode, build_tree, tree_to_list, pick_case
 
 class Solution:
     def buildTree(self, preorder: List[int], inorder: List[int]) -> Optional[TreeNode]:
+        """State the time and space complexity of your approach, and explain why.
+
+        Time:  O(?):
+        Space: O(?):
+        """
         raise NotSolved
 
 

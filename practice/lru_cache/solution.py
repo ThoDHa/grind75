@@ -18,9 +18,19 @@ class LRUCache:
         pass
 
     def get(self, key: int) -> int:
+        """State the time and space complexity of your approach, and explain why.
+
+        Time:  O(?):
+        Space: O(?):
+        """
         raise NotSolved
 
     def put(self, key: int, value: int) -> None:
+        """State the time and space complexity of your approach, and explain why.
+
+        Time:  O(?):
+        Space: O(?):
+        """
         raise NotSolved
 
 

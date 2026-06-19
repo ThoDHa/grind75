@@ -16,9 +16,19 @@ from harness import NotSolved, TreeNode, build_tree, pick_case, tree_to_list
 
 class Codec:
     def serialize(self, root: Optional[TreeNode]) -> str:
+        """State the time and space complexity of your approach, and explain why.
+
+        Time:  O(?):
+        Space: O(?):
+        """
         raise NotSolved
 
     def deserialize(self, data: str) -> Optional[TreeNode]:
+        """State the time and space complexity of your approach, and explain why.
+
+        Time:  O(?):
+        Space: O(?):
+        """
         raise NotSolved
 
 

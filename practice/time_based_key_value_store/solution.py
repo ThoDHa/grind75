@@ -19,9 +19,19 @@ class TimeMap:
         self.store: dict = {}
 
     def set(self, key: str, value: str, timestamp: int) -> None:
+        """State the time and space complexity of your approach, and explain why.
+
+        Time:  O(?):
+        Space: O(?):
+        """
         raise NotSolved
 
     def get(self, key: str, timestamp: int) -> str:
+        """State the time and space complexity of your approach, and explain why.
+
+        Time:  O(?):
+        Space: O(?):
+        """
         raise NotSolved
 
 

@@ -17,6 +17,11 @@ from harness import NotSolved, pick_case
 
 class Solution:
     def leastInterval(self, tasks: List[str], n: int) -> int:
+        """State the time and space complexity of your approach, and explain why.
+
+        Time:  O(?):
+        Space: O(?):
+        """
         raise NotSolved
 
 

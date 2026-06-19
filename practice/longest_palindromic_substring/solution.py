@@ -14,6 +14,11 @@ from harness import NotSolved, pick_case
 
 class Solution:
     def longestPalindrome(self, s: str) -> str:
+        """State the time and space complexity of your approach, and explain why.
+
+        Time:  O(?):
+        Space: O(?):
+        """
         raise NotSolved
 
 

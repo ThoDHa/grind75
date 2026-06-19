@@ -16,6 +16,11 @@ from harness import NotSolved, TreeNode, build_tree, tree_to_list, pick_case
 
 class Solution:
     def invertTree(self, root: Optional[TreeNode]) -> Optional[TreeNode]:
+        """State the time and space complexity of your approach, and explain why.
+
+        Time:  O(?):
+        Space: O(?):
+        """
         raise NotSolved
 
 

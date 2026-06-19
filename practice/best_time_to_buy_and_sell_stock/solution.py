@@ -17,6 +17,11 @@ from harness import NotSolved, pick_case
 
 class Solution:
     def maxProfit(self, prices: List[int]) -> int:
+        """State the time and space complexity of your approach, and explain why.
+
+        Time:  O(?):
+        Space: O(?):
+        """
         raise NotSolved
 
 

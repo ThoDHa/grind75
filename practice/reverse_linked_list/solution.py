@@ -15,6 +15,11 @@ from harness import NotSolved, ListNode, build_linked_list, linked_list_to_list,
 
 class Solution:
     def reverseList(self, head: Optional[ListNode]) -> Optional[ListNode]:
+        """State the time and space complexity of your approach, and explain why.
+
+        Time:  O(?):
+        Space: O(?):
+        """
         raise NotSolved
 
 

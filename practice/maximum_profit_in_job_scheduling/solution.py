@@ -18,6 +18,11 @@ class Solution:
     def jobScheduling(
         self, startTime: List[int], endTime: List[int], profit: List[int]
     ) -> int:
+        """State the time and space complexity of your approach, and explain why.
+
+        Time:  O(?):
+        Space: O(?):
+        """
         raise NotSolved
 
 if __name__ == "__main__":
