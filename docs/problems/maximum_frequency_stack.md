@@ -2,6 +2,8 @@
 
 **Hard** | **35 minutes** | **Hash Table, Stack, Design**
 
+**Pattern:** [Data-Structure Design](../patterns/design/intuition.md)
+
 Design a stack-like data structure to push elements to the stack and pop the most frequent element from the stack.
 
 Implement the `FreqStack` class:

@@ -2,6 +2,8 @@
 
 **Medium** | **30 minutes** | **Hash Table, Linked List, Design**
 
+**Pattern:** [Data-Structure Design](../patterns/design/intuition.md)
+
 **Practice:** [`practice/lru_cache/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/lru_cache/solution.py)
 
 Design a data structure that follows the constraints of a Least Recently Used (LRU) cache.

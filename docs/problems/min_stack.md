@@ -2,6 +2,8 @@
 
 **Medium** | **20 minutes** | **Stack, Design**
 
+**Pattern:** [Data-Structure Design](../patterns/design/intuition.md)
+
 **Practice:** [`practice/min_stack/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/min_stack/solution.py)
 
 Design a stack that supports push, pop, top, and retrieving the minimum element in constant time.

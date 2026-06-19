@@ -2,6 +2,8 @@
 
 **Medium** | **30 minutes** | **Array, Matrix, Simulation**
 
+**Pattern:** [Simulation](../patterns/simulation/intuition.md)
+
 **Practice:** [`practice/spiral_matrix/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/spiral_matrix/solution.py)
 
 Given an `m x n` matrix, return all elements of the `matrix` in spiral order.

@@ -2,6 +2,15 @@
 
 These guides explain the *why* behind each algorithm pattern: the mental models, invariants, and decision frameworks that make them work. Understanding patterns is the key to solving unfamiliar problems.
 
+## Fundamentals
+
+| Pattern | Key Concept | Grind75 Problems |
+|---------|-------------|------------------|
+| [Hashing & Frequency Counting](hashing/intuition.md) | Trading space for O(1) lookup, membership, and counting | Two Sum, Valid Anagram, Contains Duplicate, Ransom Note, Longest Palindrome, Majority Element |
+| [Stack](stack/intuition.md) | LIFO processing for nesting, matching, and expression evaluation | Valid Parentheses, Evaluate RPN, Basic Calculator |
+| [Simulation](simulation/intuition.md) | Modeling a described process directly, with care for boundaries and edge cases | Spiral Matrix, Add Binary, String to Integer (atoi) |
+| [Data-Structure Design](design/intuition.md) | Composing primitive structures to meet operation complexity guarantees | Min Stack, Implement Queue using Stacks, LRU Cache, Maximum Frequency Stack |
+
 ## Array & Sequences
 
 | Pattern | Key Concept | Grind75 Problems |
@@ -43,6 +52,7 @@ These guides explain the *why* behind each algorithm pattern: the mental models,
 | [DP 1D Linear](dp_1d_linear/intuition.md) | Single-array DP with linear recurrence | Climbing Stairs, Buy/Sell Stock, Maximum Subarray, Word Break |
 | [DP Knapsack/Subset](dp_knapsack_subset/intuition.md) | Subset sum and bounded/unbounded knapsack | Coin Change, Partition Equal Subset Sum |
 | [String DP](string_dp/intuition.md) | DP for string alignment and palindromes | Longest Palindromic Substring |
+| [Grid DP](grid_dp/intuition.md) | 2D DP on a grid, each cell built from its neighbors | Unique Paths |
 
 ## Advanced Patterns
 
@@ -56,4 +66,4 @@ These guides explain the *why* behind each algorithm pattern: the mental models,
 
 ---
 
-*Pattern intuition guides adapted from [NeetCode Practice Framework](https://lufftw.github.io/neetcode/).*
+*Most pattern intuition guides are adapted from the [NeetCode Practice Framework](https://lufftw.github.io/neetcode/). The Fundamentals guides (Hashing & Frequency Counting, Stack, Simulation, Data-Structure Design) and Grid DP are original to this project.*

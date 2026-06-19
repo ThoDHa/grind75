@@ -2,6 +2,8 @@
 
 **Medium** | **20 minutes** | **Math, Dynamic Programming, Combinatorics**
 
+**Pattern:** [Grid DP](../patterns/grid_dp/intuition.md)
+
 **Practice:** [`practice/unique_paths/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/unique_paths/solution.py)
 
 There is a robot on an `m x n` grid. The robot is initially located at the top-left corner (i.e., `grid[0][0]`). The robot tries to move to the bottom-right corner (i.e., `grid[m - 1][n - 1]`). The robot can only move either down or right at any point in time.

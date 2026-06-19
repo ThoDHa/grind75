@@ -2,6 +2,8 @@
 
 **Easy** | **15 minutes** | **Array, Hash Table**
 
+**Pattern:** [Hashing & Frequency Counting](../patterns/hashing/intuition.md)
+
 **Practice:** [`practice/two_sum/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/two_sum/solution.py)
 
 Given an array of integers nums and an integer target, return indices of the two

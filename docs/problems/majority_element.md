@@ -2,6 +2,8 @@
 
 **Easy** | **15 minutes** | **Array, Hash Table, Divide and Conquer**
 
+**Pattern:** [Hashing & Frequency Counting](../patterns/hashing/intuition.md)
+
 **Practice:** [`practice/majority_element/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/majority_element/solution.py)
 
 Given an array `nums` of size `n`, return the majority element.

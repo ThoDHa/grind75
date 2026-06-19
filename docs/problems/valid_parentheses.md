@@ -2,6 +2,8 @@
 
 **Easy** | **20 minutes** | **Stack, String**
 
+**Pattern:** [Stack](../patterns/stack/intuition.md)
+
 **Practice:** [`practice/valid_parentheses/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/valid_parentheses/solution.py)
 
 Given a string `s` containing just the characters `'('`, `')'`, `'{'`, `'}'`, `'['` and `']'`,

@@ -61,6 +61,11 @@ nav:
   - Home: index.md
   - Patterns:
     - patterns/index.md
+    - Fundamentals:
+      - Hashing & Frequency Counting: patterns/hashing/intuition.md
+      - Stack: patterns/stack/intuition.md
+      - Simulation: patterns/simulation/intuition.md
+      - Data-Structure Design: patterns/design/intuition.md
     - Arrays & Sequences:
       - Sliding Window: patterns/sliding_window/intuition.md
       - Two Pointers: patterns/two_pointers/intuition.md
@@ -83,6 +88,7 @@ nav:
       - DP 1D Linear: patterns/dp_1d_linear/intuition.md
       - DP Knapsack / Subset: patterns/dp_knapsack_subset/intuition.md
       - String DP: patterns/string_dp/intuition.md
+      - Grid DP: patterns/grid_dp/intuition.md
     - Advanced Patterns:
       - Backtracking: patterns/backtracking_exploration/intuition.md
       - Trie: patterns/trie/intuition.md

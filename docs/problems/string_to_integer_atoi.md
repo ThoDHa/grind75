@@ -2,6 +2,8 @@
 
 **Medium** | **30 minutes** | **String**
 
+**Pattern:** [Simulation](../patterns/simulation/intuition.md)
+
 **Practice:** [`practice/string_to_integer_atoi/solution.py`](https://github.com/ThoDHa/grind75/blob/main/practice/string_to_integer_atoi/solution.py)
 
 Implement the `myAtoi(string s)` function, which converts a string to a 32-bit signed integer (similar to C/C++'s `atoi` function).
