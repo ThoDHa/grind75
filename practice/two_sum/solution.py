@@ -15,13 +15,14 @@ from typing import List
 from harness import NotSolved, pick_case
 
 class Solution:
-    def twoSum(self, nums: List[int], target: int) -> List[int]:
-       """State the time and space complexity of your approach, and explain why.
+    """State the time and space complexity of your approach, and explain why.
 
-       Time:  O(?):
-       Space: O(?):
-       """
-       raise NotSolved 
+    Time:  O(?):
+    Space: O(?):
+    """
+
+    def twoSum(self, nums: List[int], target: int) -> List[int]:
+        raise NotSolved
 
 if __name__ == "__main__":
     # Debug playground: set a breakpoint in twoSum above, then run this file.

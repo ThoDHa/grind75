@@ -16,12 +16,13 @@ from harness import NotSolved, pick_case
 
 
 class Solution:
-    def search(self, nums: List[int], target: int) -> int:
-        """State the time and space complexity of your approach, and explain why.
+    """State the time and space complexity of your approach, and explain why.
 
-        Time:  O(?):
-        Space: O(?):
-        """
+    Time:  O(?):
+    Space: O(?):
+    """
+
+    def search(self, nums: List[int], target: int) -> int:
         raise NotSolved
 
 

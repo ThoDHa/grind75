@@ -24,14 +24,15 @@ from harness import NotSolved, TreeNode, build_tree, pick_case
 
 
 class Solution:
+    """State the time and space complexity of your approach, and explain why.
+
+    Time:  O(?):
+    Space: O(?):
+    """
+
     def lowestCommonAncestor(
         self, root: TreeNode, p: TreeNode, q: TreeNode
     ) -> TreeNode:
-        """State the time and space complexity of your approach, and explain why.
-
-        Time:  O(?):
-        Space: O(?):
-        """
         raise NotSolved
 
 

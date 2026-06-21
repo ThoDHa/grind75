@@ -23,12 +23,13 @@ from harness import NotSolved, TreeNode, build_tree, pick_case
 
 
 class Solution:
-    def isBalanced(self, root: Optional[TreeNode]) -> bool:
-        """State the time and space complexity of your approach, and explain why.
+    """State the time and space complexity of your approach, and explain why.
 
-        Time:  O(?):
-        Space: O(?):
-        """
+    Time:  O(?):
+    Space: O(?):
+    """
+
+    def isBalanced(self, root: Optional[TreeNode]) -> bool:
         raise NotSolved
 
 

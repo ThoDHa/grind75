@@ -23,12 +23,13 @@ from harness import NotSolved, ListNode, build_linked_list_with_cycle, pick_case
 
 
 class Solution:
-    def hasCycle(self, head: Optional[ListNode]) -> bool:
-        """State the time and space complexity of your approach, and explain why.
+    """State the time and space complexity of your approach, and explain why.
 
-        Time:  O(?):
-        Space: O(?):
-        """
+    Time:  O(?):
+    Space: O(?):
+    """
+
+    def hasCycle(self, head: Optional[ListNode]) -> bool:
         raise NotSolved
 
 

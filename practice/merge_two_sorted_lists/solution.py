@@ -22,14 +22,15 @@ from harness import NotSolved, ListNode, build_linked_list, linked_list_to_list,
 
 
 class Solution:
+    """State the time and space complexity of your approach, and explain why.
+
+    Time:  O(?):
+    Space: O(?):
+    """
+
     def mergeTwoLists(
         self, list1: Optional[ListNode], list2: Optional[ListNode]
     ) -> Optional[ListNode]:
-        """State the time and space complexity of your approach, and explain why.
-
-        Time:  O(?):
-        Space: O(?):
-        """
         raise NotSolved
 
 
