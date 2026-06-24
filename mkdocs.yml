@@ -65,6 +65,13 @@ extra_css:
 
 nav:
   - Home: index.md
+  - Foundations:
+    - foundations/index.md
+    - Big-O Notation: foundations/big_o.md
+    - Recursion and the Call Stack: foundations/recursion.md
+    - Data Structures in Pictures: foundations/data_structures.md
+    - How to Approach a Problem: foundations/how_to_approach.md
+    - Glossary: foundations/glossary.md
   - Patterns:
     - patterns/index.md
     - Fundamentals:

@@ -2,6 +2,17 @@
 
 This repository is a structured study guide for algorithmic problem solving based on the popular [Grind75](https://www.techinterviewhandbook.org/grind75) list of LeetCode questions developed by the team at [Tech Interview Handbook](https://www.techinterviewhandbook.org/). All credit for the curated problem list goes to them for their excellent work in creating this focused interview preparation resource.
 
+## First time here?
+
+New to algorithms or interview prep? Start with the [Foundations](docs/foundations/index.md) section before the problems. It teaches the prerequisites the problem pages assume, all from zero:
+
+1. [Big-O Notation](docs/foundations/big_o.md): what `O(n)` and `O(log n)` mean and when each is too slow.
+2. [Recursion and the Call Stack](docs/foundations/recursion.md): how a function that calls itself actually works.
+3. [Data Structures in Pictures](docs/foundations/data_structures.md): arrays, hash maps, stacks, queues, trees, graphs, and heaps.
+4. [How to Approach a Problem](docs/foundations/how_to_approach.md): a repeatable method from problem statement to working solution.
+
+Then work the problems in order, reading each one's linked **Pattern** guide for the *why* behind the technique.
+
 ## Problem List
 
 The following table tracks your progress through all 75 problems:
