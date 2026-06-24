@@ -106,6 +106,42 @@ longest path: `O(log n)` for a balanced tree and `O(n)` for a skewed one.
 - The redundant height recomputation at each level is the source of the
   quadratic cost and motivates the bottom-up optimization.
 
+#### Walkthrough
+
+Let us watch this top-down version run on Example 1, `root = [3,9,20,null,null,15,7]`.
+That tree looks like this, where `9` is a leaf and `20` has two leaf children:
+
+```
+        3
+       / \
+      9    20
+          /  \
+        15    7
+```
+
+`isBalanced(node)` does two things at each node: it computes the height of the
+left and right subtrees with the `height` helper, compares them, and (if they are
+close enough) recurses into both children. Recall `height` returns `0` for an
+empty subtree and `1 + max(left, right)` otherwise, so a single leaf has height
+`1`.
+
+We trace each `isBalanced` call in the order they run. The `diff` column is
+`abs(height(left) - height(right))`; a value greater than `1` would return
+`False` on the spot.
+
+| Step | `isBalanced(node)` | `height(left)` | `height(right)` | `diff` | Action |
+|------|--------------------|----------------|-----------------|--------|--------|
+| 1 | `3` | `1` (just `9`) | `2` (`20`, then `15`/`7`) | `1` | `diff <= 1`: recurse into `9`, then `20` |
+| 2 | `9` | `0` (no child) | `0` (no child) | `0` | `diff <= 1`: recurse into its `None` children, both return `True` |
+| 3 | `20` | `1` (just `15`) | `1` (just `7`) | `0` | `diff <= 1`: recurse into `15`, then `7` |
+| 4 | `15` | `0` | `0` | `0` | `diff <= 1`: both children `None`, return `True` |
+| 5 | `7` | `0` | `0` | `0` | `diff <= 1`: both children `None`, return `True` |
+
+No node ever produced a `diff` greater than `1`, so no call returned `False`. The
+`and` at node `3` chains the results back up: node `20` is balanced because `15`
+and `7` are, node `3` is balanced because `9` and `20` are. The top call returns
+`True`, which matches the expected Output `true`.
+
 ### Bottom-Up Recursion
 
 ```python

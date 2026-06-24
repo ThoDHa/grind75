@@ -95,6 +95,33 @@ not auxiliary working space.
 - The cubic cost comes from re-checking overlapping substrings from scratch; every
   later approach removes this redundancy by reusing already-verified work.
 
+#### Walkthrough
+
+Trace the Brute Force on Example 1, `s = "babad"` (indices `0:b 1:a 2:b 3:a 4:d`).
+Start with `start = 0`, `max_len = 0`. Each step considers the substring `s[i..j]`,
+first applying the length guard `j - i + 1 > max_len`, and only paying for
+`is_palindrome` when the guard passes. The best `(start, max_len)` updates whenever
+a longer palindrome is confirmed.
+
+| Step | `i`, `j` | `s[i..j]` | guard `len > max_len`? | palindrome? | `start`, `max_len` after |
+|------|----------|-----------|------------------------|-------------|--------------------------|
+| 1 | `0, 0` | `"b"` | yes (`1 > 0`) | yes | `0`, `1` |
+| 2 | `0, 1` | `"ba"` | yes (`2 > 1`) | no | `0`, `1` |
+| 3 | `0, 2` | `"bab"` | yes (`3 > 1`) | yes | `0`, `3` |
+| 4 | `0, 3` | `"baba"` | yes (`4 > 3`) | no | `0`, `3` |
+| 5 | `0, 4` | `"babad"` | yes (`5 > 3`) | no | `0`, `3` |
+| 6 | `1, 3` | `"aba"` | no (`3 > 3` is false) | skipped | `0`, `3` |
+| 7 | `1, 4` | `"abad"` | yes (`4 > 3`) | no | `0`, `3` |
+
+The remaining pairs (`2, 4`, `3, 4`, and every single character) all span `3` or
+fewer characters, so the length guard skips them without a palindrome check: this
+is exactly the pruning the guard buys. Note step 6: `"aba"` is itself a valid
+palindrome, but it ties the current best length of `3` rather than beating it, so
+the guard skips it and the earlier `"bab"` is kept.
+
+The loop ends with `start = 0`, `max_len = 3`, so the return value is
+`s[0:3] = "bab"`, which matches the expected Output `"bab"`.
+
 ### Bottom-Up DP
 
 ```python

@@ -107,6 +107,35 @@ input.
 - Simple to reason about but wasteful: it rescans the whole list after every
   single merge, which the sorting approach eliminates entirely.
 
+#### Walkthrough
+
+Trace the Brute Force on Example 1: `intervals = [[1,3],[2,6],[8,10],[15,18]]`.
+First the input is copied into `result`, then the outer `while` loop runs full
+pair scans until one finds nothing to merge.
+
+**Pass 1.** Scan pairs `(i, j)` looking for the first overlap:
+
+| `i` | `j` | `a = result[i]` | `b = result[j]` | overlap? `a[0] <= b[1] and b[0] <= a[1]` | Action |
+|-----|-----|-----------------|-----------------|------------------------------------------|--------|
+| `0` | `1` | `[1,3]` | `[2,6]` | `1 <= 6 and 2 <= 3` → `True` | Fuse: `a` becomes `[min(1,2), max(3,6)] = [1,6]`, then `pop(1)` removes `[2,6]` |
+
+The moment that overlap fuses, both inner loops `break` and the pass restarts.
+After Pass 1, `result = [[1,6],[8,10],[15,18]]` and `merged_something = True`, so
+the `while` loop goes around again.
+
+**Pass 2.** Now scan the shrunken list for any remaining overlap:
+
+| `i` | `j` | `a = result[i]` | `b = result[j]` | overlap? | Action |
+|-----|-----|-----------------|-----------------|----------|--------|
+| `0` | `1` | `[1,6]` | `[8,10]` | `1 <= 10 and 8 <= 6` → `False` | none |
+| `0` | `2` | `[1,6]` | `[15,18]` | `1 <= 18 and 15 <= 6` → `False` | none |
+| `1` | `2` | `[8,10]` | `[15,18]` | `8 <= 18 and 15 <= 10` → `False` | none |
+
+No pair overlaps, so `merged_something` stays `False` and the `while` loop exits.
+
+The method returns `result = [[1,6],[8,10],[15,18]]`, which matches the example's
+expected Output `[[1,6],[8,10],[15,18]]`.
+
 ### Sort and Merge
 
 ```python

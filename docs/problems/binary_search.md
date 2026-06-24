@@ -80,6 +80,26 @@ Because the array is scanned left to right, the first index returned is the only
 - It is correct for every input but wastes the structure the problem hands us, motivating the logarithmic binary search below.
 - The `O(n)` runtime violates the problem's stated requirement, so it serves only as a baseline rather than an accepted answer.
 
+#### Walkthrough
+
+The Linear Scan above is a trivial left-to-right loop, so watching it run teaches nothing about the technique this problem is really about. Instead this walkthrough traces the `Iterative Binary Search` below, the first solution that actually exploits the sorted order.
+
+Using Example 1: `nums = [-1, 0, 3, 5, 9, 12]` and `target = 9`. The search keeps an inclusive interval `[left, right]`, looks at the middle element each round, and throws away the half that cannot contain `9`.
+
+The interval starts at `left = 0`, `right = 5`. Each row shows the state at the top of one loop iteration, after `mid` is computed:
+
+| Iteration | `left` | `right` | `mid` | `nums[mid]` | Comparison to `target = 9` | Action |
+|-----------|--------|---------|-------|-------------|-----------------------------|--------|
+| 1 | `0` | `5` | `2` | `3` | `3 < 9` | answer is to the right: `left = mid + 1 = 3` |
+| 2 | `3` | `5` | `4` | `9` | `9 == 9` | match found: `return mid = 4` |
+
+Step by step:
+
+1. Iteration 1: `mid = 0 + (5 - 0) // 2 = 2`, so `nums[2] = 3`. Since `3 < 9`, everything from index `0` to `2` is too small, so `left` jumps to `3`. The interval shrinks to `[3, 5]`.
+2. Iteration 2: `mid = 3 + (5 - 3) // 2 = 4`, so `nums[4] = 9`. This equals `target`, so the function returns `4` immediately.
+
+The returned value is `4`, which matches the expected Output of Example 1. Notice it took only two comparisons instead of the five a linear scan would have needed to reach index `4`: that is the halving that makes binary search `O(log n)`.
+
 ### Iterative Binary Search
 
 ```python

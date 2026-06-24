@@ -83,6 +83,30 @@ The most direct idea restates the problem as a recurrence and counts every path 
 - The same step is recomputed exponentially often, which is exactly the waste the later solutions remove
 - This baseline is correct but only practical for small `n`; it makes the case for memoization concrete
 
+#### Walkthrough
+
+Trace the Brute Force on Example 1, `n = 2`. The call begins with `climb(2)`, and each call that is above 1 splits into two child calls, `climb(step - 1)` and `climb(step - 2)`, whose returned counts are summed on the way back up.
+
+The call tree, with each call's return value shown as it unwinds:
+
+```
+climb(2)                          step 2 > 1, so it splits
+├── climb(1)  -> 1                step <= 1: base case, returns 1
+└── climb(0)  -> 1                step <= 1: base case, returns 1
+climb(2)      -> 1 + 1 = 2        sums the two children
+```
+
+Reading it as state changing step by step:
+
+| Step | Call | What happens | Returns |
+|------|------|--------------|---------|
+| 1 | `climb(2)` | `2 > 1`, so recurse into `climb(1) + climb(0)` | pending |
+| 2 | `climb(1)` | `step <= 1`: base case | `1` |
+| 3 | `climb(0)` | `step <= 1`: base case | `1` |
+| 4 | `climb(2)` resumes | combines children: `1 + 1` | `2` |
+
+The outer call `climb(2)` returns `2`, which matches the expected Output `2` for Example 1. With a larger `n` the tree would fan out much wider, and the same subproblems (such as `climb(0)` and `climb(1)`) would be recomputed many times: that repeated work is exactly what the later memoized solutions eliminate.
+
 ### Top-Down Memoization
 
 ```python

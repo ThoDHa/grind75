@@ -4,6 +4,8 @@
 
 **Pattern:** [Data-Structure Design](../patterns/design/intuition.md)
 
+**Practice:** [`practice/maximum_frequency_stack/solution.py`](../../practice/maximum_frequency_stack/solution.py)
+
 Design a stack-like data structure to push elements to the stack and pop the most frequent element from the stack.
 
 Implement the `FreqStack` class:
@@ -116,6 +118,28 @@ Maintains the complete element history in the stack.
 - The recency tie-break falls out of scanning the stack from the top down and stopping at the first element whose frequency equals the maximum.
 - `pop(i)` from the middle of a Python list is `O(n)`, and `max(self.freq_count.values())` re-scans every distinct value, so each pop is linear; this is the cost the later designs eliminate.
 - Correct for every valid sequence, but too slow at the upper constraint of `2 * 10^4` calls.
+
+#### Walkthrough
+
+Let us run the **Brute Force** code on Example 1: push `5, 7, 5, 7, 4, 5`, then call `pop()` four times. Each `push` appends to `stack` and bumps that value's count in `freq_count`.
+
+| Operation | `stack` after | `freq_count` after |
+| --- | --- | --- |
+| `push(5)` | `[5]` | `{5: 1}` |
+| `push(7)` | `[5, 7]` | `{5: 1, 7: 1}` |
+| `push(5)` | `[5, 7, 5]` | `{5: 2, 7: 1}` |
+| `push(7)` | `[5, 7, 5, 7]` | `{5: 2, 7: 2}` |
+| `push(4)` | `[5, 7, 5, 7, 4]` | `{5: 2, 7: 2, 4: 1}` |
+| `push(5)` | `[5, 7, 5, 7, 4, 5]` | `{5: 3, 7: 2, 4: 1}` |
+
+Now the pops. Each `pop()` first computes `max_freq = max(freq_count.values())`, then scans `stack` from the top down (`i` from the last index toward `0`) and removes the first value whose count equals `max_freq`:
+
+- `pop()`: `max_freq` is `3`. Scanning from the top, the last `5` (index `5`) has count `3`, so it is removed and its count drops. `stack` becomes `[5, 7, 5, 7, 4]`, `freq_count` becomes `{5: 2, 7: 2, 4: 1}`. Returns `5`.
+- `pop()`: `max_freq` is `2`. Scanning from the top, `4` (count `1`) is skipped, then `7` (count `2`) matches and is removed. `stack` becomes `[5, 7, 5, 4]`, `freq_count` becomes `{5: 2, 7: 1, 4: 1}`. Returns `7`: the tie between `5` and `7` resolves to `7` because it sits closer to the top.
+- `pop()`: `max_freq` is `2`. Scanning from the top, `4` (count `1`) is skipped, then `5` (count `2`) matches and is removed. `stack` becomes `[5, 7, 4]`, `freq_count` becomes `{5: 1, 7: 1, 4: 1}`. Returns `5`.
+- `pop()`: `max_freq` is `1`. The top element `4` (count `1`) matches immediately and is removed. `stack` becomes `[5, 7]`, `freq_count` becomes `{5: 1, 7: 1}`. Returns `4`.
+
+The four pops return `5, 7, 5, 4`, which matches the expected Output `[null, null, null, null, null, null, null, 5, 7, 5, 4]` for the pop calls.
 
 ### Stack of Stacks
 

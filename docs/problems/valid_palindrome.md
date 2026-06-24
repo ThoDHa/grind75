@@ -106,6 +106,41 @@ alphanumeric.
 - Only the first half needs checking; the middle character of an odd-length
   string mirrors itself.
 
+#### Walkthrough
+
+Trace the Brute Force solution on Example 1, `s = "A man, a plan, a canal: Panama"`.
+
+First, the cleaning pass walks every character once. Each letter is kept (and
+lowercased if it was uppercase) while spaces, commas, and the colon are dropped.
+`'A'` has code point `65`, inside the uppercase range, so it is shifted down by
+`32` to `'a'`; the spaces and punctuation fail every range test and are discarded.
+After this pass, `cleaned` holds:
+
+`['a','m','a','n','a','p','l','a','n','a','c','a','n','a','l','p','a','n','a','m','a']`
+
+That is the string `amanaplanacanalpanama`, so `n = 21`.
+
+Next, the mirror comparison checks `cleaned[i]` against `cleaned[n - 1 - i]` for
+`i` from `0` up to `n // 2 - 1`, that is `i = 0..9`:
+
+| `i` | `cleaned[i]` | `n - 1 - i` | `cleaned[n - 1 - i]` | Match? |
+|-----|--------------|-------------|----------------------|--------|
+| 0   | `a`          | 20          | `a`                  | yes    |
+| 1   | `m`          | 19          | `m`                  | yes    |
+| 2   | `a`          | 18          | `a`                  | yes    |
+| 3   | `n`          | 17          | `n`                  | yes    |
+| 4   | `a`          | 16          | `a`                  | yes    |
+| 5   | `p`          | 15          | `p`                  | yes    |
+| 6   | `l`          | 14          | `l`                  | yes    |
+| 7   | `a`          | 13          | `a`                  | yes    |
+| 8   | `n`          | 12          | `n`                  | yes    |
+| 9   | `a`          | 11          | `a`                  | yes    |
+
+Every mirrored pair agrees. The loop stops at `i = 10` because `21 // 2 == 10`,
+and index `10` (the middle `c`) mirrors itself, so it needs no check. No mismatch
+ever fired, so the function returns `True`, which matches the expected Output for
+Example 1.
+
 ### Filter then Two Pointers
 
 ```python

@@ -138,6 +138,41 @@ separate visited matrix, so no extra grid-sized storage is used.
   the board versus the word, or reversing the word to start from the rarer end)
   cuts wasted exploration on larger boards.
 
+#### Walkthrough
+
+Let us trace this first solution on Example 1: `board = [["A","B","C","E"],["S","F","C","S"],["A","D","E","E"]]`
+and `word = "ABCCED"` (rows are indexed `0-2` top to bottom, columns `0-3` left
+to right). The outer loops try every starting cell, but the very first one,
+`(0, 0)`, holds an `"A"` that matches `word[0]`, so the winning path begins there.
+
+The successful walk threads through the grid one matched letter at a time. Each
+matched cell is overwritten with `"#"` so it cannot be reused on this path:
+
+| Step `i` | Need `word[i]` | Cell `(r, c)` | Letter | Action |
+|----------|----------------|---------------|--------|--------|
+| 0 | `A` | `(0, 0)` | `A` | match, mark `(0,0)` as `#` |
+| 1 | `B` | `(0, 1)` | `B` | match, mark `(0,1)` as `#` |
+| 2 | `C` | `(0, 2)` | `C` | match, mark `(0,2)` as `#` |
+| 3 | `C` | `(1, 2)` | `C` | match, mark `(1,2)` as `#` |
+| 4 | `E` | `(2, 2)` | `E` | match, mark `(2,2)` as `#` |
+| 5 | `D` | `(2, 1)` | `D` | match, mark `(2,1)` as `#` |
+| 6 | (end) | `(3, 1)` | (off board) | `i == len(word)` reached: return `True` |
+
+The search does not glide straight there. At each cell it tries the four
+neighbors in order (down, up, right, left) and abandons branches that do not
+match. For instance, from `(0, 0)` matching `A`, it first tries down to `(1, 0)`,
+finds `S != B`, fails, then tries up `(-1, 0)` (out of bounds), before turning
+right to `(0, 1)` where `B` matches. The same dead-end-then-recover pattern
+plays out at `(2, 2)` matching `E`: down `(3, 2)` is off the board, up `(1, 2)`
+is now a `#`, right `(2, 3)` holds `E != D`, and only left `(2, 1)` yields the
+final `D`.
+
+Once `(2, 1)` is matched, the recursion calls `dfs` for `i = 6`, which equals
+`len(word)`, so it returns `True`. That `True` propagates back up through every
+frame: each cell restores its saved letter as it returns (backtracking), but
+because the answer is already `True`, the outer loop short-circuits and the
+function returns `True`, matching the expected Output for Example 1.
+
 ### DFS with Visited Set
 
 ```python

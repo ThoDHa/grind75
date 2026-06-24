@@ -123,6 +123,33 @@ of all word lengths.
 - The linear scan per query is exactly what a trie removes by walking one node per
   character regardless of how many words are stored.
 
+#### Walkthrough
+
+Let us watch the Brute Force solution run on Example 1, replaying its call
+sequence and tracking the one piece of state it keeps: the `self.words` list.
+Each query scans that list and compares strings, so the table shows what the
+scan finds for each call.
+
+| Call | What it does | `self.words` after | Returns |
+|------|--------------|--------------------|---------|
+| `Trie()` | start with an empty list | `[]` | `null` |
+| `insert("apple")` | append `"apple"` | `["apple"]` | `null` |
+| `search("apple")` | scan: `"apple" == "apple"`, exact match | `["apple"]` | `true` |
+| `search("app")` | scan: `"apple" != "app"`, no exact match | `["apple"]` | `false` |
+| `startsWith("app")` | scan: `"apple"[:3] == "app"`, prefix match | `["apple"]` | `true` |
+| `insert("app")` | append `"app"` | `["apple", "app"]` | `null` |
+| `search("app")` | scan: `"apple" != "app"`, then `"app" == "app"`, exact match | `["apple", "app"]` | `true` |
+
+The crucial pair is the two `search("app")` calls. The first returns `false`
+because only `"apple"` is stored, and `"apple"` is not equal to `"app"`. The
+second returns `true` only after `"app"` itself is inserted: a stored word must
+match exactly for `search`, while `startsWith` is satisfied by any stored word
+that begins with the prefix, which is why `startsWith("app")` was already `true`
+when only `"apple"` was present.
+
+Collecting the returned values in order gives
+`[null, null, true, false, true, null, true]`, which matches the expected Output.
+
 ### Dictionary Children
 
 ```python

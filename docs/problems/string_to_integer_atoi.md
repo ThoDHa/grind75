@@ -154,6 +154,31 @@ The `digits` substring can grow to the length of the input in the worst case, so
 - The character-to-digit conversion `ord(ch) - ord('0')` is written out by hand, with no `int()` or `isdigit()` doing the work.
 - Clamping inside the fold (rather than after) keeps every intermediate value inside the 32-bit range, even for inputs far larger than `2^31`.
 
+#### Walkthrough
+
+Let us watch the Brute Force code run on Example 1: `s = "42"`, so `n = 2`. The expected Output is `42`.
+
+**Phase 1, skip leading spaces:** `i` starts at `0`. `s[0]` is `'4'`, not a space, so the `while` loop never runs. `i` stays `0`.
+
+**Phase 2, read an optional sign:** `s[0]` is `'4'`, which is neither `'+'` nor `'-'`, so the `if` is skipped. `sign` stays `1` and `i` stays `0`.
+
+**Phase 3, collect the digit run:** the `while` loop appends one character per step. This is the heart of the parse, so trace it index by index:
+
+| Step | `i` before | `s[i]` | digit? | `digits` after | `i` after |
+|------|-----------|--------|--------|----------------|-----------|
+| 1 | `0` | `'4'` | yes | `'4'` | `1` |
+| 2 | `1` | `'2'` | yes | `'42'` | `2` |
+| 3 | `2` | (end, `i == n`) | loop stops | `'42'` | `2` |
+
+**Phase 4, fold the digits into a number:** `result` starts at `0`, then each character is folded with `result = result * 10 + (ord(ch) - ord('0'))`:
+
+| `ch` | `result` before | `result * 10 + digit` | `result` after |
+|------|-----------------|------------------------|----------------|
+| `'4'` | `0` | `0 * 10 + 4` | `4` |
+| `'2'` | `4` | `4 * 10 + 2` | `42` |
+
+Neither value leaves the 32-bit range, so no clamp fires. The function returns `sign * result`, which is `1 * 42 = 42`. This matches the expected Output `42`.
+
 ### Single Pass
 
 ```python

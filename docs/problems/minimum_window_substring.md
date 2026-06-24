@@ -116,6 +116,34 @@ Space for character counting in validation function.
 - The early `break` after the first valid window from a given start prunes longer windows that share that start, but the quadratic substring count still dominates.
 - It is correct for all inputs yet impractical once `|s|` grows, so it serves comparison and intuition rather than production use.
 
+#### Walkthrough
+
+Let us watch the Brute Force run on Example 1: `s = "ADOBECODEBANC"`, `t = "ABC"`. The outer loop fixes a start index `i`, and the inner loop grows the end `j` until `s[i:j]` first contains an `A`, a `B`, and a `C`. The moment a start produces a valid window, the `break` stops extending it (a longer window from the same start cannot be shorter). We keep `min_window`, the shortest valid window seen so far.
+
+Each row below is one outer iteration: the start character, the first valid window found from that start, and whether it beats the running minimum.
+
+| `i` | `s[i]` | First valid window from `i` | Length | `min_window` after |
+|-----|--------|-----------------------------|--------|--------------------|
+| 0 | `A` | `"ADOBEC"` | 6 | `"ADOBEC"` (new min) |
+| 1 | `D` | `"DOBECODEBA"` | 10 | `"ADOBEC"` |
+| 2 | `O` | `"OBECODEBA"` | 9 | `"ADOBEC"` |
+| 3 | `B` | `"BECODEBA"` | 8 | `"ADOBEC"` |
+| 4 | `E` | `"ECODEBA"` | 7 | `"ADOBEC"` |
+| 5 | `C` | `"CODEBA"` | 6 | `"ADOBEC"` |
+| 6 | `O` | `"ODEBANC"` | 7 | `"ADOBEC"` |
+| 7 | `D` | `"DEBANC"` | 6 | `"ADOBEC"` |
+| 8 | `E` | `"EBANC"` | 5 | `"EBANC"` (new min) |
+| 9 | `B` | `"BANC"` | 4 | `"BANC"` (new min) |
+| 10 | `A` | none | : | `"BANC"` |
+| 11 | `N` | none | : | `"BANC"` |
+| 12 | `C` | none | : | `"BANC"` |
+
+Walking the first row concretely: at `i = 0` the inner loop starts at length 3 (`"ADO"`), which `is_valid_window` rejects since it has no `B` or `C`. It keeps extending: `"ADOB"`, `"ADOBE"`, then `"ADOBEC"`, which finally holds all of `A`, `B`, `C`. That becomes the first `min_window`, and the `break` fires.
+
+From `i = 10` onward only `"...ANC"` remains, which can never supply a `B`, so no start past index 9 yields a valid window. The shortest window recorded across all starts is `"BANC"` (length 4), found at `i = 9`.
+
+The function returns `min_window`, which is `"BANC"`: this matches the expected Output `"BANC"`.
+
 ### Sliding Window with Hash Maps
 
 ```python

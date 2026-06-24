@@ -92,6 +92,35 @@ Only a few scalar variables are used regardless of input size.
 - The limiting wall is always the shorter line, so the height term is a `min`
 - The quadratic pair count is what the two-pointer approach later eliminates
 
+#### Walkthrough
+
+Example 1 has 9 lines, which means 36 pairs to check: too many to follow by hand.
+To watch the nested loops actually run, trace the smaller input `height = [1,8,6,2]`
+instead. The outer loop fixes a left wall `i`, the inner loop sweeps every later
+right wall `j`, and `max_area` only grows when a pair beats every pair seen so far.
+
+Each row computes `width = j - i`, `current_height = min(height[i], height[j])`,
+and `area = width * current_height`:
+
+| `i` | `j` | `width` (`j - i`) | `min(height[i], height[j])` | `area` | `max_area` after |
+| --- | --- | --- | --- | --- | --- |
+| 0 | 1 | 1 | `min(1, 8)` = 1 | 1 | 1 |
+| 0 | 2 | 2 | `min(1, 6)` = 1 | 2 | 2 |
+| 0 | 3 | 3 | `min(1, 2)` = 1 | 3 | 3 |
+| 1 | 2 | 1 | `min(8, 6)` = 6 | 6 | 6 |
+| 1 | 3 | 2 | `min(8, 2)` = 2 | 4 | 6 |
+| 2 | 3 | 1 | `min(6, 2)` = 2 | 2 | 6 |
+
+The loops have now exhausted all 6 pairs, so the function returns `max_area = 6`,
+the best container for `[1,8,6,2]`. Notice the limiting wall is always the shorter
+line: the pair `(1, 3)` has the tall line `8` on the left, yet its area is capped
+by the short `2` on the right.
+
+The full Example 1 runs the exact same nested sweep over all 36 pairs of
+`[1,8,6,2,5,4,8,3,7]`. The winning pair is `(i = 1, j = 8)`, with
+`width = 7` and `min(height[1], height[8]) = min(8, 7) = 7`, giving
+`area = 7 * 7 = 49`. So the function returns `49`, matching the expected Output.
+
 ### Two Pointers
 
 ```python

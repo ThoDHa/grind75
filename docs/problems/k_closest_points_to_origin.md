@@ -99,6 +99,30 @@ other storage grows with the input.
 - Always key on squared distance; computing `sqrt` adds floating-point cost and
   rounding risk for no benefit to the ordering.
 
+#### Walkthrough
+
+Trace the Brute Force on Example 1: `points = [[1,3],[-2,2]]`, `k = 1`.
+
+First, set up the working state: `remaining = [[1,3],[-2,2]]` (a copy of the
+input) and `closest = []`. We then run the outer loop `k = 1` time, so just one
+selection round.
+
+In that round, `best` starts at `0` (pointing at `[1,3]`), and the inner loop
+scans the rest of `remaining` to find the smallest squared distance. The keys
+are `dist([1,3]) = 1*1 + 3*3 = 10` and `dist([-2,2]) = (-2)*(-2) + 2*2 = 8`:
+
+| inner `i` | `remaining[i]` | `dist(remaining[i])` | `dist(remaining[best])` | smaller? | `best` after |
+| --------- | -------------- | -------------------- | ----------------------- | -------- | ------------ |
+| start     | -              | -                    | `10` (`best = 0`)       | -        | `0`          |
+| `1`       | `[-2,2]`       | `8`                  | `10`                    | yes      | `1`          |
+
+The scan ends with `best = 1`, so `remaining.pop(1)` removes `[-2,2]` and
+appends it: `closest = [[-2,2]]`, leaving `remaining = [[1,3]]`. With `k = 1`
+the loop is done.
+
+The function returns `closest = [[-2,2]]`, which matches the example's expected
+Output `[[-2,2]]`.
+
 ### Max-Heap of Size K
 
 ```python

@@ -93,6 +93,46 @@ Serialization stores all node values. Deserialization uses recursion stack propo
 - Deserialization consumes tokens through a single shared iterator, so each recursive call advances the cursor exactly once and the left subtree is fully built before the right.
 - Null markers are mandatory for a general binary tree; without them, distinct trees can produce the same value sequence and become indistinguishable.
 
+#### Walkthrough
+
+Let us trace this first solution on Example 1, the tree `[1,2,3,null,null,4,5]`. Drawn out, that tree looks like this: `1` is the root, its children are `2` (left) and `3` (right), `2` is a leaf, and `3` has children `4` (left) and `5` (right).
+
+**Serialization.** `preorder` visits each node root → left → right, appending `str(node.val)` for a real node and `"null"` for a missing child. Because the recursion fully finishes the left subtree before touching the right, the calls unfold like an indented call tree. Each line below shows the call and what it appends to `vals`:
+
+```
+preorder(1)        append "1"        vals = [1]
+  preorder(2)      append "2"        vals = [1, 2]
+    preorder(None) append "null"     vals = [1, 2, null]          (2's left)
+    preorder(None) append "null"     vals = [1, 2, null, null]    (2's right)
+  preorder(3)      append "3"        vals = [1, 2, null, null, 3]
+    preorder(4)    append "4"        vals = [1, 2, null, null, 3, 4]
+      preorder(None) append "null"   vals = [..., 4, null]        (4's left)
+      preorder(None) append "null"   vals = [..., 4, null, null]  (4's right)
+    preorder(5)    append "5"        vals = [..., 5]
+      preorder(None) append "null"   vals = [..., 5, null]        (5's left)
+      preorder(None) append "null"   vals = [..., 5, null, null]  (5's right)
+```
+
+Joining `vals` with commas gives the serialized string: `1,2,null,null,3,4,null,null,5,null,null`.
+
+**Deserialization.** `build_tree` reads tokens left to right from one shared iterator. Each call consumes exactly one token: a `"null"` returns `None`, otherwise it makes a node and recursively fills its left child, then its right. The same call tree rebuilds, consuming tokens in this order:
+
+| Call | Token consumed | Result |
+| --- | --- | --- |
+| `build_tree()` | `1` | node `1`, now build its children |
+| `build_tree()` | `2` | node `2`, now build its children |
+| `build_tree()` | `null` | `2.left = None` |
+| `build_tree()` | `null` | `2.right = None`, node `2` complete |
+| `build_tree()` | `3` | node `3`, now build its children |
+| `build_tree()` | `4` | node `4`, now build its children |
+| `build_tree()` | `null` | `4.left = None` |
+| `build_tree()` | `null` | `4.right = None`, node `4` complete |
+| `build_tree()` | `5` | node `5`, now build its children |
+| `build_tree()` | `null` | `5.left = None` |
+| `build_tree()` | `null` | `5.right = None`, node `5` complete |
+
+The returned tree is exactly `[1,2,3,null,null,4,5]`, which matches the expected Output for Example 1.
+
 ### Level-Order BFS
 
 ```python

@@ -118,6 +118,36 @@ uses `O(V)`.
   or by counting prerequisites once and only revisiting a course when one of its
   prerequisites is taken (Kahn's Algorithm).
 
+#### Walkthrough
+
+Trace the Brute Force on Example 1: `numCourses = 2`,
+`prerequisites = [[1,0]]`. The pair `[1, 0]` means course `1` needs course `0`
+first.
+
+First, build `remaining` so each entry lists the prerequisites that course still
+needs:
+
+- `remaining[0] = []`: course `0` has no prerequisites.
+- `remaining[1] = [0]`: course `1` needs course `0`.
+
+Start with `taken = [False, False]` and `taken_count = 0`. Now sweep, taking any
+untaken course whose prerequisites are all taken. Each row below is one course
+check inside a sweep:
+
+| Sweep | course | `remaining[course]` | All prereqs taken? | Action | `taken` | `taken_count` |
+|-------|--------|---------------------|--------------------|--------|---------|---------------|
+| 1 | `0` | `[]` | yes (none needed) | take `0` | `[True, False]` | `1` |
+| 1 | `1` | `[0]` | yes (`0` is taken) | take `1` | `[True, True]` | `2` |
+| 2 | `0` | `[]` | already taken: skip | none | `[True, True]` | `2` |
+| 2 | `1` | `[0]` | already taken: skip | none | `[True, True]` | `2` |
+
+Sweep `1` took two courses, so `progress` stayed `True` and another sweep ran.
+Sweep `2` took nothing (both courses already taken), so `progress` became
+`False` and the loop stopped.
+
+Finally, compare `taken_count == numCourses`: `2 == 2` is `True`, so the function
+returns `True`, which matches the example's expected Output.
+
 ### DFS Three-Color
 
 ```python

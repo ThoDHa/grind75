@@ -108,6 +108,30 @@ The recursion stack reaches the tree's height `h`: `O(log n)` for a balanced tre
 - The strict `<` and `>` comparisons reject duplicate values, as the definition requires.
 - It re-examines the same descendants once per ancestor, which is the redundancy the bounds and inorder approaches eliminate.
 
+#### Walkthrough
+
+Trace the Brute Force solution on Example 1: `root = [2,1,3]`, the tree with `2` at the root, `1` as its left child, and `3` as its right child. The expected output is `true`.
+
+The outer call is `valid(2)`. It runs two subtree scans, then recurses into its children:
+
+- `valid(2)`: node `2` is not empty, so apply the BST definition here.
+  - `all_less(node.left=1, limit=2)`: scan the left subtree, every value must be strictly below `2`. Node `1` has no children, so it checks `1 < 2`, which is `True`. The scan returns `True`.
+  - `all_greater(node.right=3, limit=2)`: scan the right subtree, every value must be strictly above `2`. Node `3` has no children, so it checks `3 > 2`, which is `True`. The scan returns `True`.
+  - Neither check failed, so recurse into both children:
+    - `valid(node.left=1)`: node `1` has no children, so both subtree scans run on empty subtrees and return `True` immediately. With no children to recurse into, this returns `True`.
+    - `valid(node.right=3)`: node `3` likewise has no children, so it returns `True`.
+  - Both recursive calls returned `True`, so `valid(2)` returns `True`.
+
+The order of calls, with each node's checks and what it returns:
+
+| Call | Subtree checks | Returns |
+| --- | --- | --- |
+| `valid(2)` | `all_less(1, 2)` is `True`, `all_greater(3, 2)` is `True` | `True` (after children) |
+| `valid(1)` | both scans on empty subtrees, `True` | `True` |
+| `valid(3)` | both scans on empty subtrees, `True` | `True` |
+
+The top-level `valid(root)` returns `True`, which matches the example's expected Output of `true`.
+
 ### Recursive Bounds
 
 ```python

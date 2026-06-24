@@ -82,6 +82,27 @@ Only a single loop variable is tracked regardless of input size.
   optimization goal and exists mainly as a reference point.
 - It would also time out on the upper end of the constraints.
 
+#### Walkthrough
+
+Let us watch the Linear Scan run on Example 1: `n = 5` with the first bad
+version at `4`, so `isBadVersion` returns `False` for versions `1, 2, 3` and
+`True` for `4, 5`.
+
+The loop walks `version` from `1` upward, calling the API on each and returning
+the moment it sees `True`:
+
+| Step | `version` | `isBadVersion(version)` | Action |
+|------|-----------|-------------------------|--------|
+| 1 | `1` | `False` | keep scanning |
+| 2 | `2` | `False` | keep scanning |
+| 3 | `3` | `False` | keep scanning |
+| 4 | `4` | `True` | `return 4` |
+
+At `version = 4` the API reports `True` for the first time, so the function
+returns `4` immediately and never reaches version `5`. The returned value `4`
+matches the example's expected Output. Notice the scan made `4` API calls to get
+here: the binary search below finds the same answer in far fewer.
+
 ### Binary Search
 
 ```python

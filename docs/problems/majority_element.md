@@ -83,6 +83,24 @@ Only the scalar `count` and `n` are tracked; no structure grows with the input.
 - Requires no extra data structures, but pays a quadratic price for it.
 - A natural starting point that every later approach exists to speed up.
 
+#### Walkthrough
+
+Trace the Brute Force solution on Example 1: `nums = [3,2,3]`. Here `n = 3`, so the
+winning threshold is `n // 2 = 1`: a candidate must appear strictly more than once.
+
+The outer loop picks each value as the `candidate`, and the inner loop rescans the
+whole array to tally how many times that candidate appears:
+
+| Outer step | `candidate` | Inner scan over `[3,2,3]` | `count` | `count > 1`? | Action |
+| --- | --- | --- | --- | --- | --- |
+| 1 | `3` (index `0`) | `3==3` yes, `2==3` no, `3==3` yes | `2` | yes | `return 3` |
+
+The very first candidate, `3`, already appears `2` times, which exceeds the
+threshold of `1`, so the function returns immediately. The loop never reaches the
+`2` at index `1` or the trailing `return nums[0]`.
+
+The returned value is `3`, which matches the expected Output of `3`.
+
 ### Hash Map
 
 ```python

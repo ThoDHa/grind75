@@ -125,6 +125,56 @@ which is `O(n)` for a skewed tree.
 - It is wasteful compared with the single-pass solutions: it scans the tree twice
   and stores two full paths, but it is the most obvious approach to derive.
 
+#### Walkthrough
+
+Trace the first solution on Example 1: `root = [3,5,1,6,2,0,8,null,null,7,4]`,
+`p = 5`, `q = 1`. That tree looks like this, with `5` and `1` being the two
+children of the root `3`:
+
+```
+        3
+       / \
+      5   1
+     / \ / \
+    6  2 0  8
+      / \
+     7   4
+```
+
+First, `find_path` builds the route from the root down to `p = 5`. It appends
+each node on the way in and `pop`s any node whose subtrees do not contain the
+target:
+
+| Call | `path` while inside | Result |
+|------|---------------------|--------|
+| `find_path(3, 5)` | `[3]` | recurse left |
+| `find_path(5, 5)` | `[3, 5]` | `node is target`, returns `True` |
+
+The `True` bubbles straight back up, so nothing is popped: `path_p = [3, 5]`.
+
+Next the same search runs for `q = 1`. The root `3` is appended, its left subtree
+(rooted at `5`) is searched first and fails, so that exploration unwinds and pops
+itself back off, then the right subtree finds the target:
+
+| Call | `path` while inside | Result |
+|------|---------------------|--------|
+| `find_path(3, 1)` | `[3]` | left subtree fails, try right |
+| `find_path(1, 1)` | `[3, 1]` | `node is target`, returns `True` |
+
+So `path_q = [3, 1]`.
+
+Finally, walk the two paths in lockstep with `zip` and keep the last node they
+share:
+
+| Step | `a` (from `path_p`) | `b` (from `path_q`) | `a is b`? | `lca` |
+|------|---------------------|---------------------|-----------|-------|
+| 1 | `3` | `3` | yes | `3` |
+| 2 | `5` | `1` | no, `break` | `3` |
+
+The paths agree on the root and immediately diverge, so the loop breaks with
+`lca = 3`. The function returns the node `3`, which matches the expected Output
+of `3`.
+
 ### Recursive DFS
 
 ```python

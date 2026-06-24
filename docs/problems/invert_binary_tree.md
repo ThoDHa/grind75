@@ -42,6 +42,12 @@ Given the `root` of a binary tree, invert the tree, and return its root.
 ### Recursive DFS
 
 ```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
 class Solution:
     def invertTree(self, root: Optional[TreeNode]) -> Optional[TreeNode]:
         if not root:
@@ -81,9 +87,39 @@ The only extra space is the recursion stack, whose depth equals the height of th
 - Because each swap is local and independent, the relative order of the swap and the recursive calls does not change the outcome.
 - Inverting an already inverted tree restores the original, so the operation is its own inverse.
 
+#### Walkthrough
+
+Let us watch the Recursive DFS solution run on Example 1: `root = [4,2,7,1,3,6,9]`. As a tree, that is `4` with left child `2` (children `1`, `3`) and right child `7` (children `6`, `9`).
+
+Each call swaps the current node's two children, then recurses into the new left child and the new right child. The indentation below shows the call tree: a deeper indent is a nested recursive call, and we read each call top to bottom.
+
+```text
+invertTree(4): swap children -> 4.left=7, 4.right=2
+  invertTree(7): swap children -> 7.left=9, 7.right=6
+    invertTree(9): no children, swap does nothing, returns
+    invertTree(6): no children, swap does nothing, returns
+  invertTree(2): swap children -> 2.left=3, 2.right=1
+    invertTree(3): no children, swap does nothing, returns
+    invertTree(1): no children, swap does nothing, returns
+```
+
+Tracing the swaps in order:
+
+- `invertTree(4)`: swap `2` and `7`, so node `4` now has left `7`, right `2`. Recurse into `7` first, then `2`.
+- `invertTree(7)`: swap `6` and `9`, so node `7` now has left `9`, right `6`. Recurse into the leaves `9` and `6`, each of which has no children and returns immediately.
+- `invertTree(2)`: swap `1` and `3`, so node `2` now has left `3`, right `1`. Recurse into the leaves `3` and `1`, which also return immediately.
+
+After every node's children have been swapped, the original call `invertTree(4)` returns the same `root` node. Reading the inverted tree in level order gives `[4,7,2,9,6,3,1]`, which matches the example's expected Output.
+
 ### Iterative DFS
 
 ```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
 class Solution:
     def invertTree(self, root: Optional[TreeNode]) -> Optional[TreeNode]:
         if not root:
@@ -131,6 +167,12 @@ A depth-first stack holds at most one root-to-leaf path plus pending siblings, s
 ### Iterative BFS
 
 ```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
 from collections import deque
 
 class Solution:

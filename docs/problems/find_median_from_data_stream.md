@@ -129,6 +129,34 @@ grows linearly with the size of the stream.
 - This approach is simple to reason about and correct, but the per-insert linear
   shift makes it slow for large streams.
 
+#### Walkthrough
+
+Let us trace the first solution (Sorted List with Insertion) on Example 1: the
+call sequence `addNum(1)`, `addNum(2)`, `findMedian()`, `addNum(3)`,
+`findMedian()`. We follow `nums` (the sorted backing list) as each call mutates
+it.
+
+For each `addNum`, the binary search scans with `low` and `high` to find the
+leftmost slot where `num` belongs, then `list.insert` drops it there:
+
+| Step | Call | Binary search result | `nums` after |
+|------|------|----------------------|--------------|
+| 1 | `addNum(1)` | list empty, slot `0` | `[1]` |
+| 2 | `addNum(2)` | `2` belongs after `1`, slot `1` | `[1, 2]` |
+| 3 | `addNum(3)` | `3` belongs after `2`, slot `2` | `[1, 2, 3]` |
+
+Now the two `findMedian` calls read the middle of the sorted list:
+
+- After step 2, `findMedian()` sees `n = 2` (even). `mid = n // 2 = 1`, so it
+  averages the two central elements: `(nums[0] + nums[1]) / 2 = (1 + 2) / 2 =
+  1.5`.
+- After step 3, `findMedian()` sees `n = 3` (odd). `mid = n // 2 = 1`, so it
+  returns the single middle element: `nums[1] = 2.0`.
+
+The returned values across the call sequence are `1.5` then `2.0`, which matches
+the example's expected Output `[null, null, null, 1.5, null, 2.0]` (the `null`
+entries are the constructor and `addNum` calls, which return nothing).
+
 ### Two Heaps
 
 ```python

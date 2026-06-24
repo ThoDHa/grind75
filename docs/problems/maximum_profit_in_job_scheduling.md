@@ -127,6 +127,45 @@ most `n` intervals, so the extra space is linear.
 - This direct enumeration needs no sorting or library helpers, which makes it the
   clearest baseline to verify the faster DP variants against.
 
+#### Walkthrough
+
+Let us watch the Brute Force run on Example 1: `startTime = [1,2,3,3]`,
+`endTime = [3,4,5,6]`, `profit = [50,10,40,70]`. Label the jobs `j0 = [1,3) p=50`,
+`j1 = [2,4) p=10`, `j2 = [3,5) p=40`, `j3 = [3,6) p=70`. Each call branches: first
+skip job `i`, then take it if it overlaps nothing in `chosen`. The recursion is an
+indented call tree. Each call shows what it returns, and results combine on the way
+back up (`take` adds `profit[i]` to the child's return; the call keeps the larger of
+skip and take).
+
+The winning path takes `j0` then `j3`. Here is that path, with the decisions at each
+job shown:
+
+```
+search(0, [])                        -> max(skip 70, take j0 120) = 120
+├─ skip: search(1, [])               -> 70   (best without j0 is j3 alone)
+└─ take j0 [1,3): 50 + search(1, [(1,3)])
+   search(1, [(1,3)])                -> 70
+   ├─ skip: search(2, [(1,3)])       -> max(skip 70, take j2 40) = 70
+   │  ├─ skip: search(3, [(1,3)])    -> 70
+   │  │  ├─ skip: search(4, [(1,3)])             -> 0   (past the last job)
+   │  │  └─ take j3 [3,6): shares boundary 3, ok -> 70 + 0 = 70
+   │  └─ take j2 [3,5): shares boundary 3, ok    -> 40
+   │     (j3 [3,6) then overlaps the chosen [3,5), so this branch reaches only 40)
+   └─ take j1 [2,4): overlaps [1,3), not allowed
+   take j0 total = 50 + 70 = 120
+```
+
+Reading the returns back up: `search(4, ...)` returns `0` because we walked past the
+last job. Adding `j3` gives `70`, so `search(3, [(1,3)])` returns `70`. Its sibling,
+the take-`j2` branch, reaches only `40` (once `j2` is chosen, `j3` overlaps it and is
+rejected), so `search(2, [(1,3)])` keeps the larger `70`. Job `j1` overlaps the
+already-chosen `[1,3)` and cannot be taken, so `search(1, [(1,3)])` returns `70`. Back
+at the top, taking `j0` is `50 + 70 = 120`; the skip branch yields only `70`, so the
+larger wins.
+
+`search(0, [])` returns `120`, which matches the example's expected Output of `120`
+(the subset `j0` and `j3`, profit `50 + 70`).
+
 ### Quadratic DP
 
 ```python

@@ -119,6 +119,36 @@ The adjacency lists can hold up to `O(N²)` edges in the worst case, and the que
 - The all-pairs comparison is the obvious but wasteful step: it costs `O(N²)` even when most words are not neighbors.
 - The BFS half is already optimal; only the neighbor discovery needs improving, which the next solutions target.
 
+#### Walkthrough
+
+Let us trace Example 1: `beginWord = "hit"`, `endWord = "cog"`, `wordList = ["hot","dot","dog","lot","log","cog"]`.
+
+First, `endWord` ("cog") is in `wordList`, so we proceed. The nodes are `beginWord` plus every word: `["hit","hot","dot","dog","lot","log","cog"]`. The all-pairs `is_one_diff` scan builds this adjacency list (each word points to the words that differ from it by exactly one letter):
+
+| Word | Neighbors |
+|------|-----------|
+| `hit` | `hot` |
+| `hot` | `hit`, `dot`, `lot` |
+| `dot` | `hot`, `dog`, `lot` |
+| `dog` | `dot`, `log`, `cog` |
+| `lot` | `hot`, `dot`, `log` |
+| `log` | `dog`, `lot`, `cog` |
+| `cog` | `dog`, `log` |
+
+Now BFS runs from `("hit", 1)` with `visited = {hit}`. Each row below shows the pair just dequeued, then any unvisited neighbors enqueued (each carries `length + 1`), and the queue that remains:
+
+| Step | Dequeued `(word, length)` | New neighbors enqueued | Queue after step |
+|------|---------------------------|------------------------|------------------|
+| 1 | `(hit, 1)` | `(hot, 2)` | `[(hot, 2)]` |
+| 2 | `(hot, 2)` | `(dot, 3)`, `(lot, 3)` | `[(dot, 3), (lot, 3)]` |
+| 3 | `(dot, 3)` | `(dog, 4)` | `[(lot, 3), (dog, 4)]` |
+| 4 | `(lot, 3)` | `(log, 4)` | `[(dog, 4), (log, 4)]` |
+| 5 | `(dog, 4)` | `(cog, 5)` | `[(log, 4), (cog, 5)]` |
+| 6 | `(log, 4)` | none (`dog`, `lot`, `cog` all already visited) | `[(cog, 5)]` |
+| 7 | `(cog, 5)` | `current_word == endWord`, so return `5` | - |
+
+At step 7 the dequeued word equals `endWord`, so BFS returns `5`. This matches the expected Output `5`, and the path that produced it is `"hit" -> "hot" -> "dot" -> "dog" -> "cog"`, exactly 5 words long.
+
 ### BFS with Word-by-Word Comparison
 
 ```python

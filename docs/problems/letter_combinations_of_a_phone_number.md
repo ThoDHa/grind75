@@ -105,6 +105,47 @@ build-up, which is dominated by the final result size.
 - Replacing the list each iteration keeps the state to exactly one generation of
   combinations at a time, aside from the new list being constructed.
 
+#### Walkthrough
+
+Trace the **Iterative Build-up** solution on Example 1: `digits = "23"`. The key
+state is `combinations`, the working list that gets replaced once per digit.
+
+We start before the loop with a single empty string: `combinations = [""]`. Now
+we process each digit, expanding every current combination by every letter.
+
+**Pass 1: digit `"2"`** (`letters = "abc"`). We loop over `combinations`, which is
+just `[""]`, and for each combination append every letter. The table shows
+`new_combinations` filling up:
+
+| `combination` | `letter` | append | `new_combinations` so far |
+|---------------|----------|--------|---------------------------|
+| `""` | `a` | `"" + "a"` | `["a"]` |
+| `""` | `b` | `"" + "b"` | `["a", "b"]` |
+| `""` | `c` | `"" + "c"` | `["a", "b", "c"]` |
+
+After the pass, `combinations = ["a", "b", "c"]`.
+
+**Pass 2: digit `"3"`** (`letters = "def"`). Now every one of the three current
+combinations is extended by each of `d`, `e`, `f`:
+
+| `combination` | `letter` | append | `new_combinations` so far |
+|---------------|----------|--------|---------------------------|
+| `"a"` | `d` | `"a" + "d"` | `["ad"]` |
+| `"a"` | `e` | `"a" + "e"` | `["ad", "ae"]` |
+| `"a"` | `f` | `"a" + "f"` | `["ad", "ae", "af"]` |
+| `"b"` | `d` | `"b" + "d"` | `["ad", "ae", "af", "bd"]` |
+| `"b"` | `e` | `"b" + "e"` | `["ad", "ae", "af", "bd", "be"]` |
+| `"b"` | `f` | `"b" + "f"` | `["ad", "ae", "af", "bd", "be", "bf"]` |
+| `"c"` | `d` | `"c" + "d"` | `[..., "bf", "cd"]` |
+| `"c"` | `e` | `"c" + "e"` | `[..., "cd", "ce"]` |
+| `"c"` | `f` | `"c" + "f"` | `[..., "ce", "cf"]` |
+
+After the pass, `combinations = ["ad", "ae", "af", "bd", "be", "bf", "cd", "ce", "cf"]`.
+
+No digits remain, so we return `combinations`, which is
+`["ad","ae","af","bd","be","bf","cd","ce","cf"]`. This matches the expected
+Output for Example 1.
+
 ### Recursive Suffix Expansion
 
 ```python

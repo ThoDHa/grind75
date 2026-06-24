@@ -91,6 +91,24 @@ The `values` array holds a copy of every node's value, so the auxiliary storage 
 - Requires `O(n)` extra space for the value buffer, the cost of not touching the structure.
 - Mutating values in place works for a singly linked list, but it would not generalize to cases where node identity or attached payloads must move with the data.
 
+#### Walkthrough
+
+Trace the brute force solution on Example 1: `head = [1,2,3,4,5]`.
+
+**Pass 1: collect values.** Walk from `head`, appending each `val`. After the loop, `values = [1, 2, 3, 4, 5]` and `i` starts at `len(values) - 1 = 4`.
+
+**Pass 2: overwrite each node.** Walk the same nodes again from `head`. Each step writes `values[i]` into the current node, then decrements `i`. The node positions never move; only the value stored at each position changes.
+
+| Step | `i` | Value written (`values[i]`) | List after this step |
+|------|-----|-----------------------------|----------------------|
+| 1 | 4 | `5` | `[5, 2, 3, 4, 5]` |
+| 2 | 3 | `4` | `[5, 4, 3, 4, 5]` |
+| 3 | 2 | `3` | `[5, 4, 3, 4, 5]` |
+| 4 | 1 | `2` | `[5, 4, 3, 2, 5]` |
+| 5 | 0 | `1` | `[5, 4, 3, 2, 1]` |
+
+Notice step 3 leaves the list unchanged: the middle node already held `3`, so writing `3` back is a no-op. After the loop `curr` is `None`, and the method returns the original `head`, whose nodes now read `[5, 4, 3, 2, 1]`. This matches the expected Output `[5,4,3,2,1]`.
+
 ### Iterative
 
 ```python

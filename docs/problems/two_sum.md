@@ -89,6 +89,20 @@ Only a constant amount of extra space is used regardless of input size.
 - Inefficient for large arrays due to quadratic time complexity
 - No additional data structures required
 
+#### Walkthrough
+
+Let us watch the Brute Force code run on Example 1: `nums = [2,7,11,15]`, target = `9`.
+
+The outer loop fixes one index `x`, computes `complement = target - nums[x]`, and the inner loop scans every later index `y` looking for a value equal to that complement.
+
+| Step | `x` | `nums[x]` | `complement` | `y` | `nums[y]` | `nums[y] == complement`? |
+|------|-----|-----------|--------------|-----|-----------|--------------------------|
+| 1    | `0` | `2`       | `9 - 2 = 7`  | `1` | `7`       | yes, `7 == 7`            |
+
+On the very first inner step the complement is found: `nums[0] = 2` and `nums[1] = 7` sum to `9`. The code returns `[x, y]`, which is `[0, 1]`.
+
+The returned value is `[0, 1]`, which matches the expected Output for Example 1.
+
 ### Sort and Two Pointers
 
 ```python

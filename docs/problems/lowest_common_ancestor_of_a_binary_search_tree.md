@@ -51,6 +51,12 @@ According to the definition of LCA on Wikipedia: "The lowest common ancestor is 
 ### Brute Force DFS
 
 ```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
 class Solution:
     def lowestCommonAncestor(
         self, root: TreeNode, p: TreeNode, q: TreeNode
@@ -109,9 +115,56 @@ Both paths together store up to `O(h)` nodes, and the recursion stack reaches de
 - The LCA is exactly the divergence point of the two root-to-target paths.
 - Building explicit paths is wasteful, but it makes the definition of LCA concrete and easy to verify.
 
+#### Walkthrough
+
+Let us trace this brute force on Example 1: `root = [6,2,8,0,4,7,9,null,null,3,5]`, `p = 2`, `q = 8`. The tree looks like this:
+
+```
+          6
+        /   \
+       2     8
+      / \   / \
+     0   4 7   9
+        / \
+       3   5
+```
+
+**Step 1: build the path to `p = 2` with `find_path(root, 2)`.** Each call returns a node only on the branch that actually reaches the target:
+
+| Call | `node.val` | What happens | Returns |
+| --- | --- | --- | --- |
+| `find_path(6, 2)` | `6` | not target. Recurse left into `2` | `[6] + [2]` = `[6, 2]` |
+| `find_path(2, 2)` | `2` | `node.val == target.val`, base case | `[2]` |
+
+So `path_p = [6, 2]`.
+
+**Step 2: build the path to `q = 8` with `find_path(root, 8)`:**
+
+| Call | `node.val` | What happens | Returns |
+| --- | --- | --- | --- |
+| `find_path(6, 8)` | `6` | not target. Left subtree `2` returns `[]`, so recurse right into `8` | `[6] + [8]` = `[6, 8]` |
+| `find_path(8, 8)` | `8` | `node.val == target.val`, base case | `[8]` |
+
+So `path_q = [6, 8]`.
+
+**Step 3: walk both paths in lockstep, tracking the last shared node.** `lca` starts as `root` (`6`):
+
+| Step | `node_p.val` | `node_q.val` | Match? | `lca` after |
+| --- | --- | --- | --- | --- |
+| 1 | `6` | `6` | yes | `6` |
+| 2 | `2` | `8` | no, `break` | `6` |
+
+The paths agree on `6`, then diverge at `2` versus `8`, so the loop breaks. The function returns `lca = 6`, which matches the expected Output `6`.
+
 ### Generic Post-Order DFS
 
 ```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
 class Solution:
     def lowestCommonAncestor(
         self, root: TreeNode, p: TreeNode, q: TreeNode
@@ -164,6 +217,12 @@ The recursion stack can grow as deep as the height of the tree, but no separate 
 ### Recursive Using BST Properties
 
 ```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
 class Solution:
     def lowestCommonAncestor(
         self, root: TreeNode, p: TreeNode, q: TreeNode
@@ -208,6 +267,12 @@ The recursion stack can grow as deep as the height of the tree.
 ### Iterative Using BST Properties
 
 ```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
 class Solution:
     def lowestCommonAncestor(
         self, root: TreeNode, p: TreeNode, q: TreeNode

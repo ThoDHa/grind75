@@ -98,6 +98,39 @@ other storage grows with the input.
 - It is correct but exponential, so it is only viable for tiny inputs; the same states
   (a given index with a given remaining target) get recomputed across many branches.
 
+#### Walkthrough
+
+Let us watch the Brute Force recursion run on Example 1: `nums = [1, 5, 11, 5]`.
+
+First the setup: `total = sum(nums) = 22`, which is even, so we continue. `target =
+22 // 2 = 11`, and we call `search(0, 11)`. Each call tries the include branch first
+(`search(i + 1, remaining - nums[i])`), and only falls through to the exclude branch
+if that returns `False`. The tree below indents one level per recursive call, showing
+`remaining` shrinking as numbers are included:
+
+```text
+search(i=0, remaining=11)              include nums[0]=1
+  search(i=1, remaining=10)            include nums[1]=5
+    search(i=2, remaining=5)           include nums[2]=11 -> remaining=-6
+      search(i=3, remaining=-6)        -> False  (remaining < 0)
+    search(i=2, remaining=5)           exclude nums[2]=11, try nums[3]=5
+      search(i=3, remaining=5)         include nums[3]=5 -> remaining=0
+        search(i=4, remaining=0)       -> True   (remaining hit 0)
+      search(i=3, remaining=5)         -> True   (include branch)
+    search(i=2, remaining=5)           -> True   (after exclude branch)
+  search(i=1, remaining=10)            -> True   (include branch)
+search(i=0, remaining=11)             -> True   (include branch)
+```
+
+Reading the successful path from the top: we include `1` (remaining `11 -> 10`),
+include `5` (remaining `10 -> 5`), skip `11` (it would drive remaining to `-6`), then
+include the final `5` (remaining `5 -> 0`). When `remaining` hits `0` at `i=4`, the
+base case returns `True`, and that `True` bubbles back up through every parent call.
+
+The chosen subset is `{1, 5, 5}`, summing to `11`. The call returns `True`, which
+matches the expected Output for Example 1, and corresponds to the partition `[1, 5,
+5]` and `[11]`.
+
 ### Bottom-Up DP
 
 ```python

@@ -144,6 +144,36 @@ scales linearly with the configured capacity.
 - This is the natural first attempt, and seeing its linear bottleneck motivates
   the doubly linked list, where every reorder and eviction becomes `O(1)`.
 
+#### Walkthrough
+
+Let us watch the Brute Force run on Example 1, with `capacity = 2`. The two
+pieces of state are `cache` (the key-to-value dict) and `order` (the recency
+list, where the front is least recently used and the back is most recently
+used). Each row shows both pieces of state and what the call returns after it
+finishes:
+
+| Call | What happens | `cache` after | `order` after | Returns |
+|------|--------------|---------------|---------------|---------|
+| `LRUCache(2)` | start empty | `{}` | `[]` | `null` |
+| `put(1, 1)` | new key, cache not full: store and append | `{1: 1}` | `[1]` | `null` |
+| `put(2, 2)` | new key, cache not full: store and append | `{1: 1, 2: 2}` | `[1, 2]` | `null` |
+| `get(1)` | key present: touch `1` (remove, append), return value | `{1: 1, 2: 2}` | `[2, 1]` | `1` |
+| `put(3, 3)` | new key, cache full: evict front `2`, store `3` | `{1: 1, 3: 3}` | `[1, 3]` | `null` |
+| `get(2)` | key absent | `{1: 1, 3: 3}` | `[1, 3]` | `-1` |
+| `put(4, 4)` | new key, cache full: evict front `1`, store `4` | `{3: 3, 4: 4}` | `[3, 4]` | `null` |
+| `get(1)` | key absent | `{3: 3, 4: 4}` | `[3, 4]` | `-1` |
+| `get(3)` | key present: touch `3` (remove, append), return value | `{3: 3, 4: 4}` | `[4, 3]` | `3` |
+| `get(4)` | key present: touch `4` (remove, append), return value | `{3: 3, 4: 4}` | `[3, 4]` | `4` |
+
+The key moment is `put(3, 3)`: the cache holds `1` and `2`, but the earlier
+`get(1)` moved `1` to the back of `order`, leaving `2` at the front as the least
+recently used. So `order.pop(0)` evicts `2`, exactly as the problem requires.
+Later, `put(4, 4)` finds `1` at the front (untouched since its store) and evicts
+it.
+
+Collecting the `Returns` column gives `[null, null, null, 1, null, -1, null, -1,
+3, 4]`, which matches the expected Output.
+
 ### Hash Map + Doubly Linked List
 
 ```python

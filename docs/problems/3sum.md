@@ -104,6 +104,22 @@ The `seen` set can hold up to one entry per distinct zero-sum triplet, which is 
 - **Deduplication is the real difficulty**: even brute force must collapse repeated value-triplets, here via a canonical tuple stored in a set.
 - **The bound is unsustainable**: at the constraint `n = 3000`, roughly `4.5` billion triplets make this too slow for submission, motivating the sorted two-pointer refinement.
 
+#### Walkthrough
+
+Let us watch the brute force run on Example 1: `nums = [-1, 0, 1, 2, -1, -4]` (indices `0` through `5`). The three loops enumerate every index combination `i < j < k`. Most combinations do not sum to zero and are simply skipped; the table below lists only the index triples where `nums[i] + nums[j] + nums[k] == 0`, since those are the only ones that touch `seen` or `result`.
+
+For each zero-sum hit, the three values are sorted by hand into a canonical tuple, then added to `result` only if that tuple is not already in `seen`.
+
+| Hit | `i, j, k` | values `(nums[i], nums[j], nums[k])` | sum | canonical tuple | in `seen`? | action | `result` after |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | `0, 1, 2` | `(-1, 0, 1)` | `0` | `(-1, 0, 1)` | no | add | `[[-1, 0, 1]]` |
+| 2 | `0, 3, 4` | `(-1, 2, -1)` | `0` | `(-1, -1, 2)` | no | add | `[[-1, 0, 1], [-1, -1, 2]]` |
+| 3 | `1, 2, 4` | `(0, 1, -1)` | `0` | `(-1, 0, 1)` | yes | skip (duplicate) | `[[-1, 0, 1], [-1, -1, 2]]` |
+
+Notice hit 3: the values `(0, 1, -1)` form a genuine zero-sum triple at different indices, but their canonical tuple `(-1, 0, 1)` was already recorded by hit 1, so the `seen` set correctly collapses the duplicate and nothing is appended.
+
+After all index combinations are exhausted, the function returns `[[-1, 0, 1], [-1, -1, 2]]`. This matches the expected Output `[[-1,-1,2],[-1,0,1]]`, since the problem states the order of the triplets does not matter.
+
 ### Sorting and Two Pointers
 
 ```python

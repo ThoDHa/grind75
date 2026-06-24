@@ -83,6 +83,23 @@ We store all intermediate and final subsets. The result list grows from 1 to 2^n
 - Building `existing_subset + [num]` creates a fresh list, so no two result entries alias the same object.
 - The approach needs no recursion and no index bookkeeping, making it the easiest to reason about step by step.
 
+#### Walkthrough
+
+Let us watch the Iterative Build-Up solution run on Example 1: `nums = [1,2,3]`, expected output `[[],[1],[2],[1,2],[3],[1,3],[2,3],[1,2,3]]`.
+
+`result` starts as `[[]]`: a list containing just the empty subset. Each iteration of the outer loop takes the current `num`, copies every subset already in `result`, appends `num` to each copy, then extends `result` with those new copies. So `result` doubles in size every pass.
+
+| `num` | new_subsets (each existing subset + `[num]`) | `result` after `extend` |
+| --- | --- | --- |
+| start | — | `[[]]` |
+| `1` | `[[1]]` | `[[], [1]]` |
+| `2` | `[[2], [1,2]]` | `[[], [1], [2], [1,2]]` |
+| `3` | `[[3], [1,3], [2,3], [1,2,3]]` | `[[], [1], [2], [1,2], [3], [1,3], [2,3], [1,2,3]]` |
+
+Walking the last pass in detail: when `num` is `3`, the loop visits the four existing subsets `[]`, `[1]`, `[2]`, `[1,2]` and builds `[3]`, `[1,3]`, `[2,3]`, `[1,2,3]`. Note that `new_subsets` is built first from a snapshot of `result`, so the four freshly created subsets are not themselves re-processed in the same pass.
+
+After the loop finishes, `result` is `[[], [1], [2], [1,2], [3], [1,3], [2,3], [1,2,3]]`, which matches the expected Output.
+
 ### Backtracking
 
 ```python

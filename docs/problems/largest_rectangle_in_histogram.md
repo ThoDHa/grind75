@@ -89,6 +89,27 @@ Uses only a constant amount of extra space.
 - The expansion stops at the first strictly shorter neighbor on each side, which defines the rectangle's natural left and right walls.
 - Simple to reason about but quadratic, since adjacent bars of equal height force repeated re-scanning of the same span.
 
+#### Walkthrough
+
+Let us trace the first solution on Example 1: `heights = [2,1,5,6,2,3]`, so `n = 6`. We treat each bar `i` as the rectangle's ceiling, walk `left` while neighbors are at least as tall, walk `right` the same way, then compute `area = current_height * width` and keep the running `max_area`.
+
+| `i` | `current_height` | `left` | `right` | `width` | `area` | `max_area` |
+|-----|------------------|--------|---------|---------|--------|------------|
+| 0 | 2 | 0 | 0 | 1 | 2 | 2 |
+| 1 | 1 | 0 | 5 | 6 | 6 | 6 |
+| 2 | 5 | 2 | 3 | 2 | 10 | 10 |
+| 3 | 6 | 3 | 3 | 1 | 6 | 10 |
+| 4 | 2 | 2 | 5 | 4 | 8 | 10 |
+| 5 | 3 | 5 | 5 | 1 | 3 | 10 |
+
+Reading a few rows to make the expansion concrete:
+
+- `i = 1` (`current_height = 1`): bar `1` is the shortest of all, so the left walk reaches index `0` and the right walk runs all the way to index `5`. The span covers every bar, giving `width = 5 - 0 + 1 = 6` and `area = 1 * 6 = 6`.
+- `i = 2` (`current_height = 5`): walking left stops immediately because `heights[1] = 1` is shorter than `5`, so `left = 2`. Walking right stops at index `3` because `heights[4] = 2` is shorter, so `right = 3`. That gives `width = 2` and `area = 5 * 2 = 10`, the new maximum.
+- `i = 3` (`current_height = 6`): both neighbors (`5` on the left, `2` on the right) are shorter, so the rectangle is just the single bar: `width = 1`, `area = 6`. `max_area` stays at `10`.
+
+After the final bar, `max_area = 10`, which matches the example's expected Output of `10`.
+
 ### Optimized Brute Force
 
 ```python

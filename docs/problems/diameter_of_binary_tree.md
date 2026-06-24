@@ -110,6 +110,35 @@ is bounded by `O(h)`.
 - Splitting height and diameter into two separate recursions keeps the logic easy
   to read at the cost of doing the same descent many times over.
 
+#### Walkthrough
+
+Let us trace the brute force on Example 1: `root = [1,2,3,4,5]`. That array
+describes this tree: node `1` has children `2` (left) and `3` (right), and node
+`2` has children `4` (left) and `5` (right). Nodes `3`, `4`, and `5` are leaves.
+
+The call is `diameter(1)`. Because `diameter` recurses into its children before
+combining, the deepest nodes finish first. We follow each call as it returns, and
+for every node we record `lh = height(node.left)`, `rh = height(node.right)`,
+`through = lh + rh`, and the returned `diameter`. Remember that an empty child has
+height `0`, and `height` is recomputed from scratch each time it is asked.
+
+| Call | `lh` | `rh` | `through = lh + rh` | returns `max(through, left_d, right_d)` |
+|------|------|------|---------------------|-----------------------------------------|
+| `diameter(4)` | `0` | `0` | `0` | `0` (leaf) |
+| `diameter(5)` | `0` | `0` | `0` | `0` (leaf) |
+| `diameter(2)` | `1` | `1` | `2` | `max(2, 0, 0) = 2` |
+| `diameter(3)` | `0` | `0` | `0` | `0` (leaf) |
+| `diameter(1)` | `2` | `1` | `3` | `max(3, 2, 0) = 3` |
+
+At node `2`, both children are leaves of height `1`, so the path bending there
+spans `2` edges (`4 -> 2 -> 5`). At the root, the left subtree has height `2` (down
+to `4` or `5`) and the right subtree has height `1` (down to `3`), so the path
+bending at the root spans `3` edges (`4 -> 2 -> 1 -> 3`). Taking the maximum of
+that bend (`3`) against the best diameters found inside the subtrees (`2` and `0`)
+gives `3`.
+
+`diameter(1)` returns `3`, which matches the expected Output of `3`.
+
 ### Recursive DFS with Instance Variable
 
 ```python

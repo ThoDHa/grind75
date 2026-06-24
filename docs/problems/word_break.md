@@ -94,6 +94,35 @@ Space for the recursion stack, which can be up to n levels deep.
 - Without caching, the same suffix positions are re-explored along many different prefixes, which is the source of the exponential blowup.
 - This formulation makes the recursive structure explicit, which is the foundation every faster approach optimizes.
 
+#### Walkthrough
+
+Let us watch the Brute Force Recursion run on Example 1: `s = "leetcode"`, `wordDict = ["leet","code"]`. First, `word_set` becomes `{"leet", "code"}`, then we call `backtrack(0)`. Each call asks the question "can `s[start_index:]` be segmented?" and tries every word boundary from the current index.
+
+The recursion forms a call tree. Each call scans `end_index` from `start_index + 1` upward, slicing `current_word = s[start_index:end_index]`, and only recurses when that slice is in `word_set`:
+
+```
+backtrack(0)            s[0:] = "leetcode"
+  end_index runs 1..8, slicing "l", "le", "lee", then "leet"
+  "leet" is in word_set: recurse on the remaining suffix
+  └─ backtrack(4)       s[4:] = "code"
+       end_index runs 5..8, slicing "c", "co", "cod", then "code"
+       "code" is in word_set: recurse on the remaining suffix
+       └─ backtrack(8)  s[8:] = ""
+            start_index == len(s), so return True   ← base case
+       └─ returns True, so backtrack(4) returns True
+  └─ returns True, so backtrack(0) returns True
+```
+
+Tracing how each call resolves and how the `True` propagates back up:
+
+| Call | `s[start_index:]` | First valid word found | Recursive result | Returns |
+| --- | --- | --- | --- | --- |
+| `backtrack(0)` | `"leetcode"` | `"leet"` at `end_index = 4` | `backtrack(4)` is `True` | `True` |
+| `backtrack(4)` | `"code"` | `"code"` at `end_index = 8` | `backtrack(8)` is `True` | `True` |
+| `backtrack(8)` | `""` | (base case: `start_index == len(s)`) | none | `True` |
+
+The deepest call hits the base case because `start_index` reached `len(s) = 8`, meaning the whole string was consumed exactly. That `True` flows back up: `backtrack(4)` returns `True` the moment its `"code"` branch succeeds, and `backtrack(0)` returns `True` the moment its `"leet"` branch succeeds. The final returned value is `True`, which matches the expected Output for Example 1.
+
 ### BFS
 
 ```python

@@ -102,6 +102,38 @@ This solution uses a recursive depth-first search (DFS) approach to implement th
 - Using recursion provides an elegant solution for traversing connected components
 - The algorithm only modifies pixels that match the initial color, precisely implementing the flood fill behavior
 
+#### Walkthrough
+
+Let us trace the Recursive DFS solution on Example 1: `image = [[1,1,1],[1,1,0],[1,0,1]]`, `sr = 1`, `sc = 1`, `color = 2`.
+
+First, `initial_color = image[1][1] = 1`. Since `1 != 2`, we do not take the early return, and we call `fill(1, 1, ...)`. Each `fill` call colors its pixel (if it is in bounds and still equals `1`), then recurses into its four neighbors in the fixed order up, down, left, right. A call returns immediately when the pixel is out of bounds or no longer equals the initial color `1`.
+
+The call tree below shows each call, indented by recursion depth. `set 2` means the pixel matched `1` and was recolored; `stop` means the call returned without doing anything.
+
+```
+fill(1,1)  set 2        image = [[1,1,1],[1,2,0],[1,0,1]]
+  fill(0,1)  set 2      image = [[1,2,1],[1,2,0],[1,0,1]]   (up)
+    fill(-1,1)  stop    (out of bounds)
+    fill(1,1)   stop    (now 2, not 1)
+    fill(0,0)  set 2    image = [[2,2,1],[1,2,0],[1,0,1]]   (left)
+      fill(-1,0)  stop  (out of bounds)
+      fill(1,0)  set 2  image = [[2,2,1],[2,2,0],[1,0,1]]   (down)
+        fill(0,0)   stop   (now 2, not 1)
+        fill(2,0)  set 2  image = [[2,2,1],[2,2,0],[2,0,1]] (down)
+          fill(1,0),(3,0),(2,-1),(2,1)  all stop
+        fill(1,-1),(1,1)  stop
+      fill(0,-1),(0,1)  stop
+    fill(0,2)  set 2    image = [[2,2,2],[2,2,0],[2,0,1]]   (right)
+      fill(-1,2),(1,2),(0,1),(0,3)  all stop
+  fill(2,1)  stop       (value is 0, not 1)
+  fill(1,0)  stop       (now 2, not 1)
+  fill(1,2)  stop       (value is 0, not 1)
+```
+
+Notice the pixel at `(2,2)` (the bottom-right `1`) is never reached: every path to it is blocked by `0` pixels, which never match the initial color `1`. The `0` at `(1,2)` and the `0` at `(2,1)` wall it off.
+
+After every recursion unwinds, the image is `[[2,2,2],[2,2,0],[2,0,1]]`, which matches the expected Output.
+
 ### Iterative DFS
 
 ```python

@@ -46,6 +46,11 @@ Return the head of the merged linked list.
 ### Brute Force
 
 ```python
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
 class Solution:
     def mergeTwoLists(self, list1: Optional[ListNode],
                       list2: Optional[ListNode]) -> Optional[ListNode]:
@@ -107,9 +112,41 @@ brand-new nodes rather than reusing the input nodes.
 - Allocates fresh nodes instead of splicing the originals, using extra memory
   the smarter approaches avoid.
 
+#### Walkthrough
+
+Let us watch the Brute Force run on Example 1: `list1 = [1,2,4]` and
+`list2 = [1,3,4]`.
+
+First the code walks both lists and dumps every value into `values`, in order:
+first `list1` then `list2`, giving `values = [1, 2, 4, 1, 3, 4]`.
+
+Now the main loop repeatedly scans for the smallest remaining value, pops it, and
+appends a fresh node to the result. The `smallest` index starts at `0` each round
+and only moves when a strictly smaller value is found, so on ties the leftmost
+minimum wins. Each row below shows one pop:
+
+| Step | `smallest` index | value popped | `result` so far | `values` remaining |
+|------|------------------|--------------|-----------------|--------------------|
+| 1    | `0`              | `1`          | `[1]`           | `[2, 4, 1, 3, 4]`  |
+| 2    | `2`              | `1`          | `[1, 1]`        | `[2, 4, 3, 4]`     |
+| 3    | `0`              | `2`          | `[1, 1, 2]`     | `[4, 3, 4]`        |
+| 4    | `1`              | `3`          | `[1, 1, 2, 3]`  | `[4, 4]`           |
+| 5    | `0`              | `4`          | `[1, 1, 2, 3, 4]` | `[4]`            |
+| 6    | `0`              | `4`          | `[1, 1, 2, 3, 4, 4]` | `[]`          |
+
+In step 1 both `1`s are tied, so the scan keeps index `0` (the first one) and pops
+it. In step 2 the remaining `1` now sits at index `2`, so `smallest` walks there.
+Once `values` is empty the loop stops, and the code returns `dummy.next`: the
+merged list `[1, 1, 2, 3, 4, 4]`, which matches the expected Output.
+
 ### Iterative
 
 ```python
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
 class Solution:
     def mergeTwoLists(self, list1: Optional[ListNode],
                       list2: Optional[ListNode]) -> Optional[ListNode]:
@@ -160,6 +197,11 @@ We only use a constant amount of extra space for pointers. The solution reuses t
 ### Recursive
 
 ```python
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
 class Solution:
     def mergeTwoLists(self, list1: Optional[ListNode],
                       list2: Optional[ListNode]) -> Optional[ListNode]:

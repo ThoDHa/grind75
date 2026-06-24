@@ -151,6 +151,43 @@ a depth of `V` for a path-shaped graph. The cloned graph itself also uses
 - The `node is None` guard handles the empty-graph test case (`adjList = []`)
   that would otherwise crash on attribute access.
 
+#### Walkthrough
+
+Let us watch the Recursive DFS run on Example 1, `adjList = [[2,4],[1,3],[2,4],[1,3]]`.
+That is four nodes: `1`'s neighbors are `2` and `4`, `2`'s are `1` and `3`, `3`'s
+are `2` and `4`, and `4`'s are `1` and `3`.
+
+`node` is not `None`, so we start `dfs(1)`. Because the graph is cyclic, the key
+moment to watch is when a recursive call hits a node already in `cloned` and
+returns the existing copy instead of recursing again. The indented call tree
+below shows each call, indenting deeper on every recursion and returning back up:
+
+```
+dfs(1): not in cloned -> create copy(1), cloned = {1}, recurse neighbors [2,4]
+  dfs(2): not in cloned -> create copy(2), cloned = {1,2}, recurse neighbors [1,3]
+    dfs(1): already in cloned -> return existing copy(1)   # cycle broken
+    dfs(3): not in cloned -> create copy(3), cloned = {1,2,3}, recurse neighbors [2,4]
+      dfs(2): already in cloned -> return existing copy(2) # cycle broken
+      dfs(4): not in cloned -> create copy(4), cloned = {1,2,3,4}, recurse neighbors [1,3]
+        dfs(1): already in cloned -> return existing copy(1)
+        dfs(3): already in cloned -> return existing copy(3)
+      dfs(4) returns copy(4), neighbors = [1,3]
+    dfs(3) returns copy(3), neighbors = [2,4]
+  dfs(2) returns copy(2), neighbors = [1,3]
+  dfs(4): already in cloned -> return existing copy(4)     # copy(4) was made deep inside dfs(2)
+dfs(1) returns copy(1), neighbors = [2,4]
+```
+
+Trace the `cloned` map as it grows: `{1}`, then `{1,2}`, then `{1,2,3}`, then
+`{1,2,3,4}`: four entries, one per original node, each created exactly once.
+Every `already in cloned` line is a cycle that registering the copy *before*
+recursing turned into a harmless lookup instead of infinite recursion. Notice the
+last neighbor of node `1`, the second call `dfs(4)`, finds `4` already cloned
+because it was built deep inside the `dfs(2)` branch.
+
+Reading each clone's wired neighbors back out gives `[[2,4],[1,3],[2,4],[1,3]]`,
+which matches the example's expected Output.
+
 ### Iterative BFS
 
 ```python

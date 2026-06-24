@@ -116,6 +116,55 @@ In the worst case (single snake-like island), the recursion stack can be as deep
 - Sinking visited land to `'0'` doubles as the visited marker, so no extra bookkeeping structure is needed.
 - The four-direction flood fill matches the adjacency rule (horizontal and vertical only), so diagonally touching cells stay separate islands.
 
+#### Walkthrough
+
+Let us trace the **DFS with Grid Modification** solution. Example 1 is a 4×5 grid whose single island spans many cells, so to keep the trace short we use a smaller constructed grid with two islands:
+
+```
+grid = [
+  ["1","1","0"],
+  ["1","0","0"],
+  ["0","0","1"]
+]
+```
+
+The main loop scans cells in row-major order (left to right, top to bottom). It only starts work when it finds a `'1'`, and the flood fill sinks every connected land cell to `'0'` so the same island is never counted twice.
+
+**Main loop scan:**
+
+| Cell `(row, col)` | `grid[row][col]` | Action | `islands` |
+| --- | --- | --- | --- |
+| `(0, 0)` | `'1'` | new island: increment, then `dfs(0, 0)` sinks the top-left island | `1` |
+| `(0, 1)` | `'0'` | already sunk by the first `dfs`, skip | `1` |
+| `(0, 2)` | `'0'` | water, skip | `1` |
+| `(1, 0)` | `'0'` | already sunk, skip | `1` |
+| `(1, 1)`, `(1, 2)`, `(2, 0)`, `(2, 1)` | `'0'` | water, skip | `1` |
+| `(2, 2)` | `'1'` | new island: increment, then `dfs(2, 2)` sinks the lone cell | `2` |
+
+**Inside `dfs(0, 0)`** (the first island), the recursion explores neighbors in the order right, down, left, up. Each call either sinks a land cell to `'0'` and recurses, or returns immediately when it hits water, an already-sunk cell, or the grid edge:
+
+```
+dfs(0,0): grid[0][0]='1' -> sink to '0', explore neighbors
+  dfs(0,1): grid[0][1]='1' -> sink to '0', explore neighbors
+    dfs(0,2): water -> return
+    dfs(1,1): water -> return
+    dfs(0,0): already '0' -> return
+    dfs(-1,1): out of bounds -> return
+  dfs(1,0): grid[1][0]='1' -> sink to '0', explore neighbors
+    dfs(1,1): water -> return
+    dfs(2,0): water -> return
+    dfs(1,-1): out of bounds -> return
+    dfs(0,0): already '0' -> return
+  dfs(0,-1): out of bounds -> return
+  dfs(-1,0): out of bounds -> return
+```
+
+After this call returns, cells `(0,0)`, `(0,1)`, and `(1,0)` are all `'0'`: the entire top-left island has been sunk in one flood fill.
+
+The second `dfs(2, 2)` sinks the single bottom-right cell and finds no land neighbors, so it returns immediately.
+
+When the main loop finishes, `islands` is `2`, which is the returned value. (For the doc's Example 1, the same process returns `1`, matching its expected Output of `1`.)
+
 ### BFS with Grid Modification
 
 ```python

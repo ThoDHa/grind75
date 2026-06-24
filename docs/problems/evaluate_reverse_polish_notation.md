@@ -139,6 +139,36 @@ each combining a number with the previous result).
 - The recursion itself plays the role the explicit stack fills in the iterative
   versions; the call stack holds the pending operands.
 
+#### Walkthrough
+
+Let us watch the Recursive Evaluation run on Example 1:
+`tokens = ["2","1","+","3","*"]`, with indices `0..4`. The scan starts at
+`pos = 4` (the last token) and `evaluate` always reads `tokens[pos]`, then moves
+`pos` one step left. For an operator it recurses into `right` first, then `left`.
+
+The call tree below shows each `evaluate` call, the token it reads, and what it
+returns. Indentation marks recursion depth; `pos` is the index being read at the
+moment of the call:
+
+```
+evaluate() reads tokens[4] = "*"  -> operator, recurse right then left
+  right = evaluate() reads tokens[3] = "3"  -> number, returns 3
+  left  = evaluate() reads tokens[2] = "+"  -> operator, recurse right then left
+            right = evaluate() reads tokens[1] = "1"  -> number, returns 1
+            left  = evaluate() reads tokens[0] = "2"  -> number, returns 2
+          "+": left=2, right=1  => returns 2 + 1 = 3
+  "*": left=3, right=3  => returns 3 * 3 = 9
+```
+
+Reading it from the deepest calls upward: the inner `+` combines `left=2` with
+`right=1` to give `3`, then the outer `*` combines `left=3` (that result) with
+`right=3` to give `9`. The outermost `evaluate` returns `9`, which matches the
+example's expected Output of `9`.
+
+Notice that `right` is resolved before `left`: because we walk leftward, the
+token nearest each operator (`3` for the `*`, `1` for the `+`) is its right
+operand, exactly the post-order order the tree was flattened into.
+
 ### Stack
 
 ```python

@@ -123,6 +123,32 @@ A single list stores the `n` pushed values with no auxiliary structure.
 - Every later solution removes the `getMin` scan by caching the minimum as
   elements are pushed.
 
+#### Walkthrough
+
+Let us watch the Brute Force code run on Example 1, calling each method in order
+on a fresh `MinStack`. After `__init__`, `self.stack` is the empty list `[]`.
+The table shows `self.stack` after each call, plus what the call returns (`push`
+and `pop` return nothing, shown as `None`).
+
+| Call | What runs | `self.stack` after | Returns |
+|------|-----------|--------------------|---------|
+| `push(-2)` | `append(-2)` | `[-2]` | `None` |
+| `push(0)` | `append(0)` | `[-2, 0]` | `None` |
+| `push(-3)` | `append(-3)` | `[-2, 0, -3]` | `None` |
+| `getMin()` | scan `[-2, 0, -3]` | `[-2, 0, -3]` | `-3` |
+| `pop()` | `pop()` removes last | `[-2, 0]` | `None` |
+| `top()` | read `stack[-1]` | `[-2, 0]` | `0` |
+| `getMin()` | scan `[-2, 0]` | `[-2, 0]` | `-2` |
+
+The two `getMin` calls are where the scan happens. Trace the first one: it sets
+`smallest = stack[0] = -2`, then walks the list. `-2 < -2` is false, `0 < -2` is
+false, `-3 < -2` is true so `smallest` becomes `-3`, and `-3` is returned. The
+second `getMin` runs on the shorter list `[-2, 0]`: `smallest` starts at `-2`,
+`0 < -2` is false, so it stays `-2` and returns `-2`.
+
+Collecting every return value in order gives `[null, null, null, null, -3, null,
+0, -2]`, which matches the example's expected Output.
+
 ### Single Stack of Pairs
 
 ```python

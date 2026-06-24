@@ -110,6 +110,36 @@ of input size. The `result` list is output, not auxiliary working space.
   next from scratch, ignoring that adjacent windows differ by only two
   characters.
 
+#### Walkthrough
+
+Let's watch the Brute Force run on Example 1: `s = "cbaebabacd"`, `p = "abc"`.
+
+First we build `need`, the target count for `p`. Only three slots are nonzero:
+`a: 1`, `b: 1`, `c: 1` (all other 23 slots stay `0`). Here `n = 10` and
+`k = 3`, so the loop tries window starts `i` from `0` to `n - k = 7`.
+
+For each `i` we rebuild `window` from scratch over `s[i:i+3]`, then check
+`window == need`. The "counts" column below lists only the nonzero slots:
+
+| `i` | window `s[i:i+3]` | counts | `== need`? |
+| --- | --- | --- | --- |
+| `0` | `"cba"` | `a:1, b:1, c:1` | yes: append `0` |
+| `1` | `"bae"` | `a:1, b:1, e:1` | no |
+| `2` | `"aeb"` | `a:1, b:1, e:1` | no |
+| `3` | `"eba"` | `a:1, b:1, e:1` | no |
+| `4` | `"bab"` | `a:1, b:2` | no |
+| `5` | `"aba"` | `a:2, b:1` | no |
+| `6` | `"bac"` | `a:1, b:1, c:1` | yes: append `6` |
+| `7` | `"acd"` | `a:1, c:1, d:1` | no |
+
+At `i = 0` the window `"cba"` has exactly one `a`, one `b`, one `c`, matching
+`need`, so `0` is appended. The next windows each carry an `e`, a doubled
+letter, or a `d`, so none match until `i = 6`, where `"bac"` again has one of
+each needed letter and `6` is appended.
+
+The loop ends and we return `result = [0, 6]`, which matches the expected
+Output `[0,6]`.
+
 ### Sliding Window with Fixed-Size Count Array
 
 ```python

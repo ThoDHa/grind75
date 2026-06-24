@@ -109,6 +109,60 @@ size `mn`. The allocation is reused per call, so peak auxiliary space is `O(mn)`
 - A single BFS from each source recomputes overlapping work that the multi-source
   variant shares.
 
+#### Walkthrough
+
+Let us watch this first solution run on Example 2, since Example 1 has only a
+single `1`-cell that resolves in one step. The input is
+`mat = [[0,0,0],[0,1,0],[1,1,1]]`, so the four `1`-cells are at `(1,1)`, `(2,0)`,
+`(2,1)`, and `(2,2)`. The outer loops set `dist` to `0` for every `0`-cell and
+launch a `bfs` from each `1`-cell. Cells are tried in row-major order, and each
+`bfs` enqueues neighbors in the order `up, down, left, right`.
+
+**`bfs` from `(1,1)`:** start the queue with `(1,1, d=0)`, marked visited.
+
+| pop `(x,y,d)` | `mat[x][y]` | action |
+| --- | --- | --- |
+| `(1,1, 0)` | `1` | enqueue `(0,1, 1)`, `(2,1, 1)`, `(1,0, 1)`, `(1,2, 1)` |
+| `(0,1, 1)` | `0` | hit a `0`: return `1` |
+
+So `dist[1][1] = 1`.
+
+**`bfs` from `(2,0)`:** start with `(2,0, 0)`.
+
+| pop `(x,y,d)` | `mat[x][y]` | action |
+| --- | --- | --- |
+| `(2,0, 0)` | `1` | enqueue `(1,0, 1)`, `(2,1, 1)` |
+| `(1,0, 1)` | `0` | hit a `0`: return `1` |
+
+So `dist[2][0] = 1`.
+
+**`bfs` from `(2,1)`:** start with `(2,1, 0)`. This is the deep case, the cell two
+steps from any `0`.
+
+| pop `(x,y,d)` | `mat[x][y]` | action |
+| --- | --- | --- |
+| `(2,1, 0)` | `1` | enqueue `(1,1, 1)`, `(2,0, 1)`, `(2,2, 1)` |
+| `(1,1, 1)` | `1` | enqueue `(0,1, 2)`, `(1,0, 2)`, `(1,2, 2)` |
+| `(2,0, 1)` | `1` | (no new unvisited neighbors) |
+| `(2,2, 1)` | `1` | (no new unvisited neighbors) |
+| `(0,1, 2)` | `0` | hit a `0`: return `2` |
+
+So `dist[2][1] = 2`. Notice BFS exhausts every cell at distance `1` (all still
+`1`-cells) before reaching the `0` at distance `2`, which is exactly why the first
+`0` dequeued is guaranteed to be the nearest.
+
+**`bfs` from `(2,2)`:** start with `(2,2, 0)`.
+
+| pop `(x,y,d)` | `mat[x][y]` | action |
+| --- | --- | --- |
+| `(2,2, 0)` | `1` | enqueue `(1,2, 1)`, `(2,1, 1)` |
+| `(1,2, 1)` | `0` | hit a `0`: return `1` |
+
+So `dist[2][2] = 1`.
+
+Filling these answers into the all-zero `dist` matrix gives
+`[[0,0,0],[0,1,0],[1,2,1]]`, which matches the expected Output.
+
 ### Two-Pass Dynamic Programming
 
 ```python

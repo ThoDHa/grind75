@@ -79,6 +79,23 @@ Sorting happens in place with only a few index variables; no auxiliary array is 
 - The ascending integer encoding (`0`, `1`, `2`) means a plain numeric sort already yields the red-white-blue order.
 - It is correct but wasteful: it re-scans the tail for every position and ignores that only three distinct values exist.
 
+#### Walkthrough
+
+Let us watch Selection Sort run on Example 1: `nums = [2,0,2,1,1,0]`. The outer loop fixes one position `i` at a time. For each `i` it scans the tail `i+1 .. n-1` to find `smallest`, the index of the minimum value there, then swaps `nums[i]` with `nums[smallest]`. Everything before `i` stays sorted.
+
+Each row shows the state after the swap at that `i`:
+
+| `i` | `smallest` (min in tail) | swap | `nums` after swap |
+|-----|--------------------------|------|-------------------|
+| `0` | `1` (value `0`) | `nums[0] <-> nums[1]` | `[0,2,2,1,1,0]` |
+| `1` | `5` (value `0`) | `nums[1] <-> nums[5]` | `[0,0,2,1,1,2]` |
+| `2` | `3` (value `1`) | `nums[2] <-> nums[3]` | `[0,0,1,2,1,2]` |
+| `3` | `4` (value `1`) | `nums[3] <-> nums[4]` | `[0,0,1,1,2,2]` |
+| `4` | `4` (already min) | `nums[4] <-> nums[4]` | `[0,0,1,1,2,2]` |
+| `5` | `5` (last element) | `nums[5] <-> nums[5]` | `[0,0,1,1,2,2]` |
+
+At `i=0` the smallest value in the whole array is the `0` at index `1`, so it swaps to the front. At `i=1` the next smallest is the `0` at index `5`. By `i=4` the tail is already in order, so the remaining swaps are no-ops (`smallest == i`). The array is returned in place as `[0,0,1,1,2,2]`, which matches the expected Output.
+
 ### Counting Sort
 
 ```python

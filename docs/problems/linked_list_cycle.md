@@ -55,6 +55,11 @@ Return `true` if there is a cycle in the linked list. Otherwise, return `false`.
 ### Brute Force
 
 ```python
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
 class Solution:
     def hasCycle(self, head: Optional[ListNode]) -> bool:
         MAX_NODES = 10**4
@@ -96,9 +101,31 @@ Only a counter and the traversal pointer are kept, regardless of input size.
 - Needs no auxiliary structure and never mutates the list.
 - The weakness is that it hard-codes a step bound from the constraints rather than reasoning about the list itself, so it does not generalize to inputs without a known size cap.
 
+#### Walkthrough
+
+Tracing this brute force on Example 1 (`head = [3,2,0,-4]`, `pos = 1`) would take more than `10^4` steps before the `steps > MAX_NODES` budget triggers, far too many to follow by hand. So we trace the easier-to-watch acyclic case instead: the same four values `[3,2,0,-4]` but with `pos = -1`, meaning the tail's `next` is null and there is no cycle. This shows how the loop terminates normally and returns `false`.
+
+We start with `steps = 0` and `head` pointing at the first node (value `3`). Each iteration checks the budget, then advances `head` to `head.next` and increments `steps`:
+
+| `steps` (at loop top) | `head.val` | budget exceeded? | action |
+| --- | --- | --- | --- |
+| `0` | `3` | no (`0 > 10000` is false) | `head = head.next` (to `2`), `steps` becomes `1` |
+| `1` | `2` | no | `head = head.next` (to `0`), `steps` becomes `2` |
+| `2` | `0` | no | `head = head.next` (to `-4`), `steps` becomes `3` |
+| `3` | `-4` | no | `head = head.next` (to `null`), `steps` becomes `4` |
+
+Now `head` is `null`, so the `while head:` condition is false and the loop ends. The budget was never exceeded, so the method reaches the final line and returns `false`.
+
+For this acyclic list the result is `false`. Example 1 itself has a cycle (`pos = 1`), so its `head` pointer would never reach `null`: the walk would keep looping back, the step counter would climb past `10000`, and the `steps > MAX_NODES` guard would return `true`, matching Example 1's expected Output of `true`.
+
 ### Hash Set
 
 ```python
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
 class Solution:
     def hasCycle(self, head: Optional[ListNode]) -> bool:
         seen = set()
@@ -133,6 +160,11 @@ We store each node in the hash set, which in the worst case would contain all `n
 ### Marking Visited Nodes
 
 ```python
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
 class Solution:
     def hasCycle(self, head: Optional[ListNode]) -> bool:
         while head:
@@ -166,6 +198,11 @@ We don't use any extra data structures that scale with input size.
 ### Floyd's Cycle Detection
 
 ```python
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
 class Solution:
     def hasCycle(self, head: Optional[ListNode]) -> bool:
         slow = head

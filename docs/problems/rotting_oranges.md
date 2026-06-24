@@ -139,6 +139,41 @@ grid is mutated in place, so no separate visited structure is needed.
 - The repeated full-grid rescans are wasted work, since most cells do not change
   between minutes. That inefficiency is exactly what the BFS approach removes.
 
+#### Walkthrough
+
+Let us run the Simulation on Example 1: `grid = [[2,1,1],[1,1,0],[0,1,1]]`. Read
+the grid as 3 rows by 3 cols, where `2` is rotten, `1` is fresh, and `0` is
+empty. Up front we count `fresh = 6`, which is not zero, so we start the minute
+loop with `minutes = 0`.
+
+Each minute, we scan the whole grid for fresh oranges that touch a rotten one,
+collect them in `to_rot`, then rot them all at once. The grid after each minute:
+
+Starting grid:
+
+```
+2 1 1
+1 1 0
+0 1 1
+```
+
+| Minute | `to_rot` (fresh cells next to rot) | Grid after rotting | `fresh` |
+|--------|-------------------------------------|--------------------|---------|
+| 1 | `(0,1)`, `(1,0)` | `2 2 1` / `2 1 0` / `0 1 1` | 4 |
+| 2 | `(0,2)`, `(1,1)` | `2 2 2` / `2 2 0` / `0 1 1` | 2 |
+| 3 | `(2,1)` | `2 2 2` / `2 2 0` / `0 2 1` | 1 |
+| 4 | `(2,2)` | `2 2 2` / `2 2 0` / `0 2 2` | 0 |
+
+Walking minute 1 in detail: cells `(0,1)` and `(0,2)` are both fresh, but only
+`(0,1)` has a rotten neighbor (the `2` at `(0,0)`), so `(0,2)` is left alone this
+minute. Cell `(1,0)` is fresh and sits below the rotten `(0,0)`, so it joins
+`to_rot`. We rot both together, which is why `(0,2)` does not also fall this
+minute: batching keeps one minute's spread to a single ring.
+
+After minute 4, `fresh` reaches `0`. On the next scan `to_rot` is empty, so the
+loop breaks. Since `fresh == 0`, we return `minutes`, which is `4`. This matches
+the expected Output of `4`.
+
 ### Multi-Source BFS
 
 ```python

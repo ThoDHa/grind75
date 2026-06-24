@@ -42,6 +42,12 @@ A binary tree's **maximum depth** is the number of nodes along the longest path 
 ### Recursive DFS
 
 ```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
 class Solution:
     def maxDepth(self, root: Optional[TreeNode]) -> int:
         if root is None:
@@ -75,9 +81,52 @@ The space is the depth of the recursion stack, which equals the height of the tr
 - Treating the empty subtree as depth `0` removes the need for any special leaf handling.
 - It is the most concise and readable approach, though deep trees can risk exceeding the recursion limit.
 
+#### Walkthrough
+
+Let us watch the recursion run on Example 1: `root = [3,9,20,null,null,15,7]`. That tree looks like this:
+
+```
+        3
+       / \
+      9   20
+         /  \
+        15   7
+```
+
+Each call computes `1 + max(left, right)`, so a parent cannot answer until both children return. The call tree below indents each recursive call, and the `->` shows the value handed back up:
+
+```
+maxDepth(3): call left, then right
+  maxDepth(9): call left, then right
+    maxDepth(None) -> 0
+    maxDepth(None) -> 0
+  maxDepth(9): 1 + max(0, 0) -> 1
+  maxDepth(20): call left, then right
+    maxDepth(15): call left, then right
+      maxDepth(None) -> 0
+      maxDepth(None) -> 0
+    maxDepth(15): 1 + max(0, 0) -> 1
+    maxDepth(7): call left, then right
+      maxDepth(None) -> 0
+      maxDepth(None) -> 0
+    maxDepth(7): 1 + max(0, 0) -> 1
+  maxDepth(20): 1 + max(1, 1) -> 2
+maxDepth(3): 1 + max(1, 2) -> 3
+```
+
+Reading it bottom-up: each `None` returns `0`, so the leaves `9`, `15`, and `7` each return `1`. Node `20` takes the larger of its two children (`1` and `1`) and adds itself to get `2`. Finally node `3` compares its left subtree (`1`) against its right subtree (`2`), keeps the larger, and adds `1` for itself: `1 + max(1, 2) = 3`.
+
+The call returns `3`, which matches the expected Output of `3`.
+
 ### Iterative BFS
 
 ```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
 class Solution:
     def maxDepth(self, root: Optional[TreeNode]) -> int:
         if not root:
@@ -129,6 +178,12 @@ The queue holds at most one full level at a time, so the space is bounded by the
 ### Iterative DFS with Stack
 
 ```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
 class Solution:
     def maxDepth(self, root: Optional[TreeNode]) -> int:
         if not root:

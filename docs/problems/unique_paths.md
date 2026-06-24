@@ -83,6 +83,36 @@ No auxiliary table is built, but the recursion stack reaches a depth of `m + n -
 - It is simple and library-free but wasteful: it recomputes the same `(i, j)` subproblem on every path that passes through it.
 - The exponential blow-up motivates caching shared subproblems, which the DP solutions do next.
 
+#### Walkthrough
+
+Example 1 (`m = 3`, `n = 7`) has 28 paths, far too many to draw by hand, so this trace uses the smaller Example 2: `m = 3`, `n = 2`, whose expected Output is `3`. The grid is 3 rows by 2 columns, so the corner is cell `(2, 1)`, and a cell is "off the grid" once `i >= 3` or `j >= 2`.
+
+The recursion forms a call tree. Each `count(i, j)` first checks the two base cases, then returns `count(i + 1, j)` (step down) plus `count(i, j + 1)` (step right). Reading the tree top-down shows each call; the `->` lines show what each call returns as results combine back up:
+
+```
+count(0,0)
+  count(1,0)                    down from start
+    count(2,0)
+      count(3,0) -> 0           i >= m, off the grid
+      count(2,1) -> 1           corner reached
+    -> 0 + 1 = 1
+    count(1,1)
+      count(2,1) -> 1           corner reached
+      count(1,2) -> 0           j >= n, off the grid
+    -> 1 + 0 = 1
+  -> 1 + 1 = 2                  count(1,0) returns 2
+  count(0,1)                    right from start
+    count(1,1)
+      count(2,1) -> 1           corner reached
+      count(1,2) -> 0           off the grid
+    -> 1 + 0 = 1
+    count(0,2) -> 0             off the grid
+  -> 1 + 0 = 1                  count(0,1) returns 1
+-> 2 + 1 = 3
+```
+
+The root `count(0, 0)` adds its down branch (`2`) and its right branch (`1`) to return `3`, which matches the expected Output `3`. Notice `count(2,1)` and `count(1,1)` are each evaluated more than once: that repeated work is exactly the waste the DP solutions remove.
+
 ### Bottom-Up DP
 
 ```python

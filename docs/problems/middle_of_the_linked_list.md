@@ -42,6 +42,11 @@ If there are two middle nodes, return the second middle node.
 ### Count and Find
 
 ```python
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
 class Solution:
     def middleNode(self, head: Optional[ListNode]) -> Optional[ListNode]:
         count = 0
@@ -91,9 +96,47 @@ Only a counter and a pointer are kept, regardless of the input size.
   special casing is needed.
 - The approach is easy to reason about, but it reads the list twice.
 
+#### Walkthrough
+
+Let us trace the first solution, Count and Find, on Example 1: `head = [1,2,3,4,5]`.
+
+**First pass: counting the nodes.** Start with `count = 0` and `current = head`
+(the node holding `1`). The loop advances `current` one node at a time, adding
+`1` to `count` each time, until `current` falls off the end (`None`):
+
+| Step | `current.val` before step | `count` after step | `current` after step |
+| ---- | ------------------------- | ------------------ | -------------------- |
+| 1    | `1`                       | `1`                | node `2`             |
+| 2    | `2`                       | `2`                | node `3`             |
+| 3    | `3`                       | `3`                | node `4`             |
+| 4    | `4`                       | `4`                | node `5`             |
+| 5    | `5`                       | `5`                | `None`               |
+
+The loop ends because `current` is now `None`, so `count = 5`.
+
+**Compute the midpoint.** `middle = count // 2 = 5 // 2 = 2`. This is how many
+steps we must advance from `head` to reach the answer.
+
+**Second pass: walking to the middle.** Reset `current = head` (back to node `1`),
+then advance it `middle = 2` times:
+
+| Step | `current` before step | `current` after step |
+| ---- | --------------------- | -------------------- |
+| 1    | node `1`              | node `2`             |
+| 2    | node `2`              | node `3`             |
+
+After `2` steps, `current` points at node `3`. The function returns this node,
+and since a returned node carries the rest of the list with it, the result is
+`[3,4,5]`, which matches the expected Output.
+
 ### Fast and Slow Pointers
 
 ```python
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
 class Solution:
     def middleNode(self, head: Optional[ListNode]) -> Optional[ListNode]:
         slow = fast = head

@@ -126,6 +126,48 @@ a queue holding at most `O(n)` nodes. The `heights` array adds another `O(n)`.
 - This approach never exploits the structure of a tree beyond connectivity, which
   is exactly why it is quadratic and motivates the leaf-trimming refinement.
 
+#### Walkthrough
+
+Let us trace the brute force solution on Example 1: `n = 4` and
+`edges = [[1,0],[1,2],[1,3]]`. The expected output is `[1]`.
+
+First we skip the `n == 1` guard (here `n` is 4) and build the adjacency list by
+adding both directions of every edge:
+
+- `[1,0]`: `adj[1] = [0]`, `adj[0] = [1]`
+- `[1,2]`: `adj[1] = [0, 2]`, `adj[2] = [1]`
+- `[1,3]`: `adj[1] = [0, 2, 3]`, `adj[3] = [1]`
+
+So node `1` is the center connected to the three leaves `0`, `2`, and `3`. Now we
+call `height_from(root)` once per root. Each call runs a BFS layer by layer and
+returns `depth`, the number of layers minus one.
+
+Tracing `height_from(0)`: `seen = {0}`, `queue = [0]`, `depth = -1`.
+
+| Layer | `depth` | nodes popped this layer | neighbors enqueued | `queue` after |
+| --- | --- | --- | --- | --- |
+| 1 | `0` | `0` | `1` | `[1]` |
+| 2 | `1` | `1` | `2`, `3` (0 already seen) | `[2, 3]` |
+| 3 | `2` | `2`, `3` | none | `[]` |
+
+The queue empties, so `height_from(0)` returns `depth = 2`. Rooting at a leaf, the
+farthest node is two edges away.
+
+Tracing `height_from(1)`: `seen = {1}`, `queue = [1]`, `depth = -1`.
+
+| Layer | `depth` | nodes popped this layer | neighbors enqueued | `queue` after |
+| --- | --- | --- | --- | --- |
+| 1 | `0` | `1` | `0`, `2`, `3` | `[0, 2, 3]` |
+| 2 | `1` | `0`, `2`, `3` | none | `[]` |
+
+`height_from(1)` returns `depth = 1`. Rooting at the center, every leaf is just one
+edge away. By symmetry `height_from(2)` and `height_from(3)` each behave like
+`height_from(0)` and return `2`.
+
+Collecting the results gives `heights = [2, 1, 2, 2]`. Then `best = min(heights) = 1`,
+and we keep every root whose height equals `best`. Only index `1` qualifies, so we
+return `[1]`, which matches the expected Output.
+
 ### Leaf-Trimming BFS
 
 ```python

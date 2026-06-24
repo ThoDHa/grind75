@@ -98,6 +98,44 @@ The intermediate `pairs` list holds one entry per node, the output holds all `n`
 - Visiting left before right is what keeps each level's values in the correct order without any extra sorting.
 - It does redundant work: it stores every node's depth explicitly and walks the pairs twice, where the refined approaches group on the fly.
 
+#### Walkthrough
+
+Let us watch the Brute Force run on Example 1: `root = [3,9,20,null,null,15,7]`. That tree looks like this, with `3` at the root, `9` and `20` as its children, and `15` and `7` hanging under `20`:
+
+```
+        3        (depth 0)
+       / \
+      9   20     (depth 1)
+         /  \
+        15   7   (depth 2)
+```
+
+**Phase 1: collect `(depth, value)` pairs.** `visit(root, 0)` recurses left-before-right, appending one pair per node. Each row shows the call and the pair it adds to `pairs`:
+
+| Step | Call | Pair appended | `pairs` so far |
+|------|------|---------------|----------------|
+| 1 | `visit(3, 0)` | `(0, 3)` | `[(0,3)]` |
+| 2 | `visit(9, 1)` | `(1, 9)` | `[(0,3),(1,9)]` |
+| 3 | `visit(20, 1)` | `(1, 20)` | `[(0,3),(1,9),(1,20)]` |
+| 4 | `visit(15, 2)` | `(2, 15)` | `[(0,3),(1,9),(1,20),(2,15)]` |
+| 5 | `visit(7, 2)` | `(2, 7)` | `[(0,3),(1,9),(1,20),(2,15),(2,7)]` |
+
+The `null` children of `9` and the absent children of `15` and `7` hit `if not node: return` and add nothing.
+
+**Phase 2: find `max_depth`.** Scanning the pairs, the largest depth seen is `2`, so there are `max_depth + 1 = 3` levels.
+
+**Phase 3: drop each value into its bucket.** Allocate `result = [[], [], []]`, then place every `val` into `result[depth]`:
+
+| Pair | Goes into | `result` after |
+|------|-----------|----------------|
+| `(0, 3)` | `result[0]` | `[[3], [], []]` |
+| `(1, 9)` | `result[1]` | `[[3], [9], []]` |
+| `(1, 20)` | `result[1]` | `[[3], [9, 20], []]` |
+| `(2, 15)` | `result[2]` | `[[3], [9, 20], [15]]` |
+| `(2, 7)` | `result[2]` | `[[3], [9, 20], [15, 7]]` |
+
+The function returns `[[3], [9, 20], [15, 7]]`, which matches the expected Output `[[3],[9,20],[15,7]]`. Notice that because step 4 (`15`) ran before step 5 (`7`), the bottom level lands in left-to-right order with no sorting needed.
+
 ### Recursive DFS
 
 ```python

@@ -92,6 +92,38 @@ Space for the recursion stack, which can be up to `amount` levels deep.
 - It exposes the optimal substructure of the problem, which every faster approach exploits.
 - Without caching, the same remaining amounts are recomputed exponentially many times, so this is only viable for tiny inputs.
 
+#### Walkthrough
+
+Example 1 (`coins = [1,3,4]`, `amount = 6`) makes 46 recursive calls, which is too many to follow by hand. To keep the call tree readable while showing the exact same mechanism, we trace a smaller constructed input: `coins = [1,3,4]`, `amount = 4`, whose answer is `1` (the single coin `4`).
+
+Each call is `backtrack(remaining_amount)`. It tries every coin in order (`1`, then `3`, then `4`), subtracting the coin from `remaining_amount` and recursing. A call returns `0` when the amount hits exactly `0`, returns `-1` when the amount goes negative (that path is impossible), and otherwise returns `1 + the best result among its valid coin branches`.
+
+The indented call tree below shows each call, what it returns, and how the returns combine back up. Branches that immediately go negative are collapsed to keep the focus on the meaningful paths.
+
+```text
+backtrack(4)                       try coin 1 -> backtrack(3)
+  backtrack(3)                     try coin 1 -> backtrack(2)
+    backtrack(2)                   try coin 1 -> backtrack(1)
+      backtrack(1)                 try coin 1 -> backtrack(0)
+        backtrack(0)  -> 0         base case: amount is 0
+        (coins 3, 4 -> negative, return -1)
+      -> 1                         best for 1 is 1 + 0
+      (coins 3, 4 -> negative, return -1)
+    -> 2                           best for 2 is 1 + 1
+    backtrack(0)  -> 0             try coin 3: backtrack(0) returns 0
+    (coin 4 -> negative, return -1)
+  -> 1                             best for 3 is min(1 + 2, 1 + 0) = 1
+  backtrack(1)                     try coin 3 -> backtrack(1)
+    backtrack(0)  -> 0             best for 1 is 1 + 0
+  -> 1
+  backtrack(0)  -> 0              try coin 4: backtrack(0) returns 0
+-> 1                              best for 4 is min(1 + 1, 1 + 1, 1 + 0) = 1
+```
+
+At the top, `backtrack(4)` compares its three coin branches: coin `1` gives `1 + backtrack(3)` = `1 + 1` = `2`, coin `3` gives `1 + backtrack(1)` = `1 + 1` = `2`, and coin `4` gives `1 + backtrack(0)` = `1 + 0` = `1`. The smallest is `1`, so the function returns `1`, matching the constructed example's expected answer of `1` (a single coin `4`).
+
+Notice that `backtrack(1)` and `backtrack(0)` were each computed more than once across different branches: this repeated recomputation is exactly the overlapping-subproblems waste that memoization and bottom-up DP eliminate.
+
 ### Top-Down Memoization
 
 ```python

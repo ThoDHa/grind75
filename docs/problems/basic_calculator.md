@@ -140,6 +140,30 @@ uses only a constant number of scalars.
 - Correct but wasteful: rewriting the whole string per group is the obvious cost
   the later single-pass approaches eliminate.
 
+#### Walkthrough
+
+Example 1 (`"1 + 1"`) has no parentheses, so it skips the whole point of this
+approach. Trace Example 3 instead: `s = "(1+(4+5+2)-3)+(6+8)"`, expected
+output `23`.
+
+After `s.replace(' ', '')` the string is already space-free:
+`"(1+(4+5+2)-3)+(6+8)"`. Now the `while '(' in s` loop collapses the innermost
+group (the one opened by the last `(`) one at a time. Each row shows the chosen
+group and the string after splicing its value back in:
+
+| Step | `rfind('(')` | matching `)` | inner group | `_eval_flat` value | string after splice |
+|------|--------------|--------------|-------------|--------------------|---------------------|
+| 0 | `14` | `18` | `"6+8"` | `14` | `"(1+(4+5+2)-3)+14"` |
+| 1 | `3` | `9` | `"4+5+2"` | `11` | `"(1+11-3)+14"` |
+| 2 | `0` | `7` | `"1+11-3"` | `9` | `"9+14"` |
+
+The string now contains no `(`, so the loop ends. One final
+`_eval_flat("9+14")` runs the sign-tracking scan: read `9` (`number = 9`), hit
+`+` so commit `result = 9` and reset, read `14` (`number = 14`), then flush at
+the end with `result + sign * number = 9 + 1 * 14 = 23`.
+
+The returned value is `23`, which matches the expected Output.
+
 ### Stack
 
 ```python

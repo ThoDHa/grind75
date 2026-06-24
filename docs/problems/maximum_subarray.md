@@ -93,6 +93,31 @@ Only the `best` and `current` scalars are tracked, regardless of input size.
 - Seeding `best` with `nums[0]` rather than `0` is what handles the all-negative case correctly.
 - Too slow for the upper constraint of `10^5` elements, which motivates the linear approaches below.
 
+#### Walkthrough
+
+Example 1 has 9 elements, which makes 45 `(start, end)` pairs: too many to trace by hand. So this walkthrough uses a smaller array, `nums = [-2, 1, -3, 4]`, whose largest subarray is `[4]` with sum `4`.
+
+We start with `best = nums[0] = -2`. The outer loop fixes each `start`; for each one we reset `current = 0`, then sweep `end` from `start` to the array's end, adding `nums[end]` to `current` (so `current` always holds the sum of `nums[start..end]`) and updating `best` with `max(best, current)`.
+
+Each row below is one `(start, end)` pair: the element just added, the running `current` sum, and `best` after the update.
+
+| `start` | `end` | `nums[end]` | `current` (sum of `nums[start..end]`) | `best` |
+| ------- | ----- | ----------- | ------------------------------------- | ------ |
+| 0 | 0 | `-2` | `-2` | `-2` |
+| 0 | 1 | `1` | `-1` | `-1` |
+| 0 | 2 | `-3` | `-4` | `-1` |
+| 0 | 3 | `4` | `0` | `0` |
+| 1 | 1 | `1` | `1` | `1` |
+| 1 | 2 | `-3` | `-2` | `1` |
+| 1 | 3 | `4` | `2` | `2` |
+| 2 | 2 | `-3` | `-3` | `2` |
+| 2 | 3 | `4` | `1` | `2` |
+| 3 | 3 | `4` | `4` | `4` |
+
+When `start` moves to a new index, `current` resets to `0` before the first `end` is added, so each row's `current` is the sum of exactly the subarray `nums[start..end]`. The largest `current` ever seen is `4`, from the single-element subarray `[4]` at `start = end = 3`.
+
+After all pairs are examined, the loop returns `best = 4`, which matches the expected sum of the best subarray for `[-2, 1, -3, 4]`.
+
 ### Kadane's Algorithm
 
 ```python

@@ -141,6 +141,40 @@ most 26 entries (uppercase letters), independent of `N`.
 - It is wasteful: every idle unit is still scanned, so the next solution collapses
   the timeline into `n + 1`-wide rounds to skip that per-unit work.
 
+#### Walkthrough
+
+Let us watch the brute force simulation run on Example 1: `tasks =
+["A","A","A","B","B","B"]`, `n = 2`. After counting, `counts = {"A": 3, "B": 3}`,
+so index `0` tracks `A` and index `1` tracks `B`. Both start at `remaining = [3, 3]`
+with `last_used = [-inf, -inf]`.
+
+At each `time` unit, we scan for the eligible task (off cooldown,
+`time - last_used[i] > n`, copies left) with the largest `remaining` count. The
+tie-break is strict (`remaining[i] > remaining[best]`), so when counts are equal the
+lower index wins, which is why `A` is preferred over `B` on the first tie. The table
+shows the state after each unit is processed:
+
+| `time` | chosen | `remaining` | `last_used` | `done` |
+|--------|--------|-------------|-------------|--------|
+| 0 | `A` | `[2, 3]` | `[0, -inf]` | 1 |
+| 1 | `B` | `[2, 2]` | `[0, 1]` | 2 |
+| 2 | idle | `[2, 2]` | `[0, 1]` | 2 |
+| 3 | `A` | `[1, 2]` | `[3, 1]` | 3 |
+| 4 | `B` | `[1, 1]` | `[3, 4]` | 4 |
+| 5 | idle | `[1, 1]` | `[3, 4]` | 4 |
+| 6 | `A` | `[0, 1]` | `[6, 4]` | 5 |
+| 7 | `B` | `[0, 0]` | `[6, 7]` | 6 |
+
+Reading the choices in order: at `time = 0`, both are tied at 3 so `A` runs. At
+`time = 1`, `A` is now on cooldown (`1 - 0 = 1`, not `> 2`), so `B` runs. At
+`time = 2`, neither is eligible yet (`A` ran at 0, `B` ran at 1, both within the
+2-unit cooldown), so the CPU idles and `time` simply ticks. By `time = 3`, `A` is
+off cooldown again (`3 - 0 = 3 > 2`) and runs, and the pattern repeats: `A -> B ->
+idle -> A -> B -> idle -> A -> B`.
+
+Once `done` reaches `total = 6` at `time = 7`, the loop exits and `time` has already
+advanced to `8`. The returned value is `8`, matching the expected Output.
+
 ### Greedy Math Formula
 
 ```python

@@ -93,6 +93,38 @@ The most direct idea follows straight from how a palindrome is built: characters
 - Computing the answer from counts alone avoids ever building the palindrome string.
 - Taking `(count // 2) * 2` cleanly drops any single unpaired character from each group.
 
+#### Walkthrough
+
+Let us trace the Brute Force solution on Example 1: `s = "abccccdd"`, expected Output `7`.
+
+First pass: count each character with the dictionary. We read the string left to right, bumping `counts[c]` by one each time:
+
+| Step | Char read | `counts` after |
+|------|-----------|----------------|
+| 1 | `a` | `{a: 1}` |
+| 2 | `b` | `{a: 1, b: 1}` |
+| 3 | `c` | `{a: 1, b: 1, c: 1}` |
+| 4 | `c` | `{a: 1, b: 1, c: 2}` |
+| 5 | `c` | `{a: 1, b: 1, c: 3}` |
+| 6 | `c` | `{a: 1, b: 1, c: 4}` |
+| 7 | `d` | `{a: 1, b: 1, c: 4, d: 1}` |
+| 8 | `d` | `{a: 1, b: 1, c: 4, d: 2}` |
+
+So the final counts are `a: 1`, `b: 1`, `c: 4`, `d: 2`.
+
+Second pass: walk the counts, adding the even part `(count // 2) * 2` to `length` and flipping `has_odd` whenever a count is odd. Both `length` and `has_odd` start at `0` and `False`:
+
+| Char | `count` | `(count // 2) * 2` added | `length` | `count % 2 == 1`? | `has_odd` |
+|------|---------|--------------------------|----------|-------------------|-----------|
+| `a` | 1 | 0 | 0 | yes | True |
+| `b` | 1 | 0 | 0 | yes | True |
+| `c` | 4 | 4 | 4 | no | True |
+| `d` | 2 | 2 | 6 | no | True |
+
+After the loop `length` is `6` and `has_odd` is `True`. Because `has_odd` is `True`, one leftover character (here `a` or `b`) can sit in the center, so we add `1`: `length` becomes `7`.
+
+The function returns `7`, which matches the example's expected Output.
+
 ### Set-based Pair Matching
 
 ```python

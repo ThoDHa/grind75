@@ -122,6 +122,29 @@ We need space proportional to the number of elements in the queue.
 - This approach provides consistent (non-amortized) `O(1)` time for pop and peek operations
 - The rearrangement during push operations ensures proper queue ordering
 
+#### Walkthrough
+
+Let us watch the Eager Push solution run on Example 1, the call sequence `push(1)`, `push(2)`, `peek()`, `pop()`, `empty()`. The key idea to hold in mind: `queue` is a list used as a stack, so its last element (rightmost, written here as the top) is what `pop()` and `peek()` see. The whole trick keeps the front of the queue sitting at that top.
+
+`push(1)`: `queue` starts empty, so the first `while self.queue` loop does nothing. We append `1`, giving `queue = [1]`. The second loop finds `stack` empty, so nothing moves back.
+
+`push(2)`: now `queue = [1]` is not empty. The first loop pops `1` off `queue` and pushes it onto `stack`: `queue = []`, `stack = [1]`. We append the new element: `queue = [2]`. The second loop pops `1` off `stack` and pushes it onto `queue`: `queue = [2, 1]`, `stack = []`. Notice `1` (the older element, the front of the queue) is now at the top (rightmost), exactly where `pop` and `peek` look.
+
+Tracking the state after each push:
+
+| Call | `queue` (top is rightmost) | `stack` |
+| --- | --- | --- |
+| `push(1)` | `[1]` | `[]` |
+| `push(2)` | `[2, 1]` | `[]` |
+
+`peek()`: returns `self.queue[-1]`, which is `1`. The queue is unchanged: `queue = [2, 1]`.
+
+`pop()`: returns `self.queue.pop()`, removing and returning the top, `1`. Now `queue = [2]`, leaving `2` ready as the next front.
+
+`empty()`: checks `len(self.queue) == 0`. Since `queue = [2]` has one element, it returns `false`.
+
+The three non-`null` calls return `1`, `1`, and `false`, so the full output sequence is `[null, null, null, 1, 1, false]`, matching the expected Output.
+
 ### Lazy Pop
 
 ```python

@@ -89,6 +89,37 @@ of the input size.
 - The `sell > buy` bound is what encodes the buy-before-sell constraint.
 - The redundant rescanning of earlier prices is exactly what the next approach removes.
 
+#### Walkthrough
+
+Trace the Brute Force on Example 1: `prices = [7,1,5,3,6,4]`. The outer loop fixes a
+`buy` day, the inner loop tries every later `sell` day, and `max_profit` only ever
+moves up. Each row shows the pair being tested, the candidate profit
+`prices[sell] - prices[buy]`, and `max_profit` after the `max(...)` update.
+
+| `buy` (price) | `sell` (price) | candidate | `max_profit` after |
+| --- | --- | --- | --- |
+| `0` (`7`) | `1` (`1`) | `-6` | `0` |
+| `0` (`7`) | `2` (`5`) | `-2` | `0` |
+| `0` (`7`) | `3` (`3`) | `-4` | `0` |
+| `0` (`7`) | `4` (`6`) | `-1` | `0` |
+| `0` (`7`) | `5` (`4`) | `-3` | `0` |
+| `1` (`1`) | `2` (`5`) | `4` | `4` |
+| `1` (`1`) | `3` (`3`) | `2` | `4` |
+| `1` (`1`) | `4` (`6`) | `5` | `5` |
+| `1` (`1`) | `5` (`4`) | `3` | `5` |
+| `2` (`5`) | `3` (`3`) | `-2` | `5` |
+| `2` (`5`) | `4` (`6`) | `1` | `5` |
+| `2` (`5`) | `5` (`4`) | `-1` | `5` |
+| `3` (`3`) | `4` (`6`) | `3` | `5` |
+| `3` (`3`) | `5` (`4`) | `1` | `5` |
+| `4` (`6`) | `5` (`4`) | `-2` | `5` |
+
+The first `buy = 0` block buys at the highest price (`7`), so every candidate is
+negative and `max_profit` stays at its `0` floor. The breakthrough comes with
+`buy = 1` (price `1`): pairing it with `sell = 4` (price `6`) gives `6 - 1 = 5`, the
+best pair in the whole array. No later pair beats it, so the loops finish and the
+method returns `max_profit = 5`, matching the expected Output of `5`.
+
 ### Running Minimum
 
 ```python

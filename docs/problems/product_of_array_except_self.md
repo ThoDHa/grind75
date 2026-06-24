@@ -92,6 +92,23 @@ Only a single running-product variable is used, not counting the output array.
 - It mirrors the problem statement literally, which makes it the natural first attempt.
 - The repeated inner pass wastes work: the product of "everything before `i`" and "everything after `i`" is recomputed from scratch each time.
 
+#### Walkthrough
+
+Let us watch the Brute Force run on Example 1: `nums = [1,2,3,4]`. The outer loop fixes one index `i`, then the inner loop multiplies in every `nums[j]` where `j != i`, building up a fresh `product` that starts at `1`.
+
+Here is the outer loop, one row per value of `i`. Each row shows how `product` grows as the inner loop visits the other indices, then the value appended to `result`:
+
+| `i` | element skipped | inner-loop products (`product` after each `j != i`) | appended | `result` so far |
+| --- | --- | --- | --- | --- |
+| `0` | `nums[0] = 1` | `1*2=2`, then `2*3=6`, then `6*4=24` | `24` | `[24]` |
+| `1` | `nums[1] = 2` | `1*1=1`, then `1*3=3`, then `3*4=12` | `12` | `[24, 12]` |
+| `2` | `nums[2] = 3` | `1*1=1`, then `1*2=2`, then `2*4=8` | `8` | `[24, 12, 8]` |
+| `3` | `nums[3] = 4` | `1*1=1`, then `1*2=2`, then `2*3=6` | `6` | `[24, 12, 8, 6]` |
+
+Reading one row to see the mechanism: at `i = 1` the inner loop skips `nums[1] = 2`, so it multiplies `1` (start) by `nums[0]=1`, then `nums[2]=3`, then `nums[3]=4`, giving `1*3*4 = 12`.
+
+After the outer loop finishes all four indices, the function returns `result = [24, 12, 8, 6]`, which matches the example's expected Output `[24,12,8,6]`.
+
 ### Prefix and Suffix Arrays
 
 ```python

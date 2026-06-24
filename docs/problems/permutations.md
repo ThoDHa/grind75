@@ -84,6 +84,33 @@ The recursion depth is at most `n`, and `current` holds at most `n` elements. Th
 - Appending `current[:]` rather than `current` is essential; storing the live reference would let later mutations corrupt results already saved.
 - The `num not in current` guard keeps the code short and readable, trading an `O(n)` scan for not having to track a separate used structure.
 
+#### Walkthrough
+
+Let us watch this first solution run on Example 1, `nums = [1,2,3]`. The trace below is an indented call tree: each line is one `backtrack(current)` call, showing the value of `current` when that call begins. Indentation marks recursion depth. A call iterates `num` over `1, 2, 3` in order, skips any `num` already in `current`, and for each survivor it appends, recurses, then pops (the choose, explore, unchoose cycle). When `current` reaches length `3`, a copy is appended to `result`.
+
+```text
+backtrack([])
+├─ choose 1 -> backtrack([1])
+│  ├─ choose 2 -> backtrack([1,2])
+│  │  └─ choose 3 -> backtrack([1,2,3])  -> length 3, append [1,2,3]
+│  └─ choose 3 -> backtrack([1,3])
+│     └─ choose 2 -> backtrack([1,3,2])  -> length 3, append [1,3,2]
+├─ choose 2 -> backtrack([2])
+│  ├─ choose 1 -> backtrack([2,1])
+│  │  └─ choose 3 -> backtrack([2,1,3])  -> length 3, append [2,1,3]
+│  └─ choose 3 -> backtrack([2,3])
+│     └─ choose 1 -> backtrack([2,3,1])  -> length 3, append [2,3,1]
+└─ choose 3 -> backtrack([3])
+   ├─ choose 1 -> backtrack([3,1])
+   │  └─ choose 2 -> backtrack([3,1,2])  -> length 3, append [3,1,2]
+   └─ choose 2 -> backtrack([3,2])
+      └─ choose 1 -> backtrack([3,2,1])  -> length 3, append [3,2,1]
+```
+
+Reading one branch end to end: `backtrack([])` first appends `1`, recurses into `backtrack([1])`, which appends `2` and recurses into `backtrack([1,2])`, which appends `3` to reach `[1,2,3]`. That call sees `len(current) == 3`, so it appends a copy and returns. Control unwinds: `backtrack([1,2])` pops `3` and has no more numbers to try, so it returns; `backtrack([1])` pops `2`, then tries `3` next, producing `[1,3,2]`. The same unwind-and-retry repeats across the `2` and `3` branches.
+
+Appending in iteration order, `result` fills as `[1,2,3]`, then `[1,3,2]`, `[2,1,3]`, `[2,3,1]`, `[3,1,2]`, and finally `[3,2,1]`. The returned value is `[[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]`, which matches the expected Output for Example 1.
+
 ### Backtracking with Used Array
 
 ```python

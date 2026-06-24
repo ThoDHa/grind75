@@ -109,6 +109,41 @@ substring, bounded by both the string length and the size of the character set.
   about the prefix is discarded and recomputed from the next `start`. Removing
   that waste is exactly what the sliding window does.
 
+#### Walkthrough
+
+Let us watch the brute force run on Example 1: `s = "abcabcbb"` (indices `0`
+through `7`). The outer loop fixes each `start`; the inner loop grows `end` and
+fills a fresh `seen` set until a repeat forces a `break`. We track `longest`
+across the whole run.
+
+The first anchor, `start = 0`, does the heavy lifting:
+
+| `start` | `end` | `s[end]` | action | `seen` after | window length | `longest` |
+|---------|-------|----------|--------|--------------|---------------|-----------|
+| 0 | 0 | `a` | add | `{a}` | 1 | 1 |
+| 0 | 1 | `b` | add | `{a, b}` | 2 | 2 |
+| 0 | 2 | `c` | add | `{a, b, c}` | 3 | 3 |
+| 0 | 3 | `a` | already in `seen`: `break` | - | - | 3 |
+
+The substring `"abc"` reaches length `3`, then `s[3] = 'a'` repeats `s[0]`, so the
+inner loop breaks and the anchor moves on. Notice the restart: the next `start`
+throws away the `{a, b, c}` we just built and rediscovers it from scratch.
+
+Every later anchor follows the same shape but never beats `3`:
+
+| `start` | grows to | breaks at `s[end]` | best window length |
+|---------|----------|--------------------|--------------------|
+| 1 | `"bca"` | `b` (index 4) | 3 |
+| 2 | `"cab"` | `c` (index 5) | 3 |
+| 3 | `"abc"` | `b` (index 6) | 3 |
+| 4 | `"bc"` | `b` (index 6) | 2 |
+| 5 | `"cb"` | `b` (index 7) | 2 |
+| 6 | `"b"` | `b` (index 7) | 1 |
+| 7 | `"b"` | end of string | 1 |
+
+No anchor produces a window longer than `3`, so `longest` stays at `3`. The
+function returns `3`, which matches the expected Output for Example 1.
+
 ### Sliding Window with Set
 
 ```python

@@ -82,6 +82,22 @@ The result list holds at most `max(n, m) + 1` bits before it is joined into the 
 - Compares characters directly against `"1"`, so it never leans on `int(s, 2)` or `bin()` to do the arithmetic.
 - Appending to a list and reversing once at the end avoids the quadratic cost of repeated string prepending.
 
+#### Walkthrough
+
+Let us watch the brute force run on Example 1: `a = "11"`, `b = "1"`, expected Output `"100"`.
+
+We start with `i = 1` (last index of `a`), `j = 0` (last index of `b`), `carry = 0`, and an empty `result = []`. Each pass adds the in-range bits plus the carry into `total`, appends `total % 2` as the new bit, and keeps `total // 2` as the next `carry`.
+
+| Step | bit `a[i]` | bit `b[j]` | `carry` in | `total` | appended bit | `carry` out | `result` after |
+|------|------------|------------|------------|---------|--------------|-------------|----------------|
+| 1 | `a[1]` = `1` | `b[0]` = `1` | `0` | `2` | `0` | `1` | `["0"]` |
+| 2 | `a[0]` = `1` | none (`j` < 0) | `1` | `2` | `0` | `1` | `["0", "0"]` |
+| 3 | none (`i` < 0) | none (`j` < 0) | `1` | `1` | `1` | `0` | `["0", "0", "1"]` |
+
+After step 1, `i` drops to `0` and `j` drops to `-1`. After step 2, `i` drops to `-1`. By step 3 both indices are out of range, but `carry` is still `1`, so the loop runs once more to flush it: `total = 1`, which writes the final `1` bit and clears the carry to `0`. Now `i < 0`, `j < 0`, and `carry == 0`, so the loop stops.
+
+The bits were collected least-significant first, so `result` holds `["0", "0", "1"]`. Reversing and joining gives `"100"`, which matches the expected Output `"100"`.
+
 ### Bit-by-bit Computation
 
 ```python

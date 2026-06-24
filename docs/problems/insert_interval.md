@@ -95,6 +95,22 @@ The `merged` output list holds up to `n + 1` intervals; no other auxiliary stora
 - Exploiting the guaranteed sorted order means one linear walk suffices, with no sort.
 - Handles every edge case cleanly: empty input, insertion before all or after all intervals, and full overlap.
 
+#### Walkthrough
+
+Let us watch the Brute Force run on Example 1: `intervals = [[1,3],[6,9]]`, `newInterval = [2,5]`. The expected output is `[[1,5],[6,9]]`.
+
+We start with `merged = []`, `i = 0`, and `n = 2`. The trace below shows which of the three loops fires at each step and what changes.
+
+| Step | Loop | Interval at `i` | Condition checked | Action | `newInterval` | `i` | `merged` |
+|------|------|-----------------|-------------------|--------|---------------|-----|----------|
+| 1 | loop 1 (before) | `[1,3]` | `intervals[0][1] < newInterval[0]`: `3 < 2`? No | loop 1 stops, no append | `[2,5]` | `0` | `[]` |
+| 2 | loop 2 (overlap) | `[1,3]` | `intervals[0][0] <= newInterval[1]`: `1 <= 5`? Yes | absorb: start `min(2,1)=1`, end `max(5,3)=5` | `[1,5]` | `1` | `[]` |
+| 3 | loop 2 (overlap) | `[6,9]` | `intervals[1][0] <= newInterval[1]`: `6 <= 5`? No | loop 2 stops | `[1,5]` | `1` | `[]` |
+| 4 | append | : | : | append grown `newInterval` | `[1,5]` | `1` | `[[1,5]]` |
+| 5 | loop 3 (after) | `[6,9]` | `i < n`: `1 < 2`? Yes | append `[6,9]`, advance `i` | `[1,5]` | `2` | `[[1,5],[6,9]]` |
+
+Loop 3's condition `i < n` is now `2 < 2`, which is false, so the loop ends. The function returns `merged = [[1,5],[6,9]]`, which matches the expected Output `[[1,5],[6,9]]`.
+
 ### Insert and Merge
 
 ```python

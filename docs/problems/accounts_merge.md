@@ -129,6 +129,56 @@ emails, so auxiliary storage is linear.
 - Correct but slow: the repeated all-pairs sweeps are the obvious cost the graph
   and union-find approaches eliminate.
 
+#### Walkthrough
+
+Let us watch the Brute Force run on Example 1, with
+`accounts = [["John","johnsmith@mail.com","john_newyork@mail.com"], ["John","johnsmith@mail.com","john00@mail.com"], ["Mary","mary@mail.com"], ["John","johnnybravo@mail.com"]]`.
+
+First, each account becomes a `[name, set-of-emails]` group, so we start with four
+groups (showing each email set sorted for readability):
+
+| Group | Name | Emails |
+| --- | --- | --- |
+| `0` | `John` | `{john_newyork@mail.com, johnsmith@mail.com}` |
+| `1` | `John` | `{john00@mail.com, johnsmith@mail.com}` |
+| `2` | `Mary` | `{mary@mail.com}` |
+| `3` | `John` | `{johnnybravo@mail.com}` |
+
+**Pass 1.** The sweep compares pairs starting from `i = 0`:
+
+- `groups[0] & groups[1]`: both contain `johnsmith@mail.com`, so they intersect.
+  Group `1`'s emails are unioned into group `0`, and group `1` is popped.
+  `merged_something` becomes `True`. Group `0` is now
+  `{john00@mail.com, john_newyork@mail.com, johnsmith@mail.com}`, and what was
+  group `2` slides down into index `1`.
+- `groups[0] & groups[1]` (now `Mary`): no shared email, so `j` advances.
+- `groups[0] & groups[2]` (now `John` / `johnnybravo@mail.com`): no shared email.
+- `i` advances through the remaining `Mary` and `johnnybravo` groups; none of
+  their pairs intersect.
+
+State after Pass 1 (three groups remain):
+
+| Group | Name | Emails |
+| --- | --- | --- |
+| `0` | `John` | `{john00@mail.com, john_newyork@mail.com, johnsmith@mail.com}` |
+| `1` | `Mary` | `{mary@mail.com}` |
+| `2` | `John` | `{johnnybravo@mail.com}` |
+
+**Pass 2.** Because `merged_something` was `True`, we sweep again. Every pair is
+now checked: no two groups share an email, so nothing merges and
+`merged_something` stays `False`. The `while` loop exits.
+
+Finally, each surviving group is emitted as its name followed by its emails sorted:
+
+```
+[["John","john00@mail.com","john_newyork@mail.com","johnsmith@mail.com"],
+ ["Mary","mary@mail.com"],
+ ["John","johnnybravo@mail.com"]]
+```
+
+This matches the expected Output for Example 1 (the accounts may appear in any
+order).
+
 ### DFS Connected Components
 
 ```python

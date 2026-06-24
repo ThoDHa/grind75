@@ -84,6 +84,36 @@ Only a loop index and the current value are stored.
 - It violates the required `O(log n)` bound, demonstrating exactly what the binary-search refinements need to improve upon.
 - It needs no special handling for rotation, single-element arrays, or non-rotated input.
 
+#### Walkthrough
+
+Tracing `Linear Scan` would only show a loop comparing each element, which teaches nothing about the rotated structure. Instead we trace the more instructive `Find Pivot then Binary Search` solution on Example 1: `nums = [4,5,6,7,0,1,2]`, `target = 0`. The indices are `0:4 1:5 2:6 3:7 4:0 5:1 6:2`.
+
+**Phase 1, find the pivot.** First check `nums[left] <= nums[right]`, that is `nums[0]=4 <= nums[6]=2`: false, so the array is rotated and we binary search for the smallest element. Each step compares `nums[mid]` against `nums[right]`: if `nums[mid] > nums[right]` the smallest element is to the right (`left = mid + 1`), otherwise it is at `mid` or to its left (`right = mid`).
+
+| Step | `left` | `right` | `mid` | `nums[mid]` | `nums[right]` | Decision |
+|------|--------|---------|-------|-------------|---------------|----------|
+| 1 | `0` | `6` | `3` | `7` | `2` | `7 > 2`, pivot right: `left = 4` |
+| 2 | `4` | `6` | `5` | `1` | `2` | `1 <= 2`, pivot here/left: `right = 5` |
+| 3 | `4` | `5` | `4` | `0` | `1` | `0 <= 1`, pivot here/left: `right = 4` |
+
+Now `left == right == 4`, the loop ends, and `pivot = 4`: the index of the smallest value `0`.
+
+**Phase 2, search the two sorted runs.** The pivot splits the array into `[0, 3] = [4,5,6,7]` and `[4, 6] = [0,1,2]`. Since `pivot > 0`, search the first run `binary_search(0, 3)`:
+
+| Step | `start` | `end` | `mid` | `nums[mid]` | Decision |
+|------|---------|-------|-------|-------------|----------|
+| 1 | `0` | `3` | `1` | `5` | `5 > 0`: `end = 0` |
+| 2 | `0` | `0` | `0` | `4` | `4 > 0`: `end = -1` |
+
+The window empties, so the first run returns `-1`. Now search the second run `binary_search(4, 6)`:
+
+| Step | `start` | `end` | `mid` | `nums[mid]` | Decision |
+|------|---------|-------|-------|-------------|----------|
+| 1 | `4` | `6` | `5` | `1` | `1 > 0`: `end = 4` |
+| 2 | `4` | `4` | `4` | `0` | `0 == 0`: return `4` |
+
+The search returns `4`, which matches the expected Output of `4`.
+
 ### Find Pivot then Binary Search
 
 ```python

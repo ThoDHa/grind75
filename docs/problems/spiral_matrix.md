@@ -100,6 +100,34 @@ A full `visited` matrix is allocated to track which cells have been consumed.
 - The pattern generalizes well to other path-finding and grid-traversal problems.
 - The visited array trades `O(m×n)` extra space for trivially simple turn detection, which later approaches eliminate.
 
+#### Walkthrough
+
+Let us watch the `Direction Vector Walk` run on Example 1: `matrix = [[1,2,3],[4,5,6],[7,8,9]]`, so `m = 3` and `n = 3`. We start at `row, col = 0, 0` facing `right` (`direction_idx = 0`), with `result = []` and every cell unvisited. The loop runs `m × n = 9` times. Each step: emit `matrix[row][col]`, mark it visited, then peek at the next cell in the current direction; if that peek leaves the grid or lands on a visited cell, turn clockwise (`direction_idx = (direction_idx + 1) % 4`) and recompute before moving.
+
+The grid, for reference:
+
+```
+1 2 3
+4 5 6
+7 8 9
+```
+
+Each row below shows the state right after the cell at `(row, col)` is emitted, the direction we end up moving, and the `next` cell we step to:
+
+| Step | Emit `(row, col)` | Value | Turned? | Direction after | Next cell | `result` so far |
+|------|-------------------|-------|---------|-----------------|-----------|-----------------|
+| 0 | `(0, 0)` | `1` | no | right | `(0, 1)` | `[1]` |
+| 1 | `(0, 1)` | `2` | no | right | `(0, 2)` | `[1, 2]` |
+| 2 | `(0, 2)` | `3` | yes (col 3 is out of bounds) | down | `(1, 2)` | `[1, 2, 3]` |
+| 3 | `(1, 2)` | `6` | no | down | `(2, 2)` | `[1, 2, 3, 6]` |
+| 4 | `(2, 2)` | `9` | yes (row 3 is out of bounds) | left | `(2, 1)` | `[1, 2, 3, 6, 9]` |
+| 5 | `(2, 1)` | `8` | no | left | `(2, 0)` | `[1, 2, 3, 6, 9, 8]` |
+| 6 | `(2, 0)` | `7` | yes (col -1 is out of bounds) | up | `(1, 0)` | `[1, 2, 3, 6, 9, 8, 7]` |
+| 7 | `(1, 0)` | `4` | yes (`(0, 0)` already visited) | right | `(1, 1)` | `[1, 2, 3, 6, 9, 8, 7, 4]` |
+| 8 | `(1, 1)` | `5` | yes (`(1, 2)` already visited) | down | `(2, 1)` | `[1, 2, 3, 6, 9, 8, 7, 4, 5]` |
+
+After step 8 the loop has run all `9` times, so it stops and the computed `next` cell is never used. Notice the turns at steps 6 through 8: the walk turns at the grid walls early on, then turns because of the `visited` marks once it spirals inward (the cell `4` turns because `(0, 0)` was already taken, and `5` turns because `(1, 2)` was already taken). The returned `result` is `[1, 2, 3, 6, 9, 8, 7, 4, 5]`, which matches the expected Output for Example 1.
+
 ### State Machine
 
 ```python

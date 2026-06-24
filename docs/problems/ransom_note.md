@@ -85,6 +85,22 @@ We materialize the magazine as a list of `m` letters that shrinks as we consume 
 - Consuming each matched letter is what enforces the "each letter used once" rule.
 - Its weakness is repeated rescanning: the same pool is swept again for every character, which the frequency-based approaches eliminate.
 
+#### Walkthrough
+
+Let us trace the Brute Force on Example 1: `ransomNote = "a"`, `magazine = "b"`, expected Output `false`.
+
+First we copy the magazine into the pool of available letters: `available = ['b']`.
+
+Now we loop over each character in `ransomNote`. There is only one, `'a'`, so we scan the pool looking for it.
+
+| Outer step | `char` needed | Scan of `available` | Match? | `available` after | Result so far |
+| --- | --- | --- | --- | --- | --- |
+| 1 | `'a'` | `available[0]` is `'b'`, and `'b' != 'a'` | no | `['b']` (unchanged) | `found` stays `False` |
+
+The inner scan reaches the end of the pool without ever setting `found = True`. Because `not found` is true after the scan, the code immediately runs `return False`.
+
+The returned value is `false`, which matches the example's expected Output. The note needs an `'a'`, the magazine offers only a `'b'`, so the note cannot be constructed.
+
 ### Hash Map
 
 ```python

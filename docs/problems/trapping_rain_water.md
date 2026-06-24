@@ -92,6 +92,35 @@ Only a few scalar accumulators are tracked; no auxiliary array is allocated.
 - Wasteful: every bar recomputes the same prefix and suffix maxima from scratch, which the
   next approach caches away.
 
+#### Walkthrough
+
+Let us run the Brute Force on Example 1: `height = [0,1,0,2,1,0,1,3,2,1,2,1]`. For every
+bar `i` we scan left to find `left_max` (tallest at or before `i`), scan right to find
+`right_max` (tallest at or after `i`), and add `min(left_max, right_max) - height[i]` to
+`trapped`. Both maxima include `height[i]` itself, so a bar that is its own side's tallest
+contributes `0`.
+
+| `i` | `height[i]` | `left_max` | `right_max` | `min - height[i]` | `trapped` |
+|-----|-------------|------------|-------------|-------------------|-----------|
+| 0 | 0 | 0 | 3 | `0 - 0 = 0` | 0 |
+| 1 | 1 | 1 | 3 | `1 - 1 = 0` | 0 |
+| 2 | 0 | 1 | 3 | `1 - 0 = 1` | 1 |
+| 3 | 2 | 2 | 3 | `2 - 2 = 0` | 1 |
+| 4 | 1 | 2 | 3 | `2 - 1 = 1` | 2 |
+| 5 | 0 | 2 | 3 | `2 - 0 = 2` | 4 |
+| 6 | 1 | 2 | 3 | `2 - 1 = 1` | 5 |
+| 7 | 3 | 3 | 3 | `3 - 3 = 0` | 5 |
+| 8 | 2 | 3 | 2 | `2 - 2 = 0` | 5 |
+| 9 | 1 | 3 | 2 | `2 - 1 = 1` | 6 |
+| 10 | 2 | 3 | 2 | `2 - 2 = 0` | 6 |
+| 11 | 1 | 3 | 1 | `1 - 1 = 0` | 6 |
+
+Notice the deep dip from `i = 2` through `i = 6`: those low bars sit between the wall of
+height `2` on the left (at `i = 3`) and the wall of height `3` on the right (at `i = 7`),
+so each one banks water up to the shorter wall, height `2`. Past the tallest bar at
+`i = 7`, `right_max` drops to `2` and the remaining bars trap little. The loop ends with
+`trapped = 6`, which matches the expected Output of `6`.
+
 ### Prefix and Suffix Maximums
 
 ```python

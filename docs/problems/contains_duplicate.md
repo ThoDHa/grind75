@@ -80,6 +80,18 @@ Only a couple of loop counters are used; no storage grows with the input.
 - Constant extra space, but the quadratic time makes it too slow for the upper constraint of `10^5` elements.
 - Starting `j` at `i + 1` avoids redundant and self comparisons.
 
+#### Walkthrough
+
+Trace the Brute Force solution on Example 1: `nums = [1,2,3,1]`. The outer loop fixes `i`, and the inner loop walks every later index `j` looking for a match. Each row shows one comparison of `nums[i]` against `nums[j]`:
+
+| Step | `i` | `nums[i]` | `j` | `nums[j]` | `nums[i] == nums[j]`? | Action |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 | `0` | `1` | `1` | `2` | no | keep scanning |
+| 2 | `0` | `1` | `2` | `3` | no | keep scanning |
+| 3 | `0` | `1` | `3` | `1` | yes | return `True` |
+
+At step 3 the element at index `0` (value `1`) matches the element at index `3` (value `1`), so the code hits `return True` immediately and never examines `i = 1` or `i = 2`. The returned value is `True`, which matches the expected Output for Example 1.
+
 ### Hash Set
 
 ```python

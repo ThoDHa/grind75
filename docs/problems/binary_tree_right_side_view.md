@@ -90,6 +90,32 @@ The `levels` structure stores every node's value, so it grows to `O(n)` overall,
 - Requires no ordering trick, which makes it the easiest version to derive but the most wasteful in space.
 - Storing whole levels is redundant when only the last node of each is needed, which the next approaches eliminate.
 
+#### Walkthrough
+
+Let us trace the Brute Force on Example 1, `root = [1,2,3,null,5,null,4]`, whose tree looks like this:
+
+```
+        1          depth 0
+       / \
+      2   3        depth 1
+       \   \
+        5   4      depth 2
+```
+
+`collect` recurses left child before right child, carrying `depth`. Each call appends the node's value to `levels[depth]`, creating a fresh bucket the first time a depth is reached. The order of calls is therefore `1` (depth 0), then `2` and its right child `5` (depths 1 and 2), then back up to `3` and its right child `4`:
+
+| Step | Node visited (`depth`) | New bucket? | `levels` after the call |
+| --- | --- | --- | --- |
+| 1 | `1` (0) | yes, `levels[0]` | `[[1]]` |
+| 2 | `2` (1) | yes, `levels[1]` | `[[1], [2]]` |
+| 3 | `5` (2) | yes, `levels[2]` | `[[1], [2], [5]]` |
+| 4 | `3` (1) | no | `[[1], [2, 3], [5]]` |
+| 5 | `4` (2) | no | `[[1], [2, 3], [5, 4]]` |
+
+Notice that node `2` has no left child, so after visiting `5` the recursion unwinds back to the root and descends into `3`. Because the walk fills each bucket left to right, `3` lands after `2` in `levels[1]`, and `4` lands after `5` in `levels[2]`.
+
+The final pass takes the last value of every bucket: `levels[0][-1] = 1`, `levels[1][-1] = 3`, `levels[2][-1] = 4`. The function returns `[1, 3, 4]`, which matches the expected Output.
+
 ### Recursive DFS
 
 ```python

@@ -110,6 +110,27 @@ character is pushed, so the stack grows to size `n`.
 - The final emptiness check catches unclosed openers like `"(("`, while the
   empty-stack guard inside the loop catches stray closers like `")"`.
 
+#### Walkthrough
+
+Example 1 (`"()"`) is only two characters, so it barely exercises the stack. To
+see the Last-In-First-Out matching clearly, this trace uses Example 4,
+`s = "([])"`, whose nesting forces two pushes before any pop. `stack` starts
+empty as `[]`, and we read `s` one `char` at a time:
+
+| Step | `char` | Branch taken | `stack` after |
+|------|--------|--------------|---------------|
+| 1 | `(` | opener: push `(` | `['(']` |
+| 2 | `[` | opener: push `[` | `['(', '[']` |
+| 3 | `]` | closer: top is `[`, matches, so pop | `['(']` |
+| 4 | `)` | closer: top is `(`, matches, so pop | `[]` |
+
+At step 3 the most recently opened bracket is `[`, exactly the opener that `]`
+must close, so `stack.pop()` returns `[` and the comparison passes. The same
+holds at step 4 for `(` and `)`. The loop ends with an empty `stack`, so
+`not stack` is `True`.
+
+The function returns `True`, which matches the expected Output for Example 4.
+
 ### Stack with Hash Map
 
 ```python

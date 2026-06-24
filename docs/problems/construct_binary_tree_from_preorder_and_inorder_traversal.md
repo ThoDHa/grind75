@@ -41,6 +41,12 @@ Output: [-1]
 ### Recursive Slicing
 
 ```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
 class Solution:
     def buildTree(self, preorder: List[int], inorder: List[int]) -> Optional[TreeNode]:
         if not preorder:
@@ -105,9 +111,51 @@ worst case. The recursion stack alone is `O(n)`.
 - It is the cleanest expression of the idea but pays for repeated `index` scans
   and slice copies.
 
+#### Walkthrough
+
+Let us trace the Recursive Slicing solution on Example 1: `preorder = [3,9,20,15,7]`
+and `inorder = [9,3,15,20,7]`. Each call takes the head of its `preorder` slice as
+the root, finds that value in its `inorder` slice to get `mid`, and splits both
+slices into a left and a right half. The indentation below shows how deep the
+recursion is; a call returns once both of its children are built.
+
+```
+build(pre=[3,9,20,15,7], in=[9,3,15,20,7])
+  root = 3, mid = 1: left_in=[9], right_in=[15,20,7]
+  left  -> build(pre=[9], in=[9])
+            root = 9, mid = 0: left_in=[], right_in=[]
+            left  -> build(pre=[], in=[])  -> None
+            right -> build(pre=[], in=[])  -> None
+          returns node(9)
+  right -> build(pre=[20,15,7], in=[15,20,7])
+            root = 20, mid = 1: left_in=[15], right_in=[7]
+            left  -> build(pre=[15], in=[15])
+                      root = 15, both halves empty -> node(15)
+            right -> build(pre=[7], in=[7])
+                      root = 7, both halves empty -> node(7)
+          returns node(20)
+returns node(3)
+```
+
+Reading the steps: the first call picks `3` as the root and locates it at `mid = 1`
+in inorder, so `[9]` is the left subtree and `[15,20,7]` is the right. The matching
+preorder slices are `preorder[1:2] = [9]` for the left and `preorder[2:] = [20,15,7]`
+for the right. The left call builds the single node `9`. The right call picks `20`
+as its root, splitting into left `[15]` and right `[7]`, each of which becomes a leaf.
+
+Assembling the returned nodes top down gives the tree with `3` at the root, `9` as
+its left child, and `20` as its right child with children `15` and `7`. Read in
+level order that is `[3,9,20,null,null,15,7]`, which matches the expected Output.
+
 ### Hash Map with Index Bounds
 
 ```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
 class Solution:
     def buildTree(self, preorder: List[int], inorder: List[int]) -> Optional[TreeNode]:
         # Map each value to its index in inorder for O(1) root lookups
@@ -177,6 +225,12 @@ dominated by the map.
 ### Hash Map with Shared Preorder Pointer
 
 ```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
 class Solution:
     def buildTree(self, preorder: List[int], inorder: List[int]) -> Optional[TreeNode]:
         # Map each value to its index in inorder for O(1) root lookups

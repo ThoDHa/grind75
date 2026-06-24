@@ -41,6 +41,12 @@ If the BST is modified often (i.e., we can do insert and delete operations) and 
 ### Recursive In-Order Traversal
 
 ```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
 from typing import List, Optional
 
 
@@ -81,9 +87,51 @@ The list holds all `n` node values, and the recursion stack adds `O(H)` for the 
 - Concatenating lists at every node (`inorder(left) + [val] + inorder(right)`) is the most readable form but creates many intermediate lists, making it the least efficient of the three approaches.
 - The `k - 1` index conversion is the single place where the 1-indexed problem statement meets 0-indexed Python lists.
 
+#### Walkthrough
+
+Let us trace the Recursive In-Order Traversal on Example 1: `root = [3,1,4,null,2]`, `k = 1`. The tree looks like this: the root is `3`, its left child is `1`, its right child is `4`, and node `1` has a right child `2`.
+
+```
+      3
+     / \
+    1   4
+     \
+      2
+```
+
+The key idea: `inorder(node)` returns `inorder(node.left) + [node.val] + inorder(node.right)`. Each call must finish its left subtree before it can hand back its own value. We show the call tree, with each call returning a list that combines on the way back up.
+
+```
+inorder(3)
+├─ inorder(1)                  # 3's left subtree
+│  ├─ inorder(None)  -> []     # 1 has no left child
+│  ├─ value [1]
+│  └─ inorder(2)               # 1's right child
+│     ├─ inorder(None) -> []   # 2 has no left child
+│     ├─ value [2]
+│     └─ inorder(None) -> []   # 2 has no right child
+│     => [] + [2] + []  = [2]
+│  => [] + [1] + [2]    = [1, 2]
+├─ value [3]
+└─ inorder(4)                  # 3's right subtree
+   ├─ inorder(None) -> []      # 4 has no left child
+   ├─ value [4]
+   └─ inorder(None) -> []      # 4 has no right child
+   => [] + [4] + []   = [4]
+=> [1, 2] + [3] + [4]  = [1, 2, 3, 4]
+```
+
+So `sorted_values = [1, 2, 3, 4]`, the node values in ascending order. With `k = 1`, the code returns `sorted_values[k - 1]`, which is `sorted_values[0]`, giving `1`. This matches the expected Output of `1`.
+
 ### Iterative In-Order Traversal
 
 ```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
 from typing import List, Optional
 
 
@@ -142,6 +190,12 @@ The stack holds at most one path from root to leaf, which is `O(log n)` for a ba
 ### Morris Traversal
 
 ```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
 from typing import Optional
 
 

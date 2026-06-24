@@ -118,6 +118,56 @@ list, both bounded by the maximum combination length `target / min_candidate`.
 - The `remaining < 0` guard is what stops a branch that has overshot the target.
 - Always append a copy (`current[:]`), since `current` is mutated throughout.
 
+#### Walkthrough
+
+Let us watch the Include-Exclude Backtracking code run on Example 1:
+`candidates = [2,3,6,7]`, `target = 7`. Expected output: `[[2,2,3],[7]]`.
+
+Each call carries three pieces of state: `index` (which candidate we may take next),
+`remaining` (how much target is left), and `current` (the partial combination built so
+far). At every live node the code makes two recursive calls: include `candidates[index]`
+(staying on the same `index` so it can be reused), then exclude it (moving to `index + 1`).
+A call is recorded when `remaining` hits `0`, and abandoned when `remaining` goes negative
+or `index` runs off the end.
+
+Below is the call tree, indented by depth. To keep it readable we show the two branches
+that succeed in full and collapse the overshooting branches to a single `dead` line. The
+candidates are `[2,3,6,7]`, so `index 0 -> 2`, `index 1 -> 3`, `index 2 -> 6`, `index 3 -> 7`.
+
+```
+backtrack(index=0, remaining=7, current=[])          start: target 7, may take 2
+  include 2 -> backtrack(index=0, remaining=5, current=[2])
+    include 2 -> backtrack(index=0, remaining=3, current=[2,2])
+      include 2 -> backtrack(index=0, remaining=1, current=[2,2,2])
+        include 2 -> remaining=-1            dead (overshoot)
+        exclude   -> index=1, remaining=1, current=[2,2,2]
+          (every choice from here overshoots or runs out)   dead
+      exclude   -> backtrack(index=1, remaining=3, current=[2,2])   now may take 3
+        include 3 -> backtrack(index=1, remaining=0, current=[2,2,3])
+                     remaining==0  ->  RECORD [2,2,3]
+        exclude   -> index=2, remaining=3, current=[2,2]
+          (6 and 7 both overshoot)                          dead
+    exclude   -> backtrack(index=1, remaining=5, current=[2])
+      (2+3, 2+6, 2+7 ... none reach 0)                      dead
+  exclude   -> backtrack(index=1, remaining=7, current=[])          skip 2 entirely
+    include 3 -> ... (3+3+..., 3+6, 3+7 all miss)           dead
+    exclude   -> backtrack(index=2, remaining=7, current=[])        skip 2 and 3
+      include 6 -> ... (6+anything overshoots)              dead
+      exclude   -> backtrack(index=3, remaining=7, current=[])      only 7 left
+        include 7 -> backtrack(index=3, remaining=0, current=[7])
+                     remaining==0  ->  RECORD [7]
+        exclude   -> index=4 (off the end)                  dead
+```
+
+Two leaves reached `remaining == 0` and were recorded, in the order they were found:
+first `[2,2,3]` (build `2 -> 2 -> 3`), then `[7]`. The function returns `result =
+[[2,2,3],[7]]`, which matches the expected Output.
+
+Notice how reuse and uniqueness both fall out of the index handling: taking `2` three
+times was possible because the include branch kept `index=0`, while `[7]` was only ever
+reached through the exclude branches that skipped `2`, `3`, and `6` first. No combination
+is ever produced twice.
+
 ### Sorted Backtracking with Pruning
 
 ```python

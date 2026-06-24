@@ -4,6 +4,8 @@
 
 **Pattern:** [Tree DP](../patterns/tree_dp/intuition.md)
 
+**Practice:** [`practice/binary_tree_maximum_path_sum/solution.py`](../../practice/binary_tree_maximum_path_sum/solution.py)
+
 A **path** in a binary tree is a sequence of nodes where each pair of adjacent nodes in the sequence has an edge connecting them. A node can only appear in the sequence **at most once**. Note that the path does not need to pass through the root.
 
 The **path sum** of a path is the sum of the node's values in the path.
@@ -112,6 +114,42 @@ balanced tree and `O(n)` for a skewed one.
   `0`, the same rule the optimal solution reuses.
 - The waste is purely the repeated `max_down` calls; the gain values it produces
   do not change between visits, which is exactly what the next solution exploits.
+
+#### Walkthrough
+
+Let us trace the Brute Force on Example 1: the tree `[1,2,3]`, where `1` is the
+root with left child `2` and right child `3`. We expect the answer `6`.
+
+`self.best` starts at `-inf`. The call `visit(root)` walks the tree as a call
+tree, and for each node it asks `max_down` to measure the best downward path into
+each child:
+
+```
+visit(1):
+    max_down(2): leaf, returns 2 + max(0, 0, 0) = 2
+    max_down(3): leaf, returns 3 + max(0, 0, 0) = 3
+    left_gain  = max(2, 0) = 2
+    right_gain = max(3, 0) = 3
+    bent sum   = 1 + 2 + 3 = 6   ->  best = max(-inf, 6) = 6
+    visit(2):
+        no children, left_gain = right_gain = 0
+        bent sum = 2 + 0 + 0 = 2  ->  best = max(6, 2) = 6
+    visit(3):
+        no children, left_gain = right_gain = 0
+        bent sum = 3 + 0 + 0 = 3  ->  best = max(6, 3) = 6
+```
+
+The table below shows `self.best` after each node is visited as a bend point:
+
+| Node visited | `left_gain` | `right_gain` | bent sum | `self.best` |
+|--------------|-------------|--------------|----------|-------------|
+| `1` (root)   | `2`         | `3`          | `6`      | `6`         |
+| `2`          | `0`         | `0`          | `2`      | `6`         |
+| `3`          | `0`         | `0`          | `3`      | `6`         |
+
+The best bend happens at the root, where the path descends into both children:
+`2 -> 1 -> 3`. After every node has been tried, `visit` returns and the method
+returns `self.best`, which is `6`: matching the expected Output.
 
 ### Post-Order DFS
 

@@ -110,6 +110,27 @@ The `heads` cursor array holds k entries. Result nodes are spliced from the inpu
 - Reuses the existing input nodes by relinking them, so the only extra space is the k-entry cursor array.
 - The `O(k)` scan per emitted node is exactly the work the heap and divide-and-conquer approaches later replace with `O(log k)` per node.
 
+#### Walkthrough
+
+Let us watch the Repeated Minimum Scan run on Example 1: `lists = [[1,4,5],[1,3,4],[2,6]]`, expected output `[1,1,2,3,4,4,5,6]`.
+
+The `heads` array holds one live cursor per list, starting at each list's first node: `[1, 1, 2]`. Each step scans those cursors for the smallest value, appends that node to the merged tail, and advances only the cursor it came from. When two cursors tie (like the two leading `1`s), the scan keeps the first one it found because the test is a strict `node.val < heads[min_idx].val`, so the lower index wins.
+
+Each row below shows the cursor values at the start of the step (`None` marks an exhausted list), which index the scan picks, and the value emitted:
+
+| Step | `heads` (cursor values) | `min_idx` | Emitted | Merged so far |
+|------|-------------------------|-----------|---------|---------------|
+| 1 | `[1, 1, 2]` | 0 | `1` | `1` |
+| 2 | `[4, 1, 2]` | 1 | `1` | `1,1` |
+| 3 | `[4, 3, 2]` | 2 | `2` | `1,1,2` |
+| 4 | `[4, 3, 6]` | 1 | `3` | `1,1,2,3` |
+| 5 | `[4, 4, 6]` | 0 | `4` | `1,1,2,3,4` |
+| 6 | `[5, 4, 6]` | 1 | `4` | `1,1,2,3,4,4` |
+| 7 | `[5, None, 6]` | 0 | `5` | `1,1,2,3,4,4,5` |
+| 8 | `[None, None, 6]` | 2 | `6` | `1,1,2,3,4,4,5,6` |
+
+After step 8 every cursor is `None`, so the next scan returns `min_idx == -1` and the loop breaks. The function sets `tail.next = None` and returns `dummy.next`, the head of `1->1->2->3->4->4->5->6`, which matches the expected Output `[1,1,2,3,4,4,5,6]`.
+
 ### Sequential Merge
 
 ```python

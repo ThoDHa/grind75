@@ -82,6 +82,28 @@ length is proportional to the input.
 - Quadratic time makes it unsuitable for the upper constraint of `5 * 10^4`.
 - Repeated string copying compounds the cost because strings are immutable.
 
+#### Walkthrough
+
+Trace the first solution on Example 1: `s = "anagram"`, `t = "nagaram"`. The
+lengths match (`7` and `7`), so the loop runs. Each row shows the character `c`
+taken from `t`, whether it is found in the current `s`, and the value of `s`
+after `replace(c, "", 1)` removes one copy:
+
+| Step | `c` from `t` | Found in `s`? | `s` after removal |
+|------|--------------|---------------|-------------------|
+| start | — | — | `"anagram"` |
+| 1 | `n` | yes | `"aagram"` |
+| 2 | `a` | yes | `"agram"` |
+| 3 | `g` | yes | `"aram"` |
+| 4 | `a` | yes | `"ram"` |
+| 5 | `r` | yes | `"am"` |
+| 6 | `a` | yes | `"m"` |
+| 7 | `m` | yes | `""` |
+
+Every character of `t` was found and removed, so the loop never hits the `else`
+branch that would return `False`. After the final step `s` is empty, the loop
+ends, and the code returns `True`, which matches the expected Output `true`.
+
 ### Set-based Counting
 
 ```python

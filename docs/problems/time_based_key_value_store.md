@@ -122,6 +122,27 @@ is linear in the number of `set` calls.
 - `setdefault(key, [])` initializes a key's history on first `set` without any
   imports, keeping this solution dependency-free.
 
+#### Walkthrough
+
+Trace the Linear Scan through Example 1, replaying each call in order. The only
+state is `self.store`, the dict mapping each key to its history of
+`(timestamp, value)` pairs. After each call below, the right column shows what
+`self.store` holds and what the call returns.
+
+| Call | What happens | `self.store` after | Returns |
+| --- | --- | --- | --- |
+| `set("foo", "bar", 1)` | `setdefault` creates an empty list for `"foo"`, then appends `(1, "bar")`. | `{"foo": [(1, "bar")]}` | `null` |
+| `get("foo", 1)` | Scan `[(1, "bar")]` backward: `1 <= 1`, so return its value. | unchanged | `"bar"` |
+| `get("foo", 3)` | Scan backward: `1 <= 3`, so the first entry already qualifies. | unchanged | `"bar"` |
+| `set("foo", "bar2", 4)` | `"foo"` already exists, so append `(4, "bar2")` to its list. | `{"foo": [(1, "bar"), (4, "bar2")]}` | `null` |
+| `get("foo", 4)` | Scan backward, newest first: `4 <= 4`, so return `(4, "bar2")`'s value. | unchanged | `"bar2"` |
+| `get("foo", 5)` | Scan backward: `4 <= 5`, so the newest entry qualifies immediately. | unchanged | `"bar2"` |
+
+The `get("foo", 3)` step shows why the backward walk works: timestamp `3` was
+never written, so the scan skips past nothing newer and lands on `(1, "bar")`,
+the largest stored timestamp not exceeding `3`. The collected returns are
+`[null, null, "bar", "bar", null, "bar2", "bar2"]`, matching the expected Output.
+
 ### Manual Binary Search
 
 ```python
