@@ -41,6 +41,45 @@ Given an integer array `nums`, return `true` if any value appears **at least twi
 
 ## Solutions
 
+### Brute Force
+
+```python
+class Solution:
+    def containsDuplicate(self, nums: List[int]) -> bool:
+        n = len(nums)
+        for i in range(n):
+            for j in range(i + 1, n):
+                if nums[i] == nums[j]:
+                    return True
+        return False
+```
+
+#### Approach
+
+The most direct idea is to compare every pair of elements and report the first match:
+
+1. For each index `i`, compare `nums[i]` against every later element `nums[j]` with `j > i`.
+2. If any pair is equal, a duplicate exists, so return `True` immediately.
+3. If no pair matches after checking all combinations, every element is distinct, so return `False`.
+
+Pairing `i` with only the indices after it avoids comparing an element to itself and avoids checking the same pair twice. This requires no extra data structures: just two nested loops.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n^2)`
+
+Every pair of indices is examined in the worst case, and there are roughly `n^2 / 2` such pairs, giving quadratic time.
+
+##### Space Complexity: `O(1)`
+
+Only a couple of loop counters are used; no storage grows with the input.
+
+#### Key Insights
+
+- The most self-evident approach: check every pair directly with no auxiliary structure.
+- Constant extra space, but the quadratic time makes it too slow for the upper constraint of `10^5` elements.
+- Starting `j` at `i + 1` avoids redundant and self comparisons.
+
 ### Hash Set
 
 ```python
@@ -193,6 +232,7 @@ The counter holds an entry for each distinct value.
 
 ### Time Complexity
 
+- **Brute Force**: `O(n^2)` - compares every pair of elements.
 - **Hash Set**: `O(n)` - single pass with constant-time average lookups.
 - **Sorting**: `O(n log n)` - bounded by the sort step.
 - **Set Length Comparison**: `O(n)` - one pass to build the set.
@@ -200,6 +240,7 @@ The counter holds an entry for each distinct value.
 
 ### Space Complexity
 
+- **Brute Force**: `O(1)` - only loop counters, no auxiliary structure.
 - **Hash Set**: `O(n)` - stores seen values, up to `n` of them.
 - **Sorting**: `O(n)` or `O(1)` - depends on copying versus sorting in place.
 - **Set Length Comparison**: `O(n)` - stores all distinct values.
@@ -207,6 +248,7 @@ The counter holds an entry for each distinct value.
 
 ### Trade-offs
 
+- The Brute Force approach needs no extra memory but its quadratic time is too slow at scale.
 - The Hash Set approach is optimal in time and can exit early, at the cost of auxiliary memory.
 - The Sorting approach avoids a hash structure but pays the `O(n log n)` sorting cost.
 - The Set Length Comparison is the most concise but always scans the whole array.
@@ -214,6 +256,7 @@ The counter holds an entry for each distinct value.
 
 ### When to Use Each
 
+- **Brute Force**: Only for tiny inputs or as a starting point before optimizing.
 - **Hash Set**: The default choice when fastest detection with early exit matters.
 - **Sorting**: When memory is tight and an in-place sort is acceptable.
 - **Set Length Comparison**: When brevity and readability outweigh early termination.
@@ -221,6 +264,7 @@ The counter holds an entry for each distinct value.
 
 ### Optimization Notes
 
+- The Brute Force approach uses no extra space but does redundant pairwise work; the Hash Set trades `O(n)` memory to cut the time to linear.
 - The Hash Set approach terminates the moment the first duplicate is found, which is ideal when duplicates are common and appear early.
 - The Sorting approach can drop to `O(1)` extra space by sorting the input in place when mutation is allowed.
 - The Set Length Comparison and Counter forms favor clarity but process every element regardless of when a duplicate occurs.

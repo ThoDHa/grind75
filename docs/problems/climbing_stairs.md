@@ -41,17 +41,13 @@ Each time you can either climb 1 or 2 steps. In how many distinct ways can you c
 
 ## Solutions
 
-### Top-Down Memoization
+### Brute Force
 
 ```python
-from functools import lru_cache
-
 class Solution:
     def climbStairs(self, n: int) -> int:
-        @lru_cache(maxsize=None)
         def climb(step: int) -> int:
-            # Base cases: a single empty path reaches step 0,
-            # and exactly one way reaches step 1
+            # One empty path reaches step 0, and exactly one way reaches step 1
             if step <= 1:
                 return 1
 
@@ -64,12 +60,60 @@ class Solution:
 
 #### Approach
 
-This solution applies recursion that mirrors the problem definition directly, with memoization to avoid recomputing overlapping subproblems:
+The most direct idea restates the problem as a recurrence and counts every path by hand. To stand on step `n`, the final move was either a single step from `n - 1` or a double step from `n - 2`, so the count for `n` is the sum of the counts for those two predecessors. Recursing without any caching explores the full tree of choices:
+
+1. If `step` is 0 or 1, return 1, since each of those positions is reached exactly one way (an empty climb for 0, a single move for 1)
+2. Otherwise return `climb(step - 1) + climb(step - 2)`, summing the ways the two legal final moves could have arrived
+3. Let the recursion fan out into a binary tree of calls, recomputing shared subproblems independently
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(2^n)`
+
+- Each call spawns two more, so the call tree roughly doubles at every level
+- The number of nodes grows like the Fibonacci numbers, which is exponential in `n`
+
+##### Space Complexity: `O(n)`
+
+- No auxiliary table is allocated, but the recursion stack reaches depth `n` along the deepest path
+
+#### Key Insights
+
+- Writing the recurrence directly from the problem statement is the simplest, most discoverable formulation
+- The same step is recomputed exponentially often, which is exactly the waste the later solutions remove
+- This baseline is correct but only practical for small `n`; it makes the case for memoization concrete
+
+### Top-Down Memoization
+
+```python
+class Solution:
+    def climbStairs(self, n: int) -> int:
+        memo = {}
+
+        def climb(step: int) -> int:
+            # Base cases: a single empty path reaches step 0,
+            # and exactly one way reaches step 1
+            if step <= 1:
+                return 1
+            if step in memo:
+                return memo[step]
+
+            # The last move was either a single step from step - 1
+            # or a double step from step - 2
+            memo[step] = climb(step - 1) + climb(step - 2)
+            return memo[step]
+
+        return climb(n)
+```
+
+#### Approach
+
+This solution keeps the brute force recurrence but caches each step's result in a hand-rolled dictionary so no subproblem is solved twice:
 
 1. The number of ways to reach step `n` equals the ways to reach `n - 1` (then take a single step) plus the ways to reach `n - 2` (then take a double step)
 2. Base cases return 1 for steps 0 and 1, since each has exactly one way to be reached
-3. Without caching, this recursion forms a binary tree that recomputes the same steps exponentially often
-4. `lru_cache` stores each step's result the first time it is computed, so every distinct step is evaluated only once
+3. Before recursing, check the `memo` dictionary; the first time a step is computed, store it so later calls return instantly
+4. This collapses the exponential call tree into one computation per distinct step
 
 #### Time and Space Complexity Analysis
 
@@ -85,8 +129,9 @@ This solution applies recursion that mirrors the problem definition directly, wi
 #### Key Insights
 
 - This problem follows the Fibonacci sequence pattern, so the recurrence is the Fibonacci recurrence
-- Memoization converts an exponential naive recursion into a linear-time solution
-- Top-down recursion expresses the relationship most directly, which makes it a natural first formulation before deriving the iterative versions
+- A plain dictionary makes the cache explicit, with no library call doing the memoization
+- Memoization converts the exponential naive recursion into a linear-time solution
+- Top-down recursion expresses the relationship most directly, which makes it a natural step before deriving the iterative versions
 
 ### Bottom-Up DP
 
@@ -222,6 +267,7 @@ This solution uses the closed-form expression for the Fibonacci sequence (Binet'
 
 ### Time Complexity
 
+- **Brute Force**: `O(2^n)` - The uncached call tree doubles at each level, growing exponentially
 - **Top-Down Memoization**: `O(n)` - Each step is computed once and cached
 - **Bottom-Up DP**: `O(n)` - Linear time to build the DP table
 - **Space-Optimized DP**: `O(n)` - Same linear time requirement
@@ -229,6 +275,7 @@ This solution uses the closed-form expression for the Fibonacci sequence (Binet'
 
 ### Space Complexity
 
+- **Brute Force**: `O(n)` - No cache, but the recursion stack reaches depth n
 - **Top-Down Memoization**: `O(n)` - Cache holds one entry per step plus a recursion stack of depth n
 - **Bottom-Up DP**: `O(n)` - Requires an array of size n+1
 - **Space-Optimized DP**: `O(1)` - Uses only a constant amount of extra space
@@ -236,6 +283,7 @@ This solution uses the closed-form expression for the Fibonacci sequence (Binet'
 
 ### Trade-offs
 
+- **Brute Force** maps the recurrence onto the problem statement most directly, but recomputes shared subproblems exponentially often, so it is only viable for small n
 - **Top-Down Memoization** mirrors the recurrence most directly and computes only the steps it needs, but carries recursion overhead and stack depth proportional to n
 - **Bottom-Up DP** is intuitive and good for educational purposes, but uses more space
 - **Space-Optimized DP** provides the best balance of simplicity and efficiency for most cases
@@ -243,6 +291,7 @@ This solution uses the closed-form expression for the Fibonacci sequence (Binet'
 
 ### When to Use Each
 
+- **Brute Force**: When first deriving the recurrence, or as a teaching baseline that motivates memoization
 - **Top-Down Memoization**: When recursive thinking feels most natural or as the first step before deriving an iterative solution
 - **Bottom-Up DP**: When teaching DP concepts or when space is not a concern
 - **Space-Optimized DP**: In most practical scenarios, efficient and easy to understand
@@ -251,6 +300,7 @@ This solution uses the closed-form expression for the Fibonacci sequence (Binet'
 ### Optimization Notes
 
 - **Space-Optimized DP is the recommended choice**: it preserves the linear-time clarity of the tabulation approach while collapsing the DP array down to two rolling variables, giving `O(1)` space without sacrificing readability
+- The Brute Force is the from-scratch starting point; adding a cache to it is exactly what turns its `O(2^n)` time into the memoized `O(n)`
 - Top-Down Memoization reaches the same linear complexity, so prefer it when the recursive framing is clearer, but be mindful of Python's recursion limit for large n (the constraint here caps n at 45, well within bounds)
 - A key implementation detail is the use of a `temp` variable when updating `prev` and `curr`: the old `curr` must be saved before it is overwritten, otherwise `prev` would advance incorrectly and break the Fibonacci recurrence
 - Avoid reaching for the Closed-Form Formula (Binet's formula) in production: although it is `O(1)`, raising the golden ratio to a power relies on floating-point arithmetic that accumulates rounding error and can return an off-by-one result for larger `n`

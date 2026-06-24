@@ -39,6 +39,80 @@ Given the `root` of a binary tree, return the **maximum path sum** of any **non-
 
 ## Solutions
 
+### Brute Force
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def maxPathSum(self, root: Optional[TreeNode]) -> int:
+        # Best downward path that starts at node and descends one side only.
+        # Negative branches are dropped by clamping at 0.
+        def max_down(node: Optional[TreeNode]) -> int:
+            if not node:
+                return 0
+            return node.val + max(max_down(node.left), max_down(node.right), 0)
+
+        self.best = float("-inf")
+
+        # Try every node as the highest point (the "bend") of the path.
+        def visit(node: Optional[TreeNode]) -> None:
+            if not node:
+                return
+            left_gain = max(max_down(node.left), 0)
+            right_gain = max(max_down(node.right), 0)
+            self.best = max(self.best, node.val + left_gain + right_gain)
+            visit(node.left)
+            visit(node.right)
+
+        visit(root)
+        return self.best
+```
+
+#### Approach
+
+Every path has a single highest node where it bends from one branch into the
+other (or stays straight on one side). The most direct idea is to try each node
+as that bend point and, for each one, find the best downward path into its left
+and right subtrees independently.
+
+1. Define `max_down(node)`: the largest sum of a path that starts at `node` and
+   descends through at most one child. Clamp the chosen child at `0` so a
+   negative branch is simply skipped.
+2. For each node in the tree, compute the best left descent and best right
+   descent, then form `node.val + left_gain + right_gain` as the path that bends
+   at this node.
+3. Track the maximum of these bent sums across every node and return it.
+
+This recomputes `max_down` from scratch at every node, which is wasteful but
+needs no insight beyond the definition of a path.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n^2)`
+
+`visit` touches all `n` nodes, and at each node `max_down` walks the entire
+subtree below it. In a skewed tree this is `O(n)` work per node, giving
+`O(n^2)` in the worst case.
+
+##### Space Complexity: `O(h)`
+
+Both recursions descend at most to the tree height `h` at once: `O(log n)` for a
+balanced tree and `O(n)` for a skewed one.
+
+#### Key Insights
+
+- Naming the bend point as the path's highest node makes the enumeration
+  concrete: every path is counted exactly once, at its peak.
+- `max_down` already captures the "drop a negative branch" rule by clamping at
+  `0`, the same rule the optimal solution reuses.
+- The waste is purely the repeated `max_down` calls; the gain values it produces
+  do not change between visits, which is exactly what the next solution exploits.
+
 ### Post-Order DFS
 
 ```python
@@ -115,3 +189,30 @@ tree and `O(n)` for a skewed one.
   can be negative and the path must be non-empty.
 - One post-order traversal suffices: children must be evaluated before the
   parent can decide its best bent and straight sums.
+
+## Comparison of Solutions
+
+### Time Complexity
+
+- **Brute Force**: `O(n^2)` - recomputes the downward maximum for every node, re-walking each subtree.
+- **Post-Order DFS**: `O(n)` - one traversal computes every node's gain exactly once.
+
+### Space Complexity
+
+- **Brute Force**: `O(h)` - two stacked recursions, each bounded by the tree height.
+- **Post-Order DFS**: `O(h)` - a single recursion bounded by the tree height.
+
+### Trade-offs
+
+- Brute Force gains a direct mental model (every node is a candidate bend point) but repeats the same downward-path work at every node.
+- Post-Order DFS gives up the separate enumeration pass by returning each node's gain to its parent, computing the answer in a single sweep.
+
+### When to Use Each
+
+- **Brute Force**: As a teaching baseline that makes the "bend at the highest node" idea explicit.
+- **Post-Order DFS**: The recommended default; linear time on inputs up to `3 * 10^4` nodes.
+
+### Optimization Notes
+
+- The key optimization is recognizing that `max_down(node)` does not change between visits, so it can be returned upward during the same traversal that measures the bent sums.
+- Both solutions share the clamp-at-`0` rule to drop negative branches and both initialize the global best to negative infinity, since every node value can be negative and the path must be non-empty.

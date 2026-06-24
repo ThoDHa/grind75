@@ -48,6 +48,62 @@ The distinct triplets are [-1,0,1] and [-1,-1,2]. Notice that the order of the o
 
 ## Solutions
 
+### Brute Force
+
+```python
+class Solution:
+    def threeSum(self, nums: List[int]) -> List[List[int]]:
+        n = len(nums)
+        seen = set()
+        result = []
+
+        for i in range(n - 2):
+            for j in range(i + 1, n - 1):
+                for k in range(j + 1, n):
+                    if nums[i] + nums[j] + nums[k] == 0:
+                        # Canonicalize the triplet so duplicates collapse:
+                        # order the three values, then key on the tuple
+                        a, b, c = nums[i], nums[j], nums[k]
+                        if a > b:
+                            a, b = b, a
+                        if b > c:
+                            b, c = c, b
+                        if a > b:
+                            a, b = b, a
+                        triplet = (a, b, c)
+                        if triplet not in seen:
+                            seen.add(triplet)
+                            result.append([a, b, c])
+
+        return result
+```
+
+#### Approach
+
+The most direct idea is to try every possible triplet of indices and keep the ones that sum to zero. With three distinct indices `i < j < k`, three nested loops enumerate every combination exactly once. The only wrinkle is deduplication: the same three values can appear at different index combinations, so each found triplet is normalized to a canonical order and tracked in a `seen` set.
+
+1. Loop `i` from the first index to `n - 3`, `j` from `i + 1`, and `k` from `j + 1`, covering every unordered triple of positions.
+2. When `nums[i] + nums[j] + nums[k] == 0`, sort the three values by hand (a fixed three-element ordering using swaps) to produce a canonical tuple.
+3. Use the `seen` set to record canonical tuples, appending a triplet to the result only the first time its canonical form is encountered.
+
+This is correct because every zero-sum triplet of values is enumerated by some index combination, and the canonical-tuple set guarantees each distinct value-triplet is reported exactly once.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n³)`
+
+The three nested loops examine every combination of three indices, which is `C(n, 3)` triplets, so the work grows cubically. Each triplet does constant work (a sum, a fixed three-element sort, and one set operation).
+
+##### Space Complexity: `O(n²)`
+
+The `seen` set can hold up to one entry per distinct zero-sum triplet, which is `O(n²)` in the worst case (each pair of earlier values can combine with at most one complement). The output array is not counted toward auxiliary space.
+
+#### Key Insights
+
+- **Exhaustive enumeration needs no sorting**: trying all triplets directly is the most self-evident approach and exposes the raw `O(n³)` cost the smarter methods improve on.
+- **Deduplication is the real difficulty**: even brute force must collapse repeated value-triplets, here via a canonical tuple stored in a set.
+- **The bound is unsustainable**: at the constraint `n = 3000`, roughly `4.5` billion triplets make this too slow for submission, motivating the sorted two-pointer refinement.
+
 ### Sorting and Two Pointers
 
 ```python
@@ -202,27 +258,32 @@ Here's the step-by-step approach:
 
 ### Time Complexity
 
+- **Brute Force**: `O(n³)` - Three nested loops enumerate every triplet of indices
 - **Sorting and Two Pointers**: `O(n²)` - Sorting is O(n log n), then an O(n) outer loop each drives an O(n) two-pointer scan
 - **Hash Set**: `O(n²)` - Sorting is O(n log n), then an O(n) outer loop each drives an O(n) set-based scan
 
 ### Space Complexity
 
+- **Brute Force**: `O(n²)` - The `seen` set can hold up to one entry per distinct zero-sum triplet
 - **Sorting and Two Pointers**: `O(1)` excluding the output - Uses only a constant number of pointer variables
 - **Hash Set**: `O(n)` - Maintains a set of seen values for each fixed element
 
 ### Trade-offs
 
-- The two-pointer approach uses constant auxiliary space and avoids hashing overhead, making it the leaner of the two
+- The brute force is the most self-evident approach and needs no sorting, but its cubic time makes it unusable at the upper constraint and it still pays for deduplication
+- The two-pointer approach uses constant auxiliary space and avoids hashing overhead, making it the leaner of the two quadratic methods
 - The hash set approach is arguably easier to reason about for those already comfortable with the Two Sum hash pattern, at the cost of linear extra space
-- Both rely on sorting to skip duplicates cleanly, so duplicate handling requires equal care in either version
+- Both quadratic methods rely on sorting to skip duplicates cleanly, so duplicate handling requires equal care in either version
 
 ### When to Use Each
 
+- **Brute Force**: Only as a conceptual starting point or for tiny inputs; too slow to submit at `n = 3000`
 - **Sorting and Two Pointers**: Preferred for interviews and production due to constant auxiliary space and predictable performance
 - **Hash Set**: Useful when extending the familiar Two Sum hash technique to three numbers, or as a teaching bridge from Two Sum to 3Sum
 
 ### Optimization Notes
 
+- The brute force can prune slightly by sorting and skipping repeated first values, but it remains cubic; the real speedup comes from replacing the innermost loop with a two-pointer or set scan
 - The two-pointer version can break early once the fixed element becomes positive, since no triplet of sorted nonnegative values can sum to zero unless all are zero
 - The hash set version reuses a fresh set per fixed element; clearing and reusing a single set can reduce allocations
-- Both approaches share the same sorting step, so the dominant cost difference is the auxiliary space of the inner search
+- The two quadratic approaches share the same sorting step, so the dominant cost difference between them is the auxiliary space of the inner search

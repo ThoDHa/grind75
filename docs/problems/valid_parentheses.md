@@ -56,14 +56,16 @@ class Solution:
         stack = []
 
         for char in s:
-            if char == "(":
-                stack.append(")")
-            elif char == "[":
-                stack.append("]")
-            elif char == "{":
-                stack.append("}")
-            else:
-                if not stack or stack.pop() != char:
+            if char == "(" or char == "[" or char == "{":
+                stack.append(char)
+            elif char == ")":
+                if not stack or stack.pop() != "(":
+                    return False
+            elif char == "]":
+                if not stack or stack.pop() != "[":
+                    return False
+            elif char == "}":
+                if not stack or stack.pop() != "{":
                     return False
 
         return not stack
@@ -72,20 +74,20 @@ class Solution:
 #### Approach
 
 Brackets must close in last-opened, first-closed order, which is exactly the
-behaviour of a stack. Rather than store the opening bracket and translate it
-later, push the closing bracket we expect to see next:
+behaviour of a stack. The most direct idea is to push each opening bracket as it
+appears, then on a closing bracket check that the most recently opened bracket is
+its matching opener:
 
 1. Walk the string one character at a time.
-2. On an opening bracket, push the matching closing bracket onto the stack. For
-   example, seeing `(` pushes `)`.
-3. On a closing bracket, it is valid only if the stack is non-empty and its top
-   is exactly this character. Pop and compare in one step; on any mismatch (or an
-   empty stack) the string is invalid, so return `False`.
+2. On an opening bracket, push that bracket onto the stack.
+3. On a closing bracket, it is valid only if the stack is non-empty and its top is
+   the matching opener. Pop and compare; on any mismatch (or an empty stack) the
+   string is invalid, so return `False`.
 4. After the loop, the string is valid only if the stack is empty, meaning every
    opening bracket was matched.
 
-Storing the expected closing bracket removes the need for a lookup table: the
-comparison `stack.pop() != char` is a direct equality check.
+Each closing bracket spells out its own opener inline, so the logic stays explicit
+without any lookup table.
 
 #### Time and Space Complexity Analysis
 
@@ -102,8 +104,9 @@ character is pushed, so the stack grows to size `n`.
 #### Key Insights
 
 - A stack models the Last-In-First-Out matching order brackets require.
-- Pushing the expected closing bracket lets a single equality check handle both
-  the "right type" and "right order" rules at once.
+- Storing the raw opener and comparing it on close handles the "right type" and
+  "right order" rules together: the top of the stack is always the only opener
+  that may legally be closed next.
 - The final emptiness check catches unclosed openers like `"(("`, while the
   empty-stack guard inside the loop catches stray closers like `")"`.
 
@@ -219,8 +222,8 @@ Strings are immutable, so every `replace` builds a new string of size up to `n`.
 
 ### Trade-offs
 
-- **Stack** is the leanest single-pass solution and needs no auxiliary map, at the
-  cost of a small `if`/`elif` ladder over the three opener types.
+- **Stack** is the most direct single-pass solution and needs no auxiliary map, at
+  the cost of an `if`/`elif` ladder that spells out each opener-closer pair inline.
 - **Stack with Hash Map** trades that ladder for a readable lookup table, which
   scales naturally if more bracket types were ever added.
 - **Iterative Replacement** is the shortest to write but the slowest, and it hides
@@ -236,8 +239,10 @@ Strings are immutable, so every `replace` builds a new string of size up to `n`.
 
 ### Optimization Notes
 
-- Pushing the expected closing bracket (the **Stack** approach) fuses the type and
-  order checks into one equality test, avoiding a dictionary lookup per character.
+- The **Stack** approach avoids a dictionary lookup per character by hard-coding
+  each opener-closer pair in the `if`/`elif` ladder; a variant that pushes the
+  expected closer instead of the opener would fuse the type and order checks into a
+  single equality test.
 - An optional early `return False` when `len(s)` is odd skips the whole scan for
   inputs that cannot possibly balance.
 - Both stack solutions short-circuit on the first mismatch, so invalid strings are

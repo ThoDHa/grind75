@@ -32,6 +32,66 @@ Given `n` non-negative integers representing an elevation map where the width of
 
 ## Solutions
 
+### Brute Force
+
+```python
+class Solution:
+    def trap(self, height: List[int]) -> int:
+        n = len(height)
+        trapped = 0
+
+        for i in range(n):
+            # Tallest bar at or to the left of i
+            left_max = 0
+            for j in range(i + 1):
+                left_max = max(left_max, height[j])
+
+            # Tallest bar at or to the right of i
+            right_max = 0
+            for j in range(i, n):
+                right_max = max(right_max, height[j])
+
+            # Water above this bar is bounded by the shorter wall on each side.
+            trapped += min(left_max, right_max) - height[i]
+
+        return trapped
+```
+
+#### Approach
+
+The most intuitive idea works one bar at a time and asks a simple question: how much
+water sits directly above bar `i`? Water can only rest there if taller bars hem it in
+on both sides, and it rises to the level of the shorter of those two walls. So for each
+bar we find the tallest bar on its left and the tallest on its right, take the smaller of
+the two, and subtract the bar's own height.
+
+1. For every index `i`, scan left from the start to find the tallest bar at or before `i`.
+2. Scan right to the end to find the tallest bar at or after `i`.
+3. Add `min(left_max, right_max) - height[i]` to the running total.
+
+Because `left_max` and `right_max` both include `height[i]` itself, the contribution is
+never negative: a bar that is the tallest on one side traps nothing and adds `0`.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n^2)`
+
+For each of the `n` bars we rescan the entire array to recompute both maxima, so the work
+is quadratic.
+
+##### Space Complexity: `O(1)`
+
+Only a few scalar accumulators are tracked; no auxiliary array is allocated.
+
+#### Key Insights
+
+- Encodes the core definition directly: trapped water above a bar is
+  `min(maxLeft, maxRight) - height[i]`.
+- Simple to derive under pressure because it mirrors the physical intuition of walls
+  holding water.
+- Wasteful: every bar recomputes the same prefix and suffix maxima from scratch, which the
+  next approach caches away.
+
 ### Prefix and Suffix Maximums
 
 ```python
@@ -71,8 +131,8 @@ then sum `min(left_max[i], right_max[i]) - height[i]` across all bars.
 2. Build `right_max` in a backward sweep.
 3. For each bar, the trapped water is `min(left_max[i], right_max[i]) - height[i]`.
 
-It is the most direct translation of the trapping formula and is easy to reason about,
-at the cost of two auxiliary arrays.
+It refines the brute force by computing each prefix and suffix maximum once and reusing it,
+turning the quadratic rescans into two linear sweeps, at the cost of two auxiliary arrays.
 
 #### Time and Space Complexity Analysis
 
@@ -230,20 +290,24 @@ Only a fixed number of scalars are tracked regardless of input size.
 
 ### Time Complexity
 
+- **Brute Force**: `O(n^2)` - every bar rescans the whole array for both maxima.
 - **Prefix and Suffix Maximums**: `O(n)` - three linear passes.
 - **Monotonic Stack**: `O(n)` - each index is pushed and popped at most once.
 - **Two Pointers**: `O(n)` - single inward sweep.
 
 ### Space Complexity
 
+- **Brute Force**: `O(1)` - only scalar accumulators.
 - **Prefix and Suffix Maximums**: `O(n)` - two precomputed arrays.
 - **Monotonic Stack**: `O(n)` - the stack can hold every index for a decreasing map.
 - **Two Pointers**: `O(1)` - a handful of scalars.
 
 ### Trade-offs
 
+- The Brute Force approach is the easiest to derive and uses no extra space, but its
+  quadratic rescans make it too slow for the upper constraint of `2 * 10^4` bars.
 - The Prefix and Suffix Maximums approach trades `O(n)` space for a transparent, formula-driven implementation
-  that is easier to derive under pressure.
+  that caches the brute force's repeated maxima into two linear sweeps.
 - The Monotonic Stack approach also uses `O(n)` space but fills water in horizontal
   layers, which is the natural fit when a per-segment breakdown is wanted.
 - The Two Pointers approach achieves optimal constant space but relies on the subtler invariant
@@ -251,6 +315,8 @@ Only a fixed number of scalars are tracked regardless of input size.
 
 ### When to Use Each
 
+- **Brute Force**: As a first correctness check or to derive the trapping formula before
+  optimizing; not viable at full input size.
 - **Prefix and Suffix Maximums**: When clarity matters most or as a stepping
   stone to first establish correctness before optimizing.
 - **Monotonic Stack**: When a layer-by-layer or per-segment view of the trapped water
@@ -260,8 +326,10 @@ Only a fixed number of scalars are tracked regardless of input size.
 
 ### Optimization Notes
 
-- All three approaches run in `O(n)` time; they differ only in space and in how the
-  trapped water is accounted for (per column, per layer, or implicitly).
+- The Brute Force recomputes the same prefix and suffix maxima for every bar; the Prefix
+  and Suffix Maximums approach caches them, dropping the time from `O(n^2)` to `O(n)`.
+- The three linear approaches differ only in space and in how the trapped water is
+  accounted for (per column, per layer, or implicitly).
 - The Prefix and Suffix Maximums and Two Pointers solutions short-circuit on an empty
   input to avoid indexing errors, while the Monotonic Stack handles it naturally because
   the loop body never runs.

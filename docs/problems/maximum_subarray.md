@@ -45,6 +45,54 @@ A **subarray** is a contiguous part of an array.
 
 ## Solutions
 
+### Brute Force
+
+```python
+class Solution:
+    def maxSubArray(self, nums: List[int]) -> int:
+        n = len(nums)
+        best = nums[0]
+
+        for start in range(n):
+            # Grow the subarray that begins at `start` one element at a time,
+            # carrying the running sum so each new end is constant work.
+            current = 0
+            for end in range(start, n):
+                current += nums[end]
+                best = max(best, current)
+
+        return best
+```
+
+#### Approach
+
+The most direct idea is to consider every possible contiguous subarray, sum it, and keep the largest sum found. A subarray is fixed by its start and end indices, so two nested loops enumerate all of them.
+
+1. Initialize `best` to `nums[0]` so the answer is valid even when every number is negative.
+2. For each start index, reset a `current` running sum to `0`.
+3. Sweep `end` from `start` to the array's end, adding `nums[end]` to `current` so it always holds the sum of `nums[start..end]`.
+4. Update `best` with the largest sum seen at any `(start, end)` pair.
+5. Return `best` after all pairs are examined.
+
+Carrying the running sum across the inner loop avoids re-adding the same prefix for every end, which keeps the work quadratic rather than cubic.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n^2)`
+
+The outer loop fixes each of the `n` start indices, and the inner loop extends to the end of the array, so the total number of `(start, end)` pairs is on the order of `n^2`, each handled in constant time.
+
+##### Space Complexity: `O(1)`
+
+Only the `best` and `current` scalars are tracked, regardless of input size.
+
+#### Key Insights
+
+- Enumerates the entire search space directly, making correctness obvious without any clever observation.
+- Reusing the running `current` sum is the one optimization that drops a naive `O(n^3)` re-sum down to `O(n^2)`.
+- Seeding `best` with `nums[0]` rather than `0` is what handles the all-negative case correctly.
+- Too slow for the upper constraint of `10^5` elements, which motivates the linear approaches below.
+
 ### Kadane's Algorithm
 
 ```python
@@ -274,6 +322,7 @@ class Solution:
 
 ### Time Complexity
 
+- **Brute Force**: `O(n^2)` - every `(start, end)` pair with a carried running sum.
 - **Kadane's Algorithm**: `O(n)` - single linear scan.
 - **Dynamic Programming with Explicit Table**: `O(n)` - one pass to fill the table plus one to take the max.
 - **Divide and Conquer**: `O(n log n)` - `O(n)` crossing work across `O(log n)` levels.
@@ -282,6 +331,7 @@ class Solution:
 
 ### Space Complexity
 
+- **Brute Force**: `O(1)` - two scalars for the running sum and best.
 - **Kadane's Algorithm**: `O(1)` - two rolling accumulators.
 - **Dynamic Programming with Explicit Table**: `O(n)` - stores one state per element.
 - **Divide and Conquer**: `O(log n)` - recursion stack depth.
@@ -290,6 +340,7 @@ class Solution:
 
 ### Trade-offs
 
+- Brute Force gains the simplest, most obviously correct enumeration but is too slow for large inputs.
 - Kadane's algorithm gives the best time and space at the cost of a non-obvious restart insight.
 - The explicit DP table trades `O(n)` space for clarity and reusable per-index states.
 - Divide and conquer trades efficiency for a teachable paradigm and natural parallelism.
@@ -298,6 +349,7 @@ class Solution:
 
 ### When to Use Each
 
+- **Brute Force**: Only as a correctness baseline or for tiny inputs; never for the full constraint.
 - **Kadane's Algorithm**: The default choice for interviews and production (recommended).
 - **Dynamic Programming with Explicit Table**: When teaching the recurrence or when the intermediate states are needed downstream.
 - **Divide and Conquer**: When the follow-up demands it or when parallelizing across halves.
@@ -306,6 +358,7 @@ class Solution:
 
 ### Optimization Notes
 
+- The brute force already carries a running sum to avoid re-adding prefixes, which is what keeps it `O(n^2)` instead of `O(n^3)`; the linear approaches below collapse it further by reusing the best subarray ending at the previous index.
 - Kadane's algorithm and the explicit DP table are the same recurrence; the former simply compresses the table to one rolling variable.
 - Initializing accumulators to `nums[0]` (rather than `0`) is what makes the all-negative case correct across the linear-scan variants.
 - The divide-and-conquer halves are independent and could be evaluated in parallel for very large arrays.

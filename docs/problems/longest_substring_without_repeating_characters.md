@@ -48,6 +48,67 @@ Notice that the answer must be a substring, "pwke" is a subsequence and not a su
 
 ## Solutions
 
+### Brute Force
+
+```python
+class Solution:
+    def lengthOfLongestSubstring(self, s: str) -> int:
+        longest = 0
+
+        # Try every possible starting index
+        for start in range(len(s)):
+            seen = set()
+            # Extend the substring to the right until a repeat appears
+            for end in range(start, len(s)):
+                if s[end] in seen:
+                    break
+                seen.add(s[end])
+                longest = max(longest, end - start + 1)
+
+        return longest
+```
+
+#### Approach
+
+The most direct idea is to consider every substring and keep the longest one
+that has no repeated character. Rather than re-scanning each substring from
+scratch, we anchor a `start` index and grow the substring one character at a
+time, collecting the characters into a `seen` set. The moment the next character
+is already in the set, this substring cannot grow any further, so we stop and
+move the anchor forward.
+
+1. Initialize `longest = 0`.
+2. For each `start` index, begin an empty `seen` set.
+3. Extend `end` from `start` to the end of the string.
+4. If `s[end]` is already in `seen`, the substring would repeat a character, so
+   break out of the inner loop.
+5. Otherwise add `s[end]` to `seen` and update `longest` with the current
+   substring length `end - start + 1`.
+6. Return `longest`.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n^2)`
+
+For each of the `n` starting positions, the inner loop extends until it hits a
+repeat, scanning up to `n` characters. Each membership test on the set is `O(1)`
+on average, so the total work is quadratic.
+
+##### Space Complexity: `O(min(n, charset))`
+
+The `seen` set holds at most one entry per distinct character in the current
+substring, bounded by both the string length and the size of the character set.
+
+#### Key Insights
+
+- Trying every substring is the most literal reading of the problem; no special
+  pattern is required to derive it.
+- Growing a substring with a running `seen` set avoids re-checking each candidate
+  from scratch, dropping the naive `O(n^3)` to `O(n^2)`.
+- The wasted work is the restart: when the inner loop breaks, everything learned
+  about the prefix is discarded and recomputed from the next `start`. Removing
+  that waste is exactly what the sliding window does.
+
 ### Sliding Window with Set
 
 ```python
@@ -182,26 +243,31 @@ digits, symbols, and spaces), giving `O(min(n, m))`.
 
 ### Time Complexity
 
+- **Brute Force**: `O(n^2)` - Every starting index grows a substring until a repeat, scanning up to `n` characters each time
 - **Sliding Window with Set**: `O(2n)` - Each character is added once and removed at most once as the window shrinks step by step
 - **Sliding Window with Last-Seen Index**: `O(n)` - `left` jumps directly past duplicates, so each character is touched a single time
 
 ### Space Complexity
 
+- **Brute Force**: `O(min(n, charset))` - The `seen` set holds at most one entry per distinct character in the current substring
 - **Sliding Window with Set**: `O(min(n, charset))` - The set holds at most one entry per distinct character in the window
 - **Sliding Window with Last-Seen Index**: `O(min(n, m))` - The map holds at most one entry per distinct character
 
 ### Trade-offs
 
-- The set version is the most direct expression of the idea: shrink the window one character at a time until it is valid again, which is easy to reason about
+- The brute force is the easiest to derive: it literally tries every substring, but it discards everything it learns each time the inner loop breaks and restarts from the next index
+- The set version keeps that discarded work by never restarting: it shrinks the window one character at a time until it is valid again, which is easy to reason about
 - The last-seen-index version trades a slightly more subtle invariant (the `>= left` guard) for the ability to skip `left` forward in one move, halving the constant factor
 
 ### When to Use Each
 
+- **Brute Force**: When first reasoning about the problem, or to establish a correct baseline before optimizing
 - **Sliding Window with Set**: When clarity matters most, or when first learning the sliding-window pattern
 - **Sliding Window with Last-Seen Index**: For the tightest single-pass solution, especially in interviews where the index jump is a desirable optimization to demonstrate
 
 ### Optimization Notes
 
-- Both solutions are linear; the difference is purely in the constant factor, since the set version may revisit characters as `left` advances
+- The two sliding-window solutions are linear; the difference between them is purely in the constant factor, since the set version may revisit characters as `left` advances
+- Both improve on the brute force by reusing the window instead of recomputing each substring from scratch, turning the `O(n^2)` of repeated restarts into a single linear pass
 - The last-seen-index map subsumes the set: it stores positions rather than mere presence, which is exactly what enables the forward jump
 - The crucial correctness detail in the index version is the `last_seen[char] >= left` guard, which prevents a stale index from dragging `left` backward

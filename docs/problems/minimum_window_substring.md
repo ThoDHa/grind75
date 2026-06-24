@@ -93,7 +93,12 @@ class Solution:
 
 #### Approach
 
-This **brute force solution** checks all possible substrings of s that could contain all characters from t. While correct, it's highly inefficient and included only for educational comparison.
+The most direct reading of the problem is to enumerate every substring and keep the shortest one that contains all of `t`. Validity is checked from scratch by counting `t`'s characters into a dictionary and decrementing as the window is scanned.
+
+1. Build a frequency dictionary of `t` by hand inside `is_valid_window`, then scan the candidate substring decrementing each matched count until the dictionary empties.
+2. For each start index `i`, extend the end `j` from the smallest feasible length upward, testing each substring for validity.
+3. Stop extending a given start the moment a valid window is found, since any longer window from that same start cannot be smaller.
+4. Track the shortest valid window seen across all starts and return it.
 
 #### Time and Space Complexity Analysis
 

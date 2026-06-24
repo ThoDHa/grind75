@@ -41,6 +41,56 @@ Given the `head` of a singly linked list, reverse the list, and return the rever
 
 ## Solutions
 
+### Brute Force
+
+```python
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
+class Solution:
+    def reverseList(self, head: Optional[ListNode]) -> Optional[ListNode]:
+        # Collect every value in forward order
+        values = []
+        curr = head
+        while curr:
+            values.append(curr.val)
+            curr = curr.next
+        # Walk the nodes again, overwriting each with the value from the back
+        curr = head
+        i = len(values) - 1
+        while curr:
+            curr.val = values[i]
+            i -= 1
+            curr = curr.next
+        return head
+```
+
+#### Approach
+
+The most direct idea ignores pointer rewiring entirely and instead moves the data. Read all the node values into an array, then walk the same nodes a second time, writing the values back in reverse order. The list structure never changes; only the payload in each node is swapped end for end.
+
+1. Traverse the list once, appending every node's `val` to a `values` array in forward order.
+2. Traverse the list a second time from `head`, writing `values[i]` into the current node while `i` counts down from the last index.
+3. Return the original `head`, whose nodes now hold the values in reversed order.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n)`
+
+Where `n` is the number of nodes in the linked list. Two separate passes each touch every node once, which is still linear.
+
+##### Space Complexity: `O(n)`
+
+The `values` array holds a copy of every node's value, so the auxiliary storage grows linearly with the list length.
+
+#### Key Insights
+
+- Reverses by relocating values rather than flipping links, which is the easiest correct idea to reach without knowing the pointer trick.
+- Requires `O(n)` extra space for the value buffer, the cost of not touching the structure.
+- Mutating values in place works for a singly linked list, but it would not generalize to cases where node identity or attached payloads must move with the data.
+
 ### Iterative
 
 ```python
@@ -135,21 +185,25 @@ The recursion creates a stack of function calls proportional to the list length.
 
 ### Time Complexity
 
+- **Brute Force**: `O(n)` - Two passes, but still linear overall
 - **Iterative**: `O(n)` - Single pass through the list
 - **Recursive**: `O(n)` - Also processes each node once
 
 ### Space Complexity
 
+- **Brute Force**: `O(n)` - Buffers every node's value in an array
 - **Iterative**: `O(1)` - Uses fixed amount of extra space
 - **Recursive**: `O(n)` - Uses call stack space proportional to list length
 
 ### Trade-offs
 
+- The brute force solution is the easiest to derive but spends `O(n)` extra space to copy values rather than rewire links
 - The iterative solution is more space-efficient but requires tracking multiple pointers
 - The recursive solution is more elegant but uses more memory due to the call stack
 
 ### When to Use Each
 
+- **Brute Force**: As a first correct attempt or when reversing values is acceptable and structure must stay fixed
 - **Iterative**: When memory efficiency is important or the list might be very long
 - **Recursive**: When code readability is valued over memory efficiency and the list is reasonably sized
 

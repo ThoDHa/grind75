@@ -59,6 +59,86 @@ Evaluate the expression. Return an integer that represents the value of the expr
 
 ## Solutions
 
+### Recursive Evaluation
+
+```python
+from typing import List
+
+
+class Solution:
+    def evalRPN(self, tokens: List[str]) -> int:
+        operators = {'+', '-', '*', '/'}
+        # Scan right to left: the last token is always the outermost operator
+        pos = len(tokens) - 1
+
+        def evaluate() -> int:
+            nonlocal pos
+            token = tokens[pos]
+            pos -= 1
+            if token not in operators:
+                return int(token)
+            # The token just before an operator closes its right operand;
+            # whatever precedes that is the left operand
+            right = evaluate()
+            left = evaluate()
+            if token == '+':
+                return left + right
+            if token == '-':
+                return left - right
+            if token == '*':
+                return left * right
+            # int() truncates toward zero, matching the spec, unlike Python's
+            # // which floors toward negative infinity
+            return int(left / right)
+
+        return evaluate()
+```
+
+#### Approach
+
+An RPN expression is the post-order traversal of an expression tree, so the
+final token is always the root operator and the values before it split into a
+right operand subtree followed by a left operand subtree. Reading the tokens
+from right to left, we can reconstruct and evaluate that tree directly, with no
+stack at all.
+
+1. Set `pos` to the last token and define a recursive `evaluate` that consumes
+   tokens from the right.
+2. Read the token at `pos`, then move `pos` one step left.
+3. If the token is a number, convert it with `int(token)` and return it.
+4. If the token is an operator, recursively evaluate the `right` operand first
+   (it sits immediately to the left), then the `left` operand.
+5. Combine `left` and `right` with the operator and return the result, using
+   `int(left / right)` so division truncates toward zero.
+
+The right-before-left recursion order is the crux: because we walk leftward, the
+operand nearest the operator is its right child, exactly mirroring how the tree
+was flattened into post-order.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n)`
+
+Each of the `n` tokens triggers exactly one `evaluate` call doing constant work,
+so the traversal is linear.
+
+##### Space Complexity: `O(n)`
+
+The recursion depth equals the height of the expression tree, which can reach
+`O(n)` for a deeply nested expression (for example, a long chain of operators
+each combining a number with the previous result).
+
+#### Key Insights
+
+- RPN is post-order, so the rightmost token is the root and the tree can be
+  rebuilt by scanning right to left.
+- Recursing into the `right` operand before the `left` is mandatory, since the
+  operand adjacent to the operator is its right child.
+- This derives the answer straight from the expression's structure without ever
+  naming a stack, making it the most intuitive starting point.
+- The recursion itself plays the role the explicit stack fills in the iterative
+  versions; the call stack holds the pending operands.
+
 ### Stack
 
 ```python
@@ -211,18 +291,26 @@ is `O(n)`.
 
 ### Time Complexity
 
+- **Recursive Evaluation**: `O(n)` - each token drives one recursive call doing
+  constant work.
 - **Stack**: `O(n)` - one pass, constant work per token.
 - **Operator Dispatch Table**: `O(n)` - one pass, constant lookup and call per
   token.
 
 ### Space Complexity
 
+- **Recursive Evaluation**: `O(n)` - the recursion can reach a depth proportional
+  to the expression-tree height, up to `n`.
 - **Stack**: `O(n)` - the operand stack can hold up to `n` values.
 - **Operator Dispatch Table**: `O(n)` - same operand stack, plus a fixed-size
   table that is `O(1)`.
 
 ### Trade-offs
 
+- The Recursive Evaluation approach derives the answer directly from the
+  expression's post-order structure with no explicit stack, but trades an
+  iterative loop for recursion that can reach `O(n)` depth on deeply nested
+  input.
 - The Stack approach spells out each operator inline, which is maximally explicit
   and needs no imports, at the cost of a repetitive `if`/`elif` chain.
 - The Operator Dispatch Table approach centralizes operator handling in one data
@@ -231,17 +319,23 @@ is `O(n)`.
 
 ### When to Use Each
 
-- **Stack**: When you want the most self-evident, dependency-free implementation,
-  or in an interview where writing out the branches makes the truncation detail
-  obvious to the reader.
+- **Recursive Evaluation**: When you want to reason about RPN as an expression
+  tree from first principles, or to make the post-order structure explicit
+  without introducing a stack.
+- **Stack**: When you want the most self-evident, dependency-free iterative
+  implementation, or in an interview where writing out the branches makes the
+  truncation detail obvious to the reader.
 - **Operator Dispatch Table**: When the operator set might grow, or when you
   prefer a uniform loop body that separates the "what to do" table from the "how
   to scan" logic.
 
 ### Optimization Notes
 
-- Both approaches are already linear and optimal for this problem; the difference
-  is purely structural.
+- All three approaches are already linear and optimal for this problem; the
+  differences are purely structural.
+- Prefer the iterative Stack over the Recursive Evaluation for the upper
+  constraint of `10^4` tokens, where a deeply nested expression could otherwise
+  approach Python's default recursion limit.
 - Keep the division wrapped in `int(left / right)` in either version; replacing
   it with `left // right` silently breaks cases where exactly one operand is
   negative (for example, `7 / -2` must give `-3`, not `-4`).

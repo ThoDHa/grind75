@@ -55,7 +55,171 @@ A -> B -> C -> A -> D -> E -> A -> F -> G -> A -> idle -> idle -> A -> idle -> i
 
 ## Solutions
 
-### Greedy Simulation
+### Brute Force Simulation
+
+```python
+class Solution:
+    def leastInterval(self, tasks: List[str], n: int) -> int:
+        # Count each task's frequency without any imported counter.
+        counts = {}
+        for t in tasks:
+            counts[t] = counts.get(t, 0) + 1
+
+        remaining = list(counts.values())
+        # Track the last time unit at which each task ran; -inf means never.
+        last_used = [float("-inf")] * len(remaining)
+        done = 0
+        total = len(tasks)
+        time = 0
+
+        # Walk the timeline one unit at a time until every task is placed.
+        while done < total:
+            # Among tasks that are off cooldown and still have copies, pick the
+            # one with the most remaining: that greedy choice avoids future idle.
+            best = -1
+            for i in range(len(remaining)):
+                if remaining[i] > 0 and time - last_used[i] > n:
+                    if best == -1 or remaining[i] > remaining[best]:
+                        best = i
+
+            if best != -1:
+                remaining[best] -= 1
+                last_used[best] = time
+                done += 1
+            # If no task is eligible, this unit is idle; either way the clock ticks.
+            time += 1
+
+        return time
+```
+
+#### Approach
+
+The most direct way to answer the question is to literally build the schedule, one
+time unit at a time, and count how many units pass before the last task is placed.
+At each unit the CPU must either run an eligible task or sit idle, so the only
+decision is which task to run when several are eligible.
+
+1. Count each task's frequency into a plain dictionary and collect the counts into a
+   `remaining` list. Keep a parallel `last_used` list recording the time unit at
+   which each task last ran (`-inf` until it first runs).
+2. Step the clock from `time = 0` upward. A task is eligible at the current unit when
+   it still has copies left and enough time has passed since it last ran
+   (`time - last_used[i] > n`).
+3. Among the eligible tasks, pick the one with the largest remaining count. Running
+   the scarcest-to-schedule task first is the greedy choice that keeps later idle
+   gaps fillable.
+4. If a task was chosen, decrement it, stamp `last_used`, and mark one more task
+   done. If none was eligible, the unit is idle. Either way, advance the clock.
+5. Stop once every task copy has been placed and return the elapsed `time`.
+
+The cooldown bookkeeping is done entirely by hand through `last_used`, with no sort,
+heap, or formula. It is the slowest approach but the easiest to believe correct,
+because it mirrors the literal definition of the schedule.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(N * 26)`
+
+Let `N` be the number of tasks. The clock advances `O(N)` units (the schedule length
+is linear in the task count), and each unit scans the at-most-26 distinct task counts
+to find the best eligible one. Multiplying gives `O(N * 26)`, effectively linear in
+`N` with a constant factor.
+
+##### Space Complexity: `O(1)`
+
+The `counts` dictionary together with the `remaining` and `last_used` lists hold at
+most 26 entries (uppercase letters), independent of `N`.
+
+#### Key Insights
+
+- Simulating unit by unit follows the problem statement literally, which makes the
+  result easy to trust without any cleverness.
+- Tracking `last_used` per task enforces the cooldown directly: a task simply cannot
+  be chosen until `n` units have passed since its last run.
+- The greedy "run the highest remaining count" tie-break is what prevents the
+  simulation from idling unnecessarily.
+- It is wasteful: every idle unit is still scanned, so the next solution collapses
+  the timeline into `n + 1`-wide rounds to skip that per-unit work.
+
+### Greedy Math Formula
+
+```python
+class Solution:
+    def leastInterval(self, tasks: List[str], n: int) -> int:
+        # Count each task's frequency without any imported counter.
+        counts = {}
+        for t in tasks:
+            counts[t] = counts.get(t, 0) + 1
+
+        max_freq = max(counts.values())
+        # How many distinct tasks share that peak frequency.
+        max_count = sum(1 for freq in counts.values() if freq == max_freq)
+
+        # Frame built around the most frequent task: (max_freq - 1) full gaps of
+        # width (n + 1), then the final block holding every peak task.
+        frame = (max_freq - 1) * (n + 1) + max_count
+
+        # If there are enough distinct tasks to fill every idle slot, no idling is
+        # needed and the answer is simply the number of tasks.
+        return max(len(tasks), frame)
+```
+
+#### Approach
+
+The simulation can be collapsed into a closed-form formula because the schedule
+length is dictated entirely by the most frequent task. Suppose the maximum frequency
+is `max_freq`. Lay those occurrences out as anchors separated by cooldown gaps of
+width `n`:
+
+```
+A . . . A . . . A
+```
+
+There are `max_freq - 1` gaps, each spanning `n + 1` slots (the task plus `n`
+following slots), which accounts for `(max_freq - 1) * (n + 1)` units. The final
+anchor block needs room for every task that also hits the peak frequency, so we add
+`max_count`, the number of tasks tied for the maximum.
+
+That gives the framed length `(max_freq - 1) * (n + 1) + max_count`. The idle slots
+inside the gaps can be filled by other tasks. If there are so many other tasks that
+they overflow the gaps, no idling is ever required and the answer is just the total
+number of tasks. Taking the maximum of the two handles both regimes.
+
+1. Count each task's frequency into a plain dictionary.
+2. Find `max_freq` and `max_count` (how many tasks reach it).
+3. Compute the frame `(max_freq - 1) * (n + 1) + max_count`.
+4. Return `max(len(tasks), frame)`.
+
+When the frame exceeds `len(tasks)`, the difference is exactly the number of forced
+idle units; otherwise every slot is busy. This works because the most frequent task
+fixes a rigid skeleton of anchors and gaps, and every other task either slots into a
+gap or pushes the schedule out only when the total task count overflows the frame.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(N)`
+
+Where `N` is the number of tasks. Counting frequencies is `O(N)`, and the remaining
+work scans at most 26 distinct task counts, which is constant.
+
+##### Space Complexity: `O(1)`
+
+The frequency dictionary holds at most 26 entries (uppercase letters), independent
+of `N`.
+
+#### Key Insights
+
+- The answer is governed entirely by the peak frequency and how many tasks tie for
+  it; the exact identities of other tasks do not matter.
+- `(max_freq - 1) * (n + 1)` measures the rigid skeleton imposed by cooldown; adding
+  `max_count` accounts for the trailing block of all peak tasks.
+- Taking `max(len(tasks), frame)` cleanly resolves the two cases: idle-bound (frame
+  wins) versus task-bound (no idling needed).
+- The formula collapses the round-by-round simulation into a single arithmetic
+  expression with no loop over time at all, but it requires the peak-frequency insight
+  that the simulations below make explicit by tracing the schedule directly.
+
+### Greedy Round Simulation
 
 ```python
 class Solution:
@@ -227,132 +391,68 @@ independent of `N`.
 - Breaking out when both the heap and survivors are empty avoids counting trailing
   idle slots in the final, partial cycle.
 
-### Greedy Math Formula
-
-```python
-class Solution:
-    def leastInterval(self, tasks: List[str], n: int) -> int:
-        # Count each task's frequency without any imported counter.
-        counts = {}
-        for t in tasks:
-            counts[t] = counts.get(t, 0) + 1
-
-        max_freq = max(counts.values())
-        # How many distinct tasks share that peak frequency.
-        max_count = sum(1 for freq in counts.values() if freq == max_freq)
-
-        # Frame built around the most frequent task: (max_freq - 1) full gaps of
-        # width (n + 1), then the final block holding every peak task.
-        frame = (max_freq - 1) * (n + 1) + max_count
-
-        # If there are enough distinct tasks to fill every idle slot, no idling is
-        # needed and the answer is simply the number of tasks.
-        return max(len(tasks), frame)
-```
-
-#### Approach
-
-The simulation can be collapsed into a closed-form formula because the schedule
-length is dictated entirely by the most frequent task. Suppose the maximum frequency
-is `max_freq`. Lay those occurrences out as anchors separated by cooldown gaps of
-width `n`:
-
-```
-A . . . A . . . A
-```
-
-There are `max_freq - 1` gaps, each spanning `n + 1` slots (the task plus `n`
-following slots), which accounts for `(max_freq - 1) * (n + 1)` units. The final
-anchor block needs room for every task that also hits the peak frequency, so we add
-`max_count`, the number of tasks tied for the maximum.
-
-That gives the framed length `(max_freq - 1) * (n + 1) + max_count`. The idle slots
-inside the gaps can be filled by other tasks. If there are so many other tasks that
-they overflow the gaps, no idling is ever required and the answer is just the total
-number of tasks. Taking the maximum of the two handles both regimes.
-
-1. Count each task's frequency into a plain dictionary.
-2. Find `max_freq` and `max_count` (how many tasks reach it).
-3. Compute the frame `(max_freq - 1) * (n + 1) + max_count`.
-4. Return `max(len(tasks), frame)`.
-
-When the frame exceeds `len(tasks)`, the difference is exactly the number of forced
-idle units; otherwise every slot is busy. This works because the most frequent task
-fixes a rigid skeleton of anchors and gaps, and every other task either slots into a
-gap or pushes the schedule out only when the total task count overflows the frame.
-
-#### Time and Space Complexity Analysis
-
-##### Time Complexity: `O(N)`
-
-Where `N` is the number of tasks. Counting frequencies is `O(N)`, and the remaining
-work scans at most 26 distinct task counts, which is constant.
-
-##### Space Complexity: `O(1)`
-
-The frequency dictionary holds at most 26 entries (uppercase letters), independent
-of `N`.
-
-#### Key Insights
-
-- The answer is governed entirely by the peak frequency and how many tasks tie for
-  it; the exact identities of other tasks do not matter.
-- `(max_freq - 1) * (n + 1)` measures the rigid skeleton imposed by cooldown; adding
-  `max_count` accounts for the trailing block of all peak tasks.
-- Taking `max(len(tasks), frame)` cleanly resolves the two cases: idle-bound (frame
-  wins) versus task-bound (no idling needed).
-- The formula collapses the round-by-round simulation into a single arithmetic
-  expression with no loop over time at all.
-
 ## Comparison of Solutions
 
 ### Time Complexity
 
-- **Greedy Simulation**: `O(N * 26 log 26)` because it runs roughly `O(N)` rounds,
-  each sorting up to 26 counts.
-- **Max-Heap Simulation**: `O(N log 26)` because every task copy is popped and
-  pushed once, each heap operation costing `O(log 26)`.
+- **Brute Force Simulation**: `O(N * 26)` because it advances the clock through
+  roughly `O(N)` units and scans up to 26 counts at each one.
 - **Greedy Math Formula**: `O(N)` because it only counts frequencies once and then
   does constant arithmetic over at most 26 counts.
+- **Greedy Round Simulation**: `O(N * 26 log 26)` because it runs roughly `O(N)`
+  rounds, each sorting up to 26 counts.
+- **Max-Heap Simulation**: `O(N log 26)` because every task copy is popped and
+  pushed once, each heap operation costing `O(log 26)`.
 
 ### Space Complexity
 
-- **Greedy Simulation**: `O(1)`, using a 26-entry dictionary and list.
-- **Max-Heap Simulation**: `O(1)`, using a 26-entry heap and survivors list.
+- **Brute Force Simulation**: `O(1)`, using a 26-entry dictionary plus the
+  `remaining` and `last_used` lists.
 - **Greedy Math Formula**: `O(1)`, using a 26-entry dictionary.
+- **Greedy Round Simulation**: `O(1)`, using a 26-entry dictionary and list.
+- **Max-Heap Simulation**: `O(1)`, using a 26-entry heap and survivors list.
 
-All three use constant auxiliary space; the difference is in time and conceptual
+All four use constant auxiliary space; the difference is in time and conceptual
 complexity.
 
 ### Trade-offs
 
-- The greedy simulation directly models what the CPU does, which makes its
-  correctness easy to see and easy to debug: you can print the schedule round by
-  round. Its cost is the repeated sorting and the explicit time loop.
+- The brute force simulation builds the schedule one time unit at a time, mirroring
+  the problem statement literally. That makes it the easiest to trust, but it scans
+  every idle unit, so it does the most redundant work.
+- The formula is a single expression with no loop over time, making it dramatically
+  faster, and like the brute force it leans on no library for its core work. It
+  requires the insight that the peak frequency alone determines the idle skeleton,
+  a leap that is harder to derive from scratch.
+- The greedy round simulation collapses the timeline into `n + 1`-wide rounds,
+  skipping the per-unit idle scan. It pays for this with a per-round sort and still
+  traces the schedule round by round.
 - The max-heap simulation replaces the per-round sort with a heap, automating the
   greedy choice in `O(log 26)` per operation. It is the natural data-structure
-  refinement of the array simulation while still tracing the schedule cycle by cycle.
-- The formula is a single expression with no loop over time, making it dramatically
-  faster, but it requires the insight that the peak frequency alone determines the
-  idle skeleton. That leap is harder to derive from scratch.
+  refinement of the round simulation while still tracing the schedule cycle by cycle.
 
 ### When to Use Each
 
-- **Greedy Simulation**: Useful when you want to verify behavior, visualize the
+- **Brute Force Simulation**: When you want the most literal, easiest-to-verify
+  model of the schedule, or as a baseline to check the faster approaches against.
+- **Greedy Math Formula**: Preferred for production and for the constraint ceiling,
+  where the closed form runs in a single linear pass with no simulation overhead.
+- **Greedy Round Simulation**: Useful when you want to verify behavior, visualize the
   actual schedule, or when the greedy formula's derivation is not yet obvious.
 - **Max-Heap Simulation**: When you want the simulation's transparency but prefer a
   heap to express the greedy choice, a common interview-favored formulation.
-- **Greedy Math Formula**: Preferred for production and for the constraint ceiling,
-  where the closed form runs in a single linear pass with no simulation overhead.
 
 ### Optimization Notes
 
-- The greedy simulation establishes the greedy principle (always run the most
-  frequent remaining tasks first), which both the heap simulation and the formula
-  encode in their own way.
-- The max-heap simulation is the structural optimization of the simulation: a heap
-  surfaces the most frequent task in `O(log 26)` instead of re-sorting each round.
+- The brute force simulation establishes the greedy principle (always run the most
+  frequent eligible task first) by hand, tracking each task's cooldown through a
+  `last_used` timestamp.
 - The formula is the key algorithmic optimization: recognizing that the most
-  frequent task dictates the layout removes the need to simulate every time unit.
-- All three solutions count frequencies with a plain dictionary, avoiding any
+  frequent task dictates the layout removes the need to simulate every time unit,
+  and it reaches that result with no library, only arithmetic.
+- The greedy round simulation skips the per-unit idle scan by processing a full
+  `n + 1`-wide round at a time, surfacing the greedy choice with a per-round sort.
+- The max-heap simulation is the structural optimization of the round simulation: a
+  heap surfaces the most frequent task in `O(log 26)` instead of re-sorting each round.
+- All four solutions count frequencies with a plain dictionary, avoiding any
   imported counter while keeping the 26-letter alphabet's operations constant.

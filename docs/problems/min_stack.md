@@ -52,6 +52,77 @@ minStack.getMin(); // return -2
 
 ## Solutions
 
+### Brute Force
+
+```python
+class MinStack:
+
+    def __init__(self):
+        self.stack: list[int] = []
+
+    def push(self, val: int) -> None:
+        self.stack.append(val)
+
+    def pop(self) -> None:
+        self.stack.pop()
+
+    def top(self) -> int:
+        return self.stack[-1]
+
+    def getMin(self) -> int:
+        # Scan the whole stack every time to find the smallest value.
+        smallest = self.stack[0]
+        for value in self.stack:
+            if value < smallest:
+                smallest = value
+        return smallest
+
+
+# Your MinStack object will be instantiated and used as such:
+# obj = MinStack()
+# obj.push(val)
+# obj.pop()
+# param_3 = obj.top()
+# param_4 = obj.getMin()
+```
+
+#### Approach
+
+The most direct idea ignores the `O(1)` requirement at first and keeps a single
+plain stack of values. `push`, `pop`, and `top` are trivial list operations.
+For `getMin`, with no extra bookkeeping, the only option is to walk every
+element and track the smallest one seen.
+
+1. Store pushed values in a single list used as a stack.
+2. `push` appends, `pop` removes the last element, and `top` reads the last
+   element.
+3. `getMin` linearly scans the entire stack, comparing each value against a
+   running smallest, and returns the smallest found.
+
+This is correct and simple to reason about, but `getMin` does `O(n)` work, which
+violates the problem's `O(1)` requirement. Tracing Example 1, after pushing
+`-2`, `0`, `-3`, the scan over `[-2, 0, -3]` returns `-3`; after popping `-3`,
+the scan over `[-2, 0]` returns `-2`. Correct, just slow.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(1)` for push/pop/top, `O(n)` for getMin
+
+`push`, `pop`, and `top` touch only the last element, but `getMin` scans all `n`
+elements on every call, so it fails the constant-time requirement.
+
+##### Space Complexity: `O(n)`
+
+A single list stores the `n` pushed values with no auxiliary structure.
+
+#### Key Insights
+
+- The naive baseline: store values plainly and recompute the minimum on demand.
+- It exposes the real challenge, which is making `getMin` constant time rather
+  than a full scan.
+- Every later solution removes the `getMin` scan by caching the minimum as
+  elements are pushed.
+
 ### Single Stack of Pairs
 
 ```python
@@ -200,20 +271,26 @@ total storage is linear in the number of elements.
 
 ### Time Complexity
 
+- **Brute Force**: `O(1)` for push/pop/top, `O(n)` for getMin - the scan walks
+  every element to find the minimum.
 - **Single Stack of Pairs**: `O(1)` per operation - one tuple append, pop, or
   index lookup.
 - **Two Stacks**: `O(1)` per operation - one append or pop on each of two stacks.
 
 ### Space Complexity
 
+- **Brute Force**: `O(n)` - a single list of values with no auxiliary structure.
 - **Single Stack of Pairs**: `O(n)` - each element stores its value and the
   cached minimum together.
 - **Two Stacks**: `O(n)` - the parallel minimum stack adds one integer per push.
 
 ### Trade-offs
 
-- Both approaches store the same amount of extra information (one cached minimum
-  per element) and meet the `O(1)` requirement for every operation.
+- Brute Force is the simplest to write and uses the least memory, but its `O(n)`
+  `getMin` fails the problem's constant-time requirement.
+- The two cached approaches store the same amount of extra information (one
+  cached minimum per element) and meet the `O(1)` requirement for every
+  operation.
 - The single stack keeps everything in one container, so push and pop touch only
   one list.
 - The two-stack version keeps each container holding plain integers, which some
@@ -221,6 +298,8 @@ total storage is linear in the number of elements.
 
 ### When to Use Each
 
+- **Brute Force**: Never for this problem's stated `O(1)` constraint; useful only
+  as a teaching baseline that motivates caching the minimum.
 - **Single Stack of Pairs**: When you prefer a single data structure and are
   comfortable unpacking tuples.
 - **Two Stacks**: When you prefer to keep values and minimums conceptually
@@ -228,8 +307,9 @@ total storage is linear in the number of elements.
 
 ### Optimization Notes
 
-- Both solutions cache the running minimum so `getMin` never recomputes; this is
-  the core trick that turns an `O(n)` scan into an `O(1)` lookup.
+- The brute force recomputes the minimum on every `getMin`; both cached solutions
+  eliminate that scan by carrying the running minimum forward, which is the core
+  trick that turns an `O(n)` query into an `O(1)` lookup.
 - A further memory optimization stores only minimums that actually change (a
   monotonic minimum stack), shrinking the auxiliary stack when many pushes share
   the same minimum, at the cost of slightly more bookkeeping on pop.

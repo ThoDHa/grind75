@@ -92,65 +92,6 @@ Space for the recursion stack, which can be up to `amount` levels deep.
 - It exposes the optimal substructure of the problem, which every faster approach exploits.
 - Without caching, the same remaining amounts are recomputed exponentially many times, so this is only viable for tiny inputs.
 
-### BFS
-
-```python
-from collections import deque
-
-class Solution:
-    def coinChange(self, coins: List[int], amount: int) -> int:
-        if amount == 0:
-            return 0
-
-        # BFS to find minimum steps (coins) to reach target amount
-        queue = deque([0])  # Start with amount 0
-        visited = {0}       # Track visited amounts to avoid cycles
-        steps = 0           # Number of coins used so far
-
-        while queue:
-            steps += 1
-            # Process all amounts reachable with current number of coins
-            for _ in range(len(queue)):
-                current_amount = queue.popleft()
-
-                # Try adding each coin denomination
-                for coin in coins:
-                    new_amount = current_amount + coin
-
-                    # If we reached the target amount
-                    if new_amount == amount:
-                        return steps
-
-                    # If this amount is valid and not visited yet
-                    if new_amount < amount and new_amount not in visited:
-                        visited.add(new_amount)
-                        queue.append(new_amount)
-
-        return -1  # Target amount is unreachable
-```
-
-#### Approach
-
-This BFS approach treats the problem as finding the shortest path from amount 0 to the target amount, where each coin represents an edge with weight 1. We use level-by-level BFS where each level represents using one more coin.
-
-The key insight is that BFS naturally finds the minimum number of steps (coins) to reach any amount, since it explores all possibilities with fewer coins before exploring those with more coins.
-
-#### Time and Space Complexity Analysis
-
-##### Time Complexity: `O(amount × coins.length)`
-
-In the worst case, we visit each amount from 0 to `amount - 1`, and for each amount we try all coins.
-
-##### Space Complexity: `O(amount)`
-
-Space for the queue and visited set, both of which can contain up to `amount` elements.
-
-#### Key Insights
-
-- Modeling each reachable amount as a graph node turns "fewest coins" into "shortest path," which BFS solves directly.
-- Because every edge has unit weight, the first level at which we hit the target amount is guaranteed to be optimal.
-- The `visited` set is essential: without it, the same amounts would be enqueued repeatedly and the search would degrade badly.
-
 ### Top-Down Memoization
 
 ```python
@@ -259,35 +200,94 @@ We use a DP array of size `amount + 1` to store the minimum coins needed for eac
 - Initializing every entry to the sentinel `amount + 1` exceeds any valid answer yet avoids overflow, so an unreachable amount is detected cleanly by checking against the sentinel at the end.
 - Being iterative, it carries no recursion overhead and no stack-depth risk, which makes it the most robust choice for large amounts.
 
+### BFS
+
+```python
+from collections import deque
+
+class Solution:
+    def coinChange(self, coins: List[int], amount: int) -> int:
+        if amount == 0:
+            return 0
+
+        # BFS to find minimum steps (coins) to reach target amount
+        queue = deque([0])  # Start with amount 0
+        visited = {0}       # Track visited amounts to avoid cycles
+        steps = 0           # Number of coins used so far
+
+        while queue:
+            steps += 1
+            # Process all amounts reachable with current number of coins
+            for _ in range(len(queue)):
+                current_amount = queue.popleft()
+
+                # Try adding each coin denomination
+                for coin in coins:
+                    new_amount = current_amount + coin
+
+                    # If we reached the target amount
+                    if new_amount == amount:
+                        return steps
+
+                    # If this amount is valid and not visited yet
+                    if new_amount < amount and new_amount not in visited:
+                        visited.add(new_amount)
+                        queue.append(new_amount)
+
+        return -1  # Target amount is unreachable
+```
+
+#### Approach
+
+This BFS approach treats the problem as finding the shortest path from amount 0 to the target amount, where each coin represents an edge with weight 1. We use level-by-level BFS where each level represents using one more coin.
+
+The key insight is that BFS naturally finds the minimum number of steps (coins) to reach any amount, since it explores all possibilities with fewer coins before exploring those with more coins. This reframing is a clever lateral leap rather than a direct refinement of the recursion, which is why it lands last among the approaches.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(amount × coins.length)`
+
+In the worst case, we visit each amount from 0 to `amount - 1`, and for each amount we try all coins.
+
+##### Space Complexity: `O(amount)`
+
+Space for the queue and visited set, both of which can contain up to `amount` elements.
+
+#### Key Insights
+
+- Modeling each reachable amount as a graph node turns "fewest coins" into "shortest path," which BFS solves directly.
+- Because every edge has unit weight, the first level at which we hit the target amount is guaranteed to be optimal.
+- The `visited` set is essential: without it, the same amounts would be enqueued repeatedly and the search would degrade badly.
+
 ## Comparison of Solutions
 
 ### Time Complexity
 
 - **Brute Force Recursion**: `O(coins.length^amount)` - exponential, making `coins.length` recursive calls per level to a depth of `amount`.
-- **BFS**: `O(amount × coins.length)` - visits each amount once and tries all coins from it, like a shortest-path search.
 - **Top-Down Memoization**: `O(amount × coins.length)` - each unique amount is computed once via memoization, trying all coins per amount.
 - **Bottom-Up DP**: `O(amount × coins.length)` - iterates every amount from 1 to target and checks all coin denominations for each.
+- **BFS**: `O(amount × coins.length)` - visits each amount once and tries all coins from it, like a shortest-path search.
 
 ### Space Complexity
 
 - **Brute Force Recursion**: `O(amount)` - recursion stack up to `amount` levels deep.
-- **BFS**: `O(amount)` - queue and visited set, each holding up to `amount` elements.
 - **Top-Down Memoization**: `O(amount)` - memoization table plus recursion stack depth up to `amount`.
 - **Bottom-Up DP**: `O(amount)` - a single DP array of size `amount + 1`.
+- **BFS**: `O(amount)` - queue and visited set, each holding up to `amount` elements.
 
 ### Trade-offs
 
 - **Brute Force Recursion**: Simplest to understand, but exponential time makes it impractical for large inputs.
-- **BFS**: Models the problem cleanly as a shortest-path search, but adds queue and visited-set overhead.
 - **Top-Down Memoization**: Intuitive recursion that only computes the subproblems actually required, at the cost of recursion overhead and stack space.
 - **Bottom-Up DP**: Iterative with clear logic and optimal complexity, but builds every subproblem even when some are not needed.
+- **BFS**: Models the problem cleanly as a shortest-path search, but adds queue and visited-set overhead.
 
 ### When to Use Each
 
 - **Brute Force Recursion**: Only for understanding the problem or very small inputs. Demonstrates the need for optimization.
-- **BFS**: When you want to model the problem as a graph shortest path problem. Good for educational purposes.
 - **Top-Down Memoization**: When recursive thinking feels more natural or when you only need to compute specific subproblems.
 - **Bottom-Up DP (Recommended)**: Best for interviews and production code. Clear, efficient, and iterative.
+- **BFS**: When you want to model the problem as a graph shortest path problem. Good for educational purposes.
 
 ### Optimization Notes
 

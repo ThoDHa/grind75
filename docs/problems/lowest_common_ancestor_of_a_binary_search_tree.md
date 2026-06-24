@@ -48,6 +48,119 @@ According to the definition of LCA on Wikipedia: "The lowest common ancestor is 
 
 ## Solutions
 
+### Brute Force DFS
+
+```python
+class Solution:
+    def lowestCommonAncestor(
+        self, root: TreeNode, p: TreeNode, q: TreeNode
+    ) -> TreeNode:
+        # Collect the root-to-target path for each node, ignoring BST ordering.
+        def find_path(node: TreeNode, target: TreeNode) -> list:
+            if node is None:
+                return []
+            if node.val == target.val:
+                return [node]
+            left = find_path(node.left, target)
+            if left:
+                return [node] + left
+            right = find_path(node.right, target)
+            if right:
+                return [node] + right
+            return []
+
+        path_p = find_path(root, p)
+        path_q = find_path(root, q)
+
+        # Walk both paths in lockstep; the last shared node is the LCA.
+        lca = root
+        for node_p, node_q in zip(path_p, path_q):
+            if node_p.val == node_q.val:
+                lca = node_p
+            else:
+                break
+        return lca
+```
+
+#### Approach
+
+The most direct idea, without relying on any tree property, is to find the full path from the root down to each target, then compare the two paths. The lowest common ancestor is simply the last node the two paths share before they diverge. This works on any binary tree because it only uses parent-to-child links, not value ordering.
+
+1. For each target, run a DFS that returns the list of nodes from `root` down to that target, recording a node only on the branch that actually reaches the target.
+2. Walk the two paths in parallel from the root.
+3. Track the last node both paths agree on; stop at the first position where they differ.
+4. Return that last shared node as the LCA.
+
+Because the problem guarantees both nodes exist, each DFS finds a non-empty path, and the two paths share at least the root.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n)`
+
+Where `n` is the number of nodes. Each `find_path` call may visit every node in the worst case, and comparing the paths is bounded by the tree height, so the total is linear.
+
+##### Space Complexity: `O(n)`
+
+Both paths together store up to `O(h)` nodes, and the recursion stack reaches depth `O(h)`; in the worst case of a skewed tree this is `O(n)`.
+
+#### Key Insights
+
+- Works for any binary tree, not only BSTs, because it relies on paths rather than value ordering.
+- The LCA is exactly the divergence point of the two root-to-target paths.
+- Building explicit paths is wasteful, but it makes the definition of LCA concrete and easy to verify.
+
+### Generic Post-Order DFS
+
+```python
+class Solution:
+    def lowestCommonAncestor(
+        self, root: TreeNode, p: TreeNode, q: TreeNode
+    ) -> TreeNode:
+        if root is None:
+            return None
+        # Finding either target here makes root a candidate ancestor.
+        if root.val == p.val or root.val == q.val:
+            return root
+
+        left = self.lowestCommonAncestor(root.left, p, q)
+        right = self.lowestCommonAncestor(root.right, p, q)
+
+        # Targets found on both sides: root is the split point.
+        if left and right:
+            return root
+        # Otherwise the LCA is whichever side returned a node.
+        return left or right
+```
+
+#### Approach
+
+This refines the brute force by collapsing the two separate path searches into a single traversal that never builds explicit path lists. It still ignores the BST ordering and works for any binary tree, searching both subtrees with a post-order traversal. If each subtree reports back one target, the current node is the split point and therefore the LCA. If only one subtree reports a target, the LCA lies entirely within that subtree.
+
+1. Return `None` for an empty subtree.
+2. If the current node matches `p` or `q`, return it as a candidate.
+3. Recurse into both children.
+4. If both children return non-`None`, the targets diverge here, so return the current node.
+5. Otherwise propagate whichever child found a target upward.
+
+Because a matching node short-circuits its subtree, a node that is itself an ancestor of the other target is returned correctly without descending further.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n)`
+
+Where `n` is the number of nodes. Without the BST ordering, the search may visit every node in the tree.
+
+##### Space Complexity: `O(h)`
+
+The recursion stack can grow as deep as the height of the tree, but no separate path lists are stored.
+
+#### Key Insights
+
+- Works for any binary tree, not only BSTs, at the cost of efficiency.
+- Post-order traversal: children are resolved before the current node decides.
+- A node equal to one target short-circuits, naturally handling the ancestor-of-itself case.
+- Trims the brute force's two passes and explicit path storage into a single recursion.
+
 ### Recursive Using BST Properties
 
 ```python
@@ -140,85 +253,38 @@ Only a single pointer is tracked, independent of input size, since there is no r
 - Identical decision logic to the recursive version, just driven by a loop.
 - Preferred for very deep or skewed trees, where the recursive stack could grow large.
 
-### Generic Binary Tree Approach
-
-```python
-class Solution:
-    def lowestCommonAncestor(
-        self, root: TreeNode, p: TreeNode, q: TreeNode
-    ) -> TreeNode:
-        if root is None:
-            return None
-        # Finding either target here makes root a candidate ancestor.
-        if root.val == p.val or root.val == q.val:
-            return root
-
-        left = self.lowestCommonAncestor(root.left, p, q)
-        right = self.lowestCommonAncestor(root.right, p, q)
-
-        # Targets found on both sides: root is the split point.
-        if left and right:
-            return root
-        # Otherwise the LCA is whichever side returned a node.
-        return left or right
-```
-
-#### Approach
-
-This is a general solution that ignores the BST ordering and works for any binary tree. It searches both subtrees for the targets using a post-order traversal. If each subtree reports back one target, the current node is the split point and therefore the LCA. If only one subtree reports a target, the LCA lies entirely within that subtree.
-
-1. Return `None` for an empty subtree.
-2. If the current node matches `p` or `q`, return it as a candidate.
-3. Recurse into both children.
-4. If both children return non-`None`, the targets diverge here, so return the current node.
-5. Otherwise propagate whichever child found a target upward.
-
-Because a matching node short-circuits its subtree, a node that is itself an ancestor of the other target is returned correctly without descending further.
-
-#### Time and Space Complexity Analysis
-
-##### Time Complexity: `O(n)`
-
-Where `n` is the number of nodes. Without the BST ordering, the search may visit every node in the tree.
-
-##### Space Complexity: `O(h)`
-
-The recursion stack can grow as deep as the height of the tree.
-
-#### Key Insights
-
-- Works for any binary tree, not only BSTs, at the cost of efficiency.
-- Post-order traversal: children are resolved before the current node decides.
-- A node equal to one target short-circuits, naturally handling the ancestor-of-itself case.
-
 ## Comparison of Solutions
 
 ### Time Complexity
 
-- **BST Recursive**: `O(h)`: leverages the BST property to navigate directly to the split point.
-- **BST Iterative**: `O(h)`: the same path as the recursive version, without stack overhead.
-- **Generic Binary Tree**: `O(n)`: may need to visit every node.
+- **Brute Force DFS**: `O(n)`: searches for both targets' paths, possibly visiting every node.
+- **Generic Post-Order DFS**: `O(n)`: a single traversal that may still visit every node.
+- **Recursive Using BST Properties**: `O(h)`: leverages the BST property to navigate directly to the split point.
+- **Iterative Using BST Properties**: `O(h)`: the same path as the recursive version, without stack overhead.
 
 ### Space Complexity
 
-- **BST Recursive**: `O(h)`: recursion stack proportional to tree height.
-- **BST Iterative**: `O(1)`: only a single pointer of extra state.
-- **Generic Binary Tree**: `O(h)`: recursion stack proportional to tree height.
+- **Brute Force DFS**: `O(n)`: stores explicit root-to-target paths plus the recursion stack.
+- **Generic Post-Order DFS**: `O(h)`: recursion stack proportional to tree height, no path lists.
+- **Recursive Using BST Properties**: `O(h)`: recursion stack proportional to tree height.
+- **Iterative Using BST Properties**: `O(1)`: only a single pointer of extra state.
 
 ### Trade-offs
 
-- The BST solutions are significantly more efficient for this specific problem but require the binary search tree property
-- The iterative solution provides the best space efficiency but might be slightly less readable
-- The generic solution is more versatile but less efficient for BSTs
+- Brute Force DFS makes the LCA definition concrete by comparing paths, but wastes time and space building those paths explicitly.
+- Generic Post-Order DFS trims the path storage into one traversal and works on any binary tree, but still ignores the BST ordering and may scan every node.
+- The BST solutions are significantly more efficient for this specific problem but require the binary search tree property.
+- The iterative solution provides the best space efficiency but might be slightly less readable.
 
 ### When to Use Each
 
-- **BST Recursive**: When dealing with a BST and code readability is prioritized
-- **BST Iterative**: When dealing with a BST and memory efficiency is important, or for very deep trees
-- **Generic Binary Tree**: When the tree doesn't have the BST property, or when writing a general utility function
+- **Brute Force DFS**: As a teaching baseline that makes the LCA definition explicit.
+- **Generic Post-Order DFS**: When the tree doesn't have the BST property, or when writing a general utility function.
+- **Recursive Using BST Properties**: When dealing with a BST and code readability is prioritized.
+- **Iterative Using BST Properties**: When dealing with a BST and memory efficiency is important, or for very deep trees.
 
 ### Optimization Notes
 
-- The BST property allows us to eliminate about half the tree at each step
-- The iterative solution avoids recursion overhead and is generally preferred for production environments
-- For very unbalanced trees (approaching a linked list), the BST approach could degrade to `O(n)` time complexity
+- The BST property allows us to eliminate about half the tree at each step, dropping from `O(n)` to `O(h)`.
+- The iterative solution avoids recursion overhead and is generally preferred for production environments.
+- For very unbalanced trees (approaching a linked list), even the BST approach could degrade to `O(n)` time complexity.

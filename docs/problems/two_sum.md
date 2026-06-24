@@ -49,26 +49,29 @@ Can you come up with an algorithm that is less than O(n²) time complexity?
 
 ## Solutions
 
-### Brute-Force
+### Brute Force
 
 ```python
-def twoSum(self, nums: List[int], target: int) -> List[int]:
-    # Get the length of the input array
-    length = len(nums)
-    # Iterate through each element in the array
-    for x in range(length):
-        # Calculate the complement (value needed to reach target)
-        complement = target - nums[x]
-        # Check all elements after the current element
-        for y in range(x+1, length):
-            # If complement is found, return both indices
-            if nums[y] == complement:
-                return [x, y]
+class Solution:
+    def twoSum(self, nums: List[int], target: int) -> List[int]:
+        length = len(nums)
+        # Try every pair (x, y) and check whether it sums to the target
+        for x in range(length):
+            complement = target - nums[x]
+            # Only look at later elements so a pair is never counted twice
+            for y in range(x + 1, length):
+                if nums[y] == complement:
+                    return [x, y]
+        return []
 ```
 
 #### Approach
 
 This brute force approach examines every possible pair of numbers in the array. For each element, it calculates the complement (`target - current number`) and checks all remaining elements to find this complement.
+
+1. Iterate over each index `x` in the array.
+2. Compute the complement `target - nums[x]` that would complete the pair.
+3. Scan every later index `y` and return `[x, y]` as soon as `nums[y]` equals the complement.
 
 #### Time and Space Complexity Analysis
 
@@ -89,20 +92,21 @@ Only a constant amount of extra space is used regardless of input size.
 ### Sort and Two Pointers
 
 ```python
-def twoSum(self, nums: List[int], target: int) -> List[int]:
-    # Pair each value with its original index before sorting
-    indexed = sorted(enumerate(nums), key=lambda pair: pair[1])
-    left, right = 0, len(indexed) - 1
-    while left < right:
-        current_sum = indexed[left][1] + indexed[right][1]
-        if current_sum == target:
-            # Return the original indices, not the sorted positions
-            return [indexed[left][0], indexed[right][0]]
-        elif current_sum < target:
-            left += 1
-        else:
-            right -= 1
-    return []
+class Solution:
+    def twoSum(self, nums: List[int], target: int) -> List[int]:
+        # Pair each value with its original index before sorting
+        indexed = sorted(enumerate(nums), key=lambda pair: pair[1])
+        left, right = 0, len(indexed) - 1
+        while left < right:
+            current_sum = indexed[left][1] + indexed[right][1]
+            if current_sum == target:
+                # Return the original indices, not the sorted positions
+                return [indexed[left][0], indexed[right][0]]
+            elif current_sum < target:
+                left += 1
+            else:
+                right -= 1
+        return []
 ```
 
 #### Approach
@@ -130,17 +134,18 @@ Pairing each value with its original index produces a new list of `n` elements, 
 ### Hash Map
 
 ```python
-def twoSum(self, nums: List[int], target: int) -> List[int]:
-    length = len(nums)
-    nums_dict = {}
-    for x in range(length):
-        complement = target - nums[x]
-        # Check if the complement exists in dictionary
-        if complement in nums_dict:
-            return [nums_dict[complement], x]
-        # Store current number and its index
-        nums_dict[nums[x]] = x
-    return []
+class Solution:
+    def twoSum(self, nums: List[int], target: int) -> List[int]:
+        length = len(nums)
+        nums_dict = {}
+        for x in range(length):
+            complement = target - nums[x]
+            # Check if the complement exists in dictionary
+            if complement in nums_dict:
+                return [nums_dict[complement], x]
+            # Store current number and its index
+            nums_dict[nums[x]] = x
+        return []
 ```
 
 #### Approach

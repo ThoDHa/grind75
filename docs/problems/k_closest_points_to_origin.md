@@ -41,7 +41,7 @@ We only want the closest `k = 1` points from the origin, so the answer is just [
 
 ## Solutions
 
-### Sort by Distance
+### Brute Force
 
 ```python
 from typing import List
@@ -49,39 +49,53 @@ from typing import List
 
 class Solution:
     def kClosest(self, points: List[List[int]], k: int) -> List[List[int]]:
-        # Squared distance preserves ordering and avoids a costly sqrt.
-        points.sort(key=lambda p: p[0] * p[0] + p[1] * p[1])
-        return points[:k]
+        def dist(p: List[int]) -> int:
+            # Squared distance preserves ordering and avoids a costly sqrt.
+            return p[0] * p[0] + p[1] * p[1]
+
+        remaining = list(points)
+        closest = []
+        # Pick the single closest remaining point k times by hand.
+        for _ in range(k):
+            best = 0
+            for i in range(1, len(remaining)):
+                if dist(remaining[i]) < dist(remaining[best]):
+                    best = i
+            closest.append(remaining.pop(best))
+        return closest
 ```
 
 #### Approach
 
-The most direct baseline: sort every point by its distance from the origin, then
-take the first `k`. Comparing squared distances `x*x + y*y` is sufficient because
-`√a < √b` iff `a < b` for non-negative values, so the square root adds cost without
-changing the order.
+The most direct idea, with no sort or heap: to find the `k` closest points,
+repeatedly scan the remaining points for the single nearest one and remove it,
+doing this `k` times. Comparing squared distances `x*x + y*y` is sufficient
+because `√a < √b` iff `a < b` for non-negative values, so the square root adds
+cost without changing the order.
 
-1. Sort `points` in place using the squared distance as the key.
-2. Slice off the first `k` entries, which are now the closest.
+1. Copy `points` into a working list so the input is left intact.
+2. Repeat `k` times: scan every remaining point, track the index of the smallest
+   squared distance, then pop that point and append it to the result.
+3. After `k` rounds the result holds exactly the `k` closest points.
 
 #### Time and Space Complexity Analysis
 
-##### Time Complexity: `O(n log n)`
+##### Time Complexity: `O(n * k)`
 
-The sort dominates: every one of the `n` points is compared during an
-`O(n log n)` comparison sort.
+Each of the `k` selection rounds scans up to `n` remaining points, so the total
+work is `O(n * k)`. When `k` approaches `n` this degrades toward `O(n^2)`.
 
-##### Space Complexity: `O(1)` or `O(n)`
+##### Space Complexity: `O(n)`
 
-Python's `list.sort` is in place, so the extra space is `O(1)` beyond the output
-slice. Sorting algorithms that allocate temporary buffers would use `O(n)`.
+The working copy of the points holds up to `n` entries; the result aside, no
+other storage grows with the input.
 
 #### Key Insights
 
-- This is the simplest correct solution and perfectly acceptable given the
-  constraint `n <= 10^4`, trading optimality for brevity.
-- Sorting the entire array does more work than necessary when `k` is much smaller
-  than `n`, which motivates the heap and selection approaches that follow.
+- This is the most self-evident correct solution: find the nearest, remove it,
+  repeat. It selects by hand rather than delegating to a sort or heap.
+- It wastes work by rescanning the entire remaining list on every round, which
+  motivates the heap and selection approaches that follow.
 - Always key on squared distance; computing `sqrt` adds floating-point cost and
   rounding risk for no benefit to the ordering.
 
@@ -217,43 +231,94 @@ no extra storage scales with the input.
 - Mutating `points` in place keeps auxiliary space constant, at the cost of
   reordering the caller's list.
 
+### Sort by Distance
+
+```python
+from typing import List
+
+
+class Solution:
+    def kClosest(self, points: List[List[int]], k: int) -> List[List[int]]:
+        # Squared distance preserves ordering and avoids a costly sqrt.
+        points.sort(key=lambda p: p[0] * p[0] + p[1] * p[1])
+        return points[:k]
+```
+
+#### Approach
+
+Let the language do the work: sort every point by its squared distance from the
+origin, then slice off the first `k`. Comparing squared distances `x*x + y*y` is
+sufficient because `√a < √b` iff `a < b` for non-negative values, so the square
+root adds cost without changing the order.
+
+1. Sort `points` in place using the squared distance as the key.
+2. Slice off the first `k` entries, which are now the closest.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n log n)`
+
+The sort dominates: every one of the `n` points is compared during an
+`O(n log n)` comparison sort.
+
+##### Space Complexity: `O(1)` or `O(n)`
+
+Python's `list.sort` is in place, so the extra space is `O(1)` beyond the output
+slice. Sorting algorithms that allocate temporary buffers would use `O(n)`.
+
+#### Key Insights
+
+- The shortest solution to write, leaning on the built-in sort, and perfectly
+  acceptable given the constraint `n <= 10^4`.
+- Sorting the entire array does more work than necessary when `k` is much smaller
+  than `n`, which the heap and Quickselect approaches avoid.
+- Always key on squared distance; computing `sqrt` adds floating-point cost and
+  rounding risk for no benefit to the ordering.
+
 ## Comparison of Solutions
 
 ### Time Complexity
 
-- **Sort by Distance**: `O(n log n)` - one comparison sort over all points.
+- **Brute Force**: `O(n * k)` - `k` selection rounds, each scanning up to `n` points.
 - **Max-Heap of Size K**: `O(n log k)` - one bounded heap operation per point.
 - **Quickselect**: `O(n)` average, `O(n^2)` worst case - partial
   in-place selection.
+- **Sort by Distance**: `O(n log n)` - one comparison sort over all points.
 
 ### Space Complexity
 
-- **Sort by Distance**: `O(1)` with in-place sort, otherwise `O(n)`.
+- **Brute Force**: `O(n)` - a working copy of the points to remove from.
 - **Max-Heap of Size K**: `O(k)` - the heap holds at most `k` points.
 - **Quickselect**: `O(1)` - partitions the input in place.
+- **Sort by Distance**: `O(1)` with in-place sort, otherwise `O(n)`.
 
 ### Trade-offs
 
-- Sorting is the simplest to write and reason about, but does full `O(n log n)`
-  work even when `k` is tiny relative to `n`.
+- Brute Force is the most self-evident to derive (find nearest, remove, repeat)
+  but rescans the entire remaining list every round, wasting work when `k` is large.
 - The heap gives a stable, predictable bound and never mutates the input, but
   carries a `log k` factor and `O(k)` extra space.
 - Quickselect achieves linear average time and constant space but has a quadratic
   worst case and reorders the original array.
+- Sorting is the shortest to write, but does full `O(n log n)` work even when `k`
+  is tiny relative to `n`, and leans on the built-in sort to do the core selection.
 
 ### When to Use Each
 
-- **Sort by Distance**: When `n` is modest (as here, `n <= 10^4`) and clarity
-  matters more than shaving the `log` factor.
+- **Brute Force**: When `k` is tiny and clarity of derivation matters more than
+  speed, or as a teaching baseline that selects by hand.
 - **Max-Heap of Size K**: Streaming or very large `n` with small `k`, or when
   the input must not be modified and worst-case stability matters.
 - **Quickselect**: When the whole array is in memory, average-case
   speed is the priority, and mutating the input is acceptable.
+- **Sort by Distance**: When `n` is modest (as here, `n <= 10^4`) and the
+  shortest correct code matters more than shaving the `log` factor.
 
 ### Optimization Notes
 
 - Always compare squared distances; computing `sqrt` adds floating-point cost and
   rounding risk for no benefit to the ordering.
-- Sort by Distance is the baseline; the heap improves to `O(n log k)` when `k` is
-  small, and Quickselect reaches `O(n)` average by ordering only enough of the
-  array to fix the `k`-th boundary.
+- Brute Force is the intuitive baseline; the heap improves to `O(n log k)` when
+  `k` is small, Quickselect reaches `O(n)` average by ordering only enough of the
+  array to fix the `k`-th boundary, and Sort by Distance trades the extra `log`
+  factor for the brevity of a built-in sort.

@@ -39,59 +39,59 @@ Letters are case sensitive, for example, "Aa" is not considered a palindrome her
 
 ## Solutions
 
-### Character Frequency Counting with Odd Character Tracking
+### Brute Force
 
 ```python
 class Solution:
     def longestPalindrome(self, s: str) -> int:
-        counter = {}
-        odd = -1
-        # Count frequency of each character
+        # Count each character by hand with a plain dictionary
+        counts = {}
         for c in s:
-            counter[c] = counter.get(c, 0) + 1
+            counts[c] = counts.get(c, 0) + 1
 
-        # Count characters with odd frequencies
-        for values in counter.values():
-            if values % 2 != 0:
-               odd += 1
+        length = 0
+        has_odd = False
+        for count in counts.values():
+            # Every full pair contributes two characters to the palindrome
+            length += (count // 2) * 2
+            # A leftover single character means this count is odd
+            if count % 2 == 1:
+                has_odd = True
 
-        # Calculate palindrome length
-        if odd > 0:
-            return len(s) - odd
-        else:
-            return len(s)
+        # One leftover character can sit in the center
+        if has_odd:
+            length += 1
+        return length
 ```
 
 #### Approach
 
-This solution counts the frequency of each character and specifically tracks how many characters appear an odd number of times:
+The most direct idea follows straight from how a palindrome is built: characters mirror around the center, so each character can contribute only in pairs, except for a single character allowed in the middle. Counting how many of each character we have and then taking as many pairs as possible answers the question without ever constructing a palindrome.
 
-1. Create a hash map (dictionary) to store the count of each character.
-2. Initialize an odd counter at -1 (this clever initialization handles the first odd count character differently).
-3. After counting characters, iterate through the values to count how many have odd frequency.
-4. Calculate the palindrome length by:
-    - If odd > 0: subtract the number of odd counts from the total length (after accounting for one central character)
-    - If odd = 0: all characters can be used in the palindrome
+1. Count the frequency of every character with a plain dictionary.
+2. For each frequency, add its largest even part `(count // 2) * 2` to the running length, because only complete pairs can mirror across the palindrome.
+3. Record whether any frequency is odd, since an odd frequency leaves one unpaired character.
+4. If any odd frequency was seen, add `1` for a single center character.
 
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(n)`
 
-- Counting the frequency of each character requires `O(n)` time where `n` is the length of the string.
-- Iterating through the counter values is `O(k)` where `k` is the number of unique characters, which is bounded by the constant size of the character set.
-- Since `k ≤ n`, the overall time complexity is `O(n)`.
+- Counting every character is one `O(n)` pass over the string of length `n`.
+- Iterating the frequency values is `O(k)` where `k` is the number of distinct characters, bounded by the constant alphabet size.
+- The total work is therefore linear in the input.
 
 ##### Space Complexity: `O(1)`
 
-- The counter dictionary stores at most `52` key-value pairs (`26` lowercase + `26` uppercase English letters).
-- Since the size of the counter is bounded by a constant regardless of input size, the space complexity is `O(1)`.
+- The dictionary holds at most `52` entries (`26` lowercase + `26` uppercase English letters).
+- This bound is constant regardless of input size, so the auxiliary space is constant.
 
 #### Key Insights
 
-- In a palindrome, most characters must appear in pairs (one on each side).
-- At most one character can appear an odd number of times (placed in the center).
-- The odd = -1 initialization is a clever way to account for the fact that one odd frequency character can be fully utilized.
-- This approach efficiently handles the palindrome construction without explicitly building the string.
+- A palindrome mirrors around its center, so each character contributes only in pairs.
+- Exactly one odd-frequency character can be placed in the center, which is why a single `+1` covers all the leftovers.
+- Computing the answer from counts alone avoids ever building the palindrome string.
+- Taking `(count // 2) * 2` cleanly drops any single unpaired character from each group.
 
 ### Set-based Pair Matching
 
@@ -142,6 +142,60 @@ This solution uses a set to track unpaired characters as it processes the string
 - The set effectively serves as a "pairing station" - characters wait there until their pair arrives.
 - The final check for a non-empty set determines if we can place one character at the center.
 - This solution is particularly intuitive for understanding the palindrome construction process.
+
+### Character Frequency Counting with Odd Character Tracking
+
+```python
+class Solution:
+    def longestPalindrome(self, s: str) -> int:
+        counter = {}
+        odd = -1
+        # Count frequency of each character
+        for c in s:
+            counter[c] = counter.get(c, 0) + 1
+
+        # Count characters with odd frequencies
+        for values in counter.values():
+            if values % 2 != 0:
+               odd += 1
+
+        # Calculate palindrome length
+        if odd > 0:
+            return len(s) - odd
+        else:
+            return len(s)
+```
+
+#### Approach
+
+This refinement of the brute force avoids the explicit pair arithmetic by working backward from `len(s)`. Every odd-frequency character forces one unpaired character to be discarded, except that one of them may sit in the center:
+
+1. Create a hash map (dictionary) to store the count of each character.
+2. Initialize an odd counter at `-1`, which pre-credits one odd character as the allowed center.
+3. After counting characters, iterate through the values to count how many have an odd frequency.
+4. Calculate the palindrome length:
+    - If `odd > 0`: subtract that many characters from the total length, having already kept one odd character for the center.
+    - If `odd = 0`: all characters pair up and the whole string is usable.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n)`
+
+- Counting the frequency of each character requires `O(n)` time where `n` is the length of the string.
+- Iterating through the counter values is `O(k)` where `k` is the number of unique characters, which is bounded by the constant size of the character set.
+- Since `k ≤ n`, the overall time complexity is `O(n)`.
+
+##### Space Complexity: `O(1)`
+
+- The counter dictionary stores at most `52` key-value pairs (`26` lowercase + `26` uppercase English letters).
+- Since the size of the counter is bounded by a constant regardless of input size, the space complexity is `O(1)`.
+
+#### Key Insights
+
+- In a palindrome, most characters must appear in pairs (one on each side).
+- At most one character can appear an odd number of times (placed in the center).
+- The `odd = -1` initialization is a clever way to account for the fact that one odd-frequency character can be fully utilized.
+- This approach efficiently handles the palindrome construction without explicitly building the string.
 
 ### Counter Frequency Tally
 
@@ -196,33 +250,37 @@ The bitwise `freq & 1` is `1` when `freq` is odd and `0` when even, which both d
 
 ### Time Complexity
 
-- **Character Frequency Counting with Odd Character Tracking**: `O(n)` - Requires one pass to count characters and another to process counts
+- **Brute Force**: `O(n)` - One pass to count characters, one pass over the bounded set of distinct counts
 - **Set-based Pair Matching**: `O(n)` - Single-pass approach with constant-time set operations
+- **Character Frequency Counting with Odd Character Tracking**: `O(n)` - One pass to count characters and another to process counts
 - **Counter Frequency Tally**: `O(n)` - One pass to build the `Counter`, one pass over the bounded set of distinct counts
 
 ### Space Complexity
 
-- **Character Frequency Counting with Odd Character Tracking**: `O(1)` - Uses a dictionary bounded by the character set size
+- **Brute Force**: `O(1)` - Uses a dictionary bounded by the character set size
 - **Set-based Pair Matching**: `O(1)` - Uses a set bounded by the character set size
+- **Character Frequency Counting with Odd Character Tracking**: `O(1)` - Uses a dictionary bounded by the character set size
 - **Counter Frequency Tally**: `O(1)` - Uses a `Counter` bounded by the character set size
 
 ### Trade-offs
 
-- Character Frequency Counting is fully library-free and makes the odd-count handling explicit through its manual loop.
-- Set-based Pair Matching has a cleaner implementation and may be easier to understand conceptually, tracking pairs as they form.
+- Brute Force is fully library-free and spells out the pair arithmetic directly, making it the clearest derivation of the answer.
+- Set-based Pair Matching has a cleaner single-pass implementation and may be easier to understand conceptually, tracking pairs as they form.
+- Character Frequency Counting trims the arithmetic by working backward from `len(s)`, using the `odd = -1` pre-credit to handle the center character implicitly.
 - Counter Frequency Tally is the most concise, delegating the counting step to `collections.Counter` while keeping the palindrome arithmetic identical to the manual version.
-- All three solutions handle the core requirement efficiently: determining the maximum palindrome length without building the actual palindrome.
+- All four solutions handle the core requirement efficiently: determining the maximum palindrome length without building the actual palindrome.
 
 ### When to Use Each
 
-- **Character Frequency Counting with Odd Character Tracking**: Preferred when you want a library-free solution or might need the actual character frequencies for other operations.
+- **Brute Force**: Preferred as the most direct, library-free derivation, or when the explicit pair-and-center logic aids understanding.
 - **Set-based Pair Matching**: Preferred for readability and when solution simplicity is valued over minor optimizations.
+- **Character Frequency Counting with Odd Character Tracking**: Preferred when you want a library-free solution and like deriving the answer by subtracting odd leftovers from the full length.
 - **Counter Frequency Tally**: Preferred in production Python where `collections.Counter` is available and brevity is valued (Recommended for idiomatic code).
 
 ### Optimization Notes
 
-- All three solutions are already optimal in terms of time and space complexity.
-- The odd counter initialization in Character Frequency Counting is a clever way to avoid additional conditionals.
+- All four solutions are already optimal in terms of time and space complexity.
+- The odd counter initialization in Character Frequency Counting is a clever way to absorb the center character without an extra conditional.
 - Set-based Pair Matching demonstrates how using appropriate data structures can lead to elegant algorithmic solutions.
 - Counter Frequency Tally uses `freq & 1` to fuse the odd-parity test with the unpaired-character subtraction, trimming the loop body to a single arithmetic step.
-- In practice, all three solutions perform similarly for the constraints given.
+- In practice, all four solutions perform similarly for the constraints given.

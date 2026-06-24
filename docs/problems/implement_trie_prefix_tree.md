@@ -52,6 +52,77 @@ trie.search("app");     // return True
 
 ## Solutions
 
+### Brute Force
+
+```python
+class Trie:
+
+    def __init__(self):
+        # Just remember every inserted word verbatim.
+        self.words: list = []
+
+    def insert(self, word: str) -> None:
+        self.words.append(word)
+
+    def search(self, word: str) -> bool:
+        # A word is present only if it was inserted exactly.
+        for stored in self.words:
+            if stored == word:
+                return True
+        return False
+
+    def startsWith(self, prefix: str) -> bool:
+        # Any stored word beginning with prefix satisfies the query.
+        for stored in self.words:
+            if len(stored) >= len(prefix) and stored[: len(prefix)] == prefix:
+                return True
+        return False
+
+
+# Your Trie object will be instantiated and used as follows:
+# obj = Trie()
+# obj.insert(word)
+# param_2 = obj.search(word)
+# param_3 = obj.startsWith(prefix)
+```
+
+#### Approach
+
+Before reaching for any tree structure, the most direct idea is to store every
+inserted word in a list and answer each query by scanning that list. No shared
+prefixes, no nodes, just a literal record of what was inserted.
+
+1. `insert` appends the word to a running list.
+2. `search` scans the list for an entry equal to `word`, returning `True` on an
+   exact match.
+3. `startsWith` scans the list for any entry whose first `len(prefix)` characters
+   equal `prefix`.
+
+This is correct but slow: every query rescans the entire collection and compares
+full strings, ignoring the prefix-sharing that makes a trie efficient.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(N × L)` per query
+
+`search` and `startsWith` each compare against all `N` stored words, and each
+comparison touches up to `L` characters, so a single query costs `O(N × L)`.
+`insert` is `O(1)` amortized.
+
+##### Space Complexity: `O(total characters)`
+
+Every inserted word is kept in full with no prefix sharing, so storage is the sum
+of all word lengths.
+
+#### Key Insights
+
+- This is the baseline you write before knowing what a trie is: keep the data,
+  scan on demand.
+- It wastes the structure inherent in the problem; repeated prefixes are stored
+  and compared over and over instead of being shared.
+- The linear scan per query is exactly what a trie removes by walking one node per
+  character regardless of how many words are stored.
+
 ### Dictionary Children
 
 ```python
@@ -231,26 +302,31 @@ size. This is wasteful for sparse tries but bounded and predictable.
 
 ### Time Complexity
 
+- **Brute Force**: `O(N × L)` per `search`/`startsWith` query - scans all `N` stored words, comparing up to `L` characters each
 - **Dictionary Children**: `O(L)` per operation, with constant-time hashed child lookup at each character
 - **Fixed Array Children**: `O(L)` per operation, with constant-time array indexing at each character
 
 ### Space Complexity
 
+- **Brute Force**: `O(total characters)` - stores every word in full with no prefix sharing
 - **Dictionary Children**: `O(total characters)` - each node stores only the children it actually has
 - **Fixed Array Children**: `O(26 × number of nodes)` - each node reserves a full 26-slot array even when mostly empty
 
 ### Trade-offs
 
+- **Brute Force** is trivial to write and uses no tree at all, but each query rescans the entire collection, which fails the call-volume constraints at scale
 - **Dictionary Children** is memory-efficient for sparse tries and adapts to any character set without changes, at the cost of hashing overhead per lookup
 - **Fixed Array Children** offers the fastest possible child access through direct indexing, but wastes memory on empty slots and is tied to a fixed alphabet
 
 ### When to Use Each
 
+- **Brute Force**: Only as a conceptual baseline; the per-query scan is too slow for the problem's call volume
 - **Dictionary Children**: The default choice when the alphabet is large or unknown, or when tries are sparse and memory matters
 - **Fixed Array Children**: When the alphabet is small and fixed (such as lowercase English letters) and raw lookup speed is the priority
 
 ### Optimization Notes
 
-- Both layouts share the same `O(L)` time complexity; the real distinction is the constant factor on lookups versus the memory footprint per node
+- The trie's whole point is replacing the Brute Force per-query scan with a walk of one node per character, making query cost depend on the query length `L` rather than the number of stored words `N`
+- Both trie layouts share the same `O(L)` time complexity; the real distinction is the constant factor on lookups versus the memory footprint per node
 - The array layout trades memory for speed, which pays off in hot paths over a small fixed alphabet but becomes prohibitive for Unicode-scale character sets
 - The dictionary layout generalizes for free to any character set, making it the safer default unless profiling shows child lookup is a bottleneck

@@ -37,6 +37,76 @@ cover all the intervals in the input. Touching intervals such as `[1,4]` and
 
 ## Solutions
 
+### Brute Force
+
+```python
+class Solution:
+    def merge(self, intervals: List[List[int]]) -> List[List[int]]:
+        # Copy so the input is left untouched.
+        result = [interval[:] for interval in intervals]
+
+        # Repeatedly scan for any overlapping pair and fuse it, until a full
+        # pass finds nothing left to merge.
+        merged_something = True
+        while merged_something:
+            merged_something = False
+            for i in range(len(result)):
+                for j in range(i + 1, len(result)):
+                    a, b = result[i], result[j]
+                    # Two intervals overlap (touching counts) when neither
+                    # lies entirely to one side of the other.
+                    if a[0] <= b[1] and b[0] <= a[1]:
+                        a[0] = min(a[0], b[0])
+                        a[1] = max(a[1], b[1])
+                        result.pop(j)
+                        merged_something = True
+                        break
+                if merged_something:
+                    break
+
+        return result
+```
+
+#### Approach
+
+Without any sorting insight, the most direct idea is to keep fusing overlapping
+pairs until none remain. Two intervals overlap exactly when neither ends before
+the other begins, which is `a[0] <= b[1] and b[0] <= a[1]`:
+
+1. Copy the intervals so the original input is not mutated.
+2. Scan every pair `(i, j)`. The moment a pair overlaps, replace interval `i`
+   with the union (`min` of starts, `max` of ends) and remove interval `j`.
+3. Restart the scan after each merge, since the freshly grown interval may now
+   overlap intervals it did not touch before.
+4. Stop once a complete scan finds no overlapping pair; the remaining intervals
+   are pairwise disjoint.
+
+This needs no sort: it relies only on repeatedly applying the overlap test until
+the list stabilizes. Restarting after every merge is what makes it correct for
+chains where `A` overlaps `B` and `B` overlaps `C` but `A` and `C` do not.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n^3)`
+
+Each successful merge removes one interval, so there are at most `n - 1` merges.
+Every merge triggers a fresh `O(n^2)` pair scan from the top, giving `O(n^3)` in
+the worst case.
+
+##### Space Complexity: `O(n)`
+
+The `result` copy holds up to `n` intervals; no other storage grows with the
+input.
+
+#### Key Insights
+
+- Reduces merging to one primitive operation: find any overlapping pair and fuse
+  it, then repeat.
+- Restarting the scan after each merge handles transitive chains correctly,
+  since a grown interval can absorb intervals it previously missed.
+- Simple to reason about but wasteful: it rescans the whole list after every
+  single merge, which the sorting approach eliminates entirely.
+
 ### Sort and Merge
 
 ```python
@@ -272,12 +342,15 @@ overlap. The visited array, recursion-free stack, and output add `O(n)`.
 
 ### Time Complexity
 
+- **Brute Force**: `O(n^3)` - up to `n` merges, each restarting an `O(n^2)` pair
+  scan.
 - **Sort and Merge**: `O(n log n)` - one sort plus a linear merge pass.
 - **Sweep Line**: `O(n log n)` - two endpoint sorts plus a linear sweep.
 - **Graph Connected Components**: `O(n^2)` - compares every pair to build edges.
 
 ### Space Complexity
 
+- **Brute Force**: `O(n)` - a working copy of the intervals.
 - **Sort and Merge**: `O(n)` - the output list, with `O(log n)` to `O(n)` for
   sorting.
 - **Sweep Line**: `O(n)` - two endpoint arrays plus the output.
@@ -285,8 +358,10 @@ overlap. The visited array, recursion-free stack, and output add `O(n)`.
 
 ### Trade-offs
 
-- **Sort and Merge** is the most direct and the easiest to get right; it gives up
-  nothing meaningful and is the default choice.
+- **Brute Force** gains a sort-free, easily derivable model (fuse any overlapping
+  pair, repeat) but gives up efficiency by rescanning the list after every merge.
+- **Sort and Merge** is the most direct of the fast solutions and the easiest to
+  get right; it gives up nothing meaningful and is the default choice.
 - **Sweep Line** matches the asymptotics while exposing interval depth, which is
   reusable for concurrency-style variants, at the cost of more bookkeeping.
 - **Graph Connected Components** trades efficiency for an explicit model of
@@ -294,6 +369,8 @@ overlap. The visited array, recursion-free stack, and output add `O(n)`.
 
 ### When to Use Each
 
+- **Brute Force**: As a teaching baseline or when sorting is somehow unavailable;
+  too slow for the upper constraint of `10^4` intervals.
 - **Sort and Merge**: The default for this problem and almost every interview
   setting (recommended).
 - **Sweep Line**: When the same input must also answer depth or concurrency
@@ -303,6 +380,8 @@ overlap. The visited array, recursion-free stack, and output add `O(n)`.
 
 ### Optimization Notes
 
+- Sorting is what collapses the Brute Force's repeated pair scans into a single
+  linear pass: once starts are ordered, overlaps become adjacent.
 - The Sort and Merge pass mutates `merged[-1]` in place to extend the end, which
   avoids allocating a new interval per merge.
 - The Sweep Line keeps starts and ends in separate sorted arrays so each pointer

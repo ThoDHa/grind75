@@ -37,6 +37,52 @@ The test cases are generated so that the answer will be less than or equal to `2
 
 ## Solutions
 
+### Recursion
+
+```python
+class Solution:
+    def uniquePaths(self, m: int, n: int) -> int:
+        # Count paths from cell (i, j) to the bottom-right corner
+        def count(i: int, j: int) -> int:
+            # Reached the destination: exactly one way to "finish"
+            if i == m - 1 and j == n - 1:
+                return 1
+            # Fell off the grid: this branch contributes no path
+            if i >= m or j >= n:
+                return 0
+            # Every path either steps down or steps right
+            return count(i + 1, j) + count(i, j + 1)
+
+        return count(0, 0)
+```
+
+#### Approach
+
+The most direct idea mirrors the problem statement exactly: from any cell the robot may step down or step right, so the number of paths from a cell is the sum of the paths from the cell below and the cell to its right. Recurse on both choices and add the results, with no table and no memory of past work.
+
+1. Start at the top-left cell `(0, 0)`.
+2. If the current cell is the bottom-right corner, this branch is one complete path, so return `1`.
+3. If the current cell has stepped past the last row or column, the branch is invalid, so return `0`.
+4. Otherwise return the sum of recursing down `(i + 1, j)` and recursing right `(i, j + 1)`.
+
+This enumerates every down/right path by brute force, recomputing shared subproblems each time it reaches them.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(2^(m + n))`
+
+Each call branches into two recursive calls and the recursion runs up to `m + n` levels deep, so the call tree grows exponentially. The same cell is recomputed many times because nothing is cached.
+
+##### Space Complexity: `O(m + n)`
+
+No auxiliary table is built, but the recursion stack reaches a depth of `m + n - 2` along the longest down-and-right path.
+
+#### Key Insights
+
+- Reads straight off the problem statement: a path is a sequence of down and right moves, so paths split into "go down" plus "go right".
+- It is simple and library-free but wasteful: it recomputes the same `(i, j)` subproblem on every path that passes through it.
+- The exponential blow-up motivates caching shared subproblems, which the DP solutions do next.
+
 ### Bottom-Up DP
 
 ```python
@@ -156,24 +202,28 @@ We use only a constant number of variables.
 
 ### Time Complexity
 
+- **Recursion**: `O(2^(m + n))` - Enumerates every down/right path, recomputing shared subproblems
 - **Bottom-Up DP**: `O(m × n)` - Fills every cell of the DP table once
 - **Space-Optimized DP**: `O(m × n)` - Same number of cell updates, just stored in a single row
 - **Combinatorics**: `O(min(m, n))` - Computes a single binomial coefficient
 
 ### Space Complexity
 
+- **Recursion**: `O(m + n)` - Recursion stack depth along the longest path, no table allocated
 - **Bottom-Up DP**: `O(m × n)` - Stores the entire 2D DP table
 - **Space-Optimized DP**: `O(n)` - Keeps only one row of results
 - **Combinatorics**: `O(1)` - Uses a constant number of variables
 
 ### Trade-offs
 
-- The 2D DP solution is the most readable and mirrors the recurrence directly, but wastes memory storing rows it no longer needs
+- The recursion solution reads straight off the problem statement and uses no extra structures, but recomputes the same subproblems exponentially many times
+- The 2D DP solution is the most readable memoized form and mirrors the recurrence directly, but wastes memory storing rows it no longer needs
 - The 1D DP solution keeps the same intuitive logic while collapsing storage to a single row, at the cost of slightly less obvious indexing
 - The combinatorics solution is the fastest and lightest, but trades away the transparent grid intuition for a mathematical insight
 
 ### When to Use Each
 
+- **Recursion**: As a first, self-derivable formulation of the recurrence, or a teaching baseline before adding memoization
 - **Bottom-Up DP**: When clarity is paramount or the grid will be extended with obstacles or weights that break the pure combinatorial form
 - **Space-Optimized DP**: When the DP structure is still needed but memory is constrained
 - **Combinatorics**: When raw speed and minimal space are the priority and the problem stays a clean down/right path count

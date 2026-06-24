@@ -31,6 +31,70 @@ Given a string `s`, return the longest palindromic substring in `s`.
 
 ## Solutions
 
+### Brute Force
+
+```python
+class Solution:
+    def longestPalindrome(self, s: str) -> str:
+        n = len(s)
+
+        def is_palindrome(left: int, right: int) -> bool:
+            # Walk inward from both ends, comparing mirrored characters.
+            while left < right:
+                if s[left] != s[right]:
+                    return False
+                left += 1
+                right -= 1
+            return True
+
+        start, max_len = 0, 0
+        # Try every substring s[i..j] and keep the longest palindrome.
+        for i in range(n):
+            for j in range(i, n):
+                if j - i + 1 > max_len and is_palindrome(i, j):
+                    start, max_len = i, j - i + 1
+
+        return s[start:start + max_len]
+```
+
+#### Approach
+
+The most direct idea is to look at every possible substring and check whether it
+reads the same forwards and backwards, remembering the longest one that does. A
+substring is a palindrome exactly when its mirrored characters all match, which a
+simple inward two-pointer walk verifies by hand.
+
+1. For each start index `i`, consider every end index `j >= i`, covering all
+   `O(n^2)` substrings.
+2. Before paying for a palindrome check, skip any substring no longer than the
+   best found so far, since it cannot improve the answer.
+3. Check `s[i..j]` with `is_palindrome`, which compares `s[left]` and `s[right]`
+   while walking the two pointers toward the middle.
+4. When a longer palindrome is found, record its start and length, and finally
+   return the recorded slice `s[start:start + max_len]`.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n^3)`
+
+There are `O(n^2)` substrings, and each palindrome check walks up to `O(n)`
+characters, giving `O(n^3)` in the worst case (for example, a string of identical
+characters where every check runs to completion).
+
+##### Space Complexity: `O(1)`
+
+Only a handful of integer indices are tracked. The returned substring is output,
+not auxiliary working space.
+
+#### Key Insights
+
+- Enumerating all substrings and verifying each one by hand needs no insight
+  about palindrome structure, making it the most self-derivable approach.
+- The length guard (`j - i + 1 > max_len`) prunes substrings that cannot beat the
+  current best, a cheap optimization that does not change the asymptotic bound.
+- The cubic cost comes from re-checking overlapping substrings from scratch; every
+  later approach removes this redundancy by reusing already-verified work.
+
 ### Bottom-Up DP
 
 ```python
@@ -270,18 +334,22 @@ The transformed string `t` and the radius array `p` each hold `O(n)` entries.
 
 ### Time Complexity
 
+- **Brute Force**: `O(n^3)` - `O(n^2)` substrings, each checked in up to `O(n)`.
 - **Bottom-Up DP**: `O(n^2)` - fills every `(i, j)` cell once.
 - **Expand Around Center**: `O(n^2)` - `2n - 1` centers, each expanding up to `O(n)`.
 - **Manacher's Algorithm**: `O(n)` - the right boundary only moves forward, bounding total work.
 
 ### Space Complexity
 
+- **Brute Force**: `O(1)` - only a few integer indices.
 - **Bottom-Up DP**: `O(n^2)` - the full boolean substring table.
 - **Expand Around Center**: `O(1)` - only a few integer pointers.
 - **Manacher's Algorithm**: `O(n)` - the padded string and the radius array.
 
 ### Trade-offs
 
+- The Brute Force approach is the simplest to derive, checking every substring
+  directly, but pays a cubic price by re-verifying overlapping substrings from scratch.
 - The Bottom-Up DP approach makes the palindrome relationships explicit in a
   table that is straightforward to reason about, at the cost of quadratic memory.
 - The Expand Around Center approach matches the time bound with constant space and
@@ -293,6 +361,8 @@ The transformed string `t` and the radius array `p` each hold `O(n)` entries.
 
 ### When to Use Each
 
+- **Brute Force**: As a baseline to confirm correctness, or when `n` is tiny and
+  clarity outweighs efficiency.
 - **Bottom-Up DP**: When the tabular formulation is clearer to derive, or when
   the palindrome table itself is needed for a related subproblem.
 - **Expand Around Center**: For the best space usage and the simplest fast solution in
@@ -302,8 +372,10 @@ The transformed string `t` and the radius array `p` each hold `O(n)` entries.
 
 ### Optimization Notes
 
-- The first two approaches share the `O(n^2)` time floor; the difference is purely
-  `O(n^2)` versus `O(1)` space.
+- Brute Force drops a full factor of `n` by moving from re-checking every substring
+  to either of the `O(n^2)` approaches, which reuse already-verified palindromes.
+- Bottom-Up DP and Expand Around Center share the `O(n^2)` time floor; the difference
+  is purely `O(n^2)` versus `O(1)` space.
 - Expand Around Center stops each expansion at the first mismatch, so it usually does
   less than the worst-case work, whereas the table always does the full `O(n^2)`.
 - Manacher's Algorithm is the only sub-quadratic option here; its `#`-padding trick

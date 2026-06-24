@@ -54,6 +54,81 @@ accounts = [["Gabe","Gabe0@m.co","Gabe3@m.co","Gabe1@m.co"],["Kevin","Kevin3@m.c
 
 ## Solutions
 
+### Brute Force
+
+```python
+class Solution:
+    def accountsMerge(self, accounts: List[List[str]]) -> List[List[str]]:
+        # Each entry: [name, set of emails]. Start with one group per account.
+        groups = [[account[0], set(account[1:])] for account in accounts]
+
+        # Repeatedly fuse any two groups that share an email, until a full
+        # pass finds nothing to merge.
+        merged_something = True
+        while merged_something:
+            merged_something = False
+            i = 0
+            while i < len(groups):
+                j = i + 1
+                while j < len(groups):
+                    # Two groups belong to the same person if their email sets
+                    # intersect at all.
+                    if groups[i][1] & groups[j][1]:
+                        groups[i][1] |= groups[j][1]
+                        groups.pop(j)
+                        merged_something = True
+                    else:
+                        j += 1
+                i += 1
+
+        # Emit each surviving group: name followed by its emails sorted.
+        return [[name] + sorted(emails) for name, emails in groups]
+```
+
+#### Approach
+
+Two accounts belong to the same person exactly when they share an email, so the
+most direct idea is to keep merging overlapping accounts until none overlap. Each
+account starts as its own group, and we fuse any two groups whose email sets
+intersect, repeating until a full sweep changes nothing.
+
+1. Turn each account into a `[name, set-of-emails]` group.
+2. Compare every pair of groups. When two share at least one email, absorb the
+   second group's emails into the first and remove the second.
+3. Because a merge can create a new overlap with a group already checked, restart
+   the sweeps and keep going until a complete pass merges nothing.
+4. Emit each remaining group as its name followed by the emails in sorted order.
+
+The repeated passes are what make this correct: merging a chain like `A-B` then
+`B-C` requires revisiting groups, and looping until a clean pass guarantees every
+transitive link is resolved.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(A^3 × K)`
+
+Let `A` be the number of accounts and `K` the emails per account. Each pass
+compares every pair of groups (`O(A^2)`) and each comparison intersects two email
+sets (`O(K)`). In the worst case a pass merges only one pair, so up to `O(A)`
+passes are needed, pushing the bound to `O(A^3 × K)` before sorting. This is
+far heavier than the connectivity-based solutions.
+
+##### Space Complexity: `O(N)`
+
+The groups collectively hold every email once, where `N` is the total number of
+emails, so auxiliary storage is linear.
+
+#### Key Insights
+
+- The merge rule reads directly off the problem statement: overlapping email sets
+  mean the same person, so fuse and repeat.
+- Looping until a pass changes nothing is what handles transitive chains, where
+  merging one pair exposes a new overlap elsewhere.
+- Set intersection (`&`) and union (`|=`) express "share an email" and "combine
+  accounts" with no graph or disjoint-set machinery.
+- Correct but slow: the repeated all-pairs sweeps are the obvious cost the graph
+  and union-find approaches eliminate.
+
 ### DFS Connected Components
 
 ```python
@@ -243,26 +318,31 @@ email, so auxiliary space is linear in the number of emails.
 
 ### Time Complexity
 
+- **Brute Force**: `O(A^3 × K)` - Up to `O(A)` passes, each comparing all `O(A^2)` group pairs with an `O(K)` set intersection.
 - **DFS Connected Components**: `O(N × K + N log K)` - Graph construction and traversal touch each email and edge once, then each component is sorted.
 - **Union-Find**: `O(N × α(N) + N log K)` - Near-constant union/find operations per email, then per-component sorting; the inverse-Ackermann factor makes connectivity effectively faster than explicit traversal.
 
 ### Space Complexity
 
+- **Brute Force**: `O(N)` - The groups collectively hold each email once.
 - **DFS Connected Components**: `O(N × K)` - The adjacency graph can store up to `O(K)` neighbors per email when accounts are large.
 - **Union-Find**: `O(N)` - Only flat parent and owner maps, one entry per email.
 
 ### Trade-offs
 
+- **Brute Force**: Mirrors the problem statement directly (overlapping email sets merge), but the repeated all-pairs sweeps make it the slowest by far.
 - **DFS Connected Components**: Builds the graph explicitly, which makes the connected-components structure obvious, but the adjacency sets cost more memory than a flat parent array.
 - **Union-Find**: More compact in memory and asymptotically faster on the connectivity step, at the cost of the less-intuitive disjoint-set machinery.
 
 ### When to Use Each
 
+- **Brute Force**: As a teaching baseline or for tiny inputs, where the merge-until-stable idea is easiest to reason about.
 - **DFS Connected Components**: When clarity matters or when an explicit graph is already available, since the merge reads as a plain component walk.
 - **Union-Find (Recommended)**: Best for interviews and large inputs - it is the most space-efficient and the standard answer for dynamic-connectivity merges.
 
 ### Optimization Notes
 
+- The brute force re-scans every group pair on each pass; the graph and union-find approaches eliminate the quadratic re-checking by modeling connectivity once.
 - The DFS approach trades extra adjacency-set memory for conceptual simplicity; switching the recursion to an explicit stack (as shown) keeps it safe on huge components.
 - Union-find with path compression keeps the connectivity step near-linear, so for the largest inputs it edges out the explicit graph traversal.
 - Both approaches are dominated by the per-component sort in practice, so neither can drop below `O(N log K)` while emails must be returned in sorted order.

@@ -110,63 +110,12 @@ Push is constant time, but pop requires scanning the entire stack to find the ta
 
 Maintains the complete element history in the stack.
 
-### Heap with Timestamps
+#### Key Insights
 
-```python
-import heapq
-from collections import defaultdict
-
-class FreqStack:
-    def __init__(self):
-        """
-        Priority queue approach with timestamp-based tie breaking
-        """
-        self.freq_count = defaultdict(int)  # val -> frequency
-        self.max_heap = []  # (-frequency, -timestamp, val)
-        self.timestamp = 0  # global timestamp counter
-
-    def push(self, val: int) -> None:
-        """
-        Push element with frequency and timestamp tracking
-        """
-        self.timestamp += 1
-        self.freq_count[val] += 1
-
-        # Push to max heap (use negative values for max heap behavior)
-        heapq.heappush(self.max_heap,
-                      (-self.freq_count[val], -self.timestamp, val))
-
-    def pop(self) -> int:
-        """
-        Pop element with highest frequency (most recent timestamp if tie)
-        """
-        # Pop from heap until we find an element with correct frequency
-        while self.max_heap:
-            neg_freq, neg_timestamp, val = heapq.heappop(self.max_heap)
-            expected_freq = self.freq_count[val]
-
-            # Check if this entry is still valid
-            if -neg_freq == expected_freq:
-                self.freq_count[val] -= 1
-                return val
-            # If not valid, this is a stale entry, continue popping
-
-        return -1  # Should never reach here per problem constraints
-```
-
-#### Approach
-
-This solution uses a **priority queue (max heap)** with timestamps to handle both frequency priority and recency tie-breaking. Each push adds an entry with current frequency and timestamp. The challenge is handling stale entries when frequencies change.
-
-#### Time and Space Complexity Analysis
-
-##### Time Complexity: `O(log n)` for both operations
-
-Heap operations dominate the time complexity. In worst case, pop might need to remove several stale entries.
-
-##### Space Complexity: `O(n)`
-
-The heap can contain multiple entries for the same element with different frequencies.
+- Keeping the literal push order in one list and a live frequency map is the most direct model: you can answer "most frequent, most recent" by reading both directly.
+- The recency tie-break falls out of scanning the stack from the top down and stopping at the first element whose frequency equals the maximum.
+- `pop(i)` from the middle of a Python list is `O(n)`, and `max(self.freq_count.values())` re-scans every distinct value, so each pop is linear; this is the cost the later designs eliminate.
+- Correct for every valid sequence, but too slow at the upper constraint of `2 * 10^4` calls.
 
 ### Stack of Stacks
 
@@ -227,35 +176,105 @@ All operations involve simple hash map lookups and stack operations, which are c
 
 Where n is the total number of elements pushed. Each element appears in exactly one frequency stack at any time.
 
+#### Key Insights
+
+- Grouping elements by their current frequency turns "find the most frequent" into "look at the highest non-empty bucket", a constant-time lookup.
+- The LIFO order within each frequency bucket encodes recency for free, so ties resolve to the element closest to the top without any timestamps.
+- Tracking `max_freq` and decrementing it when its bucket empties is the only bookkeeping needed; the next-lower bucket is always non-empty when this happens.
+- This is the optimal from-scratch design: no library handles the priority logic.
+
+### Heap with Timestamps
+
+```python
+import heapq
+from collections import defaultdict
+
+class FreqStack:
+    def __init__(self):
+        """
+        Priority queue approach with timestamp-based tie breaking
+        """
+        self.freq_count = defaultdict(int)  # val -> frequency
+        self.max_heap = []  # (-frequency, -timestamp, val)
+        self.timestamp = 0  # global timestamp counter
+
+    def push(self, val: int) -> None:
+        """
+        Push element with frequency and timestamp tracking
+        """
+        self.timestamp += 1
+        self.freq_count[val] += 1
+
+        # Push to max heap (use negative values for max heap behavior)
+        heapq.heappush(self.max_heap,
+                      (-self.freq_count[val], -self.timestamp, val))
+
+    def pop(self) -> int:
+        """
+        Pop element with highest frequency (most recent timestamp if tie)
+        """
+        neg_freq, neg_timestamp, val = heapq.heappop(self.max_heap)
+        self.freq_count[val] -= 1
+        return val
+```
+
+#### Approach
+
+This solution lets a **priority queue (max heap)** do the priority work. Each push records an entry keyed by `(-frequency, -timestamp, val)`, so the heap always surfaces the element with the highest current frequency, breaking ties toward the most recent push.
+
+1. On push, increment the element's frequency and a global timestamp counter, then push the tuple `(-frequency, -timestamp, val)`.
+2. On pop, take the heap's top tuple. Because each push records the frequency the element had *at that moment*, the top entry is always the live winner; no stale entries can outrank it.
+3. Decrement the popped element's frequency so future comparisons stay accurate.
+
+The negated frequency and timestamp turn Python's min-heap into a max-heap that prefers higher frequency first, then later pushes.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(log n)` for both operations
+
+Each push and pop is a single heap operation over up to `n` entries, so both cost `O(log n)`.
+
+##### Space Complexity: `O(n)`
+
+The heap holds one entry per push, one per element occurrence, which is linear in the number of pushed elements.
+
+#### Key Insights
+
+- A heap reframes the problem as a generic priority queue, which is easy to reach for but lets the library carry the core logic.
+- Encoding the snapshot frequency at push time means the top entry is never stale, so no lazy deletion is required.
+- The `(-freq, -timestamp)` key is the trick: it layers the recency tie-break underneath the frequency priority in one comparison.
+- It is asymptotically slower than the stack-of-stacks design and depends on `heapq`, so it ranks below the from-scratch solutions.
+
 ## Comparison of Solutions
 
 ### Time Complexity
 
-- **Brute Force**: `O(1)` push, `O(n)` pop - Poor for pop
-- **Heap with Timestamps**: `O(log n)` for both operations - Good
-- **Stack of Stacks**: `O(1)` for both operations - Optimal
+- **Brute Force**: `O(1)` push, `O(n)` pop - scanning the stack and re-scanning the frequency map on every pop.
+- **Stack of Stacks**: `O(1)` for both operations - hash map lookups and per-frequency stack pushes/pops.
+- **Heap with Timestamps**: `O(log n)` for both operations - a single heap push or pop over up to `n` entries.
 
 ### Space Complexity
 
-- **Brute Force**: `O(n)` - Complete stack history
-- **Heap with Timestamps**: `O(n)` - Multiple entries per element possible
-- **Stack of Stacks**: `O(n)` - Each element stored once
+- **Brute Force**: `O(n)` - complete stack history plus a frequency map.
+- **Stack of Stacks**: `O(n)` - each element stored once across the per-frequency stacks.
+- **Heap with Timestamps**: `O(n)` - one heap entry per push, never reclaimed.
 
 ### Trade-offs
 
-- **Brute Force**: Poor time efficiency for pop operations and only fair space efficiency. Implementation complexity is low and conceptual clarity is very high. Suitable for learning only in an interview setting.
-- **Heap with Timestamps**: Good time efficiency and good space efficiency. Implementation complexity is high and conceptual clarity is medium. Serves as an alternative approach in interviews.
-- **Stack of Stacks**: Optimal time efficiency with excellent space efficiency. Implementation complexity is medium and conceptual clarity is high. This is the most preferred solution in interviews.
+- **Brute Force**: Linear pop and a re-scanned frequency map, but the most direct mental model and no library reliance. Suitable as a from-scratch baseline for understanding the problem.
+- **Stack of Stacks**: Optimal `O(1)` operations with one stored copy per element, built entirely from hash maps and lists. Slightly more bookkeeping than the brute force, but the cleanest fast design.
+- **Heap with Timestamps**: Easy to reach for if you already think in priority queues, but it hands the core priority logic to `heapq`, runs in `O(log n)`, and keeps every pushed entry forever.
 
 ### When to Use Each
 
-- **Brute Force**: Only for understanding problem requirements or very small constraint scenarios
-- **Heap with Timestamps**: When you want to demonstrate heap knowledge or when the problem has different constraints
-- **Stack of Stacks**: Best solution for production and interviews - optimal performance with clean design
+- **Brute Force**: When establishing correctness first, or for very small inputs where the linear pop is irrelevant.
+- **Stack of Stacks**: The recommended default - optimal performance with a clean, library-free design.
+- **Heap with Timestamps**: When a priority-queue framing is clearer to communicate, accepting the slower bound and the `heapq` dependency.
 
 ### Optimization Notes
 
 - The **Stack of Stacks** solution is the recommended approach: it achieves `O(1)` time for both push and pop by grouping elements into a separate stack per frequency level.
 - The key implementation detail is tracking `max_freq` and pushing each element onto the stack keyed by its new frequency. Popping from the `max_freq` stack naturally returns the most frequent element, and LIFO ordering within that stack handles the recency tie-breaking automatically.
 - A common pitfall is mishandling `max_freq` after a pop: when the highest-frequency stack becomes empty, `max_freq` must be decremented so the next pop targets the correct level.
-- This problem demonstrates the "group by property" design pattern. Unlike the priority queue approach, which requires lazy deletion of stale entries, the stack-of-stacks design avoids that complexity entirely. Such frequency-based priority systems appear in caching algorithms, load balancing, and resource allocation.
+- The **Heap with Timestamps** design works because each push records the frequency the element had at that instant, so the heap's top entry is always the live winner and no lazy deletion of stale entries is required.
+- This problem demonstrates the "group by property" design pattern. Such frequency-based priority systems appear in caching algorithms, load balancing, and resource allocation.

@@ -37,6 +37,79 @@ The **length** of a path between two nodes is represented by the number of edges
 
 ## Solutions
 
+### Brute Force
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def diameterOfBinaryTree(self, root: Optional[TreeNode]) -> int:
+        def height(node: Optional[TreeNode]) -> int:
+            if not node:
+                return 0
+            return 1 + max(height(node.left), height(node.right))
+
+        def diameter(node: Optional[TreeNode]) -> int:
+            if not node:
+                return 0
+            # Longest path bending at this node: edges down each side
+            through = height(node.left) + height(node.right)
+            # Or the best path lies entirely in one of the subtrees
+            return max(through, diameter(node.left), diameter(node.right))
+
+        return diameter(root)
+```
+
+#### Approach
+
+The most direct reading of the definition is to consider every node in turn as
+the bend point of a path. For a path that turns at a given node, its edge length
+is the height of the left subtree plus the height of the right subtree. The
+diameter is the largest such value over all nodes, or, equivalently, the best
+path either bends at the current node or sits entirely within one of its
+subtrees.
+
+1. Write a `height(node)` helper that recomputes a subtree's height (in edges)
+   from scratch every time it is called.
+2. Write a `diameter(node)` helper that, for the current node, measures the path
+   bending here as `height(node.left) + height(node.right)`.
+3. Take the maximum of that bending path and the diameters of the left and right
+   subtrees, recursing on each.
+4. Return the diameter of the whole tree from `diameter(root)`.
+
+This separates the two questions (how tall is a subtree, how wide is its best
+path) into two independent recursions, which is the straightforward but wasteful
+way to reach a correct answer.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n^2)`
+
+For every node, `diameter` calls `height` on its children, and `height` itself
+walks the entire subtree below that node. In the worst case (a skewed tree) the
+height computation costs `O(n)` and it is repeated for `O(n)` nodes, giving
+`O(n^2)`.
+
+##### Space Complexity: `O(h)`
+
+Where `h` is the tree height. Both recursions descend at most to the depth of the
+tree, and they are not active at the same level simultaneously, so the call stack
+is bounded by `O(h)`.
+
+#### Key Insights
+
+- Directly encodes the definition: try every node as the path's bend point and
+  take the widest.
+- The waste is structural: heights are recomputed from scratch at every node
+  instead of being reused, which is exactly the redundancy the single-pass
+  solutions remove.
+- Splitting height and diameter into two separate recursions keeps the logic easy
+  to read at the cost of doing the same descent many times over.
+
 ### Recursive DFS with Instance Variable
 
 ```python
@@ -223,12 +296,14 @@ Space is bounded by the recursion depth, which equals the tree height.
 
 ### Time Complexity
 
+- **Brute Force**: `O(n^2)` - heights are recomputed from scratch at every node.
 - **Recursive DFS with Instance Variable**: `O(n)` - each node visited once.
 - **Recursive DFS with Nonlocal Variable**: `O(n)` - each node visited once.
 - **Return Pair Approach**: `O(n)` - each node visited once.
 
 ### Space Complexity
 
+- **Brute Force**: `O(h)` - recursion stack bounded by the tree height.
 - **Recursive DFS with Instance Variable**: `O(h)` - recursion stack.
 - **Recursive DFS with Nonlocal Variable**: `O(h)` - recursion stack.
 - **Return Pair Approach**: `O(h)` - recursion stack, plus a constant-size tuple
@@ -236,6 +311,8 @@ Space is bounded by the recursion depth, which equals the tree height.
 
 ### Trade-offs
 
+- The brute force is the most literal translation of the definition but pays for
+  that clarity by recomputing every subtree height repeatedly, making it `O(n^2)`.
 - The instance-variable version is concise but leaves mutable state on `self`,
   which can surprise callers that reuse a `Solution` object.
 - The nonlocal version keeps the shared maximum local to the call while remaining
@@ -245,6 +322,8 @@ Space is bounded by the recursion depth, which equals the tree height.
 
 ### When to Use Each
 
+- **Brute Force**: As a teaching baseline that mirrors the definition directly;
+  too slow for the upper constraint of `10^4` nodes on a skewed tree.
 - **Recursive DFS with Instance Variable**: When brevity matters and the object is
   used for a single call.
 - **Recursive DFS with Nonlocal Variable**: When avoiding instance state is
@@ -254,13 +333,16 @@ Space is bounded by the recursion depth, which equals the tree height.
 
 ### Optimization Notes
 
-- All three rely on the same core idea: a single post-order traversal that computes
-  subtree height and simultaneously tracks the widest bend.
+- The key optimization over the brute force is computing height and diameter in a
+  single post-order traversal, reusing each subtree's height instead of recomputing
+  it. This collapses `O(n^2)` into `O(n)`.
+- The three single-pass versions rely on the same core idea: one traversal that
+  computes subtree height and simultaneously tracks the widest bend.
 - Measuring height in edges (empty subtree height `0`) makes `left_h + right_h`
   directly equal to the edge count of the path through a node, avoiding off-by-one
   corrections.
 - The path that realizes the diameter bends at exactly one node, so each parent
   only ever extends one branch upward via `1 + max(left_h, right_h)`.
 
-All three solutions share identical asymptotic time and space behavior; the choice
-among them is primarily a matter of how state is managed.
+The three single-pass solutions share identical asymptotic time and space behavior;
+the choice among them is primarily a matter of how state is managed.

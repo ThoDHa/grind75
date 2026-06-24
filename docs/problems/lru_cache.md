@@ -57,6 +57,93 @@ lRUCache.get(4);    // return 4
 
 ## Solutions
 
+### Brute Force
+
+```python
+class LRUCache:
+
+    def __init__(self, capacity: int):
+        self.capacity = capacity
+        # Plain dict for key -> value lookup.
+        self.cache: dict[int, int] = {}
+        # Separate list tracks recency by hand: front = least recently used.
+        self.order: list[int] = []
+
+    def _touch(self, key: int) -> None:
+        # Move a key to the back, marking it most recently used.
+        self.order.remove(key)
+        self.order.append(key)
+
+    def get(self, key: int) -> int:
+        if key not in self.cache:
+            return -1
+        self._touch(key)
+        return self.cache[key]
+
+    def put(self, key: int, value: int) -> None:
+        if key in self.cache:
+            self.cache[key] = value
+            self._touch(key)
+            return
+        if len(self.cache) >= self.capacity:
+            # Evict the least recently used key, at the front of the order list.
+            lru = self.order.pop(0)
+            del self.cache[lru]
+        self.cache[key] = value
+        self.order.append(key)
+
+
+# Your LRUCache object will be instantiated and called as such:
+# obj = LRUCache(capacity)
+# param_1 = obj.get(key)
+# obj.put(key,value)
+```
+
+#### Approach
+
+The most direct idea is to store values in a dict and track recency by hand in a
+separate list of keys, kept in access order. This mirrors what an LRU cache must
+do without reaching for any specialized structure: it just pays a linear cost to
+maintain the ordering.
+
+1. Keep a dict mapping key to value, plus a list `order` whose front is the least
+   recently used key and whose back is the most recently used.
+2. To mark a key as recently used, remove it from wherever it sits in `order` and
+   append it to the back.
+3. On `get`, return `-1` if the key is absent; otherwise touch the key and return
+   its value.
+4. On `put`, update and touch an existing key. For a new key, first evict the
+   front of `order` (and its dict entry) if the cache is full, then store the
+   value and append the key to the back.
+
+The design is correct but the `order.remove` and `order.pop(0)` calls scan and
+shift the list, so each operation is `O(n)` rather than the required `O(1)`.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity
+
+- **get**: `O(n)` - the dict read is `O(1)`, but `order.remove(key)` scans the
+  list to find the key and then shifts the elements after it.
+- **put**: `O(n)` - touching or evicting walks or shifts the `order` list;
+  `order.pop(0)` in particular shifts every remaining key forward.
+
+##### Space Complexity: `O(capacity)`
+
+The dict and the `order` list each hold at most `capacity` entries, so storage
+scales linearly with the configured capacity.
+
+#### Key Insights
+
+- An LRU cache only needs two things: value lookup and a recency ordering. A dict
+  plus an explicitly maintained list captures both with no special data structure.
+- The cost is in list maintenance: `remove` and `pop(0)` are linear, which is why
+  this fails the problem's `O(1)` requirement despite being correct.
+- A `put` on an existing key still counts as a recent access, so it must touch the
+  key; forgetting this would evict the wrong entry later.
+- This is the natural first attempt, and seeing its linear bottleneck motivates
+  the doubly linked list, where every reorder and eviction becomes `O(1)`.
+
 ### Hash Map + Doubly Linked List
 
 ```python
@@ -262,41 +349,52 @@ table and linked-list nodes scale linearly with that bound.
 
 ### Time Complexity
 
-Both solutions achieve `O(1)` average time for `get` and `put`. The from-scratch
-version does the pointer reassignments explicitly while the `OrderedDict`
-version delegates them to the standard library, but the asymptotic cost per
-operation is identical.
+- **Brute Force**: `O(n)` per operation - dict access is `O(1)`, but maintaining
+  the recency list with `remove` and `pop(0)` scans and shifts the list.
+- **Hash Map + Doubly Linked List**: `O(1)` per operation - constant pointer
+  splices replace the linear list maintenance.
+- **OrderedDict**: `O(1)` average per operation - `move_to_end`, indexing, and
+  `popitem(last=False)` are each `O(1)` average, delegated to the standard library.
 
 ### Space Complexity
 
-Both approaches use `O(capacity)` space, holding at most `capacity` entries plus
-the linked-list bookkeeping. The from-scratch version exposes the nodes and
-sentinels directly; `OrderedDict` keeps the equivalent structure hidden inside
-its C implementation.
+- **Brute Force**: `O(capacity)` - a dict plus a separate key-order list, each
+  holding at most `capacity` entries.
+- **Hash Map + Doubly Linked List**: `O(capacity)` - the dict and the explicit
+  nodes plus sentinels scale linearly with capacity.
+- **OrderedDict**: `O(capacity)` - the equivalent hash map and linked list, hidden
+  inside the C implementation.
 
 ### Trade-offs
 
-- The from-scratch hash map plus doubly linked list spells out every pointer
-  operation, which is more code and more room for off-by-one mistakes, but it
-  shows exactly how the cache works and depends on nothing beyond the language.
-- The `OrderedDict` version is far shorter and harder to get wrong, leaning on a
-  well-tested standard-library structure that already fuses a hash map with a
-  recency-ordered linked list.
+- Brute Force gains the simplest mental model (a dict plus a hand-tracked order
+  list) but gives up the required `O(1)` bound: `remove` and `pop(0)` are linear.
+- Hash Map + Doubly Linked List gains `O(1)` per operation by spelling out every
+  pointer move, at the cost of more code and more room for off-by-one mistakes,
+  while depending on nothing beyond the language.
+- OrderedDict gains brevity and reliability by leaning on a well-tested
+  standard-library structure that already fuses a hash map with a recency-ordered
+  linked list, giving up some conceptual transparency.
 
 ### When to Use Each
 
+- **Brute Force**: As a teaching baseline that shows what an LRU cache must
+  track, before the linear list cost motivates a better structure.
 - **Hash Map + Doubly Linked List**: The expected interview answer when library
-  shortcuts are disallowed, or when you need full control over the node
-  structure (for example to attach extra metadata per entry).
+  shortcuts are disallowed, or when you need full control over the node structure
+  (for example to attach extra metadata per entry).
 - **OrderedDict**: Preferred for production and concise solutions where the
   standard library is available, since it is shorter, clearer, and battle-tested.
 
 ### Optimization Notes
 
-- Both designs hinge on the same core idea: a hash map for `O(1)` key lookup
-  combined with a doubly linked list for `O(1)` recency reordering and eviction.
-- Sentinel head and tail nodes in the from-scratch version remove endpoint edge
-  cases, which is the most common source of bugs in a manual implementation.
-- `OrderedDict` is essentially this exact data structure implemented in C, so
-  choosing it trades a small amount of conceptual transparency for brevity and
-  reliability without changing the complexity.
+- All three designs hinge on the same core idea: a hash map for `O(1)` key lookup
+  combined with a recency ordering for eviction. They differ only in how cheaply
+  that ordering is maintained.
+- The brute force's bottleneck is list maintenance; replacing the order list with
+  a doubly linked list turns every reorder and eviction from `O(n)` into `O(1)`.
+- Sentinel head and tail nodes in the from-scratch linked-list version remove
+  endpoint edge cases, the most common source of bugs in a manual implementation.
+- `OrderedDict` is essentially the hash-map-plus-doubly-linked-list structure
+  implemented in C, so choosing it trades a small amount of conceptual
+  transparency for brevity and reliability without changing the complexity.

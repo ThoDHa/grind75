@@ -44,6 +44,87 @@ According to the definition of LCA on Wikipedia: "The lowest common ancestor is 
 
 ## Solutions
 
+### Find Root-to-Node Paths
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+class Solution:
+    def lowestCommonAncestor(self, root: 'TreeNode', p: 'TreeNode', q: 'TreeNode') -> 'TreeNode':
+        # Collect the chain of nodes from root down to a target.
+        def find_path(node, target, path):
+            if not node:
+                return False
+            path.append(node)
+            if node is target:
+                return True
+            if find_path(node.left, target, path) or find_path(node.right, target, path):
+                return True
+            # This node leads nowhere useful, so drop it before backtracking.
+            path.pop()
+            return False
+
+        path_p, path_q = [], []
+        find_path(root, p, path_p)
+        find_path(root, q, path_q)
+
+        # Walk both paths from the root in lockstep; the last shared node is the LCA.
+        lca = root
+        for a, b in zip(path_p, path_q):
+            if a is b:
+                lca = a
+            else:
+                break
+        return lca
+```
+
+#### Approach
+
+The most direct way to think about a lowest common ancestor is to first find the
+two paths that lead from the root down to `p` and to `q`. Once both paths are in
+hand, they share a common prefix that starts at the root and runs until they
+diverge; the last node before that divergence is the LCA.
+
+1. Write a small recursive search that builds the root-to-target path by hand:
+   append the current node, return success if it is the target, otherwise try
+   each subtree, and `pop` the node back off when neither subtree contains the
+   target.
+2. Run that search twice, once for `p` and once for `q`, producing two lists of
+   nodes ordered from the root downward.
+3. Walk the two paths together. While the nodes match, the shared ancestor keeps
+   getting deeper; the moment they differ (or one path ends), the last matching
+   node is the answer.
+
+Because a node is allowed to be a descendant of itself, a path that ends at the
+other target's path naturally yields that target as the LCA: `zip` simply stops
+at the shorter path.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n)`
+
+Each path search may visit every node once in the worst case, and comparing the
+two paths is bounded by the tree height. The total work is linear in the number
+of nodes.
+
+##### Space Complexity: `O(n)`
+
+Both path lists and the recursion stack are each bounded by the tree height,
+which is `O(n)` for a skewed tree.
+
+#### Key Insights
+
+- Reframing "common ancestor" as "common prefix of two root-to-node paths" makes
+  the problem concrete and easy to reason about without any cleverness.
+- Building the path by appending on the way down and popping on the way back is
+  the standard backtracking pattern for recording a route through a tree.
+- It is wasteful compared with the single-pass solutions: it scans the tree twice
+  and stores two full paths, but it is the most obvious approach to derive.
+
 ### Recursive DFS
 
 ```python
@@ -204,26 +285,31 @@ bounded by `O(n)`.
 
 ### Time Complexity
 
+- **Find Root-to-Node Paths**: `O(n)` - Two path searches each touch every node once in the worst case.
 - **Recursive DFS**: `O(n)` - A single post-order traversal touches each node once.
 - **Iterative with Parent Pointers**: `O(n)` - Building the parent map is linear, and the two upward walks are each bounded by the tree height.
 
 ### Space Complexity
 
+- **Find Root-to-Node Paths**: `O(n)` - Two path lists and the recursion stack are each bounded by the tree height.
 - **Recursive DFS**: `O(h)` - Only the recursion stack is used, bounded by tree height `h`.
 - **Iterative with Parent Pointers**: `O(n)` - The parent map, BFS queue, and ancestor set each scale with the node count.
 
 ### Trade-offs
 
+- **Find Root-to-Node Paths**: The most intuitive to derive, but it scans the tree twice and stores two full paths instead of answering in a single pass.
 - **Recursive DFS**: Compact and elegant with no auxiliary data structures, but it relies on the call stack, which can overflow on a deeply skewed tree of `10^5` nodes.
 - **Iterative with Parent Pointers**: Avoids recursion depth limits entirely, but it allocates explicit maps and sets that consume more memory.
 
 ### When to Use Each
 
+- **Find Root-to-Node Paths**: As a teaching baseline, or when you also need the actual paths to `p` and `q`, not just their meeting point.
 - **Recursive DFS (Recommended)**: Best for interviews and balanced trees - the cleanest expression of the LCA idea in a single pass.
 - **Iterative with Parent Pointers**: When the tree may be extremely deep and recursion could exceed Python's stack limit, or when an explicit non-recursive solution is required.
 
 ### Optimization Notes
 
+- The Find Root-to-Node Paths approach collapses into the single-pass Recursive DFS once you notice the split point can be detected during the descent itself, without materializing both paths.
 - The recursive solution can convert to an explicit stack if recursion depth is the only concern, but the parent-pointer approach reads more naturally.
 - Stopping the BFS as soon as both targets are recorded prevents needless traversal of the rest of the tree when `p` and `q` sit near the top.
 - For repeated LCA queries on a static tree, precomputing parent pointers (or binary-lifting tables) once amortizes the cost across many queries, which neither single-query solution exploits.

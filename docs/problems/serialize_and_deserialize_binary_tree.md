@@ -37,12 +37,11 @@ Design an algorithm to serialize and deserialize a binary tree. There is no rest
 
 ```python
 # Definition for a binary tree node.
-# class TreeNode(object):
-#     def __init__(self, x):
-#         self.val = x
-#         self.left = None
-#         self.right = None
-
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
 class Codec:
     def serialize(self, root):
         """Encodes a tree to a single string using preorder traversal"""

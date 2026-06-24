@@ -37,7 +37,7 @@ Given the `root` of a binary tree, return the level order traversal of its nodes
 
 ## Solutions
 
-### Iterative BFS
+### Brute Force
 
 ```python
 # Definition for a binary tree node.
@@ -46,57 +46,57 @@ Given the `root` of a binary tree, return the level order traversal of its nodes
 #         self.val = val
 #         self.left = left
 #         self.right = right
-from collections import deque
-
 class Solution:
     def levelOrder(self, root: Optional[TreeNode]) -> List[List[int]]:
-        if not root:
+        # Walk the whole tree, recording each value alongside its depth
+        pairs = []
+
+        def visit(node: Optional[TreeNode], depth: int) -> None:
+            if not node:
+                return
+            pairs.append((depth, node.val))
+            visit(node.left, depth + 1)
+            visit(node.right, depth + 1)
+
+        visit(root, 0)
+        if not pairs:
             return []
 
-        result = []
-        queue = deque([root])
-        while queue:
-            level_size = len(queue)
-            level = []
-            for _ in range(level_size):
-                node = queue.popleft()
-                level.append(node.val)
-                if node.left:
-                    queue.append(node.left)
-                if node.right:
-                    queue.append(node.right)
-            result.append(level)
+        # Group the collected values by depth into per-level buckets
+        max_depth = 0
+        for depth, _ in pairs:
+            if depth > max_depth:
+                max_depth = depth
+        result = [[] for _ in range(max_depth + 1)]
+        for depth, val in pairs:
+            result[depth].append(val)
         return result
 ```
 
 #### Approach
 
-Level order traversal is a textbook breadth-first search. The trick is grouping nodes by level, which we achieve by measuring each level's size before draining it:
+The most direct idea ignores any clever level-grouping trick: just walk the entire tree, remember the depth of every node as you pass it, then sort the values into level buckets afterward. Because we visit the left child before the right child, the values within each depth already arrive in left-to-right order.
 
-1. Return an empty list immediately when the tree is empty.
-2. Seed a queue with `root`.
-3. While the queue is non-empty, capture `level_size = len(queue)`: the exact count of nodes on the current level.
-4. Dequeue that many nodes, collecting their values into a fresh `level` list and enqueuing each node's children (left then right).
-5. Append the completed `level` to `result` and repeat for the next level.
-
-Snapshotting `level_size` at the top of each iteration is what cleanly partitions the output into per-level sublists, since any children appended during the loop belong to the next level and are excluded from the current count.
+1. Traverse the tree, appending a `(depth, value)` pair for every node, starting the root at depth `0`.
+2. Return an empty list immediately if no pairs were collected (the tree was empty).
+3. Scan the pairs once to find the maximum depth, which is the number of levels minus one.
+4. Allocate one empty bucket per level, then drop each value into `result[depth]`.
 
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(n)`
 
-Every node is enqueued and dequeued exactly once, and each contributes constant work, giving linear time in the number of nodes.
+The traversal touches each of the `n` nodes once, and the two follow-up scans over the collected pairs are each linear, so the total work is `O(n)`.
 
 ##### Space Complexity: `O(n)`
 
-The output stores all `n` node values. The queue independently holds at most one level, which is up to `n/2` nodes for a complete tree, so the auxiliary space is also `O(n)`.
+The intermediate `pairs` list holds one entry per node, the output holds all `n` values, and the recursion stack adds `O(h)` for height `h`, so the auxiliary space is `O(n)`.
 
 #### Key Insights
 
-- Recording `level_size` before the inner loop is the idiomatic way to separate BFS levels without sentinel markers.
-- A `deque` gives `O(1)` `popleft`, unlike a plain list whose `pop(0)` is `O(n)`.
-- Enqueuing left before right preserves the required left-to-right ordering within each level.
-- The pattern generalizes directly to zigzag traversal, right side view, and per-level aggregates.
+- Separating collection from grouping makes the logic obvious at the cost of a full intermediate `pairs` list.
+- Visiting left before right is what keeps each level's values in the correct order without any extra sorting.
+- It does redundant work: it stores every node's depth explicitly and walks the pairs twice, where the refined approaches group on the fly.
 
 ### Recursive DFS
 
@@ -154,31 +154,97 @@ The output stores all `n` values. The recursion stack adds `O(h)` for the tree h
 - Preorder left-before-right is what keeps every level ordered correctly.
 - This approach is convenient when recursion is already natural for the surrounding code, trading queue space for recursion-stack space.
 
+### Iterative BFS
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+from collections import deque
+
+class Solution:
+    def levelOrder(self, root: Optional[TreeNode]) -> List[List[int]]:
+        if not root:
+            return []
+
+        result = []
+        queue = deque([root])
+        while queue:
+            level_size = len(queue)
+            level = []
+            for _ in range(level_size):
+                node = queue.popleft()
+                level.append(node.val)
+                if node.left:
+                    queue.append(node.left)
+                if node.right:
+                    queue.append(node.right)
+            result.append(level)
+        return result
+```
+
+#### Approach
+
+Level order traversal is a textbook breadth-first search. The trick that separates it from the brute force is grouping nodes by level on the fly, which we achieve by measuring each level's size before draining it:
+
+1. Return an empty list immediately when the tree is empty.
+2. Seed a queue with `root`.
+3. While the queue is non-empty, capture `level_size = len(queue)`: the exact count of nodes on the current level.
+4. Dequeue that many nodes, collecting their values into a fresh `level` list and enqueuing each node's children (left then right).
+5. Append the completed `level` to `result` and repeat for the next level.
+
+Snapshotting `level_size` at the top of each iteration is what cleanly partitions the output into per-level sublists, since any children appended during the loop belong to the next level and are excluded from the current count.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n)`
+
+Every node is enqueued and dequeued exactly once, and each contributes constant work, giving linear time in the number of nodes.
+
+##### Space Complexity: `O(n)`
+
+The output stores all `n` node values. The queue independently holds at most one level, which is up to `n/2` nodes for a complete tree, so the auxiliary space is also `O(n)`.
+
+#### Key Insights
+
+- Recording `level_size` before the inner loop is the idiomatic way to separate BFS levels without sentinel markers.
+- A `deque` gives `O(1)` `popleft`, unlike a plain list whose `pop(0)` is `O(n)`.
+- Enqueuing left before right preserves the required left-to-right ordering within each level.
+- Unlike the brute force, no intermediate `(depth, value)` list is needed: the queue groups levels directly, and the pattern generalizes to zigzag traversal, right side view, and per-level aggregates.
+
 ## Comparison of Solutions
 
 ### Time Complexity
 
-- **Iterative BFS**: `O(n)` - Each node is enqueued and dequeued once
+- **Brute Force**: `O(n)` - One traversal plus two linear scans over the collected pairs
 - **Recursive DFS**: `O(n)` - Each node is visited once
+- **Iterative BFS**: `O(n)` - Each node is enqueued and dequeued once
 
 ### Space Complexity
 
-- **Iterative BFS**: `O(n)` - Output plus a queue holding up to one full level
+- **Brute Force**: `O(n)` - Output plus a full intermediate `(depth, value)` list and an `O(h)` recursion stack
 - **Recursive DFS**: `O(n)` - Output plus an `O(h)` recursion stack
+- **Iterative BFS**: `O(n)` - Output plus a queue holding up to one full level
 
 ### Trade-offs
 
-- BFS maps directly to the level-by-level framing, making the level grouping obvious from the queue mechanics.
-- Recursive DFS removes the explicit queue but introduces a recursion stack that can overflow on a very deep tree.
+- Brute Force separates collection from grouping for maximum clarity, but pays for an intermediate pairs list and a second pass that the on-the-fly approaches avoid.
+- Recursive DFS removes the explicit queue and groups levels during the walk by indexing `result` by depth, but introduces a recursion stack that can overflow on a very deep tree.
+- Iterative BFS maps directly to the level-by-level framing, making the level grouping obvious from the queue mechanics, and avoids deep recursion entirely.
 - BFS peaks at the widest level, while DFS peaks at the tallest path, so the cheaper auxiliary structure depends on tree shape.
 
 ### When to Use Each
 
-- **Iterative BFS**: When the level-by-level reading is the clearest expression of the problem, or when the tree may be very deep.
+- **Brute Force**: As a teaching baseline when separating the traversal from the grouping makes the logic clearest.
 - **Recursive DFS**: When recursion is already idiomatic in the surrounding code and the tree depth is bounded.
+- **Iterative BFS**: The recommended default; when the level-by-level reading is the clearest expression of the problem, or when the tree may be very deep.
 
 ### Optimization Notes
 
-- Both approaches are `O(n)` time, so the choice is driven by which auxiliary structure better fits the expected tree shape.
-- For very deep trees, BFS avoids the recursion-depth ceiling that the DFS solution can hit.
+- All three approaches are `O(n)` time, so the choice is driven by which auxiliary structure better fits the expected tree shape.
+- Both refinements drop the brute force's intermediate `(depth, value)` list by grouping levels as they go.
+- For very deep trees, BFS avoids the recursion-depth ceiling that both recursive solutions can hit.
 - Indexing the result list by depth lets DFS group levels without sentinel markers, mirroring how BFS uses `level_size`.

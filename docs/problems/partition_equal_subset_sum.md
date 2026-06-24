@@ -33,6 +33,71 @@ Given an integer array `nums`, return `true` if you can partition the array into
 
 ## Solutions
 
+### Brute Force
+
+```python
+class Solution:
+    def canPartition(self, nums: List[int]) -> bool:
+        total = sum(nums)
+
+        # An odd total can never split into two equal halves.
+        if total % 2 != 0:
+            return False
+
+        target = total // 2
+
+        # Try every subset: at each index, either take nums[i] toward the
+        # target or skip it. Succeed the moment the running sum hits target.
+        def search(i: int, remaining: int) -> bool:
+            if remaining == 0:
+                return True
+            if remaining < 0 or i == len(nums):
+                return False
+            # Include nums[i], or exclude it and move on.
+            return search(i + 1, remaining - nums[i]) or search(i + 1, remaining)
+
+        return search(0, target)
+```
+
+#### Approach
+
+The most direct idea is to ask the question literally: can any subset of `nums` add
+up to exactly half the total? Two subsets have equal sum only when the total is even
+and one of them sums to `total // 2`, so an odd total returns `False` immediately.
+
+To find such a subset we try every possibility by hand. Walking the array index by
+index, each number is either included in the chosen subset or left out, and we recurse
+on both branches:
+
+1. Compute `total = sum(nums)`. If it is odd, return `False`.
+2. Set `target = total // 2`.
+3. Recurse from index `0` with `remaining = target`. At each index, subtract `nums[i]`
+   (include it) or leave `remaining` untouched (exclude it).
+4. Succeed when `remaining` reaches `0`; fail when `remaining` goes negative or the
+   array runs out before the target is met.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(2^n)`
+
+Every element forks into an include branch and an exclude branch, so the search tree
+holds up to `2^n` leaves. The early exits on `remaining <= 0` prune some paths but do
+not change the worst case.
+
+##### Space Complexity: `O(n)`
+
+The recursion descends one level per element, so the call stack reaches depth `n`. No
+other storage grows with the input.
+
+#### Key Insights
+
+- This states the problem with zero cleverness: enumerate every subset and check its
+  sum against `target`.
+- The include/exclude fork is the raw shape that the dynamic programming solutions
+  later collapse into overlapping subproblems.
+- It is correct but exponential, so it is only viable for tiny inputs; the same states
+  (a given index with a given remaining target) get recomputed across many branches.
+
 ### Bottom-Up DP
 
 ```python
@@ -229,18 +294,22 @@ A single integer holding `target + 1` significant bits.
 
 ### Time Complexity
 
+- **Brute Force**: `O(2^n)` - fork into include/exclude at every element.
 - **Bottom-Up DP**: `O(n × target)` - sweep the boolean array per number.
 - **Reachable Sum Set**: `O(n × target)` - iterate the bounded set per number.
 - **Bitmask DP**: `O(n × target / w)` - same class with a small bitwise constant factor.
 
 ### Space Complexity
 
+- **Brute Force**: `O(n)` - recursion stack depth proportional to the element count.
 - **Bottom-Up DP**: `O(target)` - one boolean array.
 - **Reachable Sum Set**: `O(target)` - at most `target + 1` distinct sums.
 - **Bitmask DP**: `O(target)` - one integer of `target + 1` bits.
 
 ### Trade-offs
 
+- The Brute Force approach is the most direct statement of the problem (enumerate every
+  subset) but recomputes overlapping states, making it exponential.
 - The Bottom-Up DP approach is the clearest expression of the
   0/1 knapsack recurrence and the easiest to adapt to variants.
 - The Reachable Sum Set approach reads naturally and prunes eagerly, but set objects
@@ -250,6 +319,8 @@ A single integer holding `target + 1` significant bits.
 
 ### When to Use Each
 
+- **Brute Force**: Only for tiny inputs or to reason about the problem before adding
+  memoization; it captures the include/exclude structure the DP solutions optimize.
 - **Bottom-Up DP**: The default choice for clarity and for
   explaining the knapsack structure.
 - **Reachable Sum Set**: When a set-based formulation is more intuitive or when most
@@ -259,8 +330,10 @@ A single integer holding `target + 1` significant bits.
 
 ### Optimization Notes
 
-- All three share the same pseudo-polynomial `O(n × target)` class; the differences
-  are constant factors and readability.
+- The Brute Force search recomputes the same `(index, remaining)` states across many
+  branches; caching those states is exactly what turns it into the polynomial DP.
+- The three DP approaches share the same pseudo-polynomial `O(n × target)` class; the
+  differences are constant factors and readability.
 - The downward inner loop in the table approach is the crucial detail that keeps the
   recurrence 0/1; an upward loop would silently solve the unbounded-knapsack variant.
 - The bitmask formulation is typically the fastest in practice because CPython

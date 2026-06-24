@@ -46,6 +46,66 @@ Since an empty string reads the same forward and backward, it is a palindrome.
 
 ## Solutions
 
+### Brute Force
+
+```python
+class Solution:
+    def isPalindrome(self, s: str) -> bool:
+        cleaned = []
+        for c in s:
+            o = ord(c)
+            if ord("0") <= o <= ord("9") or ord("a") <= o <= ord("z"):
+                cleaned.append(c)
+            elif ord("A") <= o <= ord("Z"):
+                # Convert uppercase to lowercase by hand: 'A' and 'a' differ by 32
+                cleaned.append(chr(o + (ord("a") - ord("A"))))
+        n = len(cleaned)
+        for i in range(n // 2):
+            if cleaned[i] != cleaned[n - 1 - i]:
+                return False
+        return True
+```
+
+#### Approach
+
+The problem hinges on two rules: which characters count as alphanumeric, and how
+to fold uppercase onto lowercase. The most self-derivable solution spells both
+rules out by hand instead of leaning on `str.isalnum` or `str.lower`, then checks
+the result by comparing mirrored positions.
+
+1. Walk the input once. For each character, take its code point with `ord`.
+2. Keep it only when its code point falls inside the digit range `'0'..'9'` or
+   the lowercase range `'a'..'z'`. If it falls inside the uppercase range
+   `'A'..'Z'`, shift it down by `ord('a') - ord('A')` (32) to lowercase it before
+   keeping it. Discard everything else.
+3. Compare `cleaned[i]` with `cleaned[n - 1 - i]` for the first half of the
+   cleaned list. Any mismatch means it is not a palindrome, so return `False`.
+4. If every mirrored pair agrees, return `True`.
+
+Defining the character classes through explicit code-point ranges is the core
+lesson here; the rest is the same mirror comparison every palindrome check uses.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n)`
+
+The cleaning pass touches each of the `n` characters once, and the mirror
+comparison walks at most half the cleaned list, so the work is linear.
+
+##### Space Complexity: `O(n)`
+
+The `cleaned` list can hold up to `n` characters when every character is
+alphanumeric.
+
+#### Key Insights
+
+- Spelling out the alphanumeric test and the case fold with raw `ord` arithmetic
+  shows exactly what `isalnum` and `lower` do under the hood.
+- Comparing index `i` against `n - 1 - i` checks both ends at once without a
+  second pointer or a reversed copy.
+- Only the first half needs checking; the middle character of an odd-length
+  string mirrors itself.
+
 ### Filter then Two Pointers
 
 ```python
@@ -234,6 +294,7 @@ The joined string and its reversed copy both scale with the input length.
 
 ### Time Complexity
 
+- **Brute Force**: `O(n)` - a hand-written cleaning pass plus a half-length mirror scan.
 - **Filter then Two Pointers**: `O(n)` - one cleaning pass plus a linear scan.
 - **Two Pointers with Inline Filtering**: `O(n)` - each pointer advances monotonically.
 - **Filter and Reverse**: `O(n)` - cleaning and reversal are both linear.
@@ -241,6 +302,7 @@ The joined string and its reversed copy both scale with the input length.
 
 ### Space Complexity
 
+- **Brute Force**: `O(n)` - stores the hand-cleaned characters.
 - **Filter then Two Pointers**: `O(n)` - stores the cleaned characters.
 - **Two Pointers with Inline Filtering**: `O(1)` - only two index pointers.
 - **Filter and Reverse**: `O(n)` - builds a cleaned string and its reverse.
@@ -248,6 +310,8 @@ The joined string and its reversed copy both scale with the input length.
 
 ### Trade-offs
 
+- Brute Force defines the alphanumeric test and case fold from scratch with
+  `ord` arithmetic, showing what the built-ins do, but is the most verbose form.
 - Filtering first keeps each phase easy to follow but pays for an `O(n)` buffer.
 - Inline filtering reaches `O(1)` space at the cost of two nested skip loops that
   must guard against the pointers crossing.
@@ -255,6 +319,8 @@ The joined string and its reversed copy both scale with the input length.
 
 ### When to Use Each
 
+- **Brute Force**: As a teaching baseline that derives the character-class rules
+  by hand, without relying on `isalnum` or `lower`.
 - **Two Pointers with Inline Filtering**: Preferred when space matters or the
   string is very large, since it allocates nothing beyond two integers.
 - **Filter then Two Pointers**: A good teaching form that separates cleaning from
@@ -264,6 +330,9 @@ The joined string and its reversed copy both scale with the input length.
 
 ### Optimization Notes
 
+- The Brute Force form spells out alphanumeric and case-fold logic with `ord`
+  arithmetic; the other forms hand that work to `isalnum` and `lower`, which do
+  the same checks in a single optimized C-level call.
 - The inline two-pointer approach processes the input in place and never builds a
   cleaned copy, making it the most memory-efficient option.
 - In the inline approach, retaining the `left < right` guard inside both skip

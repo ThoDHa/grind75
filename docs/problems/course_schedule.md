@@ -44,6 +44,80 @@ take course `0` you should also have finished course `1`. So it is impossible.
 
 ## Solutions
 
+### Brute Force
+
+```python
+from typing import List
+
+
+class Solution:
+    def canFinish(self, numCourses: int, prerequisites: List[List[int]]) -> bool:
+        # remaining[course] holds the prerequisites that course still needs.
+        remaining: List[List[int]] = [[] for _ in range(numCourses)]
+        for course, prereq in prerequisites:
+            remaining[course].append(prereq)
+
+        taken = [False] * numCourses
+        taken_count = 0
+
+        # Repeatedly sweep for any course whose prerequisites are all taken.
+        progress = True
+        while progress:
+            progress = False
+            for course in range(numCourses):
+                if taken[course]:
+                    continue
+                if all(taken[prereq] for prereq in remaining[course]):
+                    taken[course] = True
+                    taken_count += 1
+                    progress = True
+
+        return taken_count == numCourses
+```
+
+#### Approach
+
+The most direct simulation mirrors how a student actually clears a degree:
+keep taking any course whose prerequisites are already finished, and repeat
+until no new course can be taken. If every course eventually gets taken, the
+schedule is feasible; if a round ever passes without taking anything while
+courses remain, the leftovers depend on one another in a cycle.
+
+1. For each course, record the list of prerequisites it still needs.
+2. Sweep over every untaken course. If all of its prerequisites are already
+   taken, take it and mark that progress was made this round.
+3. Repeat the full sweep as long as any course was taken during it.
+4. When a sweep makes no progress, stop and compare the number of taken
+   courses against `numCourses`.
+
+A course stuck forever is one whose prerequisites can never all be satisfied,
+which is exactly a cycle. The loop terminates because each round either takes at
+least one new course or ends the process.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(V^2 + V * E)`
+
+Each sweep is `O(V + E)` because it re-checks every course's full prerequisite
+list, and in the worst case only one course is taken per sweep, forcing up to
+`V` sweeps. That gives `O(V * (V + E))` overall, far more work than the linear
+methods below because the same prerequisites are re-examined every round.
+
+##### Space Complexity: `O(V + E)`
+
+The `remaining` lists store all `E` prerequisite edges, and the `taken` array
+uses `O(V)`.
+
+#### Key Insights
+
+- This is pure simulation: no graph theory vocabulary is needed, only the rule
+  "take a course once its prerequisites are done."
+- The wasted work is re-scanning every course's prerequisites on every round,
+  even courses and prerequisites that have not changed.
+- The next solutions remove that waste either by following edges directly (DFS)
+  or by counting prerequisites once and only revisiting a course when one of its
+  prerequisites is taken (Kahn's Algorithm).
+
 ### DFS Three-Color
 
 ```python
@@ -273,6 +347,8 @@ use `O(V)`.
 
 ### Time Complexity
 
+- **Brute Force**: `O(V^2 + V * E)` - re-scans every course's prerequisites each
+  round, and may need up to `V` rounds.
 - **DFS Three-Color**: `O(V + E)` - visits each vertex and edge at most once.
 - **DFS with Recursion Stack**: `O(V + E)` - identical traversal, tracked with
   sets instead of a color array.
@@ -281,6 +357,8 @@ use `O(V)`.
 
 ### Space Complexity
 
+- **Brute Force**: `O(V + E)` - stores all prerequisite edges plus the `taken`
+  array.
 - **DFS Three-Color**: `O(V + E)` - adjacency list plus the color array and
   recursion stack.
 - **DFS with Recursion Stack**: `O(V + E)` - adjacency list plus the `visited`
@@ -290,6 +368,8 @@ use `O(V)`.
 
 ### Trade-offs
 
+- **Brute Force**: Simplest to derive (just simulate taking courses), but wastes
+  time re-checking unchanged prerequisites every round.
 - **DFS Three-Color**: Direct and compact cycle detection, but it relies on
   recursion that can be deep on long chains.
 - **DFS with Recursion Stack**: Set-based state can read more clearly than color
@@ -299,6 +379,8 @@ use `O(V)`.
 
 ### When to Use Each
 
+- **Brute Force**: As a first intuition or sanity check; too slow for the upper
+  constraints but easy to reason about.
 - **DFS Three-Color** (recommended): Best for interviews; it states the core idea
   of finding a back edge in a directed graph as directly as possible.
 - **DFS with Recursion Stack**: When explicit `visited`/`path` sets are clearer to
@@ -308,6 +390,9 @@ use `O(V)`.
 
 ### Optimization Notes
 
+- The brute-force simulation's waste is re-scanning prerequisites that have not
+  changed; Kahn's Algorithm fixes this by counting prerequisites once and only
+  revisiting a course when one of its prerequisites is taken.
 - The three-state coloring is essential: a node found in the `GRAY` state signals
   a cycle, whereas a plain visited flag would miss back edges in a directed
   graph.

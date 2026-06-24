@@ -41,7 +41,7 @@ A **valid BST** is defined as follows:
 
 ## Solutions
 
-### Recursive Bounds
+### Brute Force
 
 ```python
 # Definition for a binary tree node.
@@ -50,6 +50,67 @@ A **valid BST** is defined as follows:
 #         self.val = val
 #         self.left = left
 #         self.right = right
+class Solution:
+    def isValidBST(self, root: Optional[TreeNode]) -> bool:
+        def all_less(node: Optional[TreeNode], limit: int) -> bool:
+            # Every value in this subtree must be strictly below limit
+            if not node:
+                return True
+            return (node.val < limit and
+                    all_less(node.left, limit) and
+                    all_less(node.right, limit))
+
+        def all_greater(node: Optional[TreeNode], limit: int) -> bool:
+            # Every value in this subtree must be strictly above limit
+            if not node:
+                return True
+            return (node.val > limit and
+                    all_greater(node.left, limit) and
+                    all_greater(node.right, limit))
+
+        def valid(node: Optional[TreeNode]) -> bool:
+            if not node:
+                return True
+            # Apply the BST definition literally at this node
+            if not all_less(node.left, node.val):
+                return False
+            if not all_greater(node.right, node.val):
+                return False
+            return valid(node.left) and valid(node.right)
+
+        return valid(root)
+```
+
+#### Approach
+
+The BST definition reads almost like an algorithm: every value in a node's left subtree is strictly smaller, every value in its right subtree is strictly larger, and both subtrees are themselves BSTs. The most direct implementation simply enforces that definition word for word at every node, scanning the full subtrees each time.
+
+1. For each node, scan its entire left subtree and confirm every value is strictly less than `node.val`.
+2. Scan its entire right subtree and confirm every value is strictly greater than `node.val`.
+3. Recurse into both children, applying the same full check at each.
+4. An empty subtree is trivially valid.
+
+This rescans descendants repeatedly, but it needs no insight beyond restating the definition, which makes it the natural first attempt.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n^2)`
+
+Each node triggers a full scan of its subtrees, and in a skewed tree those scans cover up to `O(n)` nodes per call across `O(n)` nodes, giving quadratic work in the worst case.
+
+##### Space Complexity: `O(h)`
+
+The recursion stack reaches the tree's height `h`: `O(log n)` for a balanced tree and `O(n)` for a skewed one. The subtree scans add no extra storage beyond their own stack frames.
+
+#### Key Insights
+
+- Translates the BST definition directly, so it is the easiest version to derive and trust.
+- The strict `<` and `>` comparisons reject duplicate values, as the definition requires.
+- It re-examines the same descendants once per ancestor, which is the redundancy the bounds and inorder approaches eliminate.
+
+### Recursive Bounds
+
+```python
 class Solution:
     def isValidBST(self, root: Optional[TreeNode]) -> bool:
         def validate(node: Optional[TreeNode], low: float, high: float) -> bool:
@@ -147,25 +208,29 @@ The recursion stack is bounded by the tree height `h`, ranging from `O(log n)` t
 
 ### Time Complexity
 
+- **Brute Force**: `O(n^2)` - each node rescans its full subtrees, quadratic on a skewed tree.
 - **Recursive Bounds**: `O(n)` - each node checked once against propagated bounds.
 - **Inorder Traversal**: `O(n)` - each node visited once in sorted-order traversal.
 
 ### Space Complexity
 
-- **Both solutions**: `O(h)` - dominated by the recursion stack, `O(log n)` balanced to `O(n)` skewed.
+- **All three solutions**: `O(h)` - dominated by the recursion stack, `O(log n)` balanced to `O(n)` skewed.
 
 ### Trade-offs
 
+- **Brute Force** is the most direct restatement of the BST definition but wastes time rescanning descendants once per ancestor.
 - **Recursive Bounds** makes the BST invariant explicit by carrying bounds, which generalizes naturally to range-style problems.
 - **Inorder Traversal** is conceptually elegant, relying on the sorted-order property, and stores only one prior value.
 
 ### When to Use Each
 
+- **Brute Force**: As a teaching baseline or first attempt when correctness matters more than speed.
 - **Recursive Bounds**: When you want the validity constraint stated directly, or need to adapt it to subtree range queries.
 - **Inorder Traversal**: When you prefer leaning on the BST's sorted-order property, or plan to reuse the inorder sequence for other checks.
 
 ### Optimization Notes
 
-- Both approaches short-circuit on the first violation, avoiding unnecessary traversal.
+- All three approaches short-circuit on the first violation, avoiding unnecessary traversal.
+- Recursive Bounds and Inorder Traversal both collapse the brute force's repeated subtree scans into a single pass by propagating constraints instead of re-deriving them.
 - The Inorder Traversal can be rewritten with an explicit stack to remove recursion depth limits on extremely skewed trees.
-- Neither approach needs to materialize the full value list, keeping auxiliary space at `O(h)` rather than `O(n)`.
+- None of the approaches needs to materialize the full value list, keeping auxiliary space at `O(h)` rather than `O(n)`.

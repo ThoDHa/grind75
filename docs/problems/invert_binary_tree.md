@@ -81,6 +81,53 @@ The only extra space is the recursion stack, whose depth equals the height of th
 - Because each swap is local and independent, the relative order of the swap and the recursive calls does not change the outcome.
 - Inverting an already inverted tree restores the original, so the operation is its own inverse.
 
+### Iterative DFS
+
+```python
+class Solution:
+    def invertTree(self, root: Optional[TreeNode]) -> Optional[TreeNode]:
+        if not root:
+            return None
+
+        stack = [root]
+        while stack:
+            node = stack.pop()
+            node.left, node.right = node.right, node.left
+            if node.left:
+                stack.append(node.left)
+            if node.right:
+                stack.append(node.right)
+        return root
+```
+
+#### Approach
+
+Because each node's swap is independent, the recursion can be made explicit by managing the pending nodes with a stack instead of the call stack. This keeps the same depth-first visit order:
+
+1. Return `None` when the tree is empty.
+2. Seed a stack with `root`.
+3. While the stack is non-empty, pop a node and swap its `left` and `right` references.
+4. Push both children so their subtrees are inverted in turn.
+5. Return the original `root`.
+
+This is the explicit-stack equivalent of the recursive version, useful when recursion depth is a concern but a depth-first order is still preferred over the wide frontier a queue can build.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n)`
+
+Each node is pushed and popped exactly once and performs a constant-time swap, giving linear time.
+
+##### Space Complexity: `O(h)`, where `h` is the height of the tree
+
+A depth-first stack holds at most one root-to-leaf path plus pending siblings, so its size tracks the tree height rather than its width. This is `O(log n)` for a balanced tree and `O(n)` for a skewed one.
+
+#### Key Insights
+
+- Replacing the implicit call stack with an explicit stack reproduces the recursive version while avoiding recursion-depth limits.
+- The swap is again local, so neither the data structure nor the visit order affects correctness.
+- Tuple assignment swaps the two children without an explicit temporary variable.
+
 ### Iterative BFS
 
 ```python
@@ -104,7 +151,7 @@ class Solution:
 
 #### Approach
 
-Because each node's swap is independent, the nodes can be visited in any order rather than via recursion. A queue gives a level-order (breadth-first) traversal:
+Swapping the stack for a queue turns the depth-first walk into a level-order (breadth-first) one while keeping the logic identical:
 
 1. Return `None` immediately when the tree is empty.
 2. Seed a queue with `root`.
@@ -112,7 +159,7 @@ Because each node's swap is independent, the nodes can be visited in any order r
 4. Enqueue both children (after the swap, either order is fine) so their subtrees are inverted in turn.
 5. Return the original `root`, now the root of the fully inverted tree.
 
-The explicit queue replaces the implicit recursion stack, so the traversal works on trees deep enough to exceed Python's recursion limit.
+The only change from the iterative DFS version is which end of the pending collection is consumed next, which trades the height-bounded stack for a width-bounded frontier.
 
 #### Time and Space Complexity Analysis
 
@@ -126,83 +173,35 @@ The queue holds at most one full level at a time. For a complete tree the widest
 
 #### Key Insights
 
-- The inversion is purely local: swapping each node's children in any order inverts the whole tree.
-- An explicit queue replaces the implicit recursion stack, avoiding recursion-depth limits on very deep trees.
-- Swapping with tuple assignment removes the need for an explicit temporary variable.
-- BFS is chosen here only to contrast with the recursive depth-first version; the traversal order is otherwise irrelevant.
-
-### Iterative DFS
-
-```python
-class Solution:
-    def invertTree(self, root: Optional[TreeNode]) -> Optional[TreeNode]:
-        if not root:
-            return None
-
-        stack = [root]
-        while stack:
-            node = stack.pop()
-            node.left, node.right = node.right, node.left
-            if node.left:
-                stack.append(node.left)
-            if node.right:
-                stack.append(node.right)
-        return root
-```
-
-#### Approach
-
-Swapping the queue for a stack turns the breadth-first walk into a depth-first one while keeping the logic identical:
-
-1. Return `None` when the tree is empty.
-2. Seed a stack with `root`.
-3. While the stack is non-empty, pop a node and swap its `left` and `right` references.
-4. Push both children so their subtrees are inverted in turn.
-5. Return the original `root`.
-
-This is the explicit-stack equivalent of the recursive version, useful when recursion depth is a concern but a depth-first order is still preferred over the wide frontier a queue can build.
-
-#### Time and Space Complexity Analysis
-
-##### Time Complexity: `O(n)`
-
-Each node is pushed and popped exactly once and performs a constant-time swap, giving linear time.
-
-##### Space Complexity: `O(h)`, where `h` is the height of the tree
-
-A depth-first stack holds at most one root-to-leaf path plus pending siblings, so its size tracks the tree height rather than its width. This is `O(log n)` for a balanced tree and `O(n)` for a skewed one.
-
-#### Key Insights
-
 - A stack and a queue differ only in which pending node is processed next; both invert the whole tree.
-- The explicit stack avoids recursion-depth limits while keeping the smaller height-bounded space of depth-first traversal.
-- The swap is again local, so neither the data structure nor the visit order affects correctness.
+- The inversion is purely local: swapping each node's children in any order inverts the whole tree.
+- BFS is chosen here only to contrast with the depth-first versions; the wider frontier gives it `O(n)` space rather than the `O(h)` of a depth-first walk.
 
 ## Comparison of Solutions
 
 ### Time Complexity
 
 - **Recursive DFS**: `O(n)` - Each node is visited once.
-- **Iterative BFS**: `O(n)` - Each node is enqueued and dequeued once.
 - **Iterative DFS**: `O(n)` - Each node is pushed and popped once.
+- **Iterative BFS**: `O(n)` - Each node is enqueued and dequeued once.
 
 ### Space Complexity
 
 - **Recursive DFS**: `O(h)` - Recursion stack equal to the tree height.
-- **Iterative BFS**: `O(n)` - Queue holds up to one full level, which can be `O(n)` wide.
 - **Iterative DFS**: `O(h)` - Explicit stack tracks a path, bounded by the tree height.
+- **Iterative BFS**: `O(n)` - Queue holds up to one full level, which can be `O(n)` wide.
 
 ### Trade-offs
 
 - The recursive version is the most concise and reads naturally as "swap, then invert each subtree."
-- The iterative BFS version uses an explicit queue, sidestepping the recursion-depth ceiling, but its frontier can grow to the widest level.
-- The iterative DFS version also avoids recursion limits yet keeps the smaller height-bounded space of a depth-first walk.
+- The iterative DFS version makes the call stack explicit, avoiding recursion limits yet keeping the smaller height-bounded space of a depth-first walk.
+- The iterative BFS version swaps the stack for a queue, sidestepping the recursion-depth ceiling, but its frontier can grow to the widest level.
 
 ### When to Use Each
 
 - **Recursive DFS**: When code clarity is valued and the tree depth is bounded.
-- **Iterative BFS**: When a breadth-first order is wanted and the tree is not pathologically deep.
 - **Iterative DFS**: When the tree may be deep enough to risk a recursion-limit error and the smaller depth-first frontier is preferable to a queue.
+- **Iterative BFS**: When a breadth-first order is wanted and the tree is not pathologically deep.
 
 ### Optimization Notes
 

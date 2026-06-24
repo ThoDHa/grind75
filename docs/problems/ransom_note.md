@@ -37,6 +37,54 @@ Each letter in `magazine` can only be used once in `ransomNote`.
 
 ## Solutions
 
+### Brute Force
+
+```python
+class Solution:
+    def canConstruct(self, ransomNote: str, magazine: str) -> bool:
+        # Treat the magazine as a pool of letters we can consume one at a time
+        available = list(magazine)
+
+        for char in ransomNote:
+            found = False
+            # Scan the remaining pool for one copy of the needed letter
+            for i in range(len(available)):
+                if available[i] == char:
+                    # Consume it so it can't be reused for another letter
+                    available.pop(i)
+                    found = True
+                    break
+            if not found:
+                return False
+
+        return True
+```
+
+#### Approach
+
+The most direct idea mirrors the physical act the problem describes: cut each letter out of the magazine. For every character the ransom note needs, scan the remaining magazine letters for a matching copy and remove it so it cannot be reused. No counting structure is involved at all, just repeated linear search over a shrinking pool.
+
+1. Copy the magazine into a list that acts as a pool of available letters.
+2. For each character in the ransom note, scan the pool left to right for that character.
+3. When a match is found, remove it from the pool and move on to the next ransom-note character.
+4. If any character is never found in the remaining pool, the note cannot be built, so return `False`.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(m * n)`
+
+For each of the `n` characters in the ransom note we scan up to `m` magazine letters, and each `pop` shifts the remaining elements. This nested work makes the approach quadratic in the worst case.
+
+##### Space Complexity: `O(m)`
+
+We materialize the magazine as a list of `m` letters that shrinks as we consume them.
+
+#### Key Insights
+
+- This is the literal simulation of cutting letters out of a magazine, so it is the easiest approach to derive without any prior counting trick.
+- Consuming each matched letter is what enforces the "each letter used once" rule.
+- Its weakness is repeated rescanning: the same pool is swept again for every character, which the frequency-based approaches eliminate.
+
 ### Hash Map
 
 ```python
@@ -182,31 +230,35 @@ We store two Counter objects, each with at most k unique characters (where k ≤
 
 ### Time Complexity
 
+- **Brute Force**: `O(m * n)`. Each ransom-note character triggers a fresh scan of the shrinking magazine pool.
 - **Hash Map**: `O(m + n)`. One pass through magazine and one through ransom note.
 - **Array Counter**: `O(m + n)`. One pass through each string with direct array indexing.
 - **Counter**: `O(m + n)`. Same complexity as the hash map approach.
 
 ### Space Complexity
 
+- **Brute Force**: `O(m)`. Materializes the magazine as a consumable list of letters.
 - **Hash Map**: `O(k)`, where `k` is the number of unique characters (at most 26), effectively `O(1)`.
 - **Array Counter**: `O(1)`. Fixed-size array of 26 elements regardless of input size.
 - **Counter**: `O(k)`, same as the hash map approach, effectively `O(1)`.
 
 ### Trade-offs
 
+- The brute force needs no counting structure and reads as a literal simulation, but its repeated rescanning makes it quadratic.
 - The hash map solution works with any character set but carries slight hash table overhead.
 - The array solution has the best memory efficiency but is limited to lowercase letters only.
 - The Counter solution is most concise and leverages Python's built-in optimizations.
 
 ### When to Use Each
 
+- **Brute Force**: When first reasoning about the problem, or when input sizes are tiny and clarity outweighs speed.
 - **Hash Map**: When dealing with arbitrary character sets or in languages without specialized counter structures.
 - **Array Counter**: When memory optimization is critical and the character set is limited to lowercase letters.
 - **Counter**: When working in Python and prioritizing code readability and conciseness.
 
 ### Optimization Notes
 
-- The early length check (`len(ransomNote) > len(magazine)`) provides a quick fail path.
+- The early length check (`len(ransomNote) > len(magazine)`) provides a quick fail path in the frequency-based solutions.
+- Counting each letter once, rather than rescanning per character, is what drops the brute force's `O(m * n)` down to `O(m + n)`.
 - For very large inputs with a limited character set, the array-based approach may have better cache locality.
-- All solutions are single-pass, which is optimal for this problem.
 - Using direct array indexing avoids hash computation overhead for small, fixed character sets.

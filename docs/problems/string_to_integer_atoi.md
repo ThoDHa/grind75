@@ -90,98 +90,90 @@ Since 4193 is in the range `[-2^31, 2^31 - 1]`, the final result is 4193.
 
 ## Solutions
 
-### Manual Parsing
+### Brute Force
 
 ```python
 class Solution:
     def myAtoi(self, s: str) -> int:
-        """
-        Step-by-step manual parsing approach
-        """
-        if not s:
-            return 0
-
         INT_MAX = 2**31 - 1
         INT_MIN = -2**31
-
-        i = 0
         n = len(s)
 
-        # Step 1: Skip leading whitespace
+        # Phase 1: skip leading spaces
+        i = 0
         while i < n and s[i] == ' ':
             i += 1
 
-        if i == n:  # Only whitespace
-            return 0
-
-        # Step 2: Determine sign
+        # Phase 2: read an optional sign
         sign = 1
-        if s[i] in '+-':
+        if i < n and (s[i] == '+' or s[i] == '-'):
             if s[i] == '-':
                 sign = -1
             i += 1
 
-        # Step 3: Build number digit by digit
-        result = 0
-        while i < n and s[i].isdigit():
-            digit = ord(s[i]) - ord('0')  # Convert char to int
-
-            # Check overflow before updating result
-            if result > (INT_MAX - digit) // 10:
-                return INT_MAX if sign == 1 else INT_MIN
-
-            result = result * 10 + digit
+        # Phase 3: collect the run of digit characters
+        digits = ''
+        while i < n and '0' <= s[i] <= '9':
+            digits += s[i]
             i += 1
+
+        # Phase 4: fold the digit characters into a number by hand
+        result = 0
+        for ch in digits:
+            result = result * 10 + (ord(ch) - ord('0'))
+            if sign == 1 and result > INT_MAX:
+                return INT_MAX
+            if sign == -1 and -result < INT_MIN:
+                return INT_MIN
 
         return sign * result
 ```
 
 #### Approach
 
-This solution provides a **step-by-step manual implementation** that closely follows the problem specification. It demonstrates explicit character-to-digit conversion using ASCII values and shows clear separation of each parsing step. This approach is most educational for understanding the underlying mechanics.
+The most literal way to solve this is to follow the six specification steps as four separate phases, doing each one with the simplest possible code and no library help. Whitespace, sign, and digit collection are handled in order, then the collected digit characters are converted into a number by hand.
+
+1. Skip leading spaces by advancing while the current character is `' '`.
+2. Read a single optional `'+'` or `'-'`, recording the sign and moving past it.
+3. Walk forward collecting every consecutive digit character into a `digits` string, stopping at the first non-digit or the end of input.
+4. Fold `digits` into an integer left to right with `result * 10 + (ord(ch) - ord('0'))`, clamping to `INT_MAX` or `INT_MIN` the moment the running value leaves the 32-bit range.
 
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(n)`
 
-Single pass through the string with constant time operations per character.
+Each phase scans forward without ever revisiting a character, so the three scans plus the final fold touch every character a constant number of times.
 
-##### Space Complexity: `O(1)`
+##### Space Complexity: `O(n)`
 
-Uses only a few variables regardless of input size.
+The `digits` substring can grow to the length of the input in the worst case, so this version trades constant space for the clarity of separating collection from conversion.
 
 #### Key Insights
 
-- Converting a character to its digit with `ord(s[i]) - ord('0')` avoids any library call and makes the digit extraction explicit.
-- Skipping leading spaces, reading the sign, and reading digits are three separate phases that must run in this exact order: a sign that appears after a digit (or after a space following a sign) terminates parsing rather than restarting it.
-- The overflow guard `result > (INT_MAX - digit) // 10` is checked before the multiply, so the running total never leaves the 32-bit range even momentarily.
+- Each phase is mechanically simple in isolation: this mirrors the six numbered steps directly and is the easiest version to derive from the specification.
+- The character-to-digit conversion `ord(ch) - ord('0')` is written out by hand, with no `int()` or `isdigit()` doing the work.
+- Clamping inside the fold (rather than after) keeps every intermediate value inside the 32-bit range, even for inputs far larger than `2^31`.
 
-### State Machine
+### Single Pass
 
 ```python
 class Solution:
     def myAtoi(self, s: str) -> int:
-        """
-        State machine approach with explicit state transitions
-        """
-        # Define constants
         INT_MAX = 2**31 - 1
         INT_MIN = -2**31
 
-        # State variables
         index = 0
         sign = 1
         result = 0
 
-        # Step 1: Skip leading whitespaces
+        # Skip leading spaces
         while index < len(s) and s[index] == ' ':
             index += 1
 
-        # Check if we've reached end of string
         if index >= len(s):
             return 0
 
-        # Step 2: Handle sign
+        # Read an optional sign
         if s[index] == '+':
             sign = 1
             index += 1
@@ -189,11 +181,10 @@ class Solution:
             sign = -1
             index += 1
 
-        # Step 3: Convert digits and handle overflow
+        # Accumulate digits, guarding overflow before each multiply
         while index < len(s) and s[index].isdigit():
-            digit = int(s[index])
+            digit = ord(s[index]) - ord('0')
 
-            # Check for overflow before adding the digit
             if result > INT_MAX // 10 or (result == INT_MAX // 10 and digit > INT_MAX % 10):
                 return INT_MAX if sign == 1 else INT_MIN
 
@@ -205,23 +196,27 @@ class Solution:
 
 #### Approach
 
-This solution implements a **state machine** that processes the string character by character, following the exact algorithm specification. It handles each step explicitly: skip whitespace, parse sign, convert digits while checking for overflow. The key insight is checking for overflow before performing the multiplication to prevent integer overflow during computation.
+This refines the brute force by fusing digit collection and conversion into one loop, dropping the intermediate `digits` substring. The string is consumed in a single forward pass while the running integer is built directly, which brings the space down to constant.
+
+1. Skip leading spaces, then read the optional sign exactly as before.
+2. For each digit, check overflow *before* the multiply by comparing against `INT_MAX // 10` and the boundary digit `INT_MAX % 10`.
+3. Accumulate into `result` in place, and clamp to `INT_MAX` or `INT_MIN` the instant an overflow would occur.
 
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(n)`
 
-We process each character in the string at most once, where n is the length of the string.
+Each character is visited at most once across the whitespace, sign, and digit phases.
 
 ##### Space Complexity: `O(1)`
 
-Uses only constant extra space for variables regardless of input size.
+The running integer, sign, and index are the only state; no per-digit buffer is built.
 
 #### Key Insights
 
 - Splitting the overflow test into `result > INT_MAX // 10` and the boundary case `result == INT_MAX // 10 and digit > INT_MAX % 10` mirrors how a fixed-width integer would overflow, while keeping every intermediate value inside Python ints that never actually overflow.
 - The single shared clamp `INT_MAX if sign == 1 else INT_MIN` works because `2^31 - 1` and `-2^31` are the only two saturation targets, selected purely by the sign captured earlier.
-- Each character is visited at most once and the state (`sign`, `result`, `index`) fully determines the next transition, which is what makes this a state machine rather than backtracking.
+- Folding collection into the accumulation loop removes the brute force's `O(n)` digit substring, the one piece of waste it carried.
 
 ### Strip and Parse
 
@@ -331,35 +326,35 @@ Uses constant extra space (the regex compilation is cached by Python).
 
 ### Time Complexity
 
-- **Manual Parsing**: `O(n)` - Character-by-character processing
-- **State Machine**: `O(n)` - Single pass with explicit state handling
-- **Strip and Parse**: `O(n)` - Linear strip and digit scan plus `int()` conversion
-- **Regular Expression**: `O(n)` - Pattern matching plus conversion
+- **Brute Force**: `O(n)` - three forward scans plus a digit fold, each linear.
+- **Single Pass**: `O(n)` - one pass with explicit overflow handling.
+- **Strip and Parse**: `O(n)` - linear strip and digit scan plus `int()` conversion.
+- **Regular Expression**: `O(n)` - pattern matching plus conversion.
 
 ### Space Complexity
 
-- **Manual Parsing**: `O(1)` - Constant space usage
-- **State Machine**: `O(1)` - Constant space usage
-- **Strip and Parse**: `O(n)` - Accumulates the digit substring before conversion
-- **Regular Expression**: `O(1)` - Constant space (regex cached)
+- **Brute Force**: `O(n)` - accumulates the digit substring before converting it.
+- **Single Pass**: `O(1)` - builds the running integer directly with no buffer.
+- **Strip and Parse**: `O(n)` - accumulates the digit substring before conversion.
+- **Regular Expression**: `O(1)` - constant space (regex cached).
 
 ### Trade-offs
 
-- **Manual Parsing**: Code clarity is good and edge case handling is very explicit, with best-in-class performance and good maintainability. It has the highest learning value and requires no dependencies.
-- **State Machine**: Code clarity is good and edge case handling is explicit, with best-in-class performance and good maintainability. Learning value is high and it requires no dependencies.
-- **Strip and Parse**: Code clarity is good and the phase structure stays explicit, but it leans on `int()` for the conversion and uses `O(n)` space for the digit substring. It avoids manual overflow arithmetic in favor of a final clamp.
-- **Regular Expression**: Code clarity is excellent and maintainability is excellent, but edge case handling is implicit (relying on the regex plus `int()`). Performance is good with some regex overhead, learning value is medium, and it depends on the `re` module.
+- **Brute Force**: The most directly derivable version, separating the four phases for clarity, and fully library-free (`ord` conversion, no `int()`). It pays `O(n)` space for the intermediate digit substring.
+- **Single Pass**: Trims the brute force's digit substring by folding collection into accumulation, reaching `O(1)` space while staying library-free. It is the recommended hand-written form.
+- **Strip and Parse**: Keeps explicit phases but leans on `int()` for the conversion and uses `O(n)` space for the digit substring, avoiding manual overflow arithmetic in favor of a final clamp.
+- **Regular Expression**: The most concise but the most library-driven: `re` encodes the parsing grammar and `int()` does the conversion, so edge case handling is implicit and it depends on the `re` module.
 
 ### When to Use Each
 
-- **Manual Parsing**: Best for learning/teaching the underlying concepts and when you need full control over every step
-- **State Machine**: Best for production code (recommended): robust, efficient, and handles all edge cases explicitly
-- **Strip and Parse**: When you want explicit phases but prefer to delegate the numeric conversion and overflow clamping to the language
-- **Regular Expression**: When code brevity and readability are prioritized over micro-optimizations
+- **Brute Force**: Best for learning the specification step by step with no library help.
+- **Single Pass**: The recommended default: `O(1)` space, no dependencies, every parsing state handled explicitly.
+- **Strip and Parse**: When you want explicit phases but prefer to delegate the numeric conversion and overflow clamping to the language.
+- **Regular Expression**: When code brevity is prioritized over showing the parsing mechanics.
 
 ### Optimization Notes
 
-- The **State Machine** solution is the recommended choice for production: it runs in `O(n)` time and `O(1)` space, requires no external dependencies, and handles every parsing state (whitespace, sign, digits, overflow) explicitly.
+- The **Single Pass** solution is the recommended choice: it runs in `O(n)` time and `O(1)` space, requires no external dependencies, and handles every parsing state (whitespace, sign, digits, overflow) explicitly.
 - Key implementation detail: check for overflow *before* performing the multiplication `result * 10 + digit`. Comparing against `INT_MAX // 10` and `INT_MAX % 10` prevents the intermediate value from exceeding the 32-bit range, then clamp to `INT_MAX` or `INT_MIN` based on the sign.
-- The **Strip and Parse** and **Regular Expression** approaches offload the numeric conversion (and, for the regex, the edge case handling) to Python's `int()`. They are concise but use `O(n)` space for the digit token, hide the parsing mechanics, and depend on the language for overflow-free arithmetic before the final clamp.
+- The **Strip and Parse** and **Regular Expression** approaches offload the numeric conversion (and, for the regex, the edge case handling) to Python's `int()`. They are concise but hide the parsing mechanics and depend on the language for overflow-free arithmetic before the final clamp.
 - Common pitfall: the many edge cases (empty string, only whitespace, only a sign, non-digit interruptions, and overflow) make this problem tricky; the task tests faithful implementation of an exact specification rather than algorithmic creativity, so each step must follow the stated order precisely.

@@ -52,6 +52,50 @@ Return `true` if there is a cycle in the linked list. Otherwise, return `false`.
 
 ## Solutions
 
+### Brute Force
+
+```python
+class Solution:
+    def hasCycle(self, head: Optional[ListNode]) -> bool:
+        MAX_NODES = 10**4
+        steps = 0
+        while head:
+            # A cycle-free list of n nodes ends within n steps. The constraints
+            # cap n at 10^4, so passing that many steps without reaching null
+            # means we are revisiting nodes: a cycle.
+            if steps > MAX_NODES:
+                return True
+            head = head.next
+            steps += 1
+        return False
+```
+
+#### Approach
+
+The most direct idea uses no extra data structure at all: just walk the list and count steps. A list without a cycle has at most `n` nodes, so following `next` pointers must reach a null terminator within `n` steps. If we keep walking past the largest list the constraints allow, the only explanation is that the pointers loop back on themselves.
+
+1. Read the upper bound on the node count from the constraints (`10^4`) and use it as a step budget.
+2. Traverse the list one node at a time, incrementing a step counter.
+3. If the counter ever exceeds the budget, declare a cycle; if traversal reaches null first, declare no cycle.
+
+This is correct because the budget is the maximum possible chain length: any walk longer than that cannot be a simple acyclic chain.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n)`
+
+Where `n` is the number of nodes. An acyclic list ends in at most `n` steps; a cyclic list is detected after at most `MAX_NODES + 1` steps, which is also `O(n)` since `n` is bounded by that constant.
+
+##### Space Complexity: `O(1)`
+
+Only a counter and the traversal pointer are kept, regardless of input size.
+
+#### Key Insights
+
+- The self-derivable observation: walking longer than the largest possible list means you must be going in circles.
+- Needs no auxiliary structure and never mutates the list.
+- The weakness is that it hard-codes a step bound from the constraints rather than reasoning about the list itself, so it does not generalize to inputs without a known size cap.
+
 ### Hash Set
 
 ```python
@@ -158,31 +202,36 @@ We only use two pointers regardless of the input size.
 
 ### Time Complexity
 
+- **Brute Force**: `O(n)` - Walks until the step budget is exceeded or null is reached
 - **Hash Set**: `O(n)` - Traverses the list once
 - **Marking Nodes**: `O(n)` - Single traversal of the list
 - **Floyd's Cycle Detection**: `O(n)` - Also traverses the list with slow and fast pointers
 
 ### Space Complexity
 
+- **Brute Force**: `O(1)` - Only a counter and a pointer
 - **Hash Set**: `O(n)` - Stores all nodes in a hash set
 - **Marking Nodes**: `O(1)` - No additional data structures
 - **Floyd's Cycle Detection**: `O(1)` - Uses only two pointers
 
 ### Trade-offs
 
-- The hash set solution is intuitive but uses more memory
+- The brute force is the easiest to derive but relies on a hard-coded step bound from the constraints, so it does not generalize beyond inputs with a known size cap
+- The hash set solution is intuitive and self-contained but uses more memory
 - The marking approach is memory-efficient but modifies the original list
 - The two-pointer solution is memory-efficient and doesn't modify the list
 
 ### When to Use Each
 
+- **Brute Force**: As a teaching baseline that needs no extra structure, when a strict size cap is known
 - **Hash Set**: When simplicity is valued over memory efficiency
 - **Marking Nodes**: When memory efficiency is important and modifying the list is allowed
 - **Floyd's Cycle Detection**: When memory efficiency is important and we can't modify the list
 
 ### Optimization Notes
 
-- **Floyd's Cycle Detection is the optimal solution**: it achieves `O(n)` time and `O(1)` space while leaving the list untouched, combining the best properties of the other two approaches
+- **Floyd's Cycle Detection is the optimal solution**: it achieves `O(n)` time and `O(1)` space while leaving the list untouched and never relying on an external size bound, combining the best properties of the other approaches
+- The brute force is the easiest to reach without prior knowledge, but it leans on the `10^4` node cap from the constraints; the other three approaches reason about the list itself and stay correct for any size
 - A key implementation detail is the loop guard `while slow and fast and fast.next`: the fast pointer advances two steps per iteration, so both `fast` and `fast.next` must be non-null before dereferencing `fast.next.next`, otherwise an empty or odd-length acyclic list raises an `AttributeError`
 - Avoid the Marking Nodes approach unless mutation is explicitly permitted: overwriting `val` with `float('inf')` destroys the original data and produces a false positive if any legitimate node already held that sentinel value
 - The Hash Set approach keys on node identity rather than value, so it correctly handles duplicate values; do not refactor it to store `head.val`, which would falsely report a cycle whenever two distinct nodes share the same value

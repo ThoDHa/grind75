@@ -39,6 +39,47 @@ You must write an algorithm with `O(log n)` runtime complexity.
 
 ## Solutions
 
+### Linear Scan
+
+```python
+from typing import List
+
+
+class Solution:
+    def search(self, nums: List[int], target: int) -> int:
+        for i in range(len(nums)):
+            if nums[i] == target:
+                return i
+        return -1
+```
+
+#### Approach
+
+Before exploiting the sorted order, the most direct idea is to look at every element in turn and report the first index that matches `target`. This works on any array, sorted or not, and needs no insight beyond a single pass:
+
+1. Iterate over the indices `0` to `len(nums) - 1`.
+2. If `nums[i]` equals `target`, return `i` immediately.
+3. If the loop finishes without a match, `target` is absent, so return `-1`.
+
+Because the array is scanned left to right, the first index returned is the only index for any value (the constraints guarantee unique elements).
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n)`
+
+- In the worst case the target is at the last position or absent, so all `n` elements are examined.
+- This does not meet the problem's required `O(log n)` bound; it is the baseline to improve upon.
+
+##### Space Complexity: `O(1)`
+
+- Only the loop index is stored, so memory usage is constant.
+
+#### Key Insights
+
+- This is the most self-derivable approach: it ignores the sorted order entirely and simply checks each element.
+- It is correct for every input but wastes the structure the problem hands us, motivating the logarithmic binary search below.
+- The `O(n)` runtime violates the problem's stated requirement, so it serves only as a baseline rather than an accepted answer.
+
 ### Iterative Binary Search
 
 ```python
@@ -199,30 +240,34 @@ The bounds and equality check are required because `bisect_left` returns an inse
 
 ### Time Complexity
 
+- **Linear Scan**: `O(n)` - checks every element in the worst case.
 - **Iterative Binary Search**: `O(log n)` - halves the interval each iteration.
 - **Recursive Binary Search**: `O(log n)` - halves the interval each call.
 - **Library Bisect**: `O(log n)` - `bisect_left` performs an internal binary search.
 
 ### Space Complexity
 
+- **Linear Scan**: `O(1)` - only the loop index.
 - **Iterative Binary Search**: `O(1)` - only two index variables.
 - **Recursive Binary Search**: `O(log n)` - the recursion call stack.
 - **Library Bisect**: `O(1)` - no auxiliary allocation.
 
 ### Trade-offs
 
+- **Linear Scan** is the simplest to write and works on unsorted data, but it ignores the sorted structure and fails the required `O(log n)` bound.
 - **Iterative Binary Search** gives constant space and full control over the index arithmetic at the cost of slightly more verbose pointer bookkeeping.
 - **Recursive Binary Search** reads as a clean divide-and-conquer expression but pays a logarithmic stack cost and adds call overhead.
 - **Library Bisect** is the shortest and least bug-prone to write, but it hides the algorithm and requires an explicit presence check to convert an insertion point into a found index.
 
 ### When to Use Each
 
+- **Linear Scan**: Only as a baseline or when the array is not sorted; it does not satisfy this problem's logarithmic requirement.
 - **Iterative Binary Search**: The default choice for production code and interviews where constant space is valued.
 - **Recursive Binary Search**: When the divide-and-conquer structure should be emphasized for readability or teaching.
 - **Library Bisect** (Recommended for quick, correct code): When working in Python and a sorted list is already available, and clarity outweighs demonstrating the algorithm.
 
 ### Optimization Notes
 
-- All three solutions run in logarithmic time; they differ only in constant factors and in whether the binary search is written by hand or delegated to the standard library.
-- The hand-written forms compute `mid` as `left + (right - left) // 2` to avoid the integer overflow that `(left + right) // 2` can cause in fixed-width integer languages.
+- The linear scan is the discoverable baseline; the three logarithmic solutions all exploit the sorted order to discard half the candidates per step.
+- The hand-written binary searches compute `mid` as `left + (right - left) // 2` to avoid the integer overflow that `(left + right) // 2` can cause in fixed-width integer languages.
 - The iterative form is generally preferred over the recursive form in production because it avoids the call-stack growth and associated overhead.

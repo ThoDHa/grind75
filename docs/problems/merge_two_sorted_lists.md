@@ -43,6 +43,70 @@ Return the head of the merged linked list.
 
 ## Solutions
 
+### Brute Force
+
+```python
+class Solution:
+    def mergeTwoLists(self, list1: Optional[ListNode],
+                      list2: Optional[ListNode]) -> Optional[ListNode]:
+        # Dump every value from both lists into a plain array
+        values = []
+        for head in (list1, list2):
+            node = head
+            while node:
+                values.append(node.val)
+                node = node.next
+
+        # Build the result by repeatedly pulling out the smallest value by hand,
+        # ignoring the fact that the inputs were already sorted
+        dummy = ListNode(-1)
+        current = dummy
+        while values:
+            smallest = 0
+            for i in range(1, len(values)):
+                if values[i] < values[smallest]:
+                    smallest = i
+            current.next = ListNode(values.pop(smallest))
+            current = current.next
+
+        return dummy.next
+```
+
+#### Approach
+
+The most direct idea ignores the gift that both inputs are sorted and treats the
+problem as "produce a sorted list from a bag of numbers." Collect every value
+into an array, then build the answer one node at a time by scanning for the
+minimum remaining value and removing it, selection-sort style. This never
+exploits the sorted order, which is exactly why it is the brute force.
+
+1. Walk both lists and append every node's value to an array.
+2. Repeatedly scan the array for the smallest remaining value, remove it, and
+   append a new node holding that value to the result.
+3. Continue until the array is empty, then return the built list.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O((n + m)^2)`
+
+Let `k = n + m` be the total number of values. Each of the `k` output nodes
+requires a linear scan to find the smallest remaining value, giving quadratic
+work overall.
+
+##### Space Complexity: `O(n + m)`
+
+The `values` array holds all `k` numbers, and the result list allocates `k`
+brand-new nodes rather than reusing the input nodes.
+
+#### Key Insights
+
+- Reframes the task as a plain sort, which is the most obvious starting point
+  before noticing that the inputs are already sorted.
+- Selecting the minimum by hand each step avoids any library sort, but pays for
+  it with quadratic time.
+- Allocates fresh nodes instead of splicing the originals, using extra memory
+  the smarter approaches avoid.
+
 ### Iterative
 
 ```python
@@ -151,26 +215,31 @@ does not achieve constant space.
 
 ### Time Complexity
 
+- **Brute Force**: `O((n + m)^2)` - Each output node costs a linear scan for the minimum remaining value
 - **Iterative**: `O(n + m)` - Each node from both lists is visited exactly once
 - **Recursive**: `O(n + m)` - One recursive call consumes one node, totaling `n + m` calls
 
 ### Space Complexity
 
+- **Brute Force**: `O(n + m)` - Buffers every value and allocates fresh nodes for the result
 - **Iterative**: `O(1)` - Only a handful of pointers regardless of list length
 - **Recursive**: `O(n + m)` - Recursion stack reaches depth equal to the combined length
 
 ### Trade-offs
 
+- **Brute Force** is the most intuitive starting point and needs no insight about the inputs, but it discards the sorted-order gift and pays with quadratic time and extra allocations
 - **Iterative** uses constant space and avoids any risk of stack overflow, at the cost of slightly more bookkeeping with the dummy node and current pointer
 - **Recursive** is more concise and maps directly onto the recurrence, but its stack usage scales linearly and can overflow on very long lists
 
 ### When to Use Each
 
+- **Brute Force**: As a teaching baseline or first instinct before noticing the inputs are already sorted
 - **Iterative**: The default choice for interviews and production, especially when lists may be long or constant space is required
 - **Recursive**: When clarity matters most and inputs are known to be small, or to demonstrate the recursive structure of the problem
 
 ### Optimization Notes
 
-- The iterative solution is recommended for its `O(1)` space and freedom from recursion-depth limits; both approaches share the same `O(n + m)` time
-- Both solutions splice existing nodes rather than allocating new ones, so no extra heap memory is used for the merged structure itself
+- The iterative solution is recommended for its `O(1)` space and freedom from recursion-depth limits; both linear approaches share the same `O(n + m)` time
+- Exploiting the already-sorted inputs is the key leap from the brute force: a single comparison of the two heads replaces the repeated minimum scan, collapsing `O((n + m)^2)` to `O(n + m)`
+- The iterative and recursive solutions splice existing nodes rather than allocating new ones, so no extra heap memory is used for the merged structure itself
 - The `<=` comparison (rather than `<`) preserves the relative order of equal-valued nodes, keeping the merge stable

@@ -45,67 +45,24 @@ Return `intervals` after the insertion.
 
 ## Solutions
 
-### Brute-Force Merge and Sort
-
-```python
-class Solution:
-    def insert(self, intervals: List[List[int]], newInterval: List[int]) -> List[List[int]]:
-        # Add the new interval and sort all intervals by start time
-        intervals.append(newInterval)
-        intervals.sort(key=lambda x: x[0])
-        merged = []
-        for interval in intervals:
-            # If merged is empty or no overlap, append
-            if not merged or merged[-1][1] < interval[0]:
-                merged.append(interval)
-            else:
-                # Overlap: merge intervals
-                merged[-1][1] = max(merged[-1][1], interval[1])
-        return merged
-```
-
-#### Approach
-
-This brute-force approach treats the new interval like any other: append it, re-sort by start time, then sweep once to merge overlaps exactly as in the classic Merge Intervals problem.
-
-1. Append `newInterval` to `intervals`.
-2. Sort the combined list by start time.
-3. Sweep left to right, extending the last merged interval whenever the current one overlaps it, otherwise starting a new merged interval.
-
-#### Time and Space Complexity Analysis
-
-##### Time Complexity: `O(n log n)`
-
-The sort over `n + 1` intervals dominates; the merge sweep that follows is linear, so the overall cost is `O(n log n)`.
-
-##### Space Complexity: `O(n)`
-
-A separate `merged` list holds up to `n + 1` intervals.
-
-#### Key Insights
-
-- Simplest mental model: reduce the problem to the well-known Merge Intervals sweep.
-- The sort is wasteful because the input is already sorted except for the single new interval.
-- Correct for every valid input, including an empty interval list.
-
-### Linear Merge
+### Brute Force
 
 ```python
 class Solution:
     def insert(self, intervals: List[List[int]], newInterval: List[int]) -> List[List[int]]:
         merged = []
         i, n = 0, len(intervals)
-        # Add all intervals before newInterval
+        # Add all intervals that end before newInterval starts
         while i < n and intervals[i][1] < newInterval[0]:
             merged.append(intervals[i])
             i += 1
-        # Merge all overlapping intervals with newInterval
+        # Absorb every interval that overlaps newInterval
         while i < n and intervals[i][0] <= newInterval[1]:
             newInterval[0] = min(newInterval[0], intervals[i][0])
             newInterval[1] = max(newInterval[1], intervals[i][1])
             i += 1
         merged.append(newInterval)
-        # Add the rest
+        # Add all intervals that start after newInterval ends
         while i < n:
             merged.append(intervals[i])
             i += 1
@@ -114,19 +71,19 @@ class Solution:
 
 #### Approach
 
-This approach leverages the fact that the input intervals are already sorted. It walks the list once, splitting it into three regions relative to `newInterval`:
+The intervals arrive already sorted by start, so the most direct idea is to walk the list once and handle `newInterval` by hand, splitting the work into the three regions it creates: the intervals before it, the intervals it overlaps, and the intervals after it. Each region gets its own `while` loop.
 
-1. Add every interval that ends strictly before `newInterval` starts (`intervals[i][1] < newInterval[0]`).
-2. Merge every interval that overlaps `newInterval` (`intervals[i][0] <= newInterval[1]`), absorbing it via `min` of starts and `max` of ends, then append the grown `newInterval`.
-3. Add every remaining interval, all of which start strictly after `newInterval` ends.
+1. Copy every interval that ends strictly before `newInterval` starts (`intervals[i][1] < newInterval[0]`); these are untouched.
+2. Absorb every interval that overlaps `newInterval` (`intervals[i][0] <= newInterval[1]`), growing `newInterval` via `min` of starts and `max` of ends, then append the grown interval once.
+3. Copy every remaining interval; all of them start strictly after `newInterval` ends.
 
-The touching condition uses `<=` so intervals that share an endpoint, such as `[1,5]` and `[5,8]`, merge into `[1,8]`.
+The touching condition uses `<=` so intervals that share an endpoint, such as `[1,5]` and `[5,8]`, merge into `[1,8]`. No sort is needed because the input is already ordered.
 
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(n)`
 
-Each interval is examined by exactly one of the three loops, so the total work is linear and no sort is required.
+Each interval is examined by exactly one of the three loops, so the total work is linear.
 
 ##### Space Complexity: `O(n)`
 
@@ -134,9 +91,56 @@ The `merged` output list holds up to `n + 1` intervals; no other auxiliary stora
 
 #### Key Insights
 
-- Single linear pass that exploits the guaranteed sorted order, beating the brute-force sort.
-- The three-region split (before, overlapping, after) is the canonical interval-insertion pattern.
+- Solves the problem head-on by handling the three regions (before, overlapping, after) rather than reducing it to another problem.
+- Exploiting the guaranteed sorted order means one linear walk suffices, with no sort.
 - Handles every edge case cleanly: empty input, insertion before all or after all intervals, and full overlap.
+
+### Insert and Merge
+
+```python
+class Solution:
+    def insert(self, intervals: List[List[int]], newInterval: List[int]) -> List[List[int]]:
+        # Drop newInterval into its sorted slot, then it is just Merge Intervals.
+        i = 0
+        while i < len(intervals) and intervals[i][0] < newInterval[0]:
+            i += 1
+        combined = intervals[:i] + [newInterval] + intervals[i:]
+
+        merged = []
+        for interval in combined:
+            # No overlap with the last kept interval: start a new one.
+            if not merged or merged[-1][1] < interval[0]:
+                merged.append(interval)
+            else:
+                # Overlap: extend the last interval's end.
+                merged[-1][1] = max(merged[-1][1], interval[1])
+        return merged
+```
+
+#### Approach
+
+Instead of reasoning about three regions, notice that inserting an interval into a sorted, non-overlapping list and re-merging is exactly the Merge Intervals problem with one extra interval. Drop `newInterval` into its sorted position, then run the standard merge sweep over the combined list. The input is already sorted, so finding the slot is a linear scan and no sort is needed.
+
+1. Scan to the first interval whose start is not less than `newInterval`'s start, and splice `newInterval` in there so the combined list stays sorted by start.
+2. Sweep the combined list once: append each interval, or, when it overlaps the last kept interval, extend that interval's end via `max`.
+
+The overlap test `merged[-1][1] < interval[0]` treats a shared endpoint as an overlap, so touching intervals such as `[1,5]` and `[5,8]` merge into `[1,8]`.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n)`
+
+The insertion scan, the splice, and the merge sweep each touch every interval at most once.
+
+##### Space Complexity: `O(n)`
+
+The `combined` list and the `merged` output each hold up to `n + 1` intervals.
+
+#### Key Insights
+
+- Reframes the task as Merge Intervals, reusing a sweep you may already know instead of deriving the region logic from scratch.
+- Recognizing that the input is pre-sorted is what lets a linear insertion replace a full sort.
+- It does redundant work next to the direct walk: it rebuilds the list and re-checks intervals that never touch `newInterval`.
 
 ### In-Place Modification
 
@@ -224,35 +228,36 @@ The recursion reaches depth `O(n)`, and the slicing creates intermediate lists p
 
 ### Time Complexity
 
-- **Brute-Force Merge and Sort**: `O(n log n)` - sorting dominates after appending the new interval.
-- **Linear Merge**: `O(n)` - a single pass exploits the already-sorted input.
+- **Brute Force**: `O(n)` - a single walk over the three regions exploits the already-sorted input.
+- **Insert and Merge**: `O(n)` - a linear insertion plus one merge sweep, with no sort.
 - **In-Place Modification**: `O(n)` - one pass, but each `pop(i)` shifts elements, so it is `O(n)` overall only because pops are localized to the overlapping region.
 - **Recursive Merge**: `O(n)` conceptually (each interval handled once), but `intervals[1:]` slicing per level makes a strict reading `O(n^2)`.
 
 ### Space Complexity
 
-- **Brute-Force Merge and Sort**: `O(n)` - builds a separate merged output list.
-- **Linear Merge**: `O(n)` - builds a separate merged output list.
+- **Brute Force**: `O(n)` - builds a separate merged output list.
+- **Insert and Merge**: `O(n)` - builds a combined list and a separate merged output list.
 - **In-Place Modification**: `O(1)` - mutates the input list, ignoring input/output storage.
 - **Recursive Merge**: `O(n)` - recursion stack depth proportional to the number of intervals.
 
 ### Trade-offs
 
-- Brute-Force Merge and Sort gains the simplest mental model (just sort and merge) but gives up optimality by re-sorting data that is already nearly sorted.
-- Linear Merge gains optimal linear time and clear three-phase structure without mutating the input, at the cost of an extra output list.
+- Brute Force gains optimal linear time and a clear three-region structure without mutating the input, at the cost of an extra output list.
+- Insert and Merge gains a familiar mental model (reduce to Merge Intervals) but does redundant work by rebuilding the list and re-checking intervals that never touch the new one.
 - In-Place Modification gains `O(1)` auxiliary space by mutating the input in place, giving up readability and a non-destructive contract.
 - Recursive Merge gains an elegant declarative form but gives up practicality, risking recursion-depth limits on large inputs.
 
 ### When to Use Each
 
-- **Brute-Force Merge and Sort**: When clarity matters more than performance, or as a teaching baseline.
-- **Linear Merge**: The recommended default; best balance of clarity and efficiency.
+- **Brute Force**: The recommended default; best balance of clarity and efficiency.
+- **Insert and Merge**: When you would rather lean on the familiar Merge Intervals sweep than spell out the three regions.
 - **In-Place Modification**: When minimizing extra space is critical and mutating the input is acceptable.
 - **Recursive Merge**: For academic interest or small inputs only.
 
 ### Optimization Notes
 
-- Linear Merge is the recommended approach: it avoids the unnecessary sort of Brute-Force Merge and Sort by leaning on the guaranteed sorted order of the input.
+- Brute Force is the recommended approach: one linear walk over the three regions, with no sort.
+- Insert and Merge trades that direct walk for the familiar Merge Intervals sweep; it stays `O(n)` only because the pre-sorted input lets a linear insertion replace a sort.
 - The In-Place Modification approach's in-place `pop`/`insert` operations are convenient but can shift list elements; the savings are in auxiliary space, not in fundamentally lower time cost.
-- All linear solutions hinge on the three regions: intervals strictly before, intervals overlapping (merged via `min` start and `max` end), and intervals strictly after.
+- Every approach hinges on the same three regions: intervals strictly before, intervals overlapping (merged via `min` start and `max` end), and intervals strictly after.
 - Avoid the recursive variant for the upper constraint of `10^4` intervals, where deep recursion can exceed Python's default recursion limit.
