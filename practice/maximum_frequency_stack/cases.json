@@ -1,0 +1,8 @@
+[
+  {
+    "id": "example_1",
+    "operations": ["FreqStack", "push", "push", "push", "push", "push", "push", "pop", "pop", "pop", "pop"],
+    "arguments": [[], [5], [7], [5], [7], [4], [5], [], [], [], []],
+    "expected": [null, null, null, null, null, null, null, 5, 7, 5, 4]
+  }
+]
