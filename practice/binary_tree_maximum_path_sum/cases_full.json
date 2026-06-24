@@ -1,0 +1,7 @@
+[
+  {"id": "single_node", "args": [[5]], "expected": 5},
+  {"id": "single_negative", "args": [[-3]], "expected": -3},
+  {"id": "root_with_negative_child", "args": [[2, -1]], "expected": 2},
+  {"id": "all_negative", "args": [[-2, -1]], "expected": -1},
+  {"id": "left_skewed_positive", "args": [[1, 2, null, 3]], "expected": 6}
+]

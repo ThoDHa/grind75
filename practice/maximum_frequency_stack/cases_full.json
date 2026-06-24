@@ -1,0 +1,14 @@
+[
+  {
+    "id": "single_push_pop",
+    "operations": ["FreqStack", "push", "pop"],
+    "arguments": [[], [5], []],
+    "expected": [null, null, 5]
+  },
+  {
+    "id": "recency_breaks_tie",
+    "operations": ["FreqStack", "push", "push", "push", "pop", "pop", "pop"],
+    "arguments": [[], [1], [1], [2], [], [], []],
+    "expected": [null, null, null, null, 1, 2, 1]
+  }
+]
