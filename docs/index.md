@@ -4,6 +4,12 @@ A study guide for the [Grind75](https://www.techinterviewhandbook.org/grind75) L
 
 All credit for the curated problem list goes to the [Tech Interview Handbook](https://www.techinterviewhandbook.org/) team.
 
+!!! tip "New to algorithms or interviews?"
+
+    Start with the [Foundations](foundations/index.md) section. It teaches the
+    prerequisites the problem pages assume, Big-O notation, recursion, the core
+    data structures, and a method for approaching any problem, all from zero.
+
 Use the navigation sidebar (in canonical Grind75 order) or the table below.
 
 ## Problem List
