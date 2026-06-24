@@ -42,6 +42,104 @@ Given a string `s` representing a valid expression, implement a basic calculator
 
 ## Solutions
 
+### Brute Force
+
+```python
+class Solution:
+    def calculate(self, s: str) -> int:
+        # Strip spaces once so index math is simple
+        s = s.replace(' ', '')
+
+        # Repeatedly collapse the innermost parenthesized group into a number,
+        # rewriting the string, until no parentheses are left.
+        while '(' in s:
+            # Find the last '(' (its matching ')' is the next ')' after it),
+            # which is guaranteed to be an innermost group with no nesting.
+            open_idx = s.rfind('(')
+            close_idx = s.find(')', open_idx)
+            inner = s[open_idx + 1:close_idx]
+            value = self._eval_flat(inner)
+            # Splice the computed value back in place of "(...)".
+            s = s[:open_idx] + str(value) + s[close_idx + 1:]
+
+        return self._eval_flat(s)
+
+    def _eval_flat(self, expr: str) -> int:
+        # Evaluate an expression of digits, '+', and '-'. A collapsed group can
+        # leave a unary or doubled sign (e.g. "1-(-2)" rewrites to "1--2"), so
+        # signs are folded by multiplication rather than overwritten.
+        result = 0
+        number = 0
+        sign = 1
+        have_number = False
+        for char in expr:
+            if char.isdigit():
+                number = number * 10 + int(char)
+                have_number = True
+            else:  # char is '+' or '-'
+                # Commit the previous term, if one was read, then start fresh.
+                if have_number:
+                    result += sign * number
+                    number = 0
+                    sign = 1
+                    have_number = False
+                # Fold this operator into the running sign.
+                if char == '-':
+                    sign = -sign
+        # Flush the final term (an empty expr leaves result at 0)
+        return result + sign * number
+```
+
+#### Approach
+
+The most direct idea ignores any clever sign bookkeeping: just keep evaluating
+the innermost parentheses by hand until none remain, then evaluate the leftover
+flat `+`/`-` expression. A flat expression with no parentheses is trivial to
+evaluate left to right, so the only real work is peeling parentheses off one
+group at a time.
+
+The last `(` in the string always begins an innermost group: there can be no
+other `(` between it and its matching `)`, so its matching paren is simply the
+next `)` that follows. We evaluate that group's flat contents, substitute the
+number back into the string, and repeat.
+
+1. Remove all spaces so positions are easy to reason about.
+2. While the string still contains `(`, locate the last `(` and the first `)`
+   after it; the substring between them is an innermost, paren-free group.
+3. Evaluate that group with the flat helper and splice its value back into the
+   string in place of the whole `(...)`.
+4. When no parentheses remain, evaluate the final flat string and return it.
+
+The flat helper folds digits into a running `number`. On each `+` or `-` it
+commits the previous term (only if a number was actually read), then folds the
+operator into the running `sign` by multiplication. Folding rather than
+overwriting is what keeps collapsed negatives correct: a group like `-(2)`
+rewrites the string to `1--2`, and the doubled `-` multiplies the sign back to
+positive, so `1 - (-2) = 3`. A leading unary `-` (such as a collapsed `-3`)
+works the same way, since no term is committed before the first digit.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n^2)`
+
+Each parenthesis-collapsing step rebuilds the string with slicing, which costs
+`O(n)`, and there can be `O(n)` groups, giving `O(n^2)` in the worst case. The
+repeated `rfind`/`find` scans add to the same quadratic bound.
+
+##### Space Complexity: `O(n)`
+
+Each rewrite allocates a fresh string of length up to `n`, and the flat helper
+uses only a constant number of scalars.
+
+#### Key Insights
+
+- The last `(` always opens an innermost group, so its match is just the next
+  `)`: no stack is needed to find the pair.
+- Collapsing `(...)` to a literal number reduces the problem to evaluating a flat
+  expression, which any beginner can do with a single sign-tracking scan.
+- Correct but wasteful: rewriting the whole string per group is the obvious cost
+  the later single-pass approaches eliminate.
+
 ### Stack
 
 ```python
@@ -303,21 +401,26 @@ worst case; this consumes call-stack space rather than an explicit stack.
 
 ### Time Complexity
 
+- **Brute Force**: `O(n^2)` - rewrites the whole string for each of up to `O(n)` parenthesized groups.
 - **Stack**: `O(n)` - single pass, constant work per character.
 - **Stack of Signs**: `O(n)` - single pass, constant work per character.
 - **Recursive Descent**: `O(n)` - shared index reads each character once.
 
 ### Space Complexity
 
+- **Brute Force**: `O(n)` - each rewrite allocates a fresh string up to length `n`.
 - **Stack**: `O(n)` - pushes two values per nesting level.
 - **Stack of Signs**: `O(n)` - pushes one sign per nesting level.
 - **Recursive Descent**: `O(n)` - call-stack depth equals nesting depth.
 
 ### Trade-offs
 
+- **Brute Force** is the most intuitive model (collapse innermost parentheses,
+  then evaluate a flat expression) but rewrites the string per group, paying
+  quadratic time for that simplicity.
 - **Stack** stores a full snapshot `(result, sign)` per level, which is the most
-  literal "save and restore the context" model and the easiest to reason about
-  first.
+  literal "save and restore the context" model and the easiest single-pass model
+  to reason about first.
 - **Stack of Signs** stores only a single integer per level by resolving each
   term's sign eagerly; it keeps the running total flat at the cost of a slightly
   less obvious sign bookkeeping.
@@ -327,6 +430,8 @@ worst case; this consumes call-stack space rather than an explicit stack.
 
 ### When to Use Each
 
+- **Brute Force**: As a first instinct or teaching baseline; avoid it on large
+  inputs because the per-group string rewriting makes it quadratic.
 - **Stack**: The default and clearest choice; reach for it first in an interview.
 - **Stack of Signs**: When you want to minimize per-frame state or articulate the
   insight that only the group's sign needs preserving.
@@ -335,8 +440,9 @@ worst case; this consumes call-stack space rather than an explicit stack.
 
 ### Optimization Notes
 
-- All three are optimal at `O(n)` time; the differences are in clarity and how
-  much state each parenthesis level carries.
+- The three single-pass approaches are all optimal at `O(n)` time; the
+  differences are in clarity and how much state each parenthesis level carries.
+  The Brute Force trades that linear bound away for the simplest mental model.
 - The iterative stack approaches avoid Python's recursion-depth ceiling, which
   matters because `s` can be up to `3 * 10^5` characters with deep nesting.
 - Building numbers with `number * 10 + int(char)` avoids string slicing and keeps

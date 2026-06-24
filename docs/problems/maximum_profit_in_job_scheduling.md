@@ -44,6 +44,89 @@ If you choose a job that ends at time `X` you will be able to start another job 
 
 ## Solutions
 
+### Brute Force
+
+```python
+class Solution:
+    def jobScheduling(
+        self, startTime: List[int], endTime: List[int], profit: List[int]
+    ) -> int:
+        n = len(startTime)
+
+        # Walk the jobs in input order, branching take/skip at each one. `chosen`
+        # holds the (start, end) of jobs already committed on this path. The jobs
+        # arrive unsorted, so a candidate must be checked against every chosen job,
+        # not just the most recently added one.
+        def search(i: int, chosen: List[tuple]) -> int:
+            if i == n:
+                return 0
+
+            # Skip job i.
+            best = search(i + 1, chosen)
+
+            # Take job i only if it overlaps no already-chosen job. Treating each
+            # job as the half-open interval [start, end), two jobs are disjoint
+            # when one ends at or before the other starts. A job ending at X may
+            # sit next to one starting at X, so a shared boundary is allowed.
+            s, e = startTime[i], endTime[i]
+            if all(e <= cs or ce <= s for cs, ce in chosen):
+                best = max(best, profit[i] + search(i + 1, chosen + [(s, e)]))
+
+            return best
+
+        return search(0, [])
+```
+
+#### Approach
+
+Solve the problem head-on by enumerating every subset of jobs that can legally be
+chosen, then keeping the most profitable one. Walk the jobs in their given order and,
+at each one, branch on two choices: take it or skip it. We carry along `chosen`, the
+intervals already committed on the current path, so a candidate can be rejected the
+moment it overlaps any of them.
+
+Because the jobs are not sorted, the last-added job is not necessarily the latest in
+time, so the take branch must compare the candidate against the whole `chosen` set.
+Treating each job as the half-open interval `[start, end)`, the candidate `[s, e)` is
+compatible with a chosen `[cs, ce)` when `e <= cs` or `ce <= s`; a shared boundary is
+allowed, matching the rule that a job ending at `X` may precede one starting at `X`.
+
+The steps:
+
+1. If we have walked past the last job, the selection is finished: return `0`.
+2. Compute the best profit from skipping job `i` (recurse with `chosen` unchanged).
+3. If job `i` overlaps none of the `chosen` intervals, also compute the take branch:
+   `profit[i]` plus the best from the remaining jobs with job `i` added to `chosen`.
+4. Return the larger of the two branches.
+5. Start the search at job `0` with an empty `chosen` set.
+
+Processing jobs in input order without sorting makes this the most literal search of
+the solution space, at the cost of exponential time.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(2^n × n)`
+
+Each job independently contributes a take-or-skip branch, so the recursion explores up
+to `2^n` selections in the worst case (when no jobs overlap, every subset is legal).
+Each take branch scans the `chosen` set, up to `n` intervals, to check compatibility,
+adding the `n` factor.
+
+##### Space Complexity: `O(n)`
+
+The recursion is at most `n` frames deep, and the `chosen` list along any path holds at
+most `n` intervals, so the extra space is linear.
+
+#### Key Insights
+
+- With unsorted jobs the candidate must be tested against every chosen interval; a
+  single `latestEnd` scalar would wrongly reject non-overlapping jobs that happen to
+  appear out of time order in the input.
+- The disjointness test `e <= cs or ce <= s` allows a shared endpoint, matching the
+  problem's rule that a job ending at `X` is compatible with one starting at `X`.
+- This direct enumeration needs no sorting or library helpers, which makes it the
+  clearest baseline to verify the faster DP variants against.
+
 ### Quadratic DP
 
 ```python
@@ -272,6 +355,8 @@ We store the sorted jobs, the `ends` array, and the `best` DP array, each of siz
 
 ### Time Complexity
 
+- **Brute Force**: `O(2^n × n)` - every job branches into take or skip, and each take
+  scans the chosen set to check overlap.
 - **Quadratic DP**: `O(n^2)` - the per-job linear backward scan dominates after the
   initial sort.
 - **DP with Manual Binary Search**: `O(n log n)` - each predecessor lookup drops from
@@ -281,13 +366,16 @@ We store the sorted jobs, the `ends` array, and the `best` DP array, each of siz
 
 ### Space Complexity
 
+- **Brute Force**: `O(n)` - recursion stack only, no auxiliary structures.
 - **Quadratic DP**: `O(n)` - sorted jobs, end times, and the DP array.
 - **DP with Manual Binary Search**: `O(n)` - identical auxiliary storage.
 - **DP with bisect**: `O(n)` - identical auxiliary storage.
 
 ### Trade-offs
 
-- The quadratic solution is the easiest to read and verify: a plain scan walks back
+- The brute force is the most direct to reason about: it just tries taking or skipping
+  each job, but its exponential branching makes it usable only for small inputs.
+- The quadratic solution is the easiest DP to read and verify: a plain scan walks back
   until it finds a compatible job, with no index arithmetic to get wrong.
 - The manual binary search scales to the largest inputs the constraints allow, but
   requires careful handling of the search window and the off-by-one boundary.
@@ -296,6 +384,8 @@ We store the sorted jobs, the `ends` array, and the `best` DP array, each of siz
 
 ### When to Use Each
 
+- **Brute Force**: Suitable only for tiny inputs or as a reference oracle to validate
+  the DP solutions, since it has no sorting and no library dependencies.
 - **Quadratic DP**: Suitable for small inputs, teaching the DP recurrence, or sanity
   checking the faster variant.
 - **DP with Manual Binary Search**: Useful when the search must be understood or
@@ -305,8 +395,8 @@ We store the sorted jobs, the `ends` array, and the `best` DP array, each of siz
 
 ### Optimization Notes
 
-- All three solutions share the same DP recurrence and the same sort-by-end-time setup;
-  the predecessor lookup is the only piece that changes.
+- The three DP solutions share the same DP recurrence and the same sort-by-end-time
+  setup; the predecessor lookup is the only piece that changes.
 - The sorted `ends` array is what makes binary search legal, so it is worth extracting
   once rather than re-deriving it inside the loop.
 - The manual and bisect searches are interchangeable: `bisect_right(ends, start, 0, i - 1)`

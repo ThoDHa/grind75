@@ -44,6 +44,81 @@ Given two words, `beginWord` and `endWord`, and a dictionary `wordList`, return 
 
 ## Solutions
 
+### Brute Force Graph BFS
+
+```python
+from collections import deque
+from typing import List
+
+class Solution:
+    def ladderLength(self, beginWord: str, endWord: str, wordList: List[str]) -> int:
+        if endWord not in wordList:
+            return 0
+
+        # beginWord is a valid start even though it may not be in wordList.
+        nodes = [beginWord] + wordList
+
+        def is_one_diff(a: str, b: str) -> bool:
+            diff = 0
+            for i in range(len(a)):
+                if a[i] != b[i]:
+                    diff += 1
+                    if diff > 1:
+                        return False
+            return diff == 1
+
+        # Build the graph explicitly by comparing every pair of words.
+        adjacency = {word: [] for word in nodes}
+        for i in range(len(nodes)):
+            for j in range(i + 1, len(nodes)):
+                if is_one_diff(nodes[i], nodes[j]):
+                    adjacency[nodes[i]].append(nodes[j])
+                    adjacency[nodes[j]].append(nodes[i])
+
+        # Plain BFS over the precomputed adjacency lists.
+        queue = deque([(beginWord, 1)])
+        visited = {beginWord}
+
+        while queue:
+            current_word, length = queue.popleft()
+
+            if current_word == endWord:
+                return length
+
+            for neighbor in adjacency[current_word]:
+                if neighbor not in visited:
+                    visited.add(neighbor)
+                    queue.append((neighbor, length + 1))
+
+        return 0
+```
+
+#### Approach
+
+The most direct idea is to first answer "which words are neighbors?" by brute force, then run an ordinary shortest-path BFS over that graph. Two words are neighbors when they differ in exactly one position, which a hand-written character scan can decide.
+
+1. Collect every word as a node, including `beginWord`, since the path may start from a word that is not in `wordList`.
+2. Compare every pair of words with `is_one_diff`, building an adjacency list for each word from the matches.
+3. Run BFS from `beginWord`, tracking the words used so far, and return that count the first time `endWord` is dequeued.
+
+Because BFS expands all words reachable in `k` steps before any reachable in `k + 1`, the first arrival at `endWord` uses the fewest words.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(N² × M)`
+
+`M` is the word length and `N` is the number of words. Building the graph compares all `N²` pairs, and each comparison scans up to `M` characters, giving `O(N² × M)`. The BFS that follows visits each node and edge once, which the graph construction already dominates.
+
+##### Space Complexity: `O(N² + M × N)`
+
+The adjacency lists can hold up to `O(N²)` edges in the worst case, and the queue, visited set, and node list together hold up to `N` words of length `M`.
+
+#### Key Insights
+
+- Splitting the work into "build the graph, then BFS it" mirrors how the problem is naturally modeled as a shortest path.
+- The all-pairs comparison is the obvious but wasteful step: it costs `O(N²)` even when most words are not neighbors.
+- The BFS half is already optimal; only the neighbor discovery needs improving, which the next solutions target.
+
 ### BFS with Word-by-Word Comparison
 
 ```python
@@ -179,7 +254,7 @@ The pattern dictionary stores `M` patterns per word, each of length `M`, giving 
 - The tradeoff is higher memory: the pattern map is the dominant space cost.
 - Including `beginWord` in the pattern map lets the search start from it even though it need not be in `wordList`.
 
-### DFS with Memoization
+### Backtracking DFS
 
 ```python
 from typing import List
@@ -190,7 +265,6 @@ class Solution:
             return 0
 
         word_set = set(wordList)
-        memo = {}
 
         def is_one_diff(word1: str, word2: str) -> bool:
             diff_count = 0
@@ -205,9 +279,6 @@ class Solution:
             if current_word == target_word:
                 return 1
 
-            if (current_word, target_word) in memo:
-                return memo[(current_word, target_word)]
-
             min_length = float("inf")
 
             for word in word_set:
@@ -218,7 +289,6 @@ class Solution:
                         min_length = min(min_length, 1 + result)
                     visited.remove(word)
 
-            memo[(current_word, target_word)] = min_length
             return min_length
 
         result = dfs(beginWord, endWord, {beginWord})
@@ -227,30 +297,32 @@ class Solution:
 
 #### Approach
 
-This recursive approach explores transformation paths depth-first and caches results:
+This recursive approach explores transformation paths depth-first and takes the shortest:
 
 1. From the current word, scan the dictionary for every word that differs by exactly one character.
-2. Recurse into each such neighbor, tracking visited words to avoid cycles on the active path.
+2. Recurse into each such neighbor, marking it visited before the call and unmarking it afterward so the `visited` set always reflects the current path only.
 3. Combine the best result from any neighbor: the shortest path through this word is one plus the shortest path from its best neighbor.
-4. Memoize results per `(current_word, target_word)` pair so repeated subproblems are not recomputed.
+4. After exploring every neighbor, return the minimum length found across all complete paths.
 
-DFS is included for contrast. It returns the correct answer, but because depth-first search does not visit nodes in distance order, it may explore long paths before short ones and cannot stop at the first arrival the way BFS does.
+DFS is included for contrast. It returns the correct answer, but because depth-first search does not visit nodes in distance order, it must explore every path to completion rather than stopping at the first arrival the way BFS does.
+
+No memoization is used here. A cache keyed on `(current_word, target_word)` would be unsound: the result of `dfs` depends on which words the active path has already consumed, so a value computed while one path blocks certain words does not hold when a different path reaches the same word with a different `visited` set. Caching such path-dependent values inflates the recorded minimum and yields wrong answers, so the search recomputes each subproblem instead.
 
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(N! × M²)` worst case
 
-Without distance-ordered pruning, DFS can branch into many partial paths. Memoization caches `(current, target)` results but the path-dependent `visited` set limits its effectiveness, so the worst case stays exponential.
+Without distance-ordered pruning and without a sound cache, DFS can branch into exponentially many partial paths. Each recursive frame scans all `N` words and runs `is_one_diff` at `O(M)` per comparison, and the number of distinct paths explored can grow factorially in `N`.
 
 ##### Space Complexity: `O(N × M + recursion depth)`
 
-The memo cache holds up to `O(N)` entries keyed by word pairs, and the recursion stack can grow as deep as the longest explored path.
+The `visited` set holds up to `O(N)` words of length `M` along the active path, and the recursion stack can grow as deep as the longest explored path.
 
 #### Key Insights
 
 - DFS reaches the correct answer but is the wrong tool for shortest paths, since it lacks BFS's level-by-level guarantee.
 - The `is_one_diff` helper short-circuits once two mismatches are found, so each comparison stops early.
-- Memoization keyed on the word pair helps, but path-dependent visited state means it cannot fully tame the exponential blow-up.
+- Memoization is tempting but unsound here: the subproblem result depends on the path-specific `visited` set, so a cache keyed only on the word pair would return wrong (inflated) lengths. Plain backtracking that takes the min over all complete paths stays correct at the cost of recomputation.
 
 ### Bidirectional BFS
 
@@ -330,35 +402,40 @@ The two frontiers and the `visited` set together hold up to `N` words of length 
 
 ### Time Complexity
 
+- **Brute Force Graph BFS**: `O(N² × M)` - building the graph compares all `N²` word pairs, each comparison scanning up to `M` characters; the BFS over the graph is dominated by this.
 - **BFS with Word-by-Word Comparison**: `O(M² × N)` - each of `N` words tries `M` positions across 26 letters, and each string build costs `O(M)`.
 - **BFS with Pattern Matching**: `O(M² × N)` - preprocessing builds all `M`-length patterns in `O(M² × N)`, and BFS traversal stays within the same order.
-- **DFS with Memoization**: `O(N! × M²)` worst case - depth-first search can explore exponentially many paths despite memoization.
+- **Backtracking DFS**: `O(N! × M²)` worst case - depth-first search explores exponentially many paths with no sound way to cache subproblems.
 - **Bidirectional BFS**: `O(M² × N)` - same worst-case bound, but typically much faster in practice from the reduced search space.
 
 ### Space Complexity
 
+- **Brute Force Graph BFS**: `O(N² + M × N)` - the adjacency lists can hold up to `O(N²)` edges, plus the node list, visited set, and queue.
 - **BFS with Word-by-Word Comparison**: `O(M × N)` - for the word set, visited set, and BFS queue.
 - **BFS with Pattern Matching**: `O(M² × N)` - the pattern dictionary stores `M` patterns per word, each of length `M`.
-- **DFS with Memoization**: `O(N × M + recursion depth)` - for the memoization cache plus a recursion stack that can grow deep.
+- **Backtracking DFS**: `O(N × M + recursion depth)` - for the path-specific visited set plus a recursion stack that can grow deep.
 - **Bidirectional BFS**: `O(M × N)` - for the two frontiers and the shared visited set; in practice less than unidirectional BFS.
 
 ### Trade-offs
 
+- **Brute Force Graph BFS**: Simplest mental model (build the graph, then search it), but the all-pairs neighbor comparison makes it quadratic in the number of words.
 - **BFS with Word-by-Word Comparison**: Clear and optimal, but generates candidate words that may not exist in the dictionary.
 - **BFS with Pattern Matching**: Avoids invalid candidates, at the cost of higher space usage and a preprocessing pass.
-- **DFS with Memoization**: Useful for contrast, but performs poorly and does not visit words in distance order.
+- **Backtracking DFS**: Useful for contrast, but performs poorly and does not visit words in distance order. Memoization cannot be added soundly because subproblem results depend on the active path's visited set.
 - **Bidirectional BFS**: Often the fastest in practice, but the dual-frontier bookkeeping is more involved.
 
 ### When to Use Each
 
+- **Brute Force Graph BFS**: As a teaching baseline that separates graph construction from the shortest-path search.
 - **BFS with Word-by-Word Comparison (Recommended)**: The default interview answer - clear, optimal, and correct on every case.
 - **BFS with Pattern Matching**: When the word list is large and avoiding invalid candidates matters more than memory.
-- **DFS with Memoization**: For understanding why depth-first search is the wrong tool for shortest paths.
+- **Backtracking DFS**: For understanding why depth-first search is the wrong tool for shortest paths.
 - **Bidirectional BFS**: For very large search spaces where the meet-in-the-middle speedup is worth the extra complexity.
 
 ### Optimization Notes
 
+- The brute force's bottleneck is the `O(N²)` all-pairs comparison; generating one-letter variations on the fly (Word-by-Word Comparison) or grouping by wildcard pattern (Pattern Matching) discovers neighbors without comparing every pair.
 - Convert `wordList` to a set for `O(1)` membership checks, and return early when `endWord` is absent to skip all further work.
 - Mark words visited at the moment they are enqueued (or added to a frontier) so the same word is never processed twice.
 - For very large search spaces, Bidirectional BFS is the strongest optimization, expanding from both ends and always growing the smaller frontier.
-- Avoid plain DFS for this problem: it does not find the shortest path first, so its worst case degrades toward `O(N! × M²)` despite memoization.
+- Avoid plain DFS for this problem: it does not find the shortest path first, and it admits no sound memoization, so its worst case degrades toward `O(N! × M²)`.
