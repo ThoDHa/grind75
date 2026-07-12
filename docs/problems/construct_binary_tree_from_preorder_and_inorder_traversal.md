@@ -10,21 +10,19 @@ Given two integer arrays `preorder` and `inorder` where `preorder` is the preord
 
 ## Examples
 
-**Example 1:**
+### Example 1
 
 ![Binary Tree Example](./assets/construct_binary_tree_example1.jpg)
 
-```
-Input: preorder = [3,9,20,15,7], inorder = [9,3,15,20,7]
-Output: [3,9,20,null,null,15,7]
-```
+**Input:** `preorder = [3,9,20,15,7]`, `inorder = [9,3,15,20,7]`
 
-**Example 2:**
+**Output:** `[3,9,20,null,null,15,7]`
 
-```
-Input: preorder = [-1], inorder = [-1]
-Output: [-1]
-```
+### Example 2
+
+**Input:** `preorder = [-1]`, `inorder = [-1]`
+
+**Output:** `[-1]`
 
 ## Constraints
 
@@ -47,6 +45,9 @@ Output: [-1]
 #         self.val = val
 #         self.left = left
 #         self.right = right
+from typing import List, Optional
+
+
 class Solution:
     def buildTree(self, preorder: List[int], inorder: List[int]) -> Optional[TreeNode]:
         if not preorder:
@@ -156,6 +157,9 @@ level order that is `[3,9,20,null,null,15,7]`, which matches the expected Output
 #         self.val = val
 #         self.left = left
 #         self.right = right
+from typing import List, Optional
+
+
 class Solution:
     def buildTree(self, preorder: List[int], inorder: List[int]) -> Optional[TreeNode]:
         # Map each value to its index in inorder for O(1) root lookups
@@ -231,6 +235,9 @@ dominated by the map.
 #         self.val = val
 #         self.left = left
 #         self.right = right
+from typing import List, Optional
+
+
 class Solution:
     def buildTree(self, preorder: List[int], inorder: List[int]) -> Optional[TreeNode]:
         # Map each value to its index in inorder for O(1) root lookups
@@ -341,6 +348,8 @@ dominated by the map.
 - Passing index bounds instead of slices is what cuts both time and space from
   `O(n^2)` to `O(n)`; the same trick applies to building a tree from postorder and
   inorder.
-- For very deep (skewed) inputs near the `3000`-node limit, the `O(n)` recursion
-  depth is well within Python's default recursion limit, so no iterative rewrite
-  is needed here.
+- All three solutions recurse once per node, so a fully skewed input near the
+  `3000`-node limit needs roughly `3000` stack frames, which exceeds CPython's
+  default recursion limit of `1000`. For such inputs, raise the limit with
+  `sys.setrecursionlimit` or rewrite the construction iteratively with an
+  explicit stack.

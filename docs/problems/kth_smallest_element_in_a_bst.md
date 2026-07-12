@@ -246,9 +246,9 @@ The temporary links let the traversal find its way back up the tree without a st
 
 #### Time and Space Complexity Analysis
 
-##### Time Complexity: `O(n)`
+##### Time Complexity: `O(n)` worst case
 
-Each edge is traversed at most a constant number of times (once to create the temporary link, once to remove it), so the total work is linear in the number of nodes.
+Each edge is traversed at most a constant number of times (once to create the temporary link, once to remove it), so the total work is linear in the number of nodes in the worst case. Like the iterative version, the loop returns as soon as the visit counter reaches `k`, so only the portion of the tree up to the kth node is walked.
 
 ##### Space Complexity: `O(1)`
 
@@ -258,7 +258,7 @@ No stack or output list is used; the only extra storage is a constant number of 
 
 - Morris traversal trades pointer mutation for space: it threads predecessor-to-successor links instead of storing the path on a stack.
 - Every temporary link must be removed once the left subtree is exhausted; otherwise the tree is left corrupted with cycles.
-- Despite the `O(1)` space, each node is still visited, so it does not beat the iterative approach's `O(H + k)` time when `k` is small.
+- Like the iterative approach, it stops as soon as the count reaches `k`; its real cost difference is the constant-factor overhead of threading and unthreading predecessor links, not a lack of early exit.
 
 ## Comparison of Solutions
 
@@ -266,7 +266,7 @@ No stack or output list is used; the only extra storage is a constant number of 
 
 - **Recursive In-Order Traversal**: `O(n)` - Always processes all nodes
 - **Iterative In-Order Traversal**: `O(H + k)` - Optimal for small k values
-- **Morris Traversal**: `O(n)` - Processes all nodes up to kth
+- **Morris Traversal**: `O(n)` worst case - Stops at the kth node like the iterative version, with extra constant-factor threading work
 
 ### Space Complexity
 

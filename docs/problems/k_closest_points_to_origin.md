@@ -285,10 +285,11 @@ root adds cost without changing the order.
 The sort dominates: every one of the `n` points is compared during an
 `O(n log n)` comparison sort.
 
-##### Space Complexity: `O(1)` or `O(n)`
+##### Space Complexity: `O(n)`
 
-Python's `list.sort` is in place, so the extra space is `O(1)` beyond the output
-slice. Sorting algorithms that allocate temporary buffers would use `O(n)`.
+Python's `list.sort` is in place only in the sense that no second list of points
+is built: CPython's Timsort still allocates a temporary merge buffer of up to
+`n/2` elements, so the auxiliary space is `O(n)` in the worst case.
 
 #### Key Insights
 
@@ -314,7 +315,7 @@ slice. Sorting algorithms that allocate temporary buffers would use `O(n)`.
 - **Brute Force**: `O(n)` - a working copy of the points to remove from.
 - **Max-Heap of Size K**: `O(k)` - the heap holds at most `k` points.
 - **Quickselect**: `O(1)` - partitions the input in place.
-- **Sort by Distance**: `O(1)` with in-place sort, otherwise `O(n)`.
+- **Sort by Distance**: `O(n)` - Timsort's merge buffer can hold up to `n/2` elements; "in place" only means no second list of points.
 
 ### Trade-offs
 

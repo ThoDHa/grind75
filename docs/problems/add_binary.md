@@ -129,9 +129,9 @@ This solution simulates the binary addition process we do by hand, going from ri
 
 #### Time and Space Complexity Analysis
 
-##### Time Complexity: `O(max(n, m))`
+##### Time Complexity: `O(max(n, m)^2)`
 
-We process each bit position once, where n and m are the lengths of the input strings.
+The loop visits each bit position once, but `result = str(bit_sum % 2) + result` copies the entire result string on every iteration. Prepending to a string of growing length `1, 2, ..., max(n, m)` sums to quadratic work overall. Collecting bits in a list and reversing once at the end (as the brute force does) would bring this down to `O(max(n, m))`.
 
 ##### Space Complexity: `O(max(n, m))`
 
@@ -176,9 +176,9 @@ This iterative solution explicitly tracks indices for both strings and processes
 
 #### Time and Space Complexity Analysis
 
-##### Time Complexity: `O(max(n, m))`
+##### Time Complexity: `O(max(n, m)^2)`
 
-We process each bit position once in a single pass.
+The single pass visits each bit position once, but `result = str(current_sum % 2) + result` rebuilds the result string on every iteration, so the total work is quadratic in the longer input. Appending to a list and reversing once at the end would restore the linear bound.
 
 ##### Space Complexity: `O(max(n, m))`
 
@@ -227,16 +227,19 @@ XOR, AND, and shift.
 
 #### Time and Space Complexity Analysis
 
-##### Time Complexity: `O(max(n, m))`
+##### Time Complexity: `O(max(n, m)^2)` worst case
 
-Each iteration clears at least one carry bit, and the number of bits is bounded
-by max(n, m) + 1, so the loop runs a number of times proportional to the input
-length.
+The loop can run up to max(n, m) + 1 times (a carry can ripple one position per
+pass, as in `0b111...1 + 1`), and each XOR, AND, and shift on Python's
+arbitrary-precision integers costs `O(max(n, m))` bit operations when the values
+span up to 10^4 bits. The worst case is therefore quadratic in the input length,
+even though typical inputs resolve in far fewer passes.
 
-##### Space Complexity: `O(1)` for computation, `O(max(n, m))` for output
+##### Space Complexity: `O(max(n, m))`
 
-The arithmetic uses a constant number of integer variables, while the output
-string is proportional to the input sizes.
+Only a constant number of integer variables are used, but each holds an
+arbitrary-precision integer of up to max(n, m) + 1 bits, and the output string
+is proportional to the input sizes as well.
 
 #### Key Insights
 
@@ -281,10 +284,10 @@ The space needed for computation is constant, but the output size is proportiona
 
 ### Time Complexity
 
-- **Brute Force**: `O(max(n, m))` - One pass over the longer string, plus at most one carry pass
-- **Bit-by-bit**: `O(max(n, m))` - Single loop over padded strings
-- **Single-Loop**: `O(max(n, m))` - One-pass approach with index tracking
-- **Bit Manipulation**: `O(max(n, m))` - Carry-propagation loop clears one carry bit per pass
+- **Brute Force**: `O(max(n, m))` - One pass over the longer string, plus at most one carry pass; list append keeps each step `O(1)`
+- **Bit-by-bit**: `O(max(n, m)^2)` - Single loop over padded strings, but string prepending copies the result on every iteration
+- **Single-Loop**: `O(max(n, m)^2)` - One pass with index tracking, but the same string prepending makes each step linear in the result built so far
+- **Bit Manipulation**: `O(max(n, m)^2)` worst case - Up to max(n, m) carry-propagation passes, each doing `O(max(n, m))`-bit integer operations
 - **Built-in Functions**: `O(n + m)` - Linear time for conversion operations
 
 ### Space Complexity
@@ -292,28 +295,28 @@ The space needed for computation is constant, but the output size is proportiona
 - **Brute Force**: `O(max(n, m))` - Result list size
 - **Bit-by-bit**: `O(max(n, m))` - Padded strings and result
 - **Single-Loop**: `O(max(n, m))` - Result string only
-- **Bit Manipulation**: `O(max(n, m))` for output, `O(1)` for computation
+- **Bit Manipulation**: `O(max(n, m))` - The arbitrary-precision integers hold one bit per input bit, plus the output string
 - **Built-in Functions**: `O(max(n, m))` for output, `O(1)` for computation
 
 ### Trade-offs
 
-- The brute force mirrors pencil-and-paper addition and stays library-free, comparing characters directly instead of parsing numbers, at the cost of an explicit reverse at the end
-- The bit-by-bit computation is more uniform with padding but pays for the padding step and repeated string prepending
-- The single-loop iterative approach offers the best balance of readability and efficiency, dropping the padding while still avoiding the brute force's reverse
-- The bit manipulation approach expresses addition without the `+` operator, which is instructive, but still relies on `int()`/`bin()` for parsing and formatting
+- The brute force mirrors pencil-and-paper addition and stays library-free, comparing characters directly instead of parsing numbers; its list-append-then-reverse pattern is what keeps it linear
+- The bit-by-bit computation is more uniform with padding but pays for the padding step and, more importantly, the quadratic cost of repeated string prepending
+- The single-loop iterative approach drops the padding and the final reverse, but its string prepending makes it quadratic; converting it to list append would combine the best of both
+- The bit manipulation approach expresses addition without the `+` operator, which is instructive, but it still relies on `int()`/`bin()` for parsing and formatting and is worst-case quadratic on huge inputs
 - Using built-in functions is extremely concise but defers the entire core task to `int(a, 2)` and `bin()`, and may not work in languages without arbitrary precision integers
 
 ### When to Use Each
 
-- **Brute Force**: When learning the problem, or when a library-free, from-scratch baseline is required
-- **Bit-by-bit Computation**: When a uniform approach with consistent string lengths is desired
-- **Single-Loop Iterative**: For most practical applications - best balance of efficiency and readability
+- **Brute Force**: When learning the problem, or when a library-free, from-scratch baseline is required; it is also the only from-scratch version here with a linear bound
+- **Bit-by-bit Computation**: When a uniform approach with consistent string lengths is desired and inputs are small enough that the quadratic prepending does not matter
+- **Single-Loop Iterative**: When readability matters more than the asymptotic bound; switch the result to a list to make it linear for large inputs
 - **Bit Manipulation**: When demonstrating how addition reduces to XOR and carry shifts, or in settings that favor bitwise reasoning
 - **Built-in Functions**: When code brevity is paramount and the language supports large integers
 
 ### Optimization Notes
 
-- All solutions share the same linear time complexity for this problem, but with different constants
-- The single-loop iterative approach avoids unnecessary string operations present in the brute force and bit-by-bit approaches
-- The single-loop iterative approach demonstrates how to handle asymmetric inputs efficiently without padding
+- Only the brute force and built-in approaches are truly linear here; the two string-prepending versions and the bit-manipulation loop are quadratic in the worst case
+- Replacing `result = bit + result` with `result.append(bit)` plus one final reverse-join is the single change that makes the bit-by-bit and single-loop versions linear
+- The single-loop iterative approach demonstrates how to handle asymmetric inputs without padding
 - The built-in approach leverages Python's arbitrary-precision integers but offloads the core arithmetic the problem is meant to teach

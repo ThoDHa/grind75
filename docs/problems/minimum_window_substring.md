@@ -102,9 +102,9 @@ The most direct reading of the problem is to enumerate every substring and keep 
 
 #### Time and Space Complexity Analysis
 
-##### Time Complexity: `O(|s|² × |t|)`
+##### Time Complexity: `O(|s|³ + |s|² × |t|)`
 
-For each starting position (O(|s|)), we check substrings of increasing length (O(|s|)) and validate each (O(|t|)).
+There are O(|s|²) candidate substrings, and each `is_valid_window` call rebuilds the count of `t` (O(|t|)) and then scans the whole window, which can be up to O(|s|) characters long. The per-check cost is therefore O(|s| + |t|), giving O(|s|³ + |s|² × |t|) overall.
 
 ##### Space Complexity: `O(|t|)`
 
@@ -308,7 +308,7 @@ Additional space for filtered_s in worst case, but typically much smaller.
 
 ### Time Complexity
 
-- **Brute Force**: `O(|s|² × |t|)` - Quadratic time, unacceptable for large inputs
+- **Brute Force**: `O(|s|³ + |s|² × |t|)` - Each of the O(|s|²) substrings pays an O(|s| + |t|) validity scan, unacceptable for large inputs
 - **Sliding Window with Hash Maps**: `O(|s| + |t|)` - Optimal linear time
 - **Optimized Sliding Window**: `O(|s| + |t|)` - Same complexity, better constants
 

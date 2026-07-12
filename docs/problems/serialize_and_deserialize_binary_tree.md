@@ -83,9 +83,9 @@ This solution uses **preorder traversal (root → left → right)** for serializ
 
 Serialization visits each node once, deserialization processes each serialized value once.
 
-##### Space Complexity: `O(n)` for serialization, `O(h)` for deserialization
+##### Space Complexity: `O(n)` output, `O(h)` auxiliary
 
-Serialization stores all node values. Deserialization uses recursion stack proportional to tree height.
+The serialized string (and the token list split from it) holds all `n` values plus null markers, so the output is `O(n)` in both directions. Beyond that output, both serialization and deserialization use only a recursion stack proportional to the tree height.
 
 #### Key Insights
 
@@ -136,6 +136,12 @@ The returned tree is exactly `[1,2,3,null,null,4,5]`, which matches the expected
 ### Level-Order BFS
 
 ```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
 from collections import deque
 
 class Codec:
@@ -196,9 +202,9 @@ This solution uses **level-order traversal (BFS)** which processes nodes level b
 
 Each node is processed exactly once in both serialization and deserialization.
 
-##### Space Complexity: `O(w)` where w is maximum width of tree
+##### Space Complexity: `O(n)` output, `O(w)` auxiliary
 
-The queue can contain at most all nodes at the widest level of the tree.
+The serialized string and the split token list hold all `n` values plus null markers, the same `O(n)` output the DFS approaches produce. The auxiliary structure is the queue, which holds at most the widest level of the tree (`w` nodes).
 
 #### Key Insights
 
@@ -209,6 +215,12 @@ The queue can contain at most all nodes at the widest level of the tree.
 ### Postorder DFS with Null Markers
 
 ```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
 class Codec:
     def serialize(self, root):
         """Encodes a tree to a single string using postorder traversal"""
@@ -252,9 +264,9 @@ This solution uses **postorder traversal (left → right → root)** for seriali
 
 Serialization visits each node once, deserialization processes each serialized value once.
 
-##### Space Complexity: `O(n)` for serialization, `O(h)` for deserialization
+##### Space Complexity: `O(n)` output, `O(h)` auxiliary
 
-Serialization stores all node values plus null markers. Deserialization uses a recursion stack proportional to tree height.
+The serialized string and token list hold all `n` values plus null markers, so the output is `O(n)` in both directions. Beyond the output, deserialization uses a recursion stack proportional to tree height.
 
 #### Key Insights
 
@@ -272,9 +284,9 @@ Serialization stores all node values plus null markers. Deserialization uses a r
 
 ### Space Complexity
 
-- **Preorder DFS with Null Markers**: `O(n)` serialized size, `O(h)` reconstruction stack
-- **Level-Order BFS**: `O(w)` for queue, where w is maximum tree width
-- **Postorder DFS with Null Markers**: `O(n)` serialized size, `O(h)` reconstruction stack
+- **Preorder DFS with Null Markers**: `O(n)` serialized output, `O(h)` auxiliary recursion stack
+- **Level-Order BFS**: `O(n)` serialized output, `O(w)` auxiliary queue, where w is maximum tree width
+- **Postorder DFS with Null Markers**: `O(n)` serialized output, `O(h)` auxiliary recursion stack
 
 ### Trade-offs
 

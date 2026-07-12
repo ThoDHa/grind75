@@ -256,11 +256,13 @@ correct.
 
 Each node is pushed and popped once, and the per-node work is constant.
 
-##### Space Complexity: `O(h)`
+##### Space Complexity: `O(n)`
 
-The stack holds at most one root-to-leaf path at a time, and the `heights` map
-stores a bounded number of live entries proportional to the current path. Both
-are bounded by the tree height `h`.
+The stack holds at most one root-to-leaf path at a time, which is `O(h)`, but
+the `heights` map is never pruned: every node keeps its entry after it is
+finished, so the map grows to one entry per node and dominates at `O(n)`.
+Deleting child entries once a parent's height is recorded would bring this back
+down to `O(h)`.
 
 #### Key Insights
 
@@ -282,8 +284,12 @@ are bounded by the tree height `h`.
 
 ### Space Complexity
 
-- **All three**: `O(h)` - proportional to tree height, from the recursion stack
-  or the explicit stack plus height map.
+- **Top-Down Recursion**: `O(h)` - proportional to tree height, from the
+  recursion stack.
+- **Bottom-Up Recursion**: `O(h)` - proportional to tree height, from the
+  recursion stack.
+- **Iterative Post-Order**: `O(n)` - the explicit stack is `O(h)`, but the
+  unpruned `heights` map keeps an entry for every node.
 
 ### Trade-offs
 
@@ -292,7 +298,8 @@ are bounded by the tree height `h`.
 - **Bottom-Up Recursion**: Linear and concise, at the cost of a slightly less
   obvious sentinel trick.
 - **Iterative Post-Order**: Linear and immune to recursion-depth limits, at the
-  cost of more bookkeeping (manual stack, `last_visited`, height map).
+  cost of more bookkeeping (manual stack, `last_visited`, height map) and `O(n)`
+  space for the unpruned height map.
 
 ### When to Use Each
 

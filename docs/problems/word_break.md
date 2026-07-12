@@ -48,6 +48,9 @@ Note that you are allowed to reuse a dictionary word.
 ### Brute Force Recursion
 
 ```python
+from typing import List
+
+
 class Solution:
     def wordBreak(self, s: str, wordDict: List[str]) -> bool:
         word_set = set(wordDict)
@@ -127,6 +130,8 @@ The deepest call hits the base case because `start_index` reached `len(s) = 8`, 
 
 ```python
 from collections import deque
+from typing import List
+
 
 class Solution:
     def wordBreak(self, s: str, wordDict: List[str]) -> bool:
@@ -169,9 +174,9 @@ BFS explores all reachable positions level by level until it either finds a path
 
 #### Time and Space Complexity Analysis
 
-##### Time Complexity: `O(n² + m × k)`
+##### Time Complexity: `O(n³ + m × k)`
 
-In the worst case, we visit each index once and try all possible word endings from each index.
+Each index is visited once and up to `O(n)` word endings are tried from it, but every candidate `s[start_index:end_index]` is sliced and hashed, which costs up to `O(n)` per candidate since the code never caps the slice length at the longest dictionary word. Capping `end_index` at `start_index` plus the maximum word length is the standard optimization that would bring this to `O(n² × k)`.
 
 ##### Space Complexity: `O(n + m × k)`
 
@@ -186,6 +191,9 @@ Space for the queue, visited set, and word set.
 ### Top-Down Memoization
 
 ```python
+from typing import List
+
+
 class Solution:
     def wordBreak(self, s: str, wordDict: List[str]) -> bool:
         word_set = set(wordDict)
@@ -228,9 +236,9 @@ The memoization cache stores results for each starting index, preventing redunda
 
 #### Time and Space Complexity Analysis
 
-##### Time Complexity: `O(n² + m × k)`
+##### Time Complexity: `O(n³ + m × k)`
 
-Each unique starting index (n positions) is computed at most once. For each position, we try all possible ending positions (O(n)), and each dictionary lookup takes O(k) time.
+Each unique starting index (n positions) is computed at most once, and each tries all possible ending positions (O(n)). Each candidate `s[start_index:end_index]` is sliced and hashed at a cost of up to O(n), because the slice length is not capped by the longest dictionary word, giving O(n³) for the DP portion. Capping the ending position at the maximum word length would tighten this to `O(n² × k)`.
 
 ##### Space Complexity: `O(n + m × k)`
 
@@ -245,6 +253,9 @@ O(n) for memoization cache and recursion stack, plus O(m × k) for the word set.
 ### Bottom-Up DP
 
 ```python
+from typing import List
+
+
 class Solution:
     def wordBreak(self, s: str, wordDict: List[str]) -> bool:
         # Convert to set for O(1) lookup
@@ -281,9 +292,9 @@ The recurrence relation is: `dp[i] = True` if there exists `j < i` such that `dp
 
 #### Time and Space Complexity Analysis
 
-##### Time Complexity: `O(n² + m × k)`
+##### Time Complexity: `O(n³ + m × k)`
 
-Where n is the length of string s, m is the number of words in wordDict, and k is the average length of words. The nested loop takes O(n²), and each substring operation and dictionary lookup takes O(k) time. Converting wordDict to a set takes O(m × k).
+Where n is the length of string s, m is the number of words in wordDict, and k is the maximum length of words. The nested loop runs O(n²) times, and each iteration slices and hashes `s[j:i]`, which can be up to O(n) characters since the code does not cap the slice length at the longest dictionary word. Converting wordDict to a set takes O(m × k). Bounding `i - j` by the maximum word length is the standard optimization that would give `O(n² × k)`.
 
 ##### Space Complexity: `O(n + m × k)`
 
@@ -298,6 +309,9 @@ O(n) for the DP array, plus O(m × k) for storing the word set.
 ### Trie-Based DP
 
 ```python
+from typing import List
+
+
 class TrieNode:
     def __init__(self):
         self.children = {}
@@ -369,10 +383,10 @@ The Trie stores all characters from all words, plus the O(n) DP array.
 ### Time Complexity
 
 - **Brute Force Recursion**: `O(2^n)` - Without memoization, overlapping subproblems are re-solved, leading to exponential exploration of partitions.
-- **BFS**: `O(n² + m×k)` - Each index is visited once and all word endings from it are tried, with O(m×k) for the word set.
-- **Top-Down Memoization**: `O(n² + m×k)` - Each of n starting indices is computed once, trying O(n) endings with O(k) lookups, plus O(m×k) to build the set.
-- **Bottom-Up DP**: `O(n² + m×k)` - The nested loop over positions is O(n²); each substring slice and lookup costs O(k), and building the word set takes O(m×k).
-- **Trie-Based DP**: `O(n² + m×k)` - Building the Trie takes O(m×k) and the DP portion is O(n²) worst case, though the Trie enables early termination.
+- **BFS**: `O(n³ + m×k)` - Each index is visited once with O(n) endings, and each uncapped slice costs up to O(n), plus O(m×k) for the word set.
+- **Top-Down Memoization**: `O(n³ + m×k)` - Each of n starting indices is computed once, trying O(n) endings whose slices cost up to O(n) each, plus O(m×k) to build the set.
+- **Bottom-Up DP**: `O(n³ + m×k)` - The nested loop over positions is O(n²) and each uncapped substring slice costs up to O(n); building the word set takes O(m×k).
+- **Trie-Based DP**: `O(n² + m×k)` - Building the Trie takes O(m×k); the DP walk advances one character at a time with no slicing, so each (i, j) pair costs O(1).
 
 ### Space Complexity
 
@@ -387,7 +401,7 @@ The Trie stores all characters from all words, plus the O(n) DP array.
 - **Brute Force Recursion**: Simple to understand, but exponential time makes it impractical for real inputs.
 - **BFS**: Offers an alternative graph perspective, but carries extra queue overhead.
 - **Top-Down Memoization**: Intuitive recursion that only computes the states it needs, at the cost of recursion overhead.
-- **Bottom-Up DP**: Iterative with clear logic and optimal complexity, though it checks all substrings.
+- **Bottom-Up DP**: Iterative with clear logic, though its uncapped substring slices make it `O(n³)` strict as written.
 - **Trie-Based DP**: Can provide early termination when the dictionary shares common prefixes, but has a more complex implementation.
 
 ### When to Use Each
@@ -395,12 +409,13 @@ The Trie stores all characters from all words, plus the O(n) DP array.
 - **Brute Force Recursion**: Only for understanding the problem or very small inputs.
 - **BFS**: When modeling as a graph problem or when you need to find the actual segmentation path.
 - **Top-Down Memoization**: When recursive thinking feels more natural or for problems requiring path reconstruction.
-- **Bottom-Up DP (Recommended)**: Best for interviews: optimal time complexity with clear iterative logic.
+- **Bottom-Up DP (Recommended)**: Best for interviews: clear iterative logic, easily tightened with the max-word-length cap.
 - **Trie-Based DP**: For optimization when the dictionary is large and has many common prefixes.
 
 ### Optimization Notes
 
-- Bottom-Up DP is the recommended solution: it achieves the optimal `O(n² + m×k)` complexity with straightforward iterative logic and is easy to reason about under interview pressure.
+- Bottom-Up DP is the recommended solution: straightforward iterative logic that is easy to reason about under interview pressure, running in `O(n³ + m×k)` as written.
 - Converting `wordDict` to a set is the single most important optimization across every approach, turning O(m×k) list scans into O(k) average-case lookups.
+- Capping the inner loop by the maximum dictionary word length (no slice longer than the longest word can ever match) tightens the slicing approaches from `O(n³)` to `O(n² × k)`; the code shown does not apply this cap, but it is the standard follow-up optimization.
 - The bottom-up loop can break as soon as any valid split is found for position `i`, avoiding redundant work once `dp[i]` is established.
 - Avoid the brute-force recursion without memoization: its `O(2^n)` blowup comes purely from re-solving overlapping subproblems, which both DP variants eliminate.

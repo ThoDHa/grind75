@@ -54,6 +54,9 @@ grid = [
 ### DFS with Grid Modification
 
 ```python
+from typing import List
+
+
 class Solution:
     def numIslands(self, grid: List[List[str]]) -> int:
         if not grid or not grid[0]:
@@ -169,6 +172,8 @@ When the main loop finishes, `islands` is `2`, which is the returned value. (For
 
 ```python
 from collections import deque
+from typing import List
+
 
 class Solution:
     def numIslands(self, grid: List[List[str]]) -> int:
@@ -236,6 +241,9 @@ In the worst case (rectangle-shaped island), the BFS queue contains at most `O(m
 ### DFS with Separate Visited Array
 
 ```python
+from typing import List
+
+
 class Solution:
     def numIslands(self, grid: List[List[str]]) -> int:
         if not grid or not grid[0]:
@@ -293,11 +301,14 @@ Requires additional space for the visited matrix plus recursion stack space.
 
 - Decoupling the visited state from the grid keeps the caller's input intact, which matters when the grid is read-only or reused afterward.
 - The cost is an explicit `O(m × n)` boolean matrix, the price of not mutating the input.
-- The visited check must come before the water check in the guard to short-circuit revisits cleanly.
+- Marking a cell visited before recursing into its neighbors is what stops adjacent land cells from bouncing the recursion back and forth forever; the relative order of the visited and water checks in the guard does not affect correctness.
 
 ### Iterative DFS with Stack
 
 ```python
+from typing import List
+
+
 class Solution:
     def numIslands(self, grid: List[List[str]]) -> int:
         if not grid or not grid[0]:
@@ -361,6 +372,9 @@ In the worst case, the explicit stack might contain all cells (for a snake-like 
 ### Union-Find
 
 ```python
+from typing import List
+
+
 class UnionFind:
     def __init__(self, size):
         self.parent = list(range(size))

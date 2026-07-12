@@ -58,6 +58,9 @@ A -> B -> C -> A -> D -> E -> A -> F -> G -> A -> idle -> idle -> A -> idle -> i
 ### Brute Force Simulation
 
 ```python
+from typing import List
+
+
 class Solution:
     def leastInterval(self, tasks: List[str], n: int) -> int:
         # Count each task's frequency without any imported counter.
@@ -118,12 +121,14 @@ because it mirrors the literal definition of the schedule.
 
 #### Time and Space Complexity Analysis
 
-##### Time Complexity: `O(N * 26)`
+##### Time Complexity: `O(N * (n + 1) * 26)`
 
-Let `N` be the number of tasks. The clock advances `O(N)` units (the schedule length
-is linear in the task count), and each unit scans the at-most-26 distinct task counts
-to find the best eligible one. Multiplying gives `O(N * 26)`, effectively linear in
-`N` with a constant factor.
+Let `N` be the number of tasks. The clock advances one unit per iteration, and the
+schedule length is not `O(N)`: idle units count too, and the optimal schedule can be
+as long as `(max_freq - 1) * (n + 1) + max_count`, which is `O(N * (n + 1))` when one
+task dominates. Each unit scans the at-most-26 distinct task counts to find the best
+eligible one, giving `O(N * (n + 1) * 26)` overall. With `n <= 100` this is still
+manageable for the constraints, but it is far from linear in `N` alone.
 
 ##### Space Complexity: `O(1)`
 
@@ -178,6 +183,9 @@ advanced to `8`. The returned value is `8`, matching the expected Output.
 ### Greedy Math Formula
 
 ```python
+from typing import List
+
+
 class Solution:
     def leastInterval(self, tasks: List[str], n: int) -> int:
         # Count each task's frequency without any imported counter.
@@ -256,6 +264,9 @@ of `N`.
 ### Greedy Round Simulation
 
 ```python
+from typing import List
+
+
 class Solution:
     def leastInterval(self, tasks: List[str], n: int) -> int:
         # Count each task's frequency without any imported counter.
@@ -340,6 +351,7 @@ letters), independent of `N`.
 
 ```python
 import heapq
+from typing import List
 
 
 class Solution:
@@ -429,8 +441,9 @@ independent of `N`.
 
 ### Time Complexity
 
-- **Brute Force Simulation**: `O(N * 26)` because it advances the clock through
-  roughly `O(N)` units and scans up to 26 counts at each one.
+- **Brute Force Simulation**: `O(N * (n + 1) * 26)` because it advances the clock
+  through every unit of the schedule, idle units included, and the schedule can be
+  `O(N * (n + 1))` units long, scanning up to 26 counts at each one.
 - **Greedy Math Formula**: `O(N)` because it only counts frequencies once and then
   does constant arithmetic over at most 26 counts.
 - **Greedy Round Simulation**: `O(N * 26 log 26)` because it runs roughly `O(N)`

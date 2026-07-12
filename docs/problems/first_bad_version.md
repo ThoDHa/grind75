@@ -35,6 +35,11 @@ Then `4` is the first bad version.
 
 ## Solutions
 
+A note on the harness: on LeetCode, `isBadVersion` is predefined by the judge.
+In this repo's practice setup, `practice/first_bad_version/solution.py`
+defines a module-level `bad` and an `isBadVersion` shim (`return v >= bad`) that
+the tests configure per case, so the same solution code runs unchanged.
+
 ### Linear Scan
 
 ```python
@@ -128,7 +133,7 @@ The version sequence is monotonic: once versions go bad they stay bad, so the
 That is a sorted boolean array, and finding the first `True` is a textbook
 binary search for the left boundary.
 
-1. Maintain a half-open search on `[lo, hi]`, starting at `lo = 1`, `hi = n`.
+1. Maintain a closed search range `[lo, hi]` (both endpoints inclusive), starting at `lo = 1`, `hi = n`.
 2. While `lo < hi`, compute `mid = lo + (hi - lo) // 2`.
 3. If `mid` is bad, the answer is `mid` or earlier, so set `hi = mid` (keep
    `mid` in the candidate range).

@@ -36,7 +36,7 @@ The largest rectangle is shown in the red area, which has an area = `10` units.
 
 ## Solutions
 
-### Brute Force over All Rectangles
+### Brute Force: Expand Around Each Bar
 
 ```python
 class Solution:
@@ -110,7 +110,7 @@ Reading a few rows to make the expansion concrete:
 
 After the final bar, `max_area = 10`, which matches the example's expected Output of `10`.
 
-### Optimized Brute Force
+### Brute Force over All Subarrays
 
 ```python
 class Solution:
@@ -263,29 +263,29 @@ In the worst case of strictly increasing heights, the stack holds every index be
 
 ### Time Complexity
 
-- **Brute Force over All Rectangles**: `O(n²)` - Quadratic time
-- **Optimized Brute Force**: `O(n²)` - Quadratic time
+- **Brute Force: Expand Around Each Bar**: `O(n²)` - Quadratic time
+- **Brute Force over All Subarrays**: `O(n²)` - Quadratic time
 - **Divide and Conquer**: `O(n log n)` average, `O(n²)` worst case
 - **Monotonic Stack**: `O(n)` - Optimal linear time
 
 ### Space Complexity
 
-- **Brute Force over All Rectangles**: `O(1)` - Constant space
-- **Optimized Brute Force**: `O(1)` - Constant space
+- **Brute Force: Expand Around Each Bar**: `O(1)` - Constant space
+- **Brute Force over All Subarrays**: `O(1)` - Constant space
 - **Divide and Conquer**: `O(log n)` average - Recursion stack
 - **Monotonic Stack**: `O(n)` - Stack storage
 
 ### Trade-offs
 
-- **Brute Force over All Rectangles**: Poor time efficiency but excellent space efficiency. Implementation complexity is low and conceptual difficulty is very low. Suitable for learning only in an interview setting.
-- **Optimized Brute Force**: Poor time efficiency but excellent space efficiency. Implementation complexity is low and conceptual difficulty is low. Suitable for learning only in an interview setting.
+- **Brute Force: Expand Around Each Bar**: Poor time efficiency but excellent space efficiency. Implementation complexity is low and conceptual difficulty is very low. Suitable for learning only in an interview setting.
+- **Brute Force over All Subarrays**: Poor time efficiency but excellent space efficiency. Implementation complexity is low and conceptual difficulty is low. Suitable for learning only in an interview setting.
 - **Divide and Conquer**: Good time efficiency in the average case and excellent space efficiency in the average case. Implementation complexity is medium and conceptual difficulty is medium. Acceptable as an interview answer.
 - **Monotonic Stack**: Optimal time efficiency with good space efficiency. Implementation complexity is high and conceptual difficulty is high. This is the most preferred solution in interviews.
 
 ### When to Use Each
 
-- **Brute Force over All Rectangles**: Only for learning the basic problem definition
-- **Optimized Brute Force**: For understanding the problem structure and building intuition
+- **Brute Force: Expand Around Each Bar**: Only for learning the basic problem definition
+- **Brute Force over All Subarrays**: For understanding the problem structure and building intuition
 - **Divide and Conquer**: When recursion is preferred or as a stepping stone to the optimal solution
 - **Monotonic Stack**: Best solution for production and interviews: optimal time complexity
 

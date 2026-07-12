@@ -260,7 +260,7 @@ Each push and pop is a single heap operation over up to `n` entries, so both cos
 
 ##### Space Complexity: `O(n)`
 
-The heap holds one entry per push, one per element occurrence, which is linear in the number of pushed elements.
+The heap holds one entry per element currently in the stack: each push adds one entry and each pop removes one, so the size is linear in the number of live elements.
 
 #### Key Insights
 
@@ -281,13 +281,13 @@ The heap holds one entry per push, one per element occurrence, which is linear i
 
 - **Brute Force**: `O(n)` - complete stack history plus a frequency map.
 - **Stack of Stacks**: `O(n)` - each element stored once across the per-frequency stacks.
-- **Heap with Timestamps**: `O(n)` - one heap entry per push, never reclaimed.
+- **Heap with Timestamps**: `O(n)` - one heap entry per element currently in the stack; each pop removes one.
 
 ### Trade-offs
 
 - **Brute Force**: Linear pop and a re-scanned frequency map, but the most direct mental model and no library reliance. Suitable as a from-scratch baseline for understanding the problem.
 - **Stack of Stacks**: Optimal `O(1)` operations with one stored copy per element, built entirely from hash maps and lists. Slightly more bookkeeping than the brute force, but the cleanest fast design.
-- **Heap with Timestamps**: Easy to reach for if you already think in priority queues, but it hands the core priority logic to `heapq`, runs in `O(log n)`, and keeps every pushed entry forever.
+- **Heap with Timestamps**: Easy to reach for if you already think in priority queues, but it hands the core priority logic to `heapq` and runs in `O(log n)` where the stack-of-stacks design is `O(1)`.
 
 ### When to Use Each
 

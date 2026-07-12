@@ -57,6 +57,12 @@ merging them into one sorted list:
 ### Repeated Minimum Scan
 
 ```python
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
+
 class Solution:
     def mergeKLists(self, lists: List[Optional[ListNode]]) -> Optional[ListNode]:
         # Keep a live cursor into each list; None marks an exhausted list
@@ -134,6 +140,12 @@ After step 8 every cursor is `None`, so the next scan returns `min_idx == -1` an
 ### Sequential Merge
 
 ```python
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
+
 class Solution:
     def mergeKLists(self, lists: List[Optional[ListNode]]) -> Optional[ListNode]:
         """
@@ -247,19 +259,25 @@ This solution uses **divide and conquer** by repeatedly merging pairs of lists u
 
 Where N is the total number of nodes and k is the number of lists. Each node is processed log(k) times through the merging levels.
 
-##### Space Complexity: `O(1)` iterative, `O(log k)` if counting merge_two_lists recursion
+##### Space Complexity: `O(k)`
 
-The main algorithm is iterative with constant space, but merge_two_lists could use recursion stack.
+Each merging round allocates a `merged_lists` array holding up to `⌈k/2⌉` list heads, so the auxiliary space is linear in the number of lists. Both the outer loop and the `merge_two_lists` helper are iterative, so there is no recursion stack.
 
 #### Key Insights
 
 - Merging in pairs halves the number of lists each round, so after `log k` rounds a single list remains, and every node participates in exactly `log k` merges.
 - Guarding the second list with `lists[i + 1] if i + 1 < len(lists) else None` cleanly handles an odd count by merging the leftover list against `None`.
-- This matches the heap approach at `O(N log k)` time while keeping iterative `O(1)` extra space, making it the strongest all-around choice.
+- This matches the heap approach at `O(N log k)` time with the same `O(k)` extra space (the per-round array of merged heads), while staying entirely library-free, making it the strongest all-around choice.
 
 ### Min-Heap
 
 ```python
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
+
 import heapq
 
 class Solution:
@@ -327,26 +345,26 @@ The heap contains at most k nodes (one from each list) at any time.
 
 - **Repeated Minimum Scan**: `O(k)` - the per-list cursor array
 - **Sequential Merge**: `O(1)` - constant space, only pointer manipulation
-- **Divide and Conquer**: `O(1)` - iterative pairwise merging
+- **Divide and Conquer**: `O(k)` - each round allocates an array of up to `⌈k/2⌉` merged heads
 - **Min-Heap**: `O(k)` - the heap stores one node per list
 
 ### Trade-offs
 
 - **Repeated Minimum Scan**: Poor time efficiency, but the most self-derivable approach. Implements the greedy "smallest current head" lesson by hand with no `sort` or `heapq`, splicing input nodes so extra space is just the k cursors. The natural first idea and the from-scratch baseline.
 - **Sequential Merge**: Poor time efficiency but excellent space efficiency. Implementation is simple and it does leverage the sorted property by reusing the standard two-list merge. Acceptable as an interview answer.
-- **Divide and Conquer**: Optimal time efficiency with excellent space efficiency. Implementation complexity is medium and it leverages the sorted property entirely from scratch. This is the most preferred solution in interviews.
+- **Divide and Conquer**: Optimal time efficiency with good space efficiency (`O(k)` for the per-round head arrays). Implementation complexity is medium and it leverages the sorted property entirely from scratch. This is the most preferred solution in interviews.
 - **Min-Heap**: Optimal time efficiency with good space efficiency. Implementation complexity is medium and it leverages the sorted property, but leans on the `heapq` library to find the minimum. Well-regarded in interviews.
 
 ### When to Use Each
 
 - **Repeated Minimum Scan**: As a teaching baseline, or when k is small enough that the `O(N × k)` scan is acceptable.
 - **Sequential Merge**: When simplicity is paramount and k is small.
-- **Divide and Conquer**: Best overall solution for interviews and production: optimal time and space, library-free.
+- **Divide and Conquer**: Best overall solution for interviews and production: optimal time, `O(k)` space, library-free.
 - **Min-Heap**: When you want to demonstrate knowledge of heap data structures or when k is very large and a library is welcome.
 
 ### Optimization Notes
 
-- The **Divide and Conquer** solution is the recommended approach: it achieves optimal `O(N log k)` time with `O(1)` iterative space by reducing k lists to `log(k)` levels of pairwise merges, all from scratch. The **Min-Heap** approach matches the same time complexity and is preferred when k is very large, at the cost of leaning on the `heapq` library.
+- The **Divide and Conquer** solution is the recommended approach: it achieves optimal `O(N log k)` time with `O(k)` auxiliary space by reducing k lists to `log(k)` levels of pairwise merges, all from scratch. The **Min-Heap** approach matches the same time complexity and is preferred when k is very large, at the cost of leaning on the `heapq` library.
 - Both `O(N log k)` approaches replace the brute force's `O(k)` minimum scan: the heap with an `O(log k)` pop, divide and conquer by giving each node `log k` pairwise merges instead.
 - The key implementation detail of the merge approaches is the two-list merge helper, which uses a dummy head node to simplify pointer manipulation and attaches the remaining list with `current.next = l1 or l2` once one list is exhausted.
 - A common pitfall in the divide and conquer approach is mishandling the odd list out when pairing: guard the second list with `lists[i + 1] if i + 1 < len(lists) else None` so the final unpaired list merges against `None` cleanly.

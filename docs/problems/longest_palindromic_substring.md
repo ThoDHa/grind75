@@ -110,14 +110,16 @@ a longer palindrome is confirmed.
 | 3 | `0, 2` | `"bab"` | yes (`3 > 1`) | yes | `0`, `3` |
 | 4 | `0, 3` | `"baba"` | yes (`4 > 3`) | no | `0`, `3` |
 | 5 | `0, 4` | `"babad"` | yes (`5 > 3`) | no | `0`, `3` |
-| 6 | `1, 3` | `"aba"` | no (`3 > 3` is false) | skipped | `0`, `3` |
-| 7 | `1, 4` | `"abad"` | yes (`4 > 3`) | no | `0`, `3` |
+| 6 | `1, 1` | `"a"` | no (`1 > 3` is false) | skipped | `0`, `3` |
+| 7 | `1, 2` | `"ab"` | no (`2 > 3` is false) | skipped | `0`, `3` |
+| 8 | `1, 3` | `"aba"` | no (`3 > 3` is false) | skipped | `0`, `3` |
+| 9 | `1, 4` | `"abad"` | yes (`4 > 3`) | no | `0`, `3` |
 
-The remaining pairs (`2, 4`, `3, 4`, and every single character) all span `3` or
-fewer characters, so the length guard skips them without a palindrome check: this
-is exactly the pruning the guard buys. Note step 6: `"aba"` is itself a valid
-palindrome, but it ties the current best length of `3` rather than beating it, so
-the guard skips it and the earlier `"bab"` is kept.
+The remaining pairs (`2, 2`, `2, 3`, `2, 4`, `3, 3`, `3, 4`, and `4, 4`) all span
+`3` or fewer characters, so the length guard skips every one of them without a
+palindrome check: this is exactly the pruning the guard buys. Note step 8:
+`"aba"` is itself a valid palindrome, but it ties the current best length of `3`
+rather than beating it, so the guard skips it and the earlier `"bab"` is kept.
 
 The loop ends with `start = 0`, `max_len = 3`, so the return value is
 `s[0:3] = "bab"`, which matches the expected Output `"bab"`.

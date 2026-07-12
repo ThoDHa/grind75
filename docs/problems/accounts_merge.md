@@ -57,6 +57,9 @@ accounts = [["Gabe","Gabe0@m.co","Gabe3@m.co","Gabe1@m.co"],["Kevin","Kevin3@m.c
 ### Brute Force
 
 ```python
+from typing import List
+
+
 class Solution:
     def accountsMerge(self, accounts: List[List[str]]) -> List[List[str]]:
         # Each entry: [name, set of emails]. Start with one group per account.
@@ -183,6 +186,7 @@ order).
 
 ```python
 from collections import defaultdict
+from typing import List
 
 
 class Solution:
@@ -249,19 +253,19 @@ way to walk them.
 
 #### Time and Space Complexity Analysis
 
-##### Time Complexity: `O(N × K + N log K)`
+##### Time Complexity: `O(N + N log K)`
 
 Let `N` be the total number of emails and `K` the size of the largest merged
-account. Building the graph and running DFS visit each email and edge once. Edges
-per account are bounded by its size, so traversal is `O(N × K)` in the worst case
-where one giant component forms. Sorting each component totals `O(N log K)`. In
-practice both terms are commonly summarized as `O(N log N)`.
+account. Each account contributes one edge per email (every email links only to
+the account's first email), so the graph has `O(N)` edges in total and building
+plus traversing it is `O(N)`. Sorting each component totals `O(N log K)`, which
+dominates and is commonly summarized as `O(N log N)`.
 
-##### Space Complexity: `O(N × K)`
+##### Space Complexity: `O(N)`
 
-The adjacency graph stores up to `O(K)` neighbors per email in the worst case,
-the `owner` map and `visited` set are `O(N)`, and the DFS stack is bounded by the
-component size.
+The star construction adds `O(1)` edges per email, so the adjacency graph holds
+`O(N)` entries in total. The `owner` map and `visited` set are `O(N)`, and the
+DFS stack is bounded by the component size.
 
 #### Key Insights
 
@@ -279,6 +283,7 @@ component size.
 
 ```python
 from collections import defaultdict
+from typing import List
 
 
 class Solution:
@@ -369,13 +374,13 @@ email, so auxiliary space is linear in the number of emails.
 ### Time Complexity
 
 - **Brute Force**: `O(A^3 × K)` - Up to `O(A)` passes, each comparing all `O(A^2)` group pairs with an `O(K)` set intersection.
-- **DFS Connected Components**: `O(N × K + N log K)` - Graph construction and traversal touch each email and edge once, then each component is sorted.
+- **DFS Connected Components**: `O(N + N log K)` - The star construction keeps total edges at `O(N)`, so building and traversing the graph is linear; per-component sorting dominates.
 - **Union-Find**: `O(N × α(N) + N log K)` - Near-constant union/find operations per email, then per-component sorting; the inverse-Ackermann factor makes connectivity effectively faster than explicit traversal.
 
 ### Space Complexity
 
 - **Brute Force**: `O(N)` - The groups collectively hold each email once.
-- **DFS Connected Components**: `O(N × K)` - The adjacency graph can store up to `O(K)` neighbors per email when accounts are large.
+- **DFS Connected Components**: `O(N)` - The star construction adds `O(1)` edges per email, so the adjacency graph, owner map, and visited set are all linear.
 - **Union-Find**: `O(N)` - Only flat parent and owner maps, one entry per email.
 
 ### Trade-offs
