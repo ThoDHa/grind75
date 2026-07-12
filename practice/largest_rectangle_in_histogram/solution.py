@@ -13,6 +13,7 @@ from typing import List
 
 from harness import NotSolved, pick_case
 
+
 class Solution:
     def largestRectangleArea(self, heights: List[int]) -> int:
         """State the time and space complexity of your approach, and explain why.
@@ -21,6 +22,7 @@ class Solution:
         Space: O(?):
         """
         raise NotSolved
+
 
 if __name__ == "__main__":
     # Debug playground: set a breakpoint in largestRectangleArea above, then run this file.

@@ -15,6 +15,7 @@ from typing import List
 
 from harness import NotSolved, pick_case
 
+
 class Solution:
     def ladderLength(self, beginWord: str, endWord: str, wordList: List[str]) -> int:
         """State the time and space complexity of your approach, and explain why.
@@ -23,6 +24,7 @@ class Solution:
         Space: O(?):
         """
         raise NotSolved
+
 
 if __name__ == "__main__":
     # Debug playground: set a breakpoint in ladderLength above, then run this file.
