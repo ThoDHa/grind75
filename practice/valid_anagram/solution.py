@@ -12,13 +12,12 @@ from harness import NotSolved, pick_case
 
 
 class Solution:
-    """State the time and space complexity of your approach, and explain why.
-
-    Time:  O(?):
-    Space: O(?):
-    """
-
     def isAnagram(self, s: str, t: str) -> bool:
+        """State the time and space complexity of your approach, and explain why.
+
+        Time:  O(?):
+        Space: O(?):
+        """
         raise NotSolved
 
 

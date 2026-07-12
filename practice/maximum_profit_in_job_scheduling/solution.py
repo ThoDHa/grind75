@@ -14,6 +14,7 @@ from typing import List
 
 from harness import NotSolved, pick_case
 
+
 class Solution:
     def jobScheduling(
         self, startTime: List[int], endTime: List[int], profit: List[int]
@@ -24,6 +25,7 @@ class Solution:
         Space: O(?):
         """
         raise NotSolved
+
 
 if __name__ == "__main__":
     # Debug playground: set a breakpoint in jobScheduling above, then run this file.
