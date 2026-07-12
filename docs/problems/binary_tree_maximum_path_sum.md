@@ -50,6 +50,9 @@ Given the `root` of a binary tree, return the **maximum path sum** of any **non-
 #         self.val = val
 #         self.left = left
 #         self.right = right
+from typing import Optional
+
+
 class Solution:
     def maxPathSum(self, root: Optional[TreeNode]) -> int:
         # Best downward path that starts at node and descends one side only.
@@ -160,6 +163,9 @@ returns `self.best`, which is `6`: matching the expected Output.
 #         self.val = val
 #         self.left = left
 #         self.right = right
+from typing import Optional
+
+
 class Solution:
     def maxPathSum(self, root: Optional[TreeNode]) -> int:
         self.max_sum = float("-inf")

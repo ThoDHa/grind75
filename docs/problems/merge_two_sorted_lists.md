@@ -51,6 +51,9 @@ Return the head of the merged linked list.
 #     def __init__(self, val=0, next=None):
 #         self.val = val
 #         self.next = next
+from typing import Optional
+
+
 class Solution:
     def mergeTwoLists(self, list1: Optional[ListNode],
                       list2: Optional[ListNode]) -> Optional[ListNode]:
@@ -147,6 +150,9 @@ merged list `[1, 1, 2, 3, 4, 4]`, which matches the expected Output.
 #     def __init__(self, val=0, next=None):
 #         self.val = val
 #         self.next = next
+from typing import Optional
+
+
 class Solution:
     def mergeTwoLists(self, list1: Optional[ListNode],
                       list2: Optional[ListNode]) -> Optional[ListNode]:
@@ -202,6 +208,9 @@ We only use a constant amount of extra space for pointers. The solution reuses t
 #     def __init__(self, val=0, next=None):
 #         self.val = val
 #         self.next = next
+from typing import Optional
+
+
 class Solution:
     def mergeTwoLists(self, list1: Optional[ListNode],
                       list2: Optional[ListNode]) -> Optional[ListNode]:

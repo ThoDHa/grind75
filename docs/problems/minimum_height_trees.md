@@ -50,6 +50,9 @@ The **height** of a rooted tree is the number of edges on the longest downward p
 ### Brute Force BFS From Every Root
 
 ```python
+from typing import List
+
+
 from collections import defaultdict, deque
 
 
@@ -171,6 +174,9 @@ return `[1]`, which matches the expected Output.
 ### Leaf-Trimming BFS
 
 ```python
+from typing import List
+
+
 from collections import deque
 
 

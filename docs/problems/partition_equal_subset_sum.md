@@ -36,6 +36,9 @@ Given an integer array `nums`, return `true` if you can partition the array into
 ### Brute Force
 
 ```python
+from typing import List
+
+
 class Solution:
     def canPartition(self, nums: List[int]) -> bool:
         total = sum(nums)
@@ -134,6 +137,9 @@ matches the expected Output for Example 1, and corresponds to the partition `[1,
 ### Bottom-Up DP
 
 ```python
+from typing import List
+
+
 class Solution:
     def canPartition(self, nums: List[int]) -> bool:
         total = sum(nums)
@@ -196,6 +202,9 @@ A single boolean array of `target + 1` entries, reused across all numbers.
 ### Reachable Sum Set
 
 ```python
+from typing import List
+
+
 class Solution:
     def canPartition(self, nums: List[int]) -> bool:
         total = sum(nums)
@@ -270,6 +279,9 @@ The reachable set stores at most `target + 1` distinct subset sums.
 ### Bitmask DP
 
 ```python
+from typing import List
+
+
 class Solution:
     def canPartition(self, nums: List[int]) -> bool:
         total = sum(nums)

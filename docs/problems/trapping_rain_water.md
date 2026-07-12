@@ -35,6 +35,9 @@ Given `n` non-negative integers representing an elevation map where the width of
 ### Brute Force
 
 ```python
+from typing import List
+
+
 class Solution:
     def trap(self, height: List[int]) -> int:
         n = len(height)
@@ -124,6 +127,9 @@ so each one banks water up to the shorter wall, height `2`. Past the tallest bar
 ### Prefix and Suffix Maximums
 
 ```python
+from typing import List
+
+
 class Solution:
     def trap(self, height: List[int]) -> int:
         n = len(height)
@@ -183,6 +189,9 @@ Two arrays of size `n` store the prefix and suffix maxima.
 ### Monotonic Stack
 
 ```python
+from typing import List
+
+
 class Solution:
     def trap(self, height: List[int]) -> int:
         # Stack holds indices of bars in strictly decreasing height order.
@@ -254,6 +263,9 @@ once before any pops occur.
 ### Two Pointers
 
 ```python
+from typing import List
+
+
 class Solution:
     def trap(self, height: List[int]) -> int:
         if not height:

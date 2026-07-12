@@ -52,6 +52,9 @@ These are the only two combinations.
 ### Include-Exclude Backtracking
 
 ```python
+from typing import List
+
+
 class Solution:
     def combinationSum(self, candidates: List[int], target: int) -> List[List[int]]:
         result: List[List[int]] = []
@@ -171,6 +174,9 @@ is ever produced twice.
 ### Sorted Backtracking with Pruning
 
 ```python
+from typing import List
+
+
 class Solution:
     def combinationSum(self, candidates: List[int], target: int) -> List[List[int]]:
         # Sort so we can stop a branch as soon as a candidate overshoots.
@@ -250,6 +256,9 @@ list, both bounded by the maximum combination length `target / min_candidate`.
 ### Bottom-Up Dynamic Programming
 
 ```python
+from typing import List
+
+
 class Solution:
     def combinationSum(self, candidates: List[int], target: int) -> List[List[int]]:
         candidates.sort()

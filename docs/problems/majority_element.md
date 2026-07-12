@@ -40,6 +40,9 @@ The majority element is the element that appears more than `⌊n / 2⌋` times. 
 ### Brute Force
 
 ```python
+from typing import List
+
+
 class Solution:
     def majorityElement(self, nums: List[int]) -> int:
         n = len(nums)
@@ -104,6 +107,9 @@ The returned value is `3`, which matches the expected Output of `3`.
 ### Hash Map
 
 ```python
+from typing import List
+
+
 class Solution:
     def majorityElement(self, nums: List[int]) -> int:
         counts = {}
@@ -151,6 +157,9 @@ stores up to `n` key-value pairs.
 ### Boyer-Moore Voting Algorithm
 
 ```python
+from typing import List
+
+
 class Solution:
     def majorityElement(self, nums: List[int]) -> int:
         count = 0
@@ -196,6 +205,9 @@ Only two scalar variables are used, regardless of input size.
 ### Sorting
 
 ```python
+from typing import List
+
+
 class Solution:
     def majorityElement(self, nums: List[int]) -> int:
         nums.sort()
@@ -228,6 +240,10 @@ An in-place sort uses `O(1)` auxiliary space; sorts that allocate a copy use
 ### Counter
 
 ```python
+from collections import Counter
+from typing import List
+
+
 class Solution:
     def majorityElement(self, nums: List[int]) -> int:
         return Counter(nums).most_common(1)[0][0]

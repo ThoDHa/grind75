@@ -52,6 +52,9 @@ Can you come up with an algorithm that is less than O(n²) time complexity?
 ### Brute Force
 
 ```python
+from typing import List
+
+
 class Solution:
     def twoSum(self, nums: List[int], target: int) -> List[int]:
         length = len(nums)
@@ -106,6 +109,9 @@ The returned value is `[0, 1]`, which matches the expected Output for Example 1.
 ### Sort and Two Pointers
 
 ```python
+from typing import List
+
+
 class Solution:
     def twoSum(self, nums: List[int], target: int) -> List[int]:
         # Pair each value with its original index before sorting
@@ -148,6 +154,9 @@ Pairing each value with its original index produces a new list of `n` elements, 
 ### Hash Map
 
 ```python
+from typing import List
+
+
 class Solution:
     def twoSum(self, nums: List[int], target: int) -> List[int]:
         length = len(nums)

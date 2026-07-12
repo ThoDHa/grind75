@@ -44,6 +44,9 @@ Given an integer array `nums`, return `true` if any value appears **at least twi
 ### Brute Force
 
 ```python
+from typing import List
+
+
 class Solution:
     def containsDuplicate(self, nums: List[int]) -> bool:
         n = len(nums)
@@ -95,6 +98,9 @@ At step 3 the element at index `0` (value `1`) matches the element at index `3` 
 ### Hash Set
 
 ```python
+from typing import List
+
+
 class Solution:
     def containsDuplicate(self, nums: List[int]) -> bool:
         seen = set()
@@ -136,6 +142,9 @@ In the worst case (all distinct values), the set grows to hold every element.
 ### Sorting
 
 ```python
+from typing import List
+
+
 class Solution:
     def containsDuplicate(self, nums: List[int]) -> bool:
         nums = sorted(nums)
@@ -175,6 +184,9 @@ Sorting a copy uses `O(n)` space; sorting the input in place keeps the extra spa
 ### Set Length Comparison
 
 ```python
+from typing import List
+
+
 class Solution:
     def containsDuplicate(self, nums: List[int]) -> bool:
         return len(set(nums)) < len(nums)
@@ -209,6 +221,10 @@ The set stores all distinct values, up to `n` of them.
 ### Counter
 
 ```python
+from collections import Counter
+from typing import List
+
+
 class Solution:
     def containsDuplicate(self, nums: List[int]) -> bool:
         return any(count > 1 for count in Counter(nums).values())

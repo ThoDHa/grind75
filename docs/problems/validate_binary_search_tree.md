@@ -50,6 +50,9 @@ A **valid BST** is defined as follows:
 #         self.val = val
 #         self.left = left
 #         self.right = right
+from typing import Optional
+
+
 class Solution:
     def isValidBST(self, root: Optional[TreeNode]) -> bool:
         def all_less(node: Optional[TreeNode], limit: int) -> bool:
@@ -135,6 +138,9 @@ The top-level `valid(root)` returns `True`, which matches the example's expected
 ### Recursive Bounds
 
 ```python
+from typing import Optional
+
+
 class Solution:
     def isValidBST(self, root: Optional[TreeNode]) -> bool:
         def validate(node: Optional[TreeNode], low: float, high: float) -> bool:
@@ -181,6 +187,9 @@ The recursion stack reaches the tree's height `h`: `O(log n)` for a balanced tre
 ### Inorder Traversal
 
 ```python
+from typing import Optional
+
+
 class Solution:
     def isValidBST(self, root: Optional[TreeNode]) -> bool:
         prev = None

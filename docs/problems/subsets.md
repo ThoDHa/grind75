@@ -35,6 +35,9 @@ The solution set must not contain duplicate subsets. Return the solution in any 
 ### Iterative Build-Up
 
 ```python
+from typing import List
+
+
 class Solution:
     def subsets(self, nums: List[int]) -> List[List[int]]:
         # Start with empty subset
@@ -103,6 +106,9 @@ After the loop finishes, `result` is `[[], [1], [2], [1,2], [3], [1,3], [2,3], [
 ### Backtracking
 
 ```python
+from typing import List
+
+
 class Solution:
     def subsets(self, nums: List[int]) -> List[List[int]]:
         result = []
@@ -153,6 +159,9 @@ O(2^n × n) for storing all subsets in the result, plus O(n) for the recursion s
 ### Recursive Choose or Skip
 
 ```python
+from typing import List
+
+
 class Solution:
     def subsets(self, nums: List[int]) -> List[List[int]]:
         def generate_subsets(index, current_subset):
@@ -201,6 +210,9 @@ O(2^n × n) for storing results, plus O(n) for recursion stack depth and current
 ### Bit Manipulation
 
 ```python
+from typing import List
+
+
 class Solution:
     def subsets(self, nums: List[int]) -> List[List[int]]:
         n = len(nums)

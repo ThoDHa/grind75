@@ -68,6 +68,9 @@ For simplicity, each node's value is the same as the node's index (1-indexed). F
 ### Recursive DFS
 
 ```python
+from typing import Optional
+
+
 """
 # Definition for a Node.
 class Node:
@@ -191,6 +194,9 @@ which matches the example's expected Output.
 ### Iterative BFS
 
 ```python
+from typing import Optional
+
+
 from collections import deque
 
 """

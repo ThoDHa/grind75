@@ -41,6 +41,9 @@ Could you come up with a one-pass algorithm using only constant extra space?
 ### Selection Sort
 
 ```python
+from typing import List
+
+
 class Solution:
     def sortColors(self, nums: List[int]) -> None:
         n = len(nums)
@@ -99,6 +102,9 @@ At `i=0` the smallest value in the whole array is the `0` at index `1`, so it sw
 ### Counting Sort
 
 ```python
+from typing import List
+
+
 class Solution:
     def sortColors(self, nums: List[int]) -> None:
         """
@@ -145,6 +151,9 @@ Uses a fixed-size counting array of 3 elements regardless of input size.
 ### Dutch National Flag Algorithm
 
 ```python
+from typing import List
+
+
 class Solution:
     def sortColors(self, nums: List[int]) -> None:
         """

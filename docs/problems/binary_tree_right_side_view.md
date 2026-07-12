@@ -46,6 +46,9 @@ Given the `root` of a binary tree, imagine yourself standing on the **right side
 #         self.val = val
 #         self.left = left
 #         self.right = right
+from typing import List, Optional
+
+
 class Solution:
     def rightSideView(self, root: Optional[TreeNode]) -> List[int]:
         levels = []
@@ -125,6 +128,9 @@ The final pass takes the last value of every bucket: `levels[0][-1] = 1`, `level
 #         self.val = val
 #         self.left = left
 #         self.right = right
+from typing import List, Optional
+
+
 class Solution:
     def rightSideView(self, root: Optional[TreeNode]) -> List[int]:
         result = []
@@ -179,6 +185,9 @@ No queue is used; the only auxiliary space is the recursion stack, which reaches
 #         self.val = val
 #         self.left = left
 #         self.right = right
+from typing import List, Optional
+
+
 from collections import deque
 
 class Solution:

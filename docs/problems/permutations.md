@@ -39,6 +39,9 @@ Given an array `nums` of distinct integers, return all the possible permutations
 ### Backtracking with Path Building
 
 ```python
+from typing import List
+
+
 class Solution:
     def permute(self, nums: List[int]) -> List[List[int]]:
         result: List[List[int]] = []
@@ -114,6 +117,9 @@ Appending in iteration order, `result` fills as `[1,2,3]`, then `[1,3,2]`, `[2,1
 ### Backtracking with Used Array
 
 ```python
+from typing import List
+
+
 class Solution:
     def permute(self, nums: List[int]) -> List[List[int]]:
         result: List[List[int]] = []
@@ -168,6 +174,9 @@ The recursion stack, the `path`, and the `used` array are each `O(n)`. Output sp
 ### Backtracking with Index Swapping
 
 ```python
+from typing import List
+
+
 class Solution:
     def permute(self, nums: List[int]) -> List[List[int]]:
         result: List[List[int]] = []
@@ -216,6 +225,9 @@ Only the recursion stack, bounded by `n`, is used beyond the output. There is no
 ### Iterative Build-Up
 
 ```python
+from typing import List
+
+
 class Solution:
     def permute(self, nums: List[int]) -> List[List[int]]:
         result = [[]]
@@ -258,6 +270,9 @@ Each round holds the full set of permutations built so far, and the final round 
 ### Built-in itertools.permutations
 
 ```python
+from typing import List
+
+
 from itertools import permutations
 
 class Solution:

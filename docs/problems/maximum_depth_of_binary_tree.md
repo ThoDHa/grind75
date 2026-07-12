@@ -48,6 +48,9 @@ A binary tree's **maximum depth** is the number of nodes along the longest path 
 #         self.val = val
 #         self.left = left
 #         self.right = right
+from typing import Optional
+
+
 class Solution:
     def maxDepth(self, root: Optional[TreeNode]) -> int:
         if root is None:
@@ -127,6 +130,10 @@ The call returns `3`, which matches the expected Output of `3`.
 #         self.val = val
 #         self.left = left
 #         self.right = right
+from collections import deque
+from typing import Optional
+
+
 class Solution:
     def maxDepth(self, root: Optional[TreeNode]) -> int:
         if not root:
@@ -184,6 +191,9 @@ The queue holds at most one full level at a time, so the space is bounded by the
 #         self.val = val
 #         self.left = left
 #         self.right = right
+from typing import Optional
+
+
 class Solution:
     def maxDepth(self, root: Optional[TreeNode]) -> int:
         if not root:

@@ -46,6 +46,9 @@ Given the `root` of a binary tree, return the level order traversal of its nodes
 #         self.val = val
 #         self.left = left
 #         self.right = right
+from typing import List, Optional
+
+
 class Solution:
     def levelOrder(self, root: Optional[TreeNode]) -> List[List[int]]:
         # Walk the whole tree, recording each value alongside its depth
@@ -145,6 +148,9 @@ The function returns `[[3], [9, 20], [15, 7]]`, which matches the expected Outpu
 #         self.val = val
 #         self.left = left
 #         self.right = right
+from typing import List, Optional
+
+
 class Solution:
     def levelOrder(self, root: Optional[TreeNode]) -> List[List[int]]:
         result = []
@@ -201,6 +207,9 @@ The output stores all `n` values. The recursion stack adds `O(h)` for the tree h
 #         self.val = val
 #         self.left = left
 #         self.right = right
+from typing import List, Optional
+
+
 from collections import deque
 
 class Solution:

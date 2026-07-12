@@ -46,6 +46,9 @@ The **length** of a path between two nodes is represented by the number of edges
 #         self.val = val
 #         self.left = left
 #         self.right = right
+from typing import Optional
+
+
 class Solution:
     def diameterOfBinaryTree(self, root: Optional[TreeNode]) -> int:
         def height(node: Optional[TreeNode]) -> int:
@@ -148,6 +151,9 @@ gives `3`.
 #         self.val = val
 #         self.left = left
 #         self.right = right
+from typing import Optional
+
+
 class Solution:
     def diameterOfBinaryTree(self, root: Optional[TreeNode]) -> int:
         self.diameter = 0
@@ -216,6 +222,9 @@ Where `h` is the height of the tree, consumed by the recursion call stack. This 
 #         self.val = val
 #         self.left = left
 #         self.right = right
+from typing import Optional
+
+
 class Solution:
     def diameterOfBinaryTree(self, root: Optional[TreeNode]) -> int:
         diameter = 0
@@ -273,6 +282,9 @@ The recursion stack uses space proportional to the tree height.
 #         self.val = val
 #         self.left = left
 #         self.right = right
+from typing import Optional
+
+
 class Solution:
     def diameterOfBinaryTree(self, root: Optional[TreeNode]) -> int:
         def dfs(node: Optional[TreeNode]) -> tuple[int, int]:

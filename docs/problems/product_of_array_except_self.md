@@ -51,6 +51,9 @@ Can you solve the problem in `O(1)` extra space complexity? (The output array do
 ### Brute Force
 
 ```python
+from typing import List
+
+
 class Solution:
     def productExceptSelf(self, nums: List[int]) -> List[int]:
         n = len(nums)
@@ -112,6 +115,9 @@ After the outer loop finishes all four indices, the function returns `result = [
 ### Prefix and Suffix Arrays
 
 ```python
+from typing import List
+
+
 class Solution:
     def productExceptSelf(self, nums: List[int]) -> List[int]:
         n = len(nums)
@@ -162,6 +168,9 @@ Two auxiliary arrays of size `n` hold the prefix and suffix products, in additio
 ### Constant-Space Prefix and Suffix
 
 ```python
+from typing import List
+
+
 class Solution:
     def productExceptSelf(self, nums: List[int]) -> List[int]:
         n = len(nums)
@@ -209,6 +218,9 @@ Only the scalar `suffix_product` is extra; the output array does not count towar
 ### Division Method
 
 ```python
+from typing import List
+
+
 class Solution:
     def productExceptSelf(self, nums: List[int]) -> List[int]:
         n = len(nums)
