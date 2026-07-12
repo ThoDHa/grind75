@@ -34,6 +34,9 @@ Given an `m x n` matrix, return all elements of the `matrix` in spiral order.
 ### Direction Vector Walk
 
 ```python
+from typing import List
+
+
 class Solution:
     def spiralOrder(self, matrix: List[List[int]]) -> List[int]:
         """
@@ -131,6 +134,9 @@ After step 8 the loop has run all `9` times, so it stops and the computed `next`
 ### State Machine
 
 ```python
+from typing import List
+
+
 class Solution:
     def spiralOrder(self, matrix: List[List[int]]) -> List[int]:
         """
@@ -208,6 +214,9 @@ A `visited` matrix is maintained to decide when each state transition should fir
 ### Boundary Simulation
 
 ```python
+from typing import List
+
+
 class Solution:
     def spiralOrder(self, matrix: List[List[int]]) -> List[int]:
         """
@@ -276,6 +285,9 @@ Only four integer boundaries are tracked; no auxiliary structure beyond the requ
 ### Layer-by-Layer Recursive
 
 ```python
+from typing import List
+
+
 class Solution:
     def spiralOrder(self, matrix: List[List[int]]) -> List[int]:
         """
@@ -341,16 +353,23 @@ The recursion depth equals the number of rings, which is bounded by `min(m, n) /
 - Explicit single-row and single-column base cases handle edge cases cleanly.
 - The recursive call stack makes execution harder to trace and debug than the iterative variants.
 
-### Transpose and Reverse Pattern
+### Edge Peeling with Pop
 
 ```python
+from typing import List
+
+
 class Solution:
     def spiralOrder(self, matrix: List[List[int]]) -> List[int]:
         """
-        Pattern-based approach using matrix transformations
+        Peel the outer edges off a working copy with list pops
         """
         if not matrix or not matrix[0]:
             return []
+
+        # The peeling consumes rows and elements destructively, so work on a
+        # copy and leave the caller's matrix intact.
+        matrix = [list(row) for row in matrix]
 
         result = []
 
@@ -377,23 +396,24 @@ class Solution:
 
 #### Approach
 
-Repeatedly strip the outer edges off the matrix using list operations. Pop the first row and extend the result with it, then pop the last element of every remaining row to capture the right column, then pop and reverse the last row for the bottom edge, then pop the first element of each remaining row in reverse order for the left column. Each pass consumes one ring, and the loop continues until the matrix is empty.
+Repeatedly strip the outer edges off the matrix using list operations. The peeling consumes rows and elements destructively, so the method first takes a row-by-row copy of the matrix; the caller's input survives while the working copy is emptied. Pop the first row and extend the result with it, then pop the last element of every remaining row to capture the right column, then pop and reverse the last row for the bottom edge, then pop the first element of each remaining row in reverse order for the left column. Each pass consumes one ring, and the loop continues until the working copy is empty.
 
 #### Time and Space Complexity Analysis
 
-##### Time Complexity: `O(m×n)`
+##### Time Complexity: `O(m×n×min(m,n))`
 
-Every element is popped and appended exactly once over the life of the loop.
+Every element is appended once, but the front pops do hidden shifting work: `matrix.pop(0)` shifts every remaining row reference, and `row.pop(0)` shifts every remaining element of its row. Peeling one ring therefore costs up to `O(m × n)` in shifts, and with `O(min(m, n))` rings the total is `O(m × n × min(m, n))` rather than linear in the cell count.
 
-##### Space Complexity: `O(1)`
+##### Space Complexity: `O(m×n)`
 
-The algorithm uses only `O(1)` auxiliary space, but it achieves that by destructively mutating the input matrix in place rather than preserving the original.
+The working copy duplicates the entire matrix. That copy is what keeps the approach non-destructive: without it, the peeling would empty the caller's matrix.
 
 #### Key Insights
 
 - Compact, pattern-based code that showcases Python list manipulation (`pop`, slicing, `reversed`).
-- Destructive: it modifies the input matrix, so it cannot be used when the caller must preserve the original.
-- The transformation-based flow is less intuitive to read than explicit boundary tracking.
+- The peeling is inherently destructive, which is why the code takes a copy up front; peeling the input directly would leave the caller with an emptied matrix.
+- The front pops (`matrix.pop(0)`, `row.pop(0)`) shift everything behind them, which is the hidden cost that breaks the `O(m×n)` time bound the other approaches share.
+- The pop-based flow is less intuitive to read than explicit boundary tracking.
 
 ## Comparison of Solutions
 
@@ -403,7 +423,7 @@ The algorithm uses only `O(1)` auxiliary space, but it achieves that by destruct
 - **State Machine**: `O(m×n)` - one loop iteration per cell.
 - **Boundary Simulation**: `O(m×n)` - each cell is appended once as the boundaries shrink.
 - **Layer-by-Layer Recursive**: `O(m×n)` - each cell belongs to exactly one ring.
-- **Transpose and Reverse**: `O(m×n)` - every element is popped and appended once.
+- **Edge Peeling with Pop**: `O(m×n×min(m,n))` - the front pops shift rows and row elements on every ring.
 
 ### Space Complexity
 
@@ -411,7 +431,7 @@ The algorithm uses only `O(1)` auxiliary space, but it achieves that by destruct
 - **State Machine**: `O(m×n)` - a visited matrix drives the transitions.
 - **Boundary Simulation**: `O(1)` - only four integer boundaries are tracked.
 - **Layer-by-Layer Recursive**: `O(min(m,n))` - recursion depth equals the number of rings.
-- **Transpose and Reverse**: `O(1)` auxiliary, but it mutates the input matrix in place.
+- **Edge Peeling with Pop**: `O(m×n)` - a working copy of the matrix is peeled so the input is preserved.
 
 ### Trade-offs
 
@@ -419,7 +439,7 @@ The algorithm uses only `O(1)` auxiliary space, but it achieves that by destruct
 - **State Machine** restates the same walk with explicit per-state transitions, which is easy to extend but more verbose and uses the same visited array.
 - **Boundary Simulation** drops the visited array for `O(1)` space by tracking four shrinking boundaries, at the cost of careful single-row/column guard handling.
 - **Layer-by-Layer Recursive** offers elegant divide-and-conquer decomposition with clean base cases, but spends `O(min(m,n))` stack space and is harder to trace when debugging.
-- **Transpose and Reverse** is creative and compact, but it destructively modifies the input and reads less intuitively.
+- **Edge Peeling with Pop** is creative and compact, but the front pops add a `min(m,n)` factor to the time, the protective copy costs `O(m×n)` space, and the flow reads less intuitively.
 
 ### When to Use Each
 
@@ -427,7 +447,7 @@ The algorithm uses only `O(1)` auxiliary space, but it achieves that by destruct
 - **State Machine**: When the traversal needs custom per-direction behavior or future state-specific extensions.
 - **Boundary Simulation**: The recommended default for interviews and production: `O(1)` space, no visited array, and widely expected.
 - **Layer-by-Layer Recursive**: When a divide-and-conquer framing or layer-wise reasoning is clearer for the audience.
-- **Transpose and Reverse**: When code brevity is prized and mutating the input matrix is acceptable.
+- **Edge Peeling with Pop**: When code brevity is prized and the extra copy plus shifting cost are acceptable, which the small `1 <= m, n <= 10` constraint makes true here.
 
 ### Optimization Notes
 
@@ -435,8 +455,8 @@ The algorithm uses only `O(1)` auxiliary space, but it achieves that by destruct
 - **State Machine**: `O(m×n)` time, `O(m×n)` space, does not modify the input; its key advantage is explicit, extensible state management.
 - **Boundary Simulation**: `O(m×n)` time, `O(1)` space, does not modify the input; its key advantage is eliminating the visited array entirely.
 - **Layer-by-Layer Recursive**: `O(m×n)` time, `O(min(m,n))` space, does not modify the input; its key advantage is an elegant divide-and-conquer decomposition.
-- **Transpose and Reverse**: `O(m×n)` time, `O(1)` auxiliary space but it modifies the input matrix in place; its key advantage is creative, compact pattern-based code.
-- All five solutions share the same `O(m×n)` time bound; they differ in space usage and constant-factor overhead.
+- **Edge Peeling with Pop**: `O(m×n×min(m,n))` time, `O(m×n)` space for the working copy it peels in place of the input; its key advantage is creative, compact pattern-based code.
+- The first four solutions share the same `O(m×n)` time bound and differ in space usage; Edge Peeling with Pop pays an extra `min(m,n)` factor for its front pops.
 - The ladder runs from the visited-array walk (Direction Vector Walk and State Machine) to boundary tracking (Boundary Simulation), which drops the `O(m×n)` visited array for `O(1)` space.
 - Single-row and single-column matrices are the recurring edge case; boundary-based approaches need explicit guards to avoid double-counting them.
 - Boundary Simulation is the most commonly expected interview answer and demonstrates clear algorithmic thinking.

@@ -72,6 +72,9 @@ class Trie:
         return False
 
     def startsWith(self, prefix: str) -> bool:
+        # Every trie contains the empty prefix, even before any insert.
+        if not prefix:
+            return True
         # Any stored word beginning with prefix satisfies the query.
         for stored in self.words:
             if len(stored) >= len(prefix) and stored[: len(prefix)] == prefix:
@@ -97,6 +100,12 @@ prefixes, no nodes, just a literal record of what was inserted.
    exact match.
 3. `startsWith` scans the list for any entry whose first `len(prefix)` characters
    equal `prefix`.
+
+The empty prefix needs an explicit case: in a node-based trie the root node
+always exists, so `startsWith("")` is `True` even before any word is inserted.
+The list scan would report `False` on an empty trie without the early return,
+diverging from the tree implementations, whose `_find("")` reaches the root and
+succeeds.
 
 This is correct but slow: every query rescans the entire collection and compares
 full strings, ignoring the prefix-sharing that makes a trie efficient.

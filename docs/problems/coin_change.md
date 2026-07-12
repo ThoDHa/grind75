@@ -45,6 +45,9 @@ You may assume that you have an infinite number of each kind of coin.
 ### Brute Force Recursion
 
 ```python
+from typing import List
+
+
 class Solution:
     def coinChange(self, coins: List[int], amount: int) -> int:
         def backtrack(remaining_amount):
@@ -127,8 +130,17 @@ Notice that `backtrack(1)` and `backtrack(0)` were each computed more than once 
 ### Top-Down Memoization
 
 ```python
+import sys
+from typing import List
+
+
 class Solution:
     def coinChange(self, coins: List[int], amount: int) -> int:
+        # The call chain can reach one frame per unit of amount when the
+        # smallest coin is small, which overflows CPython's default limit of
+        # 1000 for amounts up to 10^4. Raise it before recursing.
+        sys.setrecursionlimit(max(sys.getrecursionlimit(), amount + 100))
+
         # Memoization cache to store computed results
         memo = {}
 
@@ -167,6 +179,8 @@ This top-down approach uses recursion with memoization. We start from the target
 
 The recursive relation is the same: for amount `x`, try each coin `c` and take the minimum of `1 + dp(x - c)` for all valid coins. Memoization prevents recomputing the same subproblems multiple times.
 
+One practical guard is required: each recursive call subtracts a single coin, so when the smallest coin is small relative to `amount` the call chain can approach `amount` frames. With `amount` up to `10^4` under the stated constraints, that comfortably exceeds CPython's default recursion limit of 1000 and raises `RecursionError`, so `coinChange` raises the limit with `sys.setrecursionlimit` before recursing.
+
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(amount × coins.length)`
@@ -181,11 +195,14 @@ Space for the memoization table plus recursion stack depth (worst case O(amount)
 
 - Memoization keeps the natural recursive framing of the brute force while collapsing the exponential blow-up to one computation per distinct remaining amount.
 - It only evaluates the subproblems actually reachable from the target, so it can skip amounts that bottom-up would still compute.
-- Deep recursion can approach `amount` stack frames, so for very large amounts an iterative formulation avoids recursion-limit risk.
+- Deep recursion can approach `amount` stack frames, which is why the code raises the interpreter's recursion limit up front; an iterative formulation avoids the issue entirely.
 
 ### Bottom-Up DP
 
 ```python
+from typing import List
+
+
 class Solution:
     def coinChange(self, coins: List[int], amount: int) -> int:
         # dp[i] represents the minimum coins needed to make amount i
@@ -236,6 +253,8 @@ We use a DP array of size `amount + 1` to store the minimum coins needed for eac
 
 ```python
 from collections import deque
+from typing import List
+
 
 class Solution:
     def coinChange(self, coins: List[int], amount: int) -> int:

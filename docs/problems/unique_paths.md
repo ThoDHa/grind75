@@ -196,14 +196,13 @@ class Solution:
     def uniquePaths(self, m: int, n: int) -> int:
         # Total moves needed: (m-1) down + (n-1) right = (m+n-2) total moves
         # Choose (m-1) positions for down moves out of (m+n-2) total positions
-        # This equals C(m+n-2, m-1) = C(m+n-2, n-1)
-
+        # This equals C(m+n-2, m-1) = C(m+n-2, n-1), so iterate the smaller side
         total_moves = m + n - 2
-        down_moves = m - 1
+        k = min(m - 1, n - 1)
 
-        # Calculate C(total_moves, down_moves) efficiently
+        # Calculate C(total_moves, k) efficiently
         result = 1
-        for i in range(down_moves):
+        for i in range(k):
             result = result * (total_moves - i) // (i + 1)
 
         return result
@@ -211,7 +210,7 @@ class Solution:
 
 #### Approach
 
-From a mathematical perspective, the robot needs to make exactly (m-1) down moves and (n-1) right moves for a total of (m+n-2) moves. The problem reduces to: "In how many ways can we choose (m-1) positions for down moves out of (m+n-2) total positions?" This is the binomial coefficient C(m+n-2, m-1). The loop multiplies before dividing to keep intermediate values integral and avoid overflow.
+From a mathematical perspective, the robot needs to make exactly (m-1) down moves and (n-1) right moves for a total of (m+n-2) moves. The problem reduces to: "In how many ways can we choose (m-1) positions for down moves out of (m+n-2) total positions?" This is the binomial coefficient C(m+n-2, m-1). By symmetry C(m+n-2, m-1) = C(m+n-2, n-1), the loop iterates over the smaller of the two counts, and it multiplies before dividing to keep intermediate values integral and avoid overflow.
 
 #### Time and Space Complexity Analysis
 
