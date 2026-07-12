@@ -12,26 +12,21 @@ An **anagram** is a word or phrase formed by rearranging the letters of a differ
 
 ## Examples
 
-**Example 1:**
+### Example 1
 
-```
-Input: s = "cbaebabacd", p = "abc"
-Output: [0,6]
-Explanation:
-The substring with start index = 0 is "cba", which is an anagram of "abc".
-The substring with start index = 6 is "bac", which is an anagram of "abc".
-```
+**Input:** s = `"cbaebabacd"`, p = `"abc"`
 
-**Example 2:**
+**Output:** `[0,6]`
 
-```
-Input: s = "abab", p = "ab"
-Output: [0,1,2]
-Explanation:
-The substring with start index = 0 is "ab", which is an anagram of "ab".
-The substring with start index = 1 is "ba", which is an anagram of "ab".
-The substring with start index = 2 is "ab", which is an anagram of "ab".
-```
+**Explanation:** The substring with start index = 0 is `"cba"`, which is an anagram of `"abc"`. The substring with start index = 6 is `"bac"`, which is an anagram of `"abc"`.
+
+### Example 2
+
+**Input:** s = `"abab"`, p = `"ab"`
+
+**Output:** `[0,1,2]`
+
+**Explanation:** The substring with start index = 0 is `"ab"`, which is an anagram of `"ab"`. The substring with start index = 1 is `"ba"`, which is an anagram of `"ab"`. The substring with start index = 2 is `"ab"`, which is an anagram of `"ab"`.
 
 ## Constraints
 
@@ -43,6 +38,9 @@ The substring with start index = 2 is "ab", which is an anagram of "ab".
 ### Brute Force
 
 ```python
+from typing import List
+
+
 class Solution:
     def findAnagrams(self, s: str, p: str) -> List[int]:
         n, k = len(s), len(p)
@@ -143,6 +141,9 @@ Output `[0,6]`.
 ### Sliding Window with Fixed-Size Count Array
 
 ```python
+from typing import List
+
+
 class Solution:
     def findAnagrams(self, s: str, p: str) -> List[int]:
         n, k = len(s), len(p)

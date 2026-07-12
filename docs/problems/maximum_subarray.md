@@ -41,13 +41,18 @@ A **subarray** is a contiguous part of an array.
 - `1 <= nums.length <= 10^5`
 - `-10^4 <= nums[i] <= 10^4`
 
-**Follow up:** If you have figured out the `O(n)` solution, try coding another solution using the **divide and conquer approach**, which is more subtle.
+## Follow-up
+
+If you have figured out the `O(n)` solution, try coding another solution using the **divide and conquer approach**, which is more subtle.
 
 ## Solutions
 
 ### Brute Force
 
 ```python
+from typing import List
+
+
 class Solution:
     def maxSubArray(self, nums: List[int]) -> int:
         n = len(nums)
@@ -121,6 +126,9 @@ After all pairs are examined, the loop returns `best = 4`, which matches the exp
 ### Kadane's Algorithm
 
 ```python
+from typing import List
+
+
 class Solution:
     def maxSubArray(self, nums: List[int]) -> int:
         current_sum = nums[0]
@@ -165,6 +173,9 @@ Only two scalar accumulators are maintained regardless of input size.
 ### Dynamic Programming with Explicit Table
 
 ```python
+from typing import List
+
+
 class Solution:
     def maxSubArray(self, nums: List[int]) -> int:
         n = len(nums)
@@ -206,6 +217,9 @@ The explicit `dp` array stores one value per element.
 ### Divide and Conquer
 
 ```python
+from typing import List
+
+
 class Solution:
     def maxSubArray(self, nums: List[int]) -> int:
         def max_crossing_sum(left: int, mid: int, right: int) -> int:
@@ -267,6 +281,9 @@ The recursion stack reaches a depth proportional to the height of the balanced s
 ### Prefix-Sum Minimum
 
 ```python
+from typing import List
+
+
 class Solution:
     def maxSubArray(self, nums: List[int]) -> int:
         best = float("-inf")
@@ -312,6 +329,7 @@ Only three scalars are tracked.
 
 ```python
 import itertools
+from typing import List
 
 
 class Solution:

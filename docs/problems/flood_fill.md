@@ -42,7 +42,7 @@ Return the modified image after performing the flood fill.
 - `m == image.length`
 - `n == image[i].length`
 - `1 <= m, n <= 50`
-- `0 <= image[i][j], color < 216`
+- `0 <= image[i][j], color < 2^16`
 - `0 <= sr < m`
 - `0 <= sc < n`
 
@@ -51,6 +51,9 @@ Return the modified image after performing the flood fill.
 ### Recursive DFS
 
 ```python
+from typing import List
+
+
 class Solution:
     def floodFill(self, image: List[List[int]], sr: int, sc: int, color: int) -> List[List[int]]:
         initial_color = image[sr][sc]
@@ -137,6 +140,9 @@ After every recursion unwinds, the image is `[[2,2,2],[2,2,0],[2,0,1]]`, which m
 ### Iterative DFS
 
 ```python
+from typing import List
+
+
 class Solution:
     def floodFill(self, image: List[List[int]], sr: int, sc: int, color: int) -> List[List[int]]:
         initial_color = image[sr][sc]
@@ -191,6 +197,9 @@ This solution implements flood fill using an iterative depth-first search approa
 ### Recursive BFS
 
 ```python
+from typing import List
+
+
 class Solution:
     def floodFill(self, image: List[List[int]], sr: int, sc: int, color: int) -> List[List[int]]:
         initial_color = image[sr][sc]
@@ -252,6 +261,9 @@ This solution implements a breadth-first search using recursive level-by-level p
 ### Iterative BFS
 
 ```python
+from typing import List
+
+
 class Solution:
     def floodFill(self, image: List[List[int]], sr: int, sc: int, color: int) -> List[List[int]]:
         initial_color = image[sr][sc]

@@ -14,7 +14,7 @@ According to the definition of LCA on Wikipedia: "The lowest common ancestor is 
 
 ### Example 1
 
-![Lowest Common Ancestor Tree Example](assets/lowest_comment_ancestor_binary_search_tree_example1.png)
+![Lowest Common Ancestor Tree Example](assets/lowest_common_ancestor_binary_search_tree_example1.png)
 
 **Input:** `root = [6,2,8,0,4,7,9,null,null,3,5]`, `p = 2`, `q = 8`
 
@@ -24,7 +24,7 @@ According to the definition of LCA on Wikipedia: "The lowest common ancestor is 
 
 ### Example 2
 
-![Lowest Common Ancestor Tree Example](assets/lowest_comment_ancestor_binary_search_tree_example1.png)
+![Lowest Common Ancestor Tree Example](assets/lowest_common_ancestor_binary_search_tree_example1.png)
 
 **Input:** `root = [6,2,8,0,4,7,9,null,null,3,5]`, `p = 2`, `q = 4`
 

@@ -37,13 +37,18 @@ Given the `head` of a singly linked list, reverse the list, and return the rever
 - The number of nodes in the list is the range `[0, 5000]`.
 - `-5000 <= Node.val <= 5000`
 
-**Follow up:** A linked list can be reversed either iteratively or recursively. Could you implement both?
+## Follow-up
+
+A linked list can be reversed either iteratively or recursively. Could you implement both?
 
 ## Solutions
 
 ### Brute Force
 
 ```python
+from typing import Optional
+
+
 # Definition for singly-linked list.
 # class ListNode:
 #     def __init__(self, val=0, next=None):
@@ -112,6 +117,9 @@ Notice step 3 leaves the list unchanged: the middle node already held `3`, so wr
 ### Iterative
 
 ```python
+from typing import Optional
+
+
 # Definition for singly-linked list.
 # class ListNode:
 #     def __init__(self, val=0, next=None):
@@ -159,6 +167,9 @@ We use a constant amount of extra space regardless of input size. Only three poi
 ### Recursive
 
 ```python
+from typing import Optional
+
+
 # Definition for singly-linked list.
 # class ListNode:
 #     def __init__(self, val=0, next=None):

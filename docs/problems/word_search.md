@@ -44,7 +44,7 @@ The word can be constructed from letters of sequentially adjacent cells, where a
 - `1 <= word.length <= 15`
 - `board` and `word` consists of only lowercase and uppercase English letters.
 
-## Follow up
+## Follow-up
 
 Could you use search pruning to make your solution faster with a larger `board`?
 
@@ -53,6 +53,9 @@ Could you use search pruning to make your solution faster with a larger `board`?
 ### DFS Backtracking
 
 ```python
+from typing import List
+
+
 class Solution:
     def exist(self, board: List[List[str]], word: str) -> bool:
         rows, cols = len(board), len(board[0])
@@ -176,6 +179,9 @@ function returns `True`, matching the expected Output for Example 1.
 ### DFS with Visited Set
 
 ```python
+from typing import List
+
+
 class Solution:
     def exist(self, board: List[List[str]], word: str) -> bool:
         rows, cols = len(board), len(board[0])
@@ -254,6 +260,7 @@ factor more memory than the in-place approach but the same asymptotic bound.
 
 ```python
 from collections import Counter
+from typing import List
 
 
 class Solution:
@@ -267,7 +274,8 @@ class Solution:
             if board_counts[ch] < need:
                 return False
 
-        # Start from the rarer end so the first letter has fewer launch points.
+        # Start from the end whose letter repeats less within the word,
+        # so failing paths tend to mismatch sooner.
         if word_counts[word[-1]] < word_counts[word[0]]:
             word = word[::-1]
 
@@ -306,9 +314,12 @@ plain search would eventually waste.
    enough copies of any required letter, no path can exist, so return `False`
    immediately without any DFS.
 2. Compare how often `word`'s first and last letters appear in `word` itself, and
-   reverse `word` when the last letter is rarer. Searching from the rarer end
-   means fewer cells qualify as starting points, which prunes the top of the
-   search tree where branching is most expensive.
+   reverse `word` when the last letter is rarer. Anchoring the search on the end
+   whose letter repeats less within the word makes early mismatches likelier, so
+   doomed paths die near the top of the search tree where branching is most
+   expensive. A stronger standard variant compares the two end letters'
+   frequencies in the board instead, which directly reduces how many cells
+   qualify as starting points.
 3. Run the in-place sentinel DFS exactly as before.
 
 The `Counter` here only powers an optional precheck and the symmetric reversal
@@ -334,8 +345,9 @@ constant.
 
 - The letter-count precheck rejects impossible words in linear time before any
   recursion, which is the cheapest possible prune.
-- Starting from the rarer end of the word shrinks the number of DFS launch points
-  and is a classic backtracking optimization for symmetric search.
+- Starting from the end whose letter is rarer within the word makes early
+  mismatches likelier, a classic backtracking optimization for symmetric search;
+  comparing the end letters' board frequencies instead is the stronger variant.
 - The prunes are heuristics layered on top of the base algorithm: they speed up
   common adversarial cases without affecting correctness or the worst-case bound.
 

@@ -21,7 +21,7 @@ Notice that the solution set must not contain duplicate triplets.
 **Explanation:**
 
 - nums[0] + nums[1] + nums[2] = (-1) + 0 + 1 = 0.
-- nums[0] + nums[2] + nums[4] = (-1) + 1 + (-1) = -1 + 0 = 0.
+- nums[0] + nums[3] + nums[4] = (-1) + 2 + (-1) = 0.
 - nums[1] + nums[2] + nums[4] = 0 + 1 + (-1) = 0.
 The distinct triplets are [-1,0,1] and [-1,-1,2]. Notice that the order of the output and the order of the triplets does not matter.
 
@@ -51,6 +51,9 @@ The distinct triplets are [-1,0,1] and [-1,-1,2]. Notice that the order of the o
 ### Brute Force
 
 ```python
+from typing import List
+
+
 class Solution:
     def threeSum(self, nums: List[int]) -> List[List[int]]:
         n = len(nums)
@@ -123,6 +126,9 @@ After all index combinations are exhausted, the function returns `[[-1, 0, 1], [
 ### Sorting and Two Pointers
 
 ```python
+from typing import List
+
+
 class Solution:
     def threeSum(self, nums: List[int]) -> List[List[int]]:
         nums.sort()
@@ -206,6 +212,9 @@ Here's the step-by-step approach:
 ### Hash Set
 
 ```python
+from typing import List
+
+
 class Solution:
     def threeSum(self, nums: List[int]) -> List[List[int]]:
         nums.sort()

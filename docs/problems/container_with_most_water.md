@@ -16,22 +16,21 @@ Return the maximum amount of water a container can store.
 
 ## Examples
 
-**Example 1:**
+### Example 1
 
 ![Container Example](./assets/container_with_most_water_example1.jpg)
 
-```
-Input: height = [1,8,6,2,5,4,8,3,7]
-Output: 49
-Explanation: The above vertical lines are represented by array [1,8,6,2,5,4,8,3,7]. In this case, the max area of water (blue section) the container can contain is 49.
-```
+**Input:** height = `[1,8,6,2,5,4,8,3,7]`
 
-**Example 2:**
+**Output:** `49`
 
-```
-Input: height = [1,1]
-Output: 1
-```
+**Explanation:** The above vertical lines are represented by array `[1,8,6,2,5,4,8,3,7]`. In this case, the max area of water (blue section) the container can contain is 49.
+
+### Example 2
+
+**Input:** height = `[1,1]`
+
+**Output:** `1`
 
 ## Constraints
 
@@ -44,6 +43,9 @@ Output: 1
 ### Brute Force
 
 ```python
+from typing import List
+
+
 class Solution:
     def maxArea(self, height: List[int]) -> int:
         n = len(height)
@@ -124,6 +126,9 @@ The full Example 1 runs the exact same nested sweep over all 36 pairs of
 ### Two Pointers
 
 ```python
+from typing import List
+
+
 class Solution:
     def maxArea(self, height: List[int]) -> int:
         left, right = 0, len(height) - 1
@@ -185,6 +190,9 @@ The algorithm uses only a constant amount of extra space for variables (`left`, 
 ### Two Pointers with Skip Optimization
 
 ```python
+from typing import List
+
+
 class Solution:
     def maxArea(self, height: List[int]) -> int:
         left, right = 0, len(height) - 1
