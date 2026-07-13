@@ -24,14 +24,14 @@ reads as "on the order of `n` steps".
 
 ## The classes you will meet
 
-From fastest-growing-slowest to slowest, the ones that appear in this guide:
+From best to worst, the ones that appear in this guide:
 
 | Big-O | Name | Plain meaning | Everyday analogy |
 |-------|------|---------------|------------------|
 | `O(1)` | Constant | Same work no matter the input size | Looking up a word you already memorized |
 | `O(log n)` | Logarithmic | Each step throws away half the remaining work | Finding a name in a phone book by halving |
 | `O(n)` | Linear | Work grows in step with the input | Reading every page of a book once |
-| `O(n log n)` | Linearithmic | A linear pass that does a halving amount of work each time | Sorting a deck of cards efficiently |
+| `O(n log n)` | Linearithmic | About `log n` rounds of linear work: the cost of good sorting algorithms | Sorting a deck of cards efficiently |
 | `O(n²)` | Quadratic | For every item, you touch every item | Comparing every person in a room to every other |
 | `O(2ⁿ)` | Exponential | Each new item doubles the work | Trying every yes/no combination of `n` switches |
 
