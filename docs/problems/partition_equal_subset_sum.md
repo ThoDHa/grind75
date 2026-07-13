@@ -134,6 +134,98 @@ The chosen subset is `{1, 5, 5}`, summing to `11`. The call returns `True`, whic
 matches the expected Output for Example 1, and corresponds to the partition `[1, 5,
 5]` and `[11]`.
 
+### Top-Down Memoization
+
+```python
+from typing import List
+
+
+class Solution:
+    def canPartition(self, nums: List[int]) -> bool:
+        total = sum(nums)
+
+        # An odd total can never split into two equal halves.
+        if total % 2 != 0:
+            return False
+
+        target = total // 2
+
+        # memo[(i, remaining)] records whether some subset of nums[i:] can
+        # sum to exactly remaining.
+        memo = {}
+
+        # The same include/exclude recursion as the Brute Force, with a cache.
+        def search(i: int, remaining: int) -> bool:
+            if remaining == 0:
+                return True
+            if remaining < 0 or i == len(nums):
+                return False
+            if (i, remaining) in memo:
+                return memo[(i, remaining)]
+            # Include nums[i], or exclude it and move on.
+            result = search(i + 1, remaining - nums[i]) or search(i + 1, remaining)
+            memo[(i, remaining)] = result
+            return result
+
+        return search(0, target)
+```
+
+#### Approach
+
+This is the Brute Force recursion, unchanged, plus a cache. The observation that saves
+it is that a call to `search(i, remaining)` depends only on its two arguments: which
+index comes next and how much of the target is still unmet. Different include/exclude
+histories that arrive at the same `(i, remaining)` pair face the exact same subproblem,
+so computing it more than once is wasted work.
+
+1. Compute `total = sum(nums)`. If it is odd, return `False`.
+2. Set `target = total // 2` and recurse from `search(0, target)`, exactly as the
+   Brute Force does.
+3. Before branching, look up `(i, remaining)` in the memo dictionary; on a hit, return
+   the stored answer without recursing.
+4. Otherwise evaluate the include branch (`search(i + 1, remaining - nums[i])`) and the
+   exclude branch (`search(i + 1, remaining)`), store the result under `(i, remaining)`,
+   and return it.
+
+The index ranges over `n + 1` values and `remaining` over `target + 1` values, so the
+cache admits at most `(n + 1) × (target + 1)` distinct states. Each state is computed
+once; every revisit is a dictionary lookup. That single change collapses the `O(2^n)`
+search tree into pseudo-polynomial work, and it is the recursive twin of the Bottom-Up
+DP below: the memo holds the same information as the classic 2D `dp[i][s]` table,
+filled lazily on demand instead of row by row. The recursion depth is bounded by `n`
+(at most 200 under the constraints), so no recursion-limit adjustment is needed.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n × target)`
+
+There are at most `(n + 1) × (target + 1)` distinct `(index, remaining)` states, and
+each is fully evaluated exactly once: outside its two recursive calls, a state does
+`O(1)` work. Every subsequent visit to a cached state costs one `O(1)` dictionary
+lookup, and each computed state spawns at most two child calls, so total work is
+bounded by the state count.
+
+##### Space Complexity: `O(n × target)`
+
+The memo dictionary can grow to one entry per reachable `(index, remaining)` state, up
+to `(n + 1) × (target + 1)` entries. The recursion stack adds `O(n)` on top, since each
+call advances the index by one; the memo term dominates.
+
+#### Key Insights
+
+- The state `(index, remaining)` is a complete description of a subproblem: nothing
+  about how the recursion got there changes the answer, which is what makes the states
+  cacheable.
+- Remaining targets repeat because many different subsets of the prefix produce the
+  same partial sum; the memo collapses all of those branches onto one entry, turning
+  `2^n` paths into at most `n × target` states.
+- This is the memoized form of the 0/1 knapsack decision problem: index plays the item
+  dimension and `remaining` plays the capacity dimension of the classic `dp[i][s]`
+  table, which the Bottom-Up DP fills exhaustively and this approach fills only where
+  the search actually lands.
+- The hand-rolled dictionary makes the state key explicit and keeps the base cases
+  (`remaining == 0`, `remaining < 0`, index exhausted) identical to the Brute Force.
+
 ### Bottom-Up DP
 
 ```python
@@ -340,6 +432,7 @@ A single integer holding `target + 1` significant bits.
 ### Time Complexity
 
 - **Brute Force**: `O(2^n)` - fork into include/exclude at every element.
+- **Top-Down Memoization**: `O(n × target)` - compute each `(index, remaining)` state once.
 - **Bottom-Up DP**: `O(n × target)` - sweep the boolean array per number.
 - **Reachable Sum Set**: `O(n × target)` - iterate the bounded set per number.
 - **Bitmask DP**: `O(n × target / w)` - same class with a small bitwise constant factor.
@@ -347,6 +440,7 @@ A single integer holding `target + 1` significant bits.
 ### Space Complexity
 
 - **Brute Force**: `O(n)` - recursion stack depth proportional to the element count.
+- **Top-Down Memoization**: `O(n × target)` - memo dictionary plus an `O(n)` recursion stack.
 - **Bottom-Up DP**: `O(target)` - one boolean array.
 - **Reachable Sum Set**: `O(target)` - at most `target + 1` distinct sums.
 - **Bitmask DP**: `O(target)` - one integer of `target + 1` bits.
@@ -355,6 +449,9 @@ A single integer holding `target + 1` significant bits.
 
 - The Brute Force approach is the most direct statement of the problem (enumerate every
   subset) but recomputes overlapping states, making it exponential.
+- The Top-Down Memoization approach keeps the Brute Force recursion intact and computes
+  only the states the search reaches, but pays dictionary and call overhead and stores
+  the full two-dimensional `(index, remaining)` state space.
 - The Bottom-Up DP approach is the clearest expression of the
   0/1 knapsack recurrence and the easiest to adapt to variants.
 - The Reachable Sum Set approach reads naturally and prunes eagerly, but set objects
@@ -364,8 +461,12 @@ A single integer holding `target + 1` significant bits.
 
 ### When to Use Each
 
-- **Brute Force**: Only for tiny inputs or to reason about the problem before adding
-  memoization; it captures the include/exclude structure the DP solutions optimize.
+- **Brute Force**: Only for tiny inputs or to reason about the problem; it captures the
+  include/exclude structure that Top-Down Memoization caches and the DP solutions
+  tabulate.
+- **Top-Down Memoization**: When the recursive framing feels more natural, or when the
+  states reachable from the target are sparse enough that filling the whole table would
+  be wasted work.
 - **Bottom-Up DP**: The default choice for clarity and for
   explaining the knapsack structure.
 - **Reachable Sum Set**: When a set-based formulation is more intuitive or when most
@@ -376,9 +477,13 @@ A single integer holding `target + 1` significant bits.
 ### Optimization Notes
 
 - The Brute Force search recomputes the same `(index, remaining)` states across many
-  branches; caching those states is exactly what turns it into the polynomial DP.
-- The three DP approaches share the same pseudo-polynomial `O(n × target)` class; the
-  differences are constant factors and readability.
+  branches; caching those states is exactly the Top-Down Memoization approach, and it
+  is what turns the search polynomial.
+- The four polynomial approaches share the same pseudo-polynomial `O(n × target)` time
+  class; the differences are constant factors, memory, and readability.
+- Memoization stores the full `(index, remaining)` state space; the Bottom-Up DP
+  collapses it to a single `O(target)` row because each update reads only the previous
+  state, which is why the table approaches win on space.
 - The downward inner loop in the table approach is the crucial detail that keeps the
   recurrence 0/1; an upward loop would silently solve the unbounded-knapsack variant.
 - The bitmask formulation is typically the fastest in practice because CPython

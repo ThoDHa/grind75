@@ -262,6 +262,124 @@ holds at most `O(n)` nodes at once.
 - Using adjacency *sets* rather than lists makes detaching a leaf from its
   neighbor an O(1) operation instead of a linear scan.
 
+### Diameter Midpoint via Two BFS Passes
+
+```python
+from typing import List
+
+
+from collections import deque
+
+
+class Solution:
+    def findMinHeightTrees(self, n: int, edges: List[List[int]]) -> List[int]:
+        # One or two nodes: every node is already a centroid.
+        if n <= 2:
+            return list(range(n))
+
+        # Build an undirected adjacency list.
+        adj = [[] for _ in range(n)]
+        for a, b in edges:
+            adj[a].append(b)
+            adj[b].append(a)
+
+        def bfs_farthest(start: int) -> tuple[int, List[int]]:
+            # BFS pops nodes in nondecreasing distance order, so the last
+            # node popped is a farthest node from start.
+            parent = [-1] * n
+            seen = [False] * n
+            seen[start] = True
+            queue = deque([start])
+            last = start
+            while queue:
+                node = queue.popleft()
+                last = node
+                for nxt in adj[node]:
+                    if not seen[nxt]:
+                        seen[nxt] = True
+                        parent[nxt] = node
+                        queue.append(nxt)
+            return last, parent
+
+        # First BFS from any node reaches one endpoint of a diameter.
+        u, _ = bfs_farthest(0)
+        # Second BFS from that endpoint reaches the opposite endpoint and
+        # records parent links along the way.
+        v, parent = bfs_farthest(u)
+
+        # Reconstruct the u-v diameter path by walking parents back from v.
+        path = []
+        node = v
+        while node != -1:
+            path.append(node)
+            node = parent[node]
+
+        # The middle one or two nodes of the diameter path are the MHT roots.
+        length = len(path)
+        if length % 2 == 1:
+            return [path[length // 2]]
+        return [path[length // 2 - 1], path[length // 2]]
+```
+
+#### Approach
+
+The leaf-trimming section observed that the MHT roots sit in the middle of the
+tree's longest path. This approach takes that observation literally: find the
+longest path (the *diameter*) explicitly, then return its middle one or two
+nodes.
+
+1. Handle the tiny cases: if `n <= 2`, every node is a valid root, so return all
+   of them.
+2. Build an undirected adjacency list.
+3. Run a BFS from any node (node 0 works). The farthest node it reaches, `u`, is
+   guaranteed to be one endpoint of a diameter.
+4. Run a second BFS from `u`, recording each node's parent. The farthest node it
+   reaches, `v`, is the opposite endpoint, and the parent links trace the
+   diameter path between them.
+5. Walk the parent links from `v` back to `u` to reconstruct the path, then
+   return its middle node (odd number of path nodes) or middle two nodes (even).
+
+Why the midpoint is optimal: whichever node is chosen as root, its height is at
+least the distance to the farther of `u` and `v`, and those two distances sum to
+at least the diameter `d`. So every root has height at least `ceil(d / 2)`, and
+only a node sitting at the exact center of a diameter path achieves that bound.
+This is the same answer the leaf-trimming solution converges to; trimming closes
+in on the center implicitly from all sides, while this version walks straight to
+it along one longest path.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n)`
+
+Building the adjacency list visits each of the `n - 1` edges once. Each of the
+two BFS passes visits every node and edge once, costing `O(n)` apiece, and the
+path reconstruction walks at most `n` parent links. The total is three linear
+passes, which is `O(n)`.
+
+##### Space Complexity: `O(n)`
+
+The adjacency list stores `2(n - 1)` endpoint entries, and each BFS keeps a
+`parent` array, a `seen` array, and a queue of at most `O(n)` nodes. The
+reconstructed path holds at most `n` nodes.
+
+#### Key Insights
+
+- The two-BFS diameter technique is a classic on its own: a BFS from *any* node
+  ends at a diameter endpoint, and a second BFS from that endpoint finds the
+  full diameter. It reappears in many longest-path problems on trees.
+- The parity of the diameter decides the answer size: a diameter path with an
+  odd number of nodes (even edge count) has one exact center, while an even
+  number of nodes yields two adjacent centers. This is the same 1-or-2 centroid
+  fact the leaf-trimming solution relies on.
+- Every root's height is at least `ceil(d / 2)` where `d` is the diameter, so
+  the center of a longest path is not just a good root but provably the best
+  possible one.
+- Leaf trimming and this approach are two mechanics for the same theorem: one
+  peels inward from all leaves at once, the other locates a single longest path
+  and jumps to its midpoint. On any tree they return the same set of roots.
+- Recording parents only in the second BFS is enough; the first BFS exists
+  solely to find a diameter endpoint, so its traversal order can be discarded.
+
 ## Comparison of Solutions
 
 ### Time Complexity
@@ -270,12 +388,16 @@ holds at most `O(n)` nodes at once.
   the tree size.
 - **Leaf-Trimming BFS**: `O(n)` - every node is enqueued once and every edge is
   detached once across the whole peeling process.
+- **Diameter Midpoint via Two BFS Passes**: `O(n)` - two full BFS traversals plus
+  a linear walk to reconstruct the diameter path.
 
 ### Space Complexity
 
 - **Brute Force BFS From Every Root**: `O(n)` - adjacency list plus the per-BFS
   `seen` set, queue, and the `heights` array.
 - **Leaf-Trimming BFS**: `O(n)` - adjacency sets plus a leaf queue.
+- **Diameter Midpoint via Two BFS Passes**: `O(n)` - adjacency list plus per-BFS
+  `parent` and `seen` arrays, a queue, and the reconstructed path.
 
 ### Trade-offs
 
@@ -283,8 +405,13 @@ holds at most `O(n)` nodes at once.
   easy to write and verify, but it discards the tree structure and re-traverses
   the entire graph from every node.
 - The leaf-trimming version trades a small conceptual leap (the answer is the one
-  or two centroids of the tree) for a linear runtime, making it the only viable
-  choice near the upper constraint of `n = 2 * 10^4`.
+  or two centroids of the tree) for a linear runtime, making it viable near the
+  upper constraint of `n = 2 * 10^4`.
+- The diameter-midpoint version matches leaf trimming asymptotically but leans on
+  a different classic technique (two-BFS diameter finding). It needs the extra
+  `ceil(d / 2)` optimality argument to justify why the path's center is the
+  answer, and it must handle path reconstruction and the 1-vs-2 center parity
+  explicitly, whereas trimming gets both for free from the peeling loop.
 
 ### When to Use Each
 
@@ -292,6 +419,10 @@ holds at most `O(n)` nodes at once.
   reference implementation to validate the optimized solution against.
 - **Leaf-Trimming BFS** (recommended): Any input that can approach the constraint
   ceiling, where the quadratic approach would time out.
+- **Diameter Midpoint via Two BFS Passes**: An equally valid linear alternative,
+  especially natural if you already know the two-BFS diameter trick or the
+  interview follows up with diameter-related questions; also useful as an
+  independent cross-check of the leaf-trimming answer.
 
 ### Optimization Notes
 
@@ -301,5 +432,9 @@ holds at most `O(n)` nodes at once.
 - The leaf-trimming loop stops at `remaining <= 2` rather than emptying the queue,
   which is what guarantees the survivors are the centroids instead of an empty
   set.
+- In the diameter approach, parents only need to be recorded during the second
+  BFS; the first pass exists solely to locate a diameter endpoint, which keeps
+  the bookkeeping to one `parent` array.
 - For correctness checks, the brute force result can be compared against the
-  leaf-trimming result on random trees; they must agree on every input.
+  leaf-trimming and diameter-midpoint results on random trees; all three must
+  agree on every input (up to ordering of the returned roots).

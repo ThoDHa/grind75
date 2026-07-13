@@ -113,6 +113,55 @@ count(0,0)
 
 The root `count(0, 0)` adds its down branch (`2`) and its right branch (`1`) to return `3`, which matches the expected Output `3`. Notice `count(2,1)` and `count(1,1)` are each evaluated more than once: that repeated work is exactly the waste the DP solutions remove.
 
+### Top-Down Memoization
+
+```python
+class Solution:
+    def uniquePaths(self, m: int, n: int) -> int:
+        # Cache of computed results keyed by cell (i, j)
+        memo = {}
+
+        # Count paths from cell (i, j) to the bottom-right corner
+        def count(i: int, j: int) -> int:
+            # Reached the destination: exactly one way to "finish"
+            if i == m - 1 and j == n - 1:
+                return 1
+            # Fell off the grid: this branch contributes no path
+            if i >= m or j >= n:
+                return 0
+            # Return the cached count if this cell was already solved
+            if (i, j) in memo:
+                return memo[(i, j)]
+            # Every path either steps down or steps right
+            memo[(i, j)] = count(i + 1, j) + count(i, j + 1)
+            return memo[(i, j)]
+
+        return count(0, 0)
+```
+
+#### Approach
+
+This is the recursion above with one addition: a cache. The number of paths from `(i, j)` to the corner depends only on the cell itself, not on how the robot arrived there, so the result of `count(i, j)` can be stored the first time it is computed and returned instantly on every later visit. A dictionary keyed on the `(i, j)` pair serves as the cache: before branching, the function returns the memoized value if one exists; otherwise it computes `count(i + 1, j) + count(i, j + 1)` once, records it, and returns it.
+
+The recurrence and base cases are identical to the pure recursion, but the cost model collapses. The brute force enumerates every down/right path, and its `O(2^(m + n))` call tree times out on the 23 x 12 full-size case. There are only `m × n` distinct cells, however, so with the cache each cell's body executes at most once and every repeated visit is a constant-time lookup. The memo is the same table the Bottom-Up DP below fills explicitly; memoization simply fills it lazily, in whatever order the recursion demands, while keeping the top-down framing that reads straight off the problem statement.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(m × n)`
+
+Each of the `m × n` cells is fully computed at most once: the first call for a cell does constant work plus two recursive calls, and every subsequent call for that cell returns the cached value in constant time. Total work is therefore proportional to the number of distinct cells.
+
+##### Space Complexity: `O(m × n)`
+
+The memo can hold one entry per cell, which dominates at `O(m × n)`. The recursion stack adds `O(m + n)` on top, since every call advances `i` or `j` by one and the chain from `(0, 0)` to the corner is at most `m + n - 2` frames deep (at most 198 under the constraints, safely below CPython's default limit).
+
+#### Key Insights
+
+- **Overlapping subproblems**: Many distinct paths share the same suffix from a cell to the corner. The pure recursion recomputes that suffix count once per path passing through the cell; the memo computes it exactly once
+- **State is just the cell**: The path count from `(i, j)` is independent of the route taken to reach it, which is precisely the property that makes the `(i, j)` pair a valid memo key
+- **Timeout becomes tractable**: The 23 x 12 case that defeats the pure recursion needs only `23 × 12 = 276` cached states here, so the exponential blow-up disappears without changing the recurrence
+- **Bridge to bottom-up**: The memo holds the same values as the Bottom-Up DP table; rewriting the lazy, recursion-driven fill as an explicit loop over cells yields the next solution
+
 ### Bottom-Up DP
 
 ```python
@@ -232,6 +281,7 @@ We use only a constant number of variables.
 ### Time Complexity
 
 - **Recursion**: `O(2^(m + n))` - Enumerates every down/right path, recomputing shared subproblems
+- **Top-Down Memoization**: `O(m × n)` - Computes each distinct cell once; repeated visits are constant-time cache hits
 - **Bottom-Up DP**: `O(m × n)` - Fills every cell of the DP table once
 - **Space-Optimized DP**: `O(m × n)` - Same number of cell updates, just stored in a single row
 - **Combinatorics**: `O(min(m, n))` - Computes a single binomial coefficient
@@ -239,6 +289,7 @@ We use only a constant number of variables.
 ### Space Complexity
 
 - **Recursion**: `O(m + n)` - Recursion stack depth along the longest path, no table allocated
+- **Top-Down Memoization**: `O(m × n)` - One memo entry per cell, plus `O(m + n)` recursion stack
 - **Bottom-Up DP**: `O(m × n)` - Stores the entire 2D DP table
 - **Space-Optimized DP**: `O(n)` - Keeps only one row of results
 - **Combinatorics**: `O(1)` - Uses a constant number of variables
@@ -246,19 +297,22 @@ We use only a constant number of variables.
 ### Trade-offs
 
 - The recursion solution reads straight off the problem statement and uses no extra structures, but recomputes the same subproblems exponentially many times
-- The 2D DP solution is the most readable memoized form and mirrors the recurrence directly, but wastes memory storing rows it no longer needs
+- The memoized solution keeps the recursion's natural top-down framing while eliminating the exponential recomputation, at the cost of a per-cell cache and recursion overhead
+- The 2D DP solution replaces the recursion with an explicit table fill that mirrors the recurrence directly, but wastes memory storing rows it no longer needs
 - The 1D DP solution keeps the same intuitive logic while collapsing storage to a single row, at the cost of slightly less obvious indexing
 - The combinatorics solution is the fastest and lightest, but trades away the transparent grid intuition for a mathematical insight
 
 ### When to Use Each
 
-- **Recursion**: As a first, self-derivable formulation of the recurrence, or a teaching baseline before adding memoization
+- **Recursion**: As a first, self-derivable formulation of the recurrence, and the teaching baseline that Top-Down Memoization builds on directly
+- **Top-Down Memoization**: When the recursive framing feels most natural and adding a cache is the quickest correct step up from the brute force
 - **Bottom-Up DP**: When clarity is paramount or the grid will be extended with obstacles or weights that break the pure combinatorial form
 - **Space-Optimized DP**: When the DP structure is still needed but memory is constrained
 - **Combinatorics**: When raw speed and minimal space are the priority and the problem stays a clean down/right path count
 
 ### Optimization Notes
 
+- The memo dict keyed on `(i, j)` caps the recursion at one computation per cell, bringing the brute force to the same `O(m × n)` work as the table fills
 - The 1D DP works because `dp[j] += dp[j-1]` reuses the old value of `dp[j]` (the cell above) and the freshly updated `dp[j-1]` (the cell to the left)
 - The combinatorics solution is the recommended optimum: it multiplies before dividing within the loop to keep intermediate values integral and avoid overflow
 - Iterating the binomial coefficient over `min(m-1, n-1)` terms keeps the work minimal regardless of grid orientation

@@ -249,6 +249,84 @@ This solution optimizes the space usage of the dynamic programming approach:
 - This approach is particularly useful for large inputs where memory might be a concern
 - The solution maintains the elegance of the DP approach while being more efficient
 
+### Matrix Exponentiation
+
+```python
+class Solution:
+    def climbStairs(self, n: int) -> int:
+        def multiply(a: list[list[int]], b: list[list[int]]) -> list[list[int]]:
+            # Hand-rolled 2x2 matrix product, all four entries written out
+            return [
+                [
+                    a[0][0] * b[0][0] + a[0][1] * b[1][0],
+                    a[0][0] * b[0][1] + a[0][1] * b[1][1],
+                ],
+                [
+                    a[1][0] * b[0][0] + a[1][1] * b[1][0],
+                    a[1][0] * b[0][1] + a[1][1] * b[1][1],
+                ],
+            ]
+
+        # Start from the 2x2 identity matrix; base is the Fibonacci matrix
+        result = [[1, 0], [0, 1]]
+        base = [[1, 1], [1, 0]]
+
+        # Binary exponentiation: square the base, halve the exponent
+        power = n
+        while power > 0:
+            if power % 2 == 1:
+                result = multiply(result, base)
+            base = multiply(base, base)
+            power //= 2
+
+        # [[1, 1], [1, 0]]^n = [[F(n+1), F(n)], [F(n), F(n-1)]],
+        # and ways(n) = F(n+1), which sits in the top-left entry
+        return result[0][0]
+```
+
+#### Approach
+
+This solution rewrites the Fibonacci recurrence as a matrix power and computes that power with repeated squaring, dropping the time below linear:
+
+1. The recurrence `F(n+1) = F(n) + F(n-1)` can be packaged as a matrix equation: multiplying the state vector `[F(n), F(n-1)]` by the matrix `[[1, 1], [1, 0]]` advances it one step to `[F(n+1), F(n)]`
+2. Advancing `n` steps therefore means raising that matrix to the nth power: `[[1, 1], [1, 0]]^n = [[F(n+1), F(n)], [F(n), F(n-1)]]`, and since the ways to climb `n` stairs equal `F(n+1)`, the answer sits in the top-left entry
+3. Instead of multiplying the matrix in one at a time (which would just be the linear DP in disguise), we use binary exponentiation: square the base matrix to jump from `M^k` to `M^2k`, and multiply the accumulator by the current base whenever the corresponding bit of `n` is set, halving the remaining exponent each iteration
+4. Both the `multiply` helper and the squaring loop are written from scratch on plain lists, so the whole computation stays in exact integer arithmetic
+
+Compared to its neighbors on the ladder, this trades their `O(n)` scans for `O(log n)` doublings, so for huge exponents it overtakes every linear approach; and unlike the Closed-Form Formula that follows, it never touches floating point, so the answer is exact at any size.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(log n)`
+
+- The exponent is halved on every pass, so the loop runs about `log2(n)` times
+- Each pass performs at most two 2x2 matrix multiplications, and each of those is a fixed bundle of 8 multiplications and 4 additions, so the per-iteration cost is constant (for the word-sized integers here; astronomically large `n` would grow the integers themselves)
+
+##### Space Complexity: `O(1)`
+
+- The iterative loop keeps only two 2x2 matrices (`result` and `base`) plus a scalar, regardless of `n`
+- A recursive formulation of the squaring would cost `O(log n)` stack; the iterative loop avoids it
+
+#### Key Insights
+
+- Any linear recurrence with constant coefficients can be encoded as a fixed transition matrix, and computing the nth term becomes computing a matrix power; this generalizes far beyond Fibonacci (tribonacci, tiling counts, counting walks in graphs)
+- Binary exponentiation is the engine: it works for matrices exactly as it does for numbers because matrix multiplication is associative, which is all repeated squaring requires
+- Unlike Binet's formula, every operation here is integer addition and multiplication, so the result is exact for arbitrarily large `n`; Python's big integers never overflow, whereas the float closed form drifts off by one once `n` grows
+- With the constraint capping `n` at 45, the `O(log n)` advantage is invisible in practice and the constant factor of matrix multiplies makes it slower than the two-variable loop; the technique earns its keep when `n` reaches into the millions or when the recurrence's answer is needed modulo some number
+
+#### Walkthrough
+
+Trace the binary exponentiation on Example 2, `n = 3`. In binary, `3 = 11`, so the loop runs twice and multiplies the accumulator on both passes. Writing `M = [[1, 1], [1, 0]]`:
+
+| Pass | `power` | Bit set? | `result` after | `base` after |
+|------|---------|----------|----------------|--------------|
+| start | 3 | - | `[[1, 0], [0, 1]]` (identity) | `M` |
+| 1 | 3 | yes, so `result = result x M` | `[[1, 1], [1, 0]]` = `M` | `M^2 = [[2, 1], [1, 1]]` |
+| 2 | 1 | yes, so `result = result x M^2` | `M^3 = [[3, 2], [2, 1]]` | `M^4` (unused) |
+| end | 0 | - | loop exits | - |
+
+The accumulator now holds `M^3 = [[3, 2], [2, 1]]`, whose top-left entry is `F(4) = 3`. That matches the expected Output `3` for Example 2: two squarings and two multiplications instead of a step-by-step walk, and for `n = 45` the loop would take only 6 passes instead of 44 iterations.
+
 ### Closed-Form Formula
 
 ```python
@@ -295,6 +373,7 @@ This solution uses the closed-form expression for the Fibonacci sequence (Binet'
 - **Top-Down Memoization**: `O(n)` - Each step is computed once and cached
 - **Bottom-Up DP**: `O(n)` - Linear time to build the DP table
 - **Space-Optimized DP**: `O(n)` - Same linear time requirement
+- **Matrix Exponentiation**: `O(log n)` - Repeated squaring halves the exponent each iteration
 - **Closed-Form Formula**: `O(1)` - Constant time calculation
 
 ### Space Complexity
@@ -303,6 +382,7 @@ This solution uses the closed-form expression for the Fibonacci sequence (Binet'
 - **Top-Down Memoization**: `O(n)` - Cache holds one entry per step plus a recursion stack of depth n
 - **Bottom-Up DP**: `O(n)` - Requires an array of size n+1
 - **Space-Optimized DP**: `O(1)` - Uses only a constant amount of extra space
+- **Matrix Exponentiation**: `O(1)` - Holds two fixed-size 2x2 matrices; the iterative loop avoids recursion stack
 - **Closed-Form Formula**: `O(1)` - Uses only a constant amount of extra space
 
 ### Trade-offs
@@ -311,6 +391,7 @@ This solution uses the closed-form expression for the Fibonacci sequence (Binet'
 - **Top-Down Memoization** mirrors the recurrence most directly and computes only the steps it needs, but carries recursion overhead and stack depth proportional to n
 - **Bottom-Up DP** is intuitive and good for educational purposes, but uses more space
 - **Space-Optimized DP** provides the best balance of simplicity and efficiency for most cases
+- **Matrix Exponentiation** beats every linear approach asymptotically and stays exact in integer arithmetic, but its per-step constant (a bundle of 2x2 multiplies) and extra code make it overkill at this problem's scale
 - **Closed-Form Formula** is theoretically most efficient but can have numerical precision issues
 
 ### When to Use Each
@@ -319,6 +400,7 @@ This solution uses the closed-form expression for the Fibonacci sequence (Binet'
 - **Top-Down Memoization**: When recursive thinking feels most natural or as the first step before deriving an iterative solution
 - **Bottom-Up DP**: When teaching DP concepts or when space is not a concern
 - **Space-Optimized DP**: In most practical scenarios, efficient and easy to understand
+- **Matrix Exponentiation**: When n is huge (millions or more) or an exact answer is required beyond floating-point range, such as computing the count modulo a large prime
 - **Closed-Form Formula**: When absolute performance is critical and n is within the range of floating-point precision
 
 ### Optimization Notes
@@ -328,4 +410,5 @@ This solution uses the closed-form expression for the Fibonacci sequence (Binet'
 - Top-Down Memoization reaches the same linear complexity, so prefer it when the recursive framing is clearer, but be mindful of Python's recursion limit for large n (the constraint here caps n at 45, well within bounds)
 - A key implementation detail is the use of a `temp` variable when updating `prev` and `curr`: the old `curr` must be saved before it is overwritten, otherwise `prev` would advance incorrectly and break the Fibonacci recurrence
 - Avoid reaching for the Closed-Form Formula (Binet's formula) in production: although it is `O(1)`, raising the golden ratio to a power relies on floating-point arithmetic that accumulates rounding error and can return an off-by-one result for larger `n`
+- Matrix Exponentiation is the exact-arithmetic answer to that precision problem: it reaches `O(log n)` without ever leaving integers, so prefer it over Binet's formula whenever sub-linear time is genuinely needed; within this problem's `n <= 45` cap, though, the two-variable loop remains the pragmatic winner
 - Remember the base-case guard `if n <= 1: return 1` in all approaches; without it the loop never runs and the rolling-variable initialization silently returns the wrong count for `n = 0`

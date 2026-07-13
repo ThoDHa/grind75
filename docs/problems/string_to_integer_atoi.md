@@ -243,6 +243,102 @@ The running integer, sign, and index are the only state; no per-digit buffer is 
 - The single shared clamp `INT_MAX if sign == 1 else INT_MIN` works because `2^31 - 1` and `-2^31` are the only two saturation targets, selected purely by the sign captured earlier.
 - Folding collection into the accumulation loop removes the brute force's `O(n)` digit substring, the one piece of waste it carried.
 
+### State Machine (DFA)
+
+```python
+class Solution:
+    def myAtoi(self, s: str) -> int:
+        INT_MAX = 2**31 - 1
+        INT_MIN = -2**31
+
+        # Transition table: state -> input class -> next state
+        TRANSITIONS = {
+            'start':  {'space': 'start', 'sign': 'sign', 'digit': 'number', 'other': 'end'},
+            'sign':   {'space': 'end',   'sign': 'end',  'digit': 'number', 'other': 'end'},
+            'number': {'space': 'end',   'sign': 'end',  'digit': 'number', 'other': 'end'},
+            'end':    {'space': 'end',   'sign': 'end',  'digit': 'end',    'other': 'end'},
+        }
+
+        def classify(ch: str) -> str:
+            if ch == ' ':
+                return 'space'
+            if ch == '+' or ch == '-':
+                return 'sign'
+            if '0' <= ch <= '9':
+                return 'digit'
+            return 'other'
+
+        state = 'start'
+        sign = 1
+        result = 0
+
+        for ch in s:
+            state = TRANSITIONS[state][classify(ch)]
+            if state == 'sign':
+                sign = -1 if ch == '-' else 1
+            elif state == 'number':
+                digit = ord(ch) - ord('0')
+                if result > INT_MAX // 10 or (result == INT_MAX // 10 and digit > INT_MAX % 10):
+                    return INT_MAX if sign == 1 else INT_MIN
+                result = result * 10 + digit
+            elif state == 'end':
+                break
+
+        return sign * result
+```
+
+#### Approach
+
+This solution reformulates the parse as a **deterministic finite automaton** (the classic LeetCode editorial framing). Every character of the input belongs to exactly one of four input classes: `space` (the literal `' '`), `sign` (`'+'` or `'-'`), `digit` (`'0'` through `'9'`), or `other` (anything else). The parser itself is always in exactly one of four states, and a fixed transition table maps each (state, input class) pair to the next state:
+
+| State | `space` | `sign` | `digit` | `other` |
+|-------|---------|--------|---------|---------|
+| `start` | `start` | `sign` | `number` | `end` |
+| `sign` | `end` | `end` | `number` | `end` |
+| `number` | `end` | `end` | `number` | `end` |
+| `end` | `end` | `end` | `end` | `end` |
+
+In words: the automaton begins in `start` and stays there while consuming leading spaces; a sign character moves it to `sign`, a digit moves it to `number`, and anything else moves it to the absorbing `end` state. From `sign` only a digit continues the parse; from `number` only further digits do. Once `end` is reached, nothing can leave it, so the loop simply breaks.
+
+The loop then attaches a small action to each state it lands in: entering `sign` records the sign, entering `number` folds the digit into the running integer with the same before-the-multiply overflow guard as the Single Pass solution (compare against `INT_MAX // 10` and the boundary digit `INT_MAX % 10`, then clamp to `INT_MAX` or `INT_MIN` by sign), and entering `end` stops the scan.
+
+The payoff is that the messy edge cases stop being code at all. A lone sign (`"+"`), a sign after spaces (`"   -"`), a second sign (`"+-12"`), leading letters (`"abc42"`), and trailing junk (`"42abc"`) are not handled by if-chains: each one is just a row-column lookup in the table that happens to land in `end`. The correctness argument shrinks from "did I order my conditionals correctly?" to "is this 16-entry table right?", which can be checked cell by cell against the specification. The same formulation generalizes directly to other parsing problems (Valid Number is the canonical example): define the input classes, draw the states, fill in the table, and the control flow writes itself.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n)`
+
+The loop visits each character exactly once, and each visit does one classification, one table lookup, and one constant-time action.
+
+##### Space Complexity: `O(1)`
+
+The transition table has a fixed 4 x 4 shape regardless of input length, and the only other state is the current state name, the sign, and the running integer.
+
+#### Key Insights
+
+- Table-driven parsing replaces ad hoc conditionals with data: the grammar lives in a 16-entry table you can verify cell by cell, while the loop body stays identical for every character. Adding a new rule means editing the table, not re-threading nested `if` logic.
+- The DFA is computationally equivalent to the Single Pass solution: both make one forward scan with `O(1)` state and identical clamping. The difference is purely organizational, with the phase structure made explicit as named states instead of being implicit in the order of loops.
+- The absorbing `end` state is what makes trailing junk free: once any invalid character is seen, every subsequent character maps back to `end`, so "ignore the rest of the string" requires no dedicated code path beyond the early `break`.
+- Interviewers often like the DFA framing because it demonstrates a transferable technique: the same states-and-table recipe cleanly handles harder parsing problems (Valid Number, tokenizers, protocol decoders) where if-chains become unmanageable.
+
+#### Walkthrough
+
+Let us watch the State Machine code run on the tricky input `s = "   -42abc"`. The expected result is `-42`.
+
+The automaton starts in `state = 'start'` with `sign = 1` and `result = 0`. Each character is classified, the table picks the next state, and the state's action fires:
+
+| Step | `ch` | Input class | State before | State after | Action |
+|------|------|-------------|--------------|-------------|--------|
+| 1 | `' '` | `space` | `start` | `start` | none (still skipping spaces) |
+| 2 | `' '` | `space` | `start` | `start` | none |
+| 3 | `' '` | `space` | `start` | `start` | none |
+| 4 | `'-'` | `sign` | `start` | `sign` | `sign = -1` |
+| 5 | `'4'` | `digit` | `sign` | `number` | `result = 0 * 10 + 4 = 4` |
+| 6 | `'2'` | `digit` | `number` | `number` | `result = 4 * 10 + 2 = 42` |
+| 7 | `'a'` | `other` | `number` | `end` | `break` |
+
+The `'a'` at step 7 drives the automaton into the absorbing `end` state, so `"bc"` is never examined. No overflow guard fires along the way (`4` and `42` are far below `INT_MAX // 10`). The function returns `sign * result = -1 * 42 = -42`, matching the expected result. Note how the three leading spaces, the sign, and the trailing junk were all handled by the same table lookup that handled the digits: no phase of the input needed its own code path.
+
 ### Strip and Parse
 
 ```python
@@ -353,6 +449,7 @@ Uses constant extra space (the regex compilation is cached by Python).
 
 - **Brute Force**: `O(n)` - three forward scans plus a digit fold, each linear.
 - **Single Pass**: `O(n)` - one pass with explicit overflow handling.
+- **State Machine (DFA)**: `O(n)` - one pass with a constant-time table lookup per character.
 - **Strip and Parse**: `O(n)` - linear strip and digit scan plus `int()` conversion.
 - **Regular Expression**: `O(n)` - pattern matching plus conversion.
 
@@ -360,6 +457,7 @@ Uses constant extra space (the regex compilation is cached by Python).
 
 - **Brute Force**: `O(n)` - accumulates the digit substring before converting it.
 - **Single Pass**: `O(1)` - builds the running integer directly with no buffer.
+- **State Machine (DFA)**: `O(1)` - the transition table is fixed-size; only the current state and running integer vary.
 - **Strip and Parse**: `O(n)` - accumulates the digit substring before conversion.
 - **Regular Expression**: `O(1)` - constant space (regex cached).
 
@@ -367,6 +465,7 @@ Uses constant extra space (the regex compilation is cached by Python).
 
 - **Brute Force**: The most directly derivable version, separating the four phases for clarity, and fully library-free (`ord` conversion, no `int()`). It pays `O(n)` space for the intermediate digit substring.
 - **Single Pass**: Trims the brute force's digit substring by folding collection into accumulation, reaching `O(1)` space while staying library-free. It is the recommended hand-written form.
+- **State Machine (DFA)**: Matches the Single Pass on cost (`O(n)` time, `O(1)` space, library-free) but moves the control flow into a transition table. It is slightly longer to write, and in exchange the edge cases become table entries you can verify individually rather than conditional branches you must order correctly.
 - **Strip and Parse**: Keeps explicit phases but leans on `int()` for the conversion and uses `O(n)` space for the digit substring, avoiding manual overflow arithmetic in favor of a final clamp.
 - **Regular Expression**: The most concise but the most library-driven: `re` encodes the parsing grammar and `int()` does the conversion, so edge case handling is implicit and it depends on the `re` module.
 
@@ -374,6 +473,7 @@ Uses constant extra space (the regex compilation is cached by Python).
 
 - **Brute Force**: Best for learning the specification step by step with no library help.
 - **Single Pass**: The recommended default: `O(1)` space, no dependencies, every parsing state handled explicitly.
+- **State Machine (DFA)**: When you want to demonstrate the table-driven formulation, or when the interviewer steers toward generalizable parsing technique (it is the standard editorial answer and scales to problems like Valid Number).
 - **Strip and Parse**: When you want explicit phases but prefer to delegate the numeric conversion and overflow clamping to the language.
 - **Regular Expression**: When code brevity is prioritized over showing the parsing mechanics.
 
@@ -381,5 +481,6 @@ Uses constant extra space (the regex compilation is cached by Python).
 
 - The **Single Pass** solution is the recommended choice: it runs in `O(n)` time and `O(1)` space, requires no external dependencies, and handles every parsing state (whitespace, sign, digits, overflow) explicitly.
 - Key implementation detail: check for overflow *before* performing the multiplication `result * 10 + digit`. Comparing against `INT_MAX // 10` and `INT_MAX % 10` prevents the intermediate value from exceeding the 32-bit range, then clamp to `INT_MAX` or `INT_MIN` based on the sign.
+- The **State Machine (DFA)** solution is not an optimization over the Single Pass (same time, same space, same clamping) but a restructuring: the transition table centralizes the edge case logic, which pays off when the grammar grows more complex than atoi's four states.
 - The **Strip and Parse** and **Regular Expression** approaches offload the numeric conversion (and, for the regex, the edge case handling) to Python's `int()`. They are concise but hide the parsing mechanics and depend on the language for overflow-free arithmetic before the final clamp.
 - Common pitfall: the many edge cases (empty string, only whitespace, only a sign, non-digit interruptions, and overflow) make this problem tricky; the task tests faithful implementation of an exact specification rather than algorithmic creativity, so each step must follow the stated order precisely.

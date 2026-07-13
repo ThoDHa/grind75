@@ -210,6 +210,76 @@ No new list is allocated; the result reuses the input list, ignoring the input a
 - Slightly harder to read because `pop`/`insert` mutate the list while it is being scanned.
 - Appropriate only when destroying the caller's input is acceptable.
 
+### Binary Search for the Overlap Window
+
+```python
+from typing import List
+
+
+class Solution:
+    def insert(self, intervals: List[List[int]], newInterval: List[int]) -> List[List[int]]:
+        n = len(intervals)
+
+        # Leftmost index whose interval ends at or after newInterval starts.
+        lo, hi = 0, n
+        while lo < hi:
+            mid = (lo + hi) // 2
+            if intervals[mid][1] >= newInterval[0]:
+                hi = mid
+            else:
+                lo = mid + 1
+        first = lo
+
+        # Rightmost index whose interval starts at or before newInterval ends.
+        lo, hi = -1, n - 1
+        while lo < hi:
+            mid = (lo + hi + 1) // 2
+            if intervals[mid][0] <= newInterval[1]:
+                lo = mid
+            else:
+                hi = mid - 1
+        last = lo
+
+        if first > last:
+            # Empty window: nothing overlaps, newInterval slots in at index first.
+            return intervals[:first] + [newInterval] + intervals[first:]
+
+        merged = [
+            min(newInterval[0], intervals[first][0]),
+            max(newInterval[1], intervals[last][1]),
+        ]
+        return intervals[:first] + [merged] + intervals[last + 1:]
+```
+
+#### Approach
+
+Because the intervals are sorted by start and do not overlap, their end values are also in ascending order: each interval ends before the next one begins. That means two boundary binary searches can locate the block of intervals that touch `newInterval`, replacing the linear scans of the earlier approaches with `O(log n)` lookups.
+
+An interval overlaps `newInterval` exactly when both `intervals[i][1] >= newInterval[0]` (it does not end before the new one starts) and `intervals[i][0] <= newInterval[1]` (it does not start after the new one ends). Each condition gets its own search:
+
+1. The first search runs over the ascending end values and finds `first`, the leftmost index with `intervals[i][1] >= newInterval[0]`. Ends before `first` are too small to overlap; ends from `first` onward all satisfy the predicate, so the predicate flips exactly once and the search is valid.
+2. The second search runs over the ascending start values and finds `last`, the rightmost index with `intervals[i][0] <= newInterval[1]`. Starts after `last` are too large to overlap. The midpoint uses `(lo + hi + 1) // 2` because this search rounds toward the right boundary; rounding down would loop forever when `lo` and `hi` are adjacent.
+3. Since both predicates flip once over the sorted list, the overlapping intervals are exactly the contiguous window `[first, last]`. If `first > last`, the window is empty and `newInterval` overlaps nothing: it slots in unchanged at index `first`. Otherwise one merged interval spans `min` of the starts at the window's left edge and `max` of the ends at its right edge, and the result is the untouched prefix, the merged interval, and the untouched suffix.
+
+Both comparisons use `>=` and `<=` so intervals that merely touch `newInterval` at an endpoint, such as `[1,5]` against a new `[5,8]`, land inside the window and merge.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n)`
+
+The two binary searches cost `O(log n)`, but the return statement slices the prefix and suffix into a new list, copying up to `n` interval references. The copying dominates, so the overall bound stays `O(n)`: the searches reduce the comparison work, not the asymptotic total. This approach is about practicing the boundary-search technique, not about beating the linear scan.
+
+##### Space Complexity: `O(n)`
+
+The result list built from the prefix slice, the merged interval, and the suffix slice holds up to `n + 1` intervals; the searches themselves use constant extra space.
+
+#### Key Insights
+
+- Boundary binary searches are predicate design: choose a condition that is monotone over the sorted list, then find where it flips. The left edge is the first index where `end >= newInterval[0]` becomes true; the right edge is the last index where `start <= newInterval[1]` is still true.
+- The rightmost-flavored search needs the `(lo + hi + 1) // 2` midpoint; the leftmost flavor rounds down. Mixing them up produces an infinite loop on adjacent bounds.
+- Sortedness plus non-overlap make both the starts and the ends monotone, which is exactly why the overlapping intervals form one contiguous window rather than scattered matches.
+- There is no asymptotic win here: any solution that returns a new list of up to `n + 1` intervals must spend `O(n)` building it. A true `O(log n)` algorithm exists only when the answer avoids the rebuild, such as counting the overlapping intervals (`last - first + 1`), reporting the merged interval's bounds, or testing whether `newInterval` overlaps anything at all.
+
 ### Recursive Merge
 
 ```python
@@ -260,6 +330,7 @@ The recursion reaches depth `O(n)`, and each frame holds its own `intervals[1:]`
 - **Linear Scan and Merge**: `O(n)` - a single walk over the three regions exploits the already-sorted input.
 - **Insert and Merge**: `O(n)` - a linear insertion plus one merge sweep, with no sort.
 - **In-Place Modification**: `O(n^2)` worst case - each `pop(i)` shifts the entire tail of the list, so absorbing many overlapping intervals costs quadratic shifting.
+- **Binary Search for the Overlap Window**: `O(n)` - the two boundary searches take only `O(log n)`, but slicing the prefix and suffix into the result still copies up to `n` intervals.
 - **Recursive Merge**: `O(n^2)` - each interval is handled once, but the `intervals[1:]` copy at every level adds linear work per step.
 
 ### Space Complexity
@@ -267,6 +338,7 @@ The recursion reaches depth `O(n)`, and each frame holds its own `intervals[1:]`
 - **Linear Scan and Merge**: `O(n)` - builds a separate merged output list.
 - **Insert and Merge**: `O(n)` - builds a combined list and a separate merged output list.
 - **In-Place Modification**: `O(1)` - mutates the input list, ignoring input/output storage.
+- **Binary Search for the Overlap Window**: `O(n)` - builds the result from prefix, merged-window, and suffix copies.
 - **Recursive Merge**: `O(n^2)` worst case - `O(n)` recursion depth where each frame keeps its own `intervals[1:]` slice copy alive.
 
 ### Trade-offs
@@ -274,6 +346,7 @@ The recursion reaches depth `O(n)`, and each frame holds its own `intervals[1:]`
 - Linear Scan and Merge gains optimal linear time and a clear three-region structure without mutating the input, at the cost of an extra output list.
 - Insert and Merge gains a familiar mental model (reduce to Merge Intervals) but does redundant work by rebuilding the list and re-checking intervals that never touch the new one.
 - In-Place Modification gains `O(1)` auxiliary space by mutating the input in place, giving up readability, a non-destructive contract, and the linear time bound (tail-shifting pops make the worst case quadratic).
+- Binary Search for the Overlap Window gains `O(log n)` comparison work and a reusable boundary-search technique, but the output rebuild keeps the overall bound at `O(n)`, so it offers no asymptotic advantage over the linear scan.
 - Recursive Merge gains an elegant declarative form but gives up practicality, risking recursion-depth limits on large inputs.
 
 ### When to Use Each
@@ -281,6 +354,7 @@ The recursion reaches depth `O(n)`, and each frame holds its own `intervals[1:]`
 - **Linear Scan and Merge**: The recommended default; best balance of clarity and efficiency.
 - **Insert and Merge**: When you would rather lean on the familiar Merge Intervals sweep than spell out the three regions.
 - **In-Place Modification**: When minimizing extra space is critical and mutating the input is acceptable.
+- **Binary Search for the Overlap Window**: When you want to practice boundary binary searches, or when the real question is locating or counting the overlapping intervals rather than rebuilding the list.
 - **Recursive Merge**: For academic interest or small inputs only.
 
 ### Optimization Notes
@@ -288,5 +362,6 @@ The recursion reaches depth `O(n)`, and each frame holds its own `intervals[1:]`
 - Linear Scan and Merge is the recommended approach: one linear walk over the three regions, with no sort.
 - Insert and Merge trades that direct walk for the familiar Merge Intervals sweep; it stays `O(n)` only because the pre-sorted input lets a linear insertion replace a sort.
 - The In-Place Modification approach's `pop`/`insert` operations shift the tail of the list on every call, so the auxiliary-space saving is paid for with a quadratic worst-case time bound.
+- Binary Search for the Overlap Window cuts the comparisons to `O(log n)` but not the copying; it becomes a genuine `O(log n)` algorithm only when the answer does not require rebuilding the list, such as counting or locating the overlapping intervals.
 - Every approach hinges on the same three regions: intervals strictly before, intervals overlapping (merged via `min` start and `max` end), and intervals strictly after.
 - Avoid the recursive variant for the upper constraint of `10^4` intervals, where deep recursion can exceed Python's default recursion limit.

@@ -267,6 +267,60 @@ Each round holds the full set of permutations built so far, and the final round 
 - The insertion trick is correct because inserting one new element at every position of every shorter permutation enumerates each longer permutation exactly once.
 - The tradeoff is memory: unlike the backtracking variants, every intermediate generation is held in full.
 
+### Heap's Algorithm
+
+```python
+from typing import List
+
+
+class Solution:
+    def permute(self, nums: List[int]) -> List[List[int]]:
+        result: List[List[int]] = []
+
+        def generate(k: int) -> None:
+            if k == 1:
+                result.append(nums[:])
+                return
+            for i in range(k):
+                generate(k - 1)
+                if i < k - 1:
+                    if k % 2 == 0:
+                        nums[i], nums[k - 1] = nums[k - 1], nums[i]
+                    else:
+                        nums[0], nums[k - 1] = nums[k - 1], nums[0]
+
+        generate(len(nums))
+        return result
+```
+
+#### Approach
+
+This is the classic minimal-change permutation generator published by B. R. Heap in 1963. The name refers to its author and has nothing to do with the heap data structure: no priority queue or heap property appears anywhere in the algorithm. Its defining property is that each permutation is produced from the previous one by a single swap of two elements, whereas the backtracking approaches rebuild a path prefix between outputs.
+
+1. `generate(k)` emits every permutation of the first `k` positions of `nums` while leaving `nums[k..n-1]` untouched.
+2. When `k == 1`, the arrangement is fully determined, so snapshot `nums[:]` into `result`.
+3. Otherwise run `k` rounds: each round recurses with `generate(k - 1)`, then performs exactly one swap to move a fresh element into position `k - 1` before the next round. No swap follows the final round.
+4. The swap is parity-dependent: when `k` is even, swap `nums[i]` (the loop index) with `nums[k - 1]`; when `k` is odd, always swap `nums[0]` with `nums[k - 1]`.
+
+The parity rule is the subtle heart of the algorithm. The recursive calls leave the first `k - 1` elements rearranged in a way that depends on whether `k - 1` is even or odd, and the two swap choices are calibrated to that behavior: an inductive argument shows each choice moves an element that has not yet occupied position `k - 1` into that slot, so every element takes the last position exactly once across the `k` rounds. On `nums = [1,2,3]` the emission order is `[1,2,3]`, `[2,1,3]`, `[3,1,2]`, `[1,3,2]`, `[2,3,1]`, `[3,2,1]`; note that every adjacent pair differs by exactly one transposition.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n! × n)`
+
+There are `n!` permutations, and snapshotting each `n`-element arrangement costs `O(n)`. The generation machinery itself is cheaper than that: only one swap separates consecutive permutations, so the swap work amortizes to `O(1)` per permutation, and the total is dominated by the mandatory copy at each leaf.
+
+##### Space Complexity: `O(n)`
+
+The recursion depth is `n`, and the algorithm permutes `nums` in place with no auxiliary tracking structures. Output space is not counted.
+
+#### Key Insights
+
+- Heap's algorithm is a minimal-change enumeration: consecutive outputs differ by a single transposition, the permutation analogue of a Gray code, which is why the generation work amortizes to `O(1)` swaps per permutation.
+- That property makes it a systems and CS-classics tool more than an interview answer: it shines when a consumer can update its state incrementally after one swap (re-evaluating a cost function over the arrangement, exhaustive testing over orderings) instead of materializing every output. Sedgewick's classic survey of permutation generation methods singled it out as among the most efficient. In an interview, backtracking is the expected demonstration.
+- Its emission order differs from the backtracking approaches' order, and that is fine here: the problem accepts any order, and the practice tests canonicalize by sorting the outer list of permutations before comparing.
+- Like the index-swapping approach, it mutates the input array, and it does not restore the original order when it finishes.
+
 ### Built-in itertools.permutations
 
 ```python
@@ -313,6 +367,7 @@ The returned list stores all `n!` permutations of length `n`. The generator itse
 - **Backtracking with Used Array**: `O(n! × n)` - same leaf count and copy cost, with the membership scan replaced by an `O(1)` lookup.
 - **Backtracking with Index Swapping**: `O(n! × n)` - `n!` arrangements, each `O(n)` to copy.
 - **Iterative Build-Up**: `O(n! × n)` - each round inserts the next number into every existing permutation, dominated by the final `O(n! × n)` term.
+- **Heap's Algorithm**: `O(n! × n)` - one swap per new permutation amortizes to `O(1)` generation work; the `O(n)` snapshot per output dominates.
 - **Built-in itertools.permutations**: `O(n! × n)` - same theoretical bound with optimized C constant factors.
 
 ### Space Complexity
@@ -321,6 +376,7 @@ The returned list stores all `n!` permutations of length `n`. The generator itse
 - **Backtracking with Used Array**: `O(n)` - recursion stack, `path`, and `used` array.
 - **Backtracking with Index Swapping**: `O(n)` - recursion stack only, with no auxiliary tracking.
 - **Iterative Build-Up**: `O(n! × n)` - holds every intermediate generation of permutations in full.
+- **Heap's Algorithm**: `O(n)` - recursion stack only; permutations are generated in place with no auxiliary tracking.
 - **Built-in itertools.permutations**: `O(n! × n)` - for storing the result; the generator uses `O(n)` internal state.
 
 ### Trade-offs
@@ -329,6 +385,7 @@ The returned list stores all `n!` permutations of length `n`. The generator itse
 - **Backtracking with Used Array**: Removes the membership scan with an `O(1)` lookup, adding one small auxiliary array.
 - **Backtracking with Index Swapping**: The most space-frugal variant, but it mutates the input and is the least intuitive to read.
 - **Iterative Build-Up**: Recursion-free and easy to reason about, but it holds every intermediate generation in memory.
+- **Heap's Algorithm**: Minimal-change generation with a single swap between consecutive permutations, but the parity rule is opaque, it mutates the input, and the emission order is unintuitive.
 - **Built-in itertools.permutations**: Concise and fast, but hides the algorithm and is unsuitable for interviews.
 
 ### When to Use Each
@@ -337,6 +394,7 @@ The returned list stores all `n!` permutations of length `n`. The generator itse
 - **Backtracking with Used Array**: When you want the same clarity with a better constant factor, or anticipate generalizing to duplicate values.
 - **Backtracking with Index Swapping**: When space is at a premium and mutating the input array is acceptable.
 - **Iterative Build-Up**: When a non-recursive construction is preferred and the extra intermediate memory is acceptable.
+- **Heap's Algorithm**: When consecutive permutations should differ minimally, such as incrementally re-evaluating a function of the arrangement after each swap; it is a CS classic rather than an expected interview answer.
 - **Built-in itertools.permutations**: For production code where performance and conciseness matter more than demonstrating algorithmic knowledge.
 
 ### Optimization Notes
@@ -344,4 +402,5 @@ The returned list stores all `n!` permutations of length `n`. The generator itse
 - Since every approach shares the `O(n! × n)` time floor, optimization here is about space and clarity rather than asymptotic speed.
 - The path-building membership scan is the one avoidable cost: swapping it for an indexed `used` array turns an `O(n)` check into `O(1)`.
 - When mutating the input is acceptable, the index-swapping approach removes the per-call `path` allocation entirely.
+- Heap's algorithm pushes generation cost to its floor, one swap per permutation, but the mandatory `O(n)` copy per output means the overall `O(n! × n)` bound does not budge.
 - A key pitfall across the backtracking variants is appending the live working list instead of a copy; always append `path[:]` or `current[:]` so later mutations do not corrupt stored results.

@@ -293,6 +293,119 @@ total storage is linear in the number of elements.
 - Pushing and popping both stacks together is what guarantees alignment; the two
   stacks always have identical heights.
 
+### Single Stack with Encoded Minimum
+
+```python
+class MinStack:
+
+    def __init__(self):
+        self.stack: list[int] = []
+        self.min: int = 0
+
+    def push(self, val: int) -> None:
+        if not self.stack:
+            self.stack.append(val)
+            self.min = val
+        elif val < self.min:
+            # New minimum: store an encoded marker instead of the value.
+            # Since val < min, 2*val - min = val + (val - min) < val, so the
+            # stored entry is strictly below the new minimum (val). That is
+            # what lets pop and top recognize it as encoded later.
+            self.stack.append(2 * val - self.min)
+            self.min = val
+        else:
+            self.stack.append(val)
+
+    def pop(self) -> None:
+        popped = self.stack.pop()
+        if popped < self.min:
+            # Encoded entry: the minimum changed at this element, so restore
+            # the previous minimum. With popped = 2*val - old_min and
+            # min = val, 2*min - popped = 2*val - 2*val + old_min = old_min.
+            self.min = 2 * self.min - popped
+
+    def top(self) -> int:
+        value = self.stack[-1]
+        # An encoded entry always represents the current minimum itself.
+        return self.min if value < self.min else value
+
+    def getMin(self) -> int:
+        return self.min
+
+
+# Your MinStack object will be instantiated and used as such:
+# obj = MinStack()
+# obj.push(val)
+# obj.pop()
+# param_3 = obj.top()
+# param_4 = obj.getMin()
+```
+
+#### Approach
+
+Both cached approaches above store an extra integer for every pushed element.
+This variant keeps a single stack of plain integers plus one minimum variable,
+and encodes the history of the minimum directly into the stored numbers, so the
+only overhead beyond the values themselves is that one variable.
+
+1. Keep one stack and a `min` variable holding the current minimum.
+2. On `push`, if the value is at least the current minimum, store it as is. If
+   it is a new minimum, store the encoded value `2 * val - min` instead and set
+   `min = val`. Because `val < min`, the encoded number equals
+   `val + (val - min)`, which is strictly less than `val`: every encoded entry
+   sits strictly below the minimum that was current when it was pushed.
+3. On `pop`, compare the removed entry against `min`. A value below `min` can
+   only be an encoded "the minimum changed here" marker, so undo that change by
+   decoding the previous minimum: `2 * min - popped` expands to
+   `2 * val - (2 * val - old_min) = old_min`. A value at or above `min` is a
+   plain entry and leaves the minimum untouched.
+4. `top` applies the same test: a top entry below `min` is encoded, and the
+   real value it represents is the current minimum itself; otherwise the entry
+   is the value. `getMin` just returns the variable.
+
+The invariant that makes this work is that no plain entry is ever below the
+current minimum, so "stored entry is less than `min`" is an unambiguous signal
+that the entry encodes a minimum change. Note that equal values are stored
+plainly (the test is a strict `<`), so repeated minima pop off without
+disturbing `min` until the entry that actually changed it is removed.
+
+One honest caveat: in Python this is fully correct because integers have
+arbitrary precision, so `2 * val - min` can never overflow. In fixed-width
+languages the doubling can exceed the integer range (with `val` near the 32-bit
+limits, `2 * val - min` needs a 64-bit type), so the trick demands a wider type
+or careful bounds analysis. That fragility is why the pairs and two-stack
+approaches are usually preferred in interviews unless the space follow-up is
+asked explicitly.
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(1)` per operation
+
+- `push`: one comparison and at most one multiply-subtract before a single
+  append.
+- `pop`: one list pop plus a constant-time decode when the entry was encoded.
+- `top`: one index lookup and one comparison.
+- `getMin`: returns the stored variable directly.
+
+##### Space Complexity: `O(n)`
+
+The single stack holds exactly one integer per pushed element, and the only
+auxiliary state is the one `min` variable: `O(1)` extra beyond the values. The
+pairs and two-stack versions store up to `2n` integers for the same contents.
+
+#### Key Insights
+
+- The encoding is sentinel-free: no flag, tuple, or second container marks
+  where the minimum changed. The ordering invariant itself (encoded entries are
+  strictly below the current minimum) carries that information.
+- It halves the constant factor on space: `n` stored numbers plus one variable,
+  versus up to `2n` for the pairs and two-stack versions, while keeping every
+  operation `O(1)`.
+- The trick is not fully portable: `2 * val - min` relies on arithmetic that
+  cannot overflow. Python grants that for free; C, C++, and Java require a
+  wider intermediate type, which is why this is a follow-up answer rather than
+  a default interview answer.
+
 ## Comparison of Solutions
 
 ### Time Complexity
@@ -302,6 +415,8 @@ total storage is linear in the number of elements.
 - **Single Stack of Pairs**: `O(1)` per operation - one tuple append, pop, or
   index lookup.
 - **Two Stacks**: `O(1)` per operation - one append or pop on each of two stacks.
+- **Single Stack with Encoded Minimum**: `O(1)` per operation - one append or
+  pop plus a constant amount of encode/decode arithmetic.
 
 ### Space Complexity
 
@@ -309,6 +424,8 @@ total storage is linear in the number of elements.
 - **Single Stack of Pairs**: `O(n)` - each element stores its value and the
   cached minimum together.
 - **Two Stacks**: `O(n)` - the parallel minimum stack adds one integer per push.
+- **Single Stack with Encoded Minimum**: `O(n)` - one integer per element plus
+  a single minimum variable, so only `O(1)` extra beyond the values themselves.
 
 ### Trade-offs
 
@@ -321,6 +438,10 @@ total storage is linear in the number of elements.
   one list.
 - The two-stack version keeps each container holding plain integers, which some
   find easier to read, at the cost of maintaining two lists in lockstep.
+- The encoded variant is the leanest on memory (no second number per element),
+  but the stored entries are no longer the raw values, so inspecting the stack
+  requires decoding, and in fixed-width languages the arithmetic risks
+  overflow.
 
 ### When to Use Each
 
@@ -330,6 +451,10 @@ total storage is linear in the number of elements.
   comfortable unpacking tuples.
 - **Two Stacks**: When you prefer to keep values and minimums conceptually
   separate, or when an interviewer asks for the classic two-stack formulation.
+- **Single Stack with Encoded Minimum**: When memory is at a premium, or as the
+  answer to the follow-up "can you do it with `O(1)` extra space beyond the
+  values?"; otherwise prefer the pairs or two-stack versions, which have no
+  overflow caveat.
 
 ### Optimization Notes
 
@@ -339,3 +464,7 @@ total storage is linear in the number of elements.
 - A further memory optimization stores only minimums that actually change (a
   monotonic minimum stack), shrinking the auxiliary stack when many pushes share
   the same minimum, at the cost of slightly more bookkeeping on pop.
+- The encoded variant takes that idea to its limit: it records minimum changes
+  in-place with arithmetic instead of extra storage, leaving exactly one number
+  per element plus one variable. The cost is that the arithmetic must not
+  overflow, which Python guarantees and fixed-width languages do not.
