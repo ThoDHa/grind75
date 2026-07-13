@@ -42,12 +42,32 @@ in-degree, amortized, and the rest) in one place for quick lookup.
    - Open the linked **Pattern** guide. This is where the *why* lives.
    - Try to solve it yourself in the [`practice/`](https://github.com/ThoDHa/grind75/tree/main/practice)
      workspace before reading the solutions.
-   - Read the solutions, starting with the **Brute Force** (it is always first
-     and always the most direct), then work down the ladder to the faster
-     approaches.
+   - Read the solutions, starting with the first one listed. It is always the
+     most direct baseline you could have reached yourself, usually a brute
+     force, even when the page names it something more specific (Linear Scan,
+     Simulation, Stack). Then work down the ladder to the faster approaches.
 4. By the time you have seen 25 to 30 problems, most patterns will start to
    repeat. That repetition is the goal: patterns, not memorized solutions, are
    what let you solve problems you have never seen.
+
+## Practicing in this repo
+
+The [`practice/`](https://github.com/ThoDHa/grind75/tree/main/practice)
+workspace is a ready-made pytest harness. One-time setup: `cd practice`, then
+`uv sync`. After that, for any problem:
+
+- `uv run pytest <slug>/ -m simple` is the equivalent of LeetCode's **Run**:
+  just the example cases, for quick feedback while you iterate.
+- `uv run pytest <slug>/ -m full` is the equivalent of **Submit**: the
+  examples plus a comprehensive edge-case gauntlet.
+
+An unsolved stub raises `NotSolved`, so its tests **skip** rather than fail. A
+fresh checkout shows everything skipped, which is expected. Each `solution.py`
+also has a `__main__` debug playground: set `CASE` to a case id near the
+bottom of the file, then run the file directly
+(`uv run python <slug>/solution.py`) to print the input, expected, and actual
+values. The [practice README](https://github.com/ThoDHa/grind75/blob/main/practice/README.md)
+walks through the full workflow.
 
 The point is not to finish fast. It is to build the mental models that make the
 next problem easier than the last.

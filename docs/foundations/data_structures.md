@@ -19,6 +19,15 @@ value: [ 7 ][ 3 ][ 9 ][ 2 ][ 5 ]
 - **Inserting or removing in the middle**: `O(n)`, because everything after it
   has to shift over.
 
+A few Python-specific costs worth memorizing:
+
+- `list.append` is amortized `O(1)`, so growing a list at the end is cheap.
+- `list.pop(0)` is `O(n)`, because every remaining element shifts left. When
+  you need to remove from the front, use `collections.deque` instead.
+- Building a string with repeated `+` in a loop is `O(n²)`, because strings
+  are immutable and each `+` copies everything built so far. Collect the
+  pieces in a list and finish with `"".join(parts)`.
+
 Arrays are the default container and the backbone of the
 [two pointers](../patterns/two_pointers/intuition.md),
 [sliding window](../patterns/sliding_window/intuition.md), and
@@ -158,6 +167,46 @@ without keeping everything fully sorted.
 
 See the [Heap pattern](../patterns/heap/intuition.md).
 
+## Trie (prefix tree)
+
+A tree with one node per character, where each path from the root spells out a
+prefix. Words that share a prefix share those nodes.
+
+```text
+        (root)
+        /    \
+       c      t
+       |      |
+       a      o
+      / \
+     r   t        stores: "car", "cat", "to"
+```
+
+- **Inserting or looking up a word of length `L`**: `O(L)`, one step per
+  character, no matter how many words are stored.
+- Shines when many words share prefixes, and for prefix queries such as
+  "every word starting with `ca`".
+
+See the [Trie pattern](../patterns/trie/intuition.md).
+
+## Union-find (disjoint set)
+
+A structure that keeps items grouped into sets and merges groups as new
+connections appear.
+
+```text
+{0, 1, 2}   {3, 4}   {5}        after union(2, 3):
+                                {0, 1, 2, 3, 4}   {5}
+```
+
+- **`find(x)`** answers "which group is `x` in?", and **`union(x, y)`**
+  merges two groups. Both are near-`O(1)` amortized with two standard tricks:
+  path compression and union by rank.
+- The tool for dynamic connectivity and grouping: counting connected
+  components, detecting cycles, merging accounts as shared items appear.
+
+See the [Union-Find pattern](../patterns/union_find/intuition.md).
+
 ## Choosing the right one
 
 A quick decision guide:
@@ -171,6 +220,8 @@ A quick decision guide:
 | Cheaply splice items in and out of a sequence | Linked list |
 | Model hierarchy (parents and children) | Tree |
 | Model arbitrary connections (networks, dependencies) | Graph |
+| Prefix or whole-word lookups over many words | Trie |
+| Merge groups as connections appear | Union-find |
 
 Recognizing which structure a problem wants is a skill that grows with
 practice. The [pattern guides](../patterns/index.md) connect each structure to

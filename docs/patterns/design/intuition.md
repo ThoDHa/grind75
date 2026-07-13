@@ -36,7 +36,7 @@ Each primitive has a fixed set of operations it does cheaply:
 
 Read the contract, then for each operation ask: *which primitive does this cheaply?* When no single primitive covers every operation, **combine two so the strengths overlap and the weaknesses cancel**.
 
-The second, equally important half of the insight: **every operation must preserve the invariants that tie those structures together.** If a hash map and a linked list both describe the same data, then any mutation must update *both*, or the structures drift apart and later operations return wrong answers. The design is correct only as long as its invariants hold after *every* mutating call.
+The second, equally important half of the insight: **every operation must preserve the [invariants](../../foundations/glossary.md) that tie those structures together.** If a hash map and a linked list both describe the same data, then any mutation must update *both*, or the structures drift apart and later operations return wrong answers. The design is correct only as long as its invariants hold after *every* mutating call.
 
 ---
 

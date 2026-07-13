@@ -26,8 +26,10 @@ Find the most obvious, direct solution, even if it is slow. Try every pair, try
 every path, simulate the process literally. This matters for three reasons: it
 proves you understand the problem, it gives you a correct answer to check faster
 solutions against, and it often reveals the wasted work that the fast solution
-will eliminate. On every problem page in this guide, the **Brute Force** is
-deliberately the first solution for exactly this reason.
+will eliminate. On every problem page in this guide, the first solution listed
+is deliberately the most direct baseline for exactly this reason: usually a
+brute force, sometimes named more specifically (Linear Scan, Simulation,
+Stack). Either way, it is always worth reading first.
 
 ### 4. Find the wasted work
 
@@ -75,6 +77,12 @@ When you see these clues in a problem, think of the matching pattern:
 | "Generate all combinations / permutations / subsets" | [Backtracking](../patterns/backtracking_exploration/intuition.md) |
 | "Number of ways", "minimum cost", overlapping subproblems | [Dynamic Programming](../patterns/dp_1d_linear/intuition.md) |
 | "The k largest / smallest", a running median, merging sorted streams | [Heap](../patterns/heap/intuition.md) |
+| Overlapping ranges, merging or inserting them | [Intervals](../patterns/interval/intuition.md) |
+| Taking the best local choice, scheduling and covering | [Greedy](../patterns/greedy_core/intuition.md) |
+| Next greater or smaller element, spans and ranges | [Monotonic Stack](../patterns/monotonic_stack/intuition.md) |
+| Cycle detection, finding the middle, reversing a chain | [Linked List](../patterns/linked_list_in_place_reversal/intuition.md) |
+| A dictionary of words, prefix queries | [Trie](../patterns/trie/intuition.md) |
+| Grouping items as connections appear, connected components | [Union-Find](../patterns/union_find/intuition.md) |
 
 ## When you are stuck
 

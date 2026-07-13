@@ -48,7 +48,7 @@ Long chain:             After find(4):
     4
 ```
 
-**Path compression makes subsequent finds O(1).**
+**Path compression makes subsequent finds O(1) [amortized](../../foundations/glossary.md).**
 
 ```python
 def find(x):
