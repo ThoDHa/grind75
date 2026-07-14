@@ -48,23 +48,30 @@ Finding "apt":
 Think of how your phone suggests words:
 
 ```
-You type: "m" → [mobile, money, monitor]
-You type: "mo" → [mobile, money, monitor]
+Words: "money", "monitor", "mouse", "mousepad"
+
+You type: "m"   → [money, monitor, mouse, mousepad]
+You type: "mon" → [money, monitor]
 You type: "mou" → [mouse, mousepad]
 
 The Trie naturally groups words by prefix:
 
       m
-     /|\
-    o i a
-   /|  |  \
-  n u  c   t...
- /|  |  |
-e i  s  r...
-|  \  |
-y   t e
-|    \
-pot   pad
+      |
+      o
+     / \
+    n   u
+   / \   \
+  e   i   s
+  |   |   |
+  y   t   e(end)
+(end) |   |
+      o   p
+      |   |
+      r   a
+   (end)  |
+          d
+       (end)
 ```
 
 Each node in the trie represents a "state" in typing - where you are after typing certain characters.
@@ -241,6 +248,7 @@ if not next_node.children and not next_node.word:
 
 ### Level 4: Combination
 5. **LC 212 - Word Search II** (Trie + Backtracking)
+6. **LC 139 - Word Break** (DP problem with a trie-accelerated variant: walk the trie from each start index to enumerate dictionary prefixes)
 
 ---
 

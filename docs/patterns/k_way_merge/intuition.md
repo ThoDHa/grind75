@@ -178,11 +178,19 @@ for i, arr in enumerate(arrays):
 ```python
 # WRONG: O(NK) - too slow
 result = lists[0]
-for list in lists[1:]:
-    result = merge(result, list)
+for lst in lists[1:]:
+    result = merge(result, lst)
 
 # RIGHT: Use heap O(N log K) or divide-and-conquer O(N log K)
 ```
+
+## Practice Progression
+
+Build the merge instinct in order of increasing K:
+
+1. **Merge Two Sorted Lists (LC 21)**: the K=2 case. A pure two-pointer merge, no heap needed.
+2. **Merge Sorted Array (LC 88)**: still K=2, but in-place. Practice the backward merge trick above.
+3. **Merge K Sorted Lists (LC 23)**: the general case. A min-heap of the K heads, or divide-and-conquer built from pairwise two-pointer merges.
 
 ## Visual Summary
 

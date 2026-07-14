@@ -87,6 +87,7 @@ Computing height:
 (h=0) 4
 
 height(node) = 1 + max(height(left), height(right))
+height(None) = -1    ← base case for this edge-count convention (leaf h=0)
 ```
 
 **Key insight**: Most tree properties follow this pattern:
@@ -230,9 +231,11 @@ def height(node):
 
 # CORRECT: Handle None
 def height(node):
-    if not node: return 0  # or return -1 depending on definition
+    if not node: return -1  # edge-count convention (leaf has height 0)
     return 1 + max(height(node.left), height(node.right))
 ```
+
+Two conventions exist for the base case: `return -1` counts edges (a leaf has height 0, matching the height diagram earlier in this guide), while `return 0` counts nodes (a leaf has height 1). Both are valid. Pick one, and make sure your base case matches the convention the problem expects.
 
 ### Pitfall 3: Not handling negative values in path sum
 
@@ -275,21 +278,28 @@ def traverse_iterative(root):
 1. **LC 94 - Binary Tree Inorder Traversal**: Core DFS pattern
 2. **LC 102 - Binary Tree Level Order Traversal**: Core BFS pattern
 3. **LC 104 - Maximum Depth of Binary Tree**: Basic recursion
+4. **LC 226 - Invert Binary Tree**: Simplest structural recursion (swap children at every node)
 
 ### Level 2: Property Computation
-4. **LC 110 - Balanced Binary Tree**: Early termination pattern
-5. **LC 100 - Same Tree**: Parallel recursion
-6. **LC 101 - Symmetric Tree**: Mirror comparison
+5. **LC 110 - Balanced Binary Tree**: Early termination pattern
+6. **LC 100 - Same Tree**: Parallel recursion
+7. **LC 101 - Symmetric Tree**: Mirror comparison
+8. **LC 98 - Validate Binary Search Tree**: Pass min/max bounds down the tree
 
-### Level 3: Path Problems
-7. **LC 543 - Diameter of Binary Tree**: Return vs update pattern
-8. **LC 124 - Binary Tree Maximum Path Sum**: Complex path tracking
-9. **LC 112 - Path Sum**: Root-to-leaf paths
+### Level 3: BST Order and Level Views
+9. **LC 235 - Lowest Common Ancestor of a BST**: Use BST ordering to walk toward the split point
+10. **LC 230 - Kth Smallest Element in a BST**: Inorder traversal visits BST values in sorted order
+11. **LC 199 - Binary Tree Right Side View**: BFS batching, keep the last node of each level
 
-### Level 4: Advanced Applications
-10. **LC 236 - LCA of Binary Tree**: Ancestor finding
-11. **LC 297 - Serialize/Deserialize Binary Tree**: Tree encoding
-12. **LC 105 - Construct from Preorder/Inorder**: Tree building
+### Level 4: Path Problems
+12. **LC 543 - Diameter of Binary Tree**: Return vs update pattern
+13. **LC 124 - Binary Tree Maximum Path Sum**: Complex path tracking
+14. **LC 112 - Path Sum**: Root-to-leaf paths
+
+### Level 5: Advanced Applications
+15. **LC 236 - LCA of Binary Tree**: Ancestor finding
+16. **LC 297 - Serialize/Deserialize Binary Tree**: Tree encoding
+17. **LC 105 - Construct from Preorder/Inorder**: Tree building
 
 ---
 

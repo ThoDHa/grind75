@@ -12,9 +12,9 @@ This is the essence of **Greedy Core**: make the locally best choice, and trust 
 
 ---
 
-## Three Mental Models
+## Four Mental Models
 
-Greedy Core problems fall into three distinct patterns, each with its own mental model:
+Greedy Core problems fall into four distinct patterns, each with its own mental model:
 
 ### 1. The Farthest Reach (Reachability)
 
@@ -26,12 +26,11 @@ Greedy Core problems fall into three distinct patterns, each with its own mental
 
 **Visual**:
 ```
-Positions:  0   1   2   3   4   5
+Positions:  0   1   2   3   4
 Jumps:     [2,  3,  1,  1,  4]
-Reach:      ────►──────►────────►
-            From 0, can reach 2
-                From 1, can reach 4
-                    From anywhere ≤4, can reach 5 ✓
+Reach:      ────►──────►
+            From 0, can reach index 2
+                From 1, can reach index 4 (the goal) ✓
 ```
 
 ### 2. The Balance Sheet (Prefix Min/Reset)
@@ -78,6 +77,26 @@ Match: greed=1 ← cookie=1 ✓
 Result: 2 children satisfied
 ```
 
+### 4. The Slot Filler (Frequency First)
+
+**Mental Model**: You're scheduling chores with a cooldown rule: after doing a chore, you must wait n turns before doing it again. The chore you have the *most* of is the bottleneck, so lay its occurrences out first, spaced exactly n apart, then fill the idle slots between them with everything else.
+
+**Key Insight**: The most frequent item dictates the minimum schedule length. Everything else either fits into the gaps for free, or overflows them, in which case there is no idle time at all and the answer is just the total count. This is Task Scheduler (LC 621).
+
+**When to Use**: Scheduling with cooldowns, arranging items so identical ones stay at least n apart.
+
+**Visual**:
+```
+Tasks: A A A B B, cooldown n = 2
+
+Frame with the most frequent (A):
+  A _ _ A _ _ A
+Fill the slots with the rest:
+  A B _ A B _ A
+
+Length = (3 - 1) × (2 + 1) + 1 = 7
+```
+
 ---
 
 ## Pattern Recognition Signals
@@ -101,6 +120,12 @@ When you see these phrases, think **Greedy Core**:
 > *"Distribute people to minimize cost"*
 
 **Action**: Sort by the key metric, then greedily match.
+
+### Signal: "Cooldown" or "Same items must be n apart"
+> *"Wait n intervals before repeating a task"*
+> *"Rearrange so identical elements are not adjacent"*
+
+**Action**: Count frequencies; schedule the most frequent first, fill the slots.
 
 ### Signal: "Neighbors must satisfy..." (bidirectional)
 > *"Higher-rated neighbors must have more"*
@@ -152,22 +177,29 @@ If all three are "yes," greedy works.
 
 ## Common Pitfalls
 
-### Pitfall 1: Forgetting Early Exit
-**Problem**: Continuing to iterate when the answer is already determined.
+### Pitfall 1: Skipping the Reachability Check
+**Problem**: Tracking `farthest` without ever asking whether index `i` is reachable at all. The naive loop below has two defects: it is **wrong** (on `[1, 0, 5]` it counts the jump from index 2, a position you can never stand on, and returns True), and it is **slow** (it keeps scanning after the answer is already determined).
 ```python
-# Bad: Always scans entire array
-for i in range(len(nums)):
-    farthest = max(farthest, i + nums[i])
-return farthest >= len(nums) - 1
+# Bad: wrong AND slow (no reachability check, no early exit)
+def can_jump_naive(nums):
+    farthest = 0
+    for i in range(len(nums)):
+        farthest = max(farthest, i + nums[i])
+    return farthest >= len(nums) - 1
+# can_jump_naive([1, 0, 5]) returns True, but the real answer is False!
 
-# Good: Exit early when goal is reached
-for i in range(len(nums)):
-    if i > farthest:
-        return False
-    farthest = max(farthest, i + nums[i])
-    if farthest >= len(nums) - 1:
-        return True  # Early exit!
+# Good: check reachability first, exit as soon as the goal is in range
+def can_jump(nums):
+    farthest = 0
+    for i in range(len(nums)):
+        if i > farthest:
+            return False  # Index i is unreachable: stuck before the goal
+        farthest = max(farthest, i + nums[i])
+        if farthest >= len(nums) - 1:
+            return True  # Early exit!
+    return False
 ```
+The `i > farthest` check is what makes the algorithm correct; the early exit is what makes it stop scanning past a determined answer.
 
 ### Pitfall 2: Off-by-One in Jump Counting
 **Problem**: Counting a jump at the wrong position.
@@ -201,7 +233,8 @@ Master Greedy Core through this sequence:
 3. **LC 455** (Assign Cookies): Simple sort + match
 4. **LC 1029** (Two City Scheduling): Sort by derived metric
 5. **LC 134** (Gas Station): Reset logic with feasibility
-6. **LC 135** (Candy): Two-pass bidirectional constraints
+6. **LC 621** (Task Scheduler): Frequency-first slot filling with cooldown
+7. **LC 135** (Candy): Two-pass bidirectional constraints
 
 ---
 
@@ -211,9 +244,10 @@ Greedy Core is about **confidence in local decisions**.
 
 Unlike DP, which hedges by considering all possibilities, greedy commits fully to the current best choice. This works when the problem has structure that guarantees local optimality implies global optimality.
 
-The three kernels (reachability, reset, and sort+match) are different manifestations of this principle:
+The four kernels (reachability, reset, sort+match, and slot-fill) are different manifestations of this principle:
 - **Reachability**: "Extend as far as possible; the path will work itself out."
 - **Reset**: "If this start fails, everything before it fails too; try fresh."
 - **Sort+Match**: "Handle the easiest cases first; they won't interfere with harder ones."
+- **Slot-Fill**: "Place the most constrained (most frequent) items first; the rest fall into the gaps."
 
 *"Trust the greedy choice. If it's the right pattern, it won't let you down."*

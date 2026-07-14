@@ -25,7 +25,7 @@ Multi-source BFS works exactly like this:
 
 For a problem like "find distance to nearest zero for each cell":
 
-```python
+```text
 # BAD: O(k * m * n) where k = number of zeros
 for each zero in grid:
     run BFS from this zero
@@ -36,7 +36,7 @@ This runs BFS once per source - expensive and redundant.
 
 ### The Multi-Source Insight
 
-```python
+```text
 # GOOD: O(m * n) regardless of source count
 add ALL zeros to queue at distance 0
 run ONE BFS expanding from all sources simultaneously
@@ -179,21 +179,28 @@ while queue:
 return levels - 1  # Not levels!
 ```
 
-### Mistake 4: Double-Counting Visits
+### Mistake 4: Marking Visited Too Late (Efficiency Bug)
+
+Checking visited after popping still produces correct answers: the first pop of a cell always carries its shortest distance, and later pops are skipped. But it lets the same cell be queued many times before its first pop, so the queue blows up and work gets duplicated.
 
 ```python
-# WRONG: Mark visited after popping
+# WORKS BUT WASTEFUL: Mark visited after popping
 while queue:
     cell = queue.popleft()
     if cell in visited:
         continue
-    visited.add(cell)  # Too late! May have added duplicates
+    visited.add(cell)  # Same cell may already sit in the queue many times
 
-# RIGHT: Mark visited before adding
+# BETTER: Mark visited before adding
 if neighbor not in visited:
     visited.add(neighbor)  # Mark immediately
     queue.append(neighbor)
 ```
+
+## Practice
+
+1. **Rotting Oranges (LC 994)**: the propagation timer variant. All rotten oranges enter the queue at minute 0; count levels until no fresh orange remains.
+2. **01 Matrix (LC 542)**: the distance field variant. All zeros enter the queue at distance 0; fill the matrix outward.
 
 ## Quick Pattern Recognition
 

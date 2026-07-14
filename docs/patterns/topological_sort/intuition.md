@@ -16,10 +16,10 @@ For a directed graph where edge A → B means "A must come before B":
 ## Mental Model 1: The Dependency Chain
 
 ```
-Prerequisites:         Valid Order:
-  0 → 1                [0, 2, 1, 3]
-  0 → 2                or [0, 1, 2, 3]
-  1 → 3                or [0, 2, 1, 3]
+Prerequisites:         Valid Orders:
+  0 → 1                [0, 1, 2, 3]
+  0 → 2                or [0, 2, 1, 3]
+  1 → 3                (the only two)
   2 → 3
 
 Think of it as: "What can I do with no blockers?"
@@ -52,6 +52,8 @@ Order: [0, 1, 2, 3] or [0, 2, 1, 3]
 - Track in-degree for each node
 - Process nodes with in-degree 0
 - Decrement neighbors' in-degrees
+
+This layer-peeling view is exactly how Minimum Height Trees (LC 310) is solved: repeatedly trim the current leaves (degree-1 nodes) of an undirected tree until only the 1-2 center nodes remain. The problem page also shows an alternative approach that finds the tree's diameter with two BFS passes and takes its midpoint(s).
 
 ---
 
@@ -193,7 +195,8 @@ return result[::-1]  # Don't forget to reverse!
 3. **LC 802 - Find Eventual Safe States** (Not in any cycle)
 
 ### Level 4: Advanced
-4. **LC 1203 - Sort Items by Groups** (Two-level topo sort)
+4. **LC 310 - Minimum Height Trees** (Peel leaf layers of an undirected tree until the center remains)
+5. **LC 1203 - Sort Items by Groups** (Two-level topo sort)
 
 ---
 

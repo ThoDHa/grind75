@@ -23,7 +23,7 @@ The key insight: **BFS naturally measures distance** (levels = steps from source
 ```
 Grid:
   1 1 0 0 1
-  1 1 0 0 1
+  1 1 0 0 0
   0 0 0 1 1
 
 Start DFS at (0,0) → marks entire island 1
@@ -222,7 +222,7 @@ def dfs_iterative(start_r, start_c):
 2. **LC 733 - Flood Fill**: Basic DFS on grid
 
 ### Level 2: BFS for Shortest Path
-3. **LC 994 - Rotting Oranges**: Multi-source BFS
+3. **LC 994 - Rotting Oranges**: Multi-source BFS (covered in depth in the multi-source BFS guide)
 4. **LC 1091 - Shortest Path in Binary Matrix**: BFS shortest path
 
 ### Level 3: Graph Structure
@@ -236,6 +236,10 @@ def dfs_iterative(start_r, start_c):
 ### Level 5: Path Existence
 9. **LC 1971 - Find if Path Exists in Graph**: Basic connectivity
 10. **LC 547 - Number of Provinces**: Connected components (adjacency matrix)
+
+### Level 6: Pattern Crossovers
+11. **LC 207 - Course Schedule**: DFS cycle detection over prerequisite edges (a cycle means the courses can't be finished)
+12. **LC 79 - Word Search**: DFS on a grid with backtracking (visited marks are undone as each path rewinds)
 
 ---
 

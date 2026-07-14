@@ -420,6 +420,8 @@ def permute(nums: list[int]) -> list[list[int]]:
     return results
 ```
 
+The permutations problem page also covers Heap's algorithm: minimal-swap generation that produces each permutation from the previous one with a single swap.
+
 ### 9.2 Permutations II: With Duplicates (LeetCode 47)
 
 **Shape**: Permutation with deduplication.
@@ -545,7 +547,41 @@ def combine(n: int, k: int) -> list[list[int]]:
     return results
 ```
 
-### 9.6 Combination Sum (LeetCode 39)
+### 9.6 Letter Combinations of a Phone Number (LeetCode 17)
+
+**Shape**: Fixed-depth enumeration: one independent choice per level (the cartesian product of each digit's letters).
+
+**Recognition**: "Return all letter combinations the digit string could represent."
+
+**What to track**: Current index into the digit string; no `used[]` needed because levels never share choices.
+
+**Time**: O(4^n × n): up to 4 letters per digit, O(n) to copy each combination.
+
+```python
+def letter_combinations(digits: str) -> list[str]:
+    if not digits:
+        return []
+    
+    mapping = {'2': 'abc', '3': 'def', '4': 'ghi', '5': 'jkl',
+               '6': 'mno', '7': 'pqrs', '8': 'tuv', '9': 'wxyz'}
+    results: list[str] = []
+    path: list[str] = []
+    
+    def backtrack(idx: int) -> None:
+        if idx == len(digits):
+            results.append(''.join(path))
+            return
+        
+        for letter in mapping[digits[idx]]:
+            path.append(letter)   # Choose
+            backtrack(idx + 1)    # Explore
+            path.pop()            # Unchoose
+    
+    backtrack(0)
+    return results
+```
+
+### 9.7 Combination Sum (LeetCode 39)
 
 **Shape**: Target sum with element reuse allowed.
 
@@ -576,7 +612,7 @@ def combination_sum(candidates: list[int], target: int) -> list[list[int]]:
     return results
 ```
 
-### 9.7 Combination Sum II (LeetCode 40)
+### 9.8 Combination Sum II (LeetCode 40)
 
 **Shape**: Target sum, no reuse, with duplicates.
 
@@ -607,7 +643,7 @@ def combination_sum2(candidates: list[int], target: int) -> list[list[int]]:
     return results
 ```
 
-### 9.8 Combination Sum III (LeetCode 216)
+### 9.9 Combination Sum III (LeetCode 216)
 
 **Shape**: Target sum with fixed count, bounded range [1-9].
 
@@ -640,7 +676,7 @@ def combination_sum3(k: int, n: int) -> list[list[int]]:
     return results
 ```
 
-### 9.9 N-Queens (LeetCode 51/52)
+### 9.10 N-Queens (LeetCode 51/52)
 
 **Shape**: Constraint satisfaction: place without conflict.
 
@@ -714,7 +750,7 @@ def total_n_queens(n: int) -> int:
     return count
 ```
 
-### 9.10 Palindrome Partitioning (LeetCode 131)
+### 9.11 Palindrome Partitioning (LeetCode 131)
 
 **Shape**: Segmentation: cut into valid pieces.
 
@@ -754,7 +790,7 @@ def partition(s: str) -> list[list[str]]:
     return results
 ```
 
-### 9.11 Restore IP Addresses (LeetCode 93)
+### 9.12 Restore IP Addresses (LeetCode 93)
 
 **Shape**: Segmentation with multiple constraints.
 
@@ -801,7 +837,7 @@ def restore_ip_addresses(s: str) -> list[str]:
     return results
 ```
 
-### 9.12 Word Search (LeetCode 79)
+### 9.13 Word Search (LeetCode 79)
 
 **Shape**: Grid path with visited tracking.
 

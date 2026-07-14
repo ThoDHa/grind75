@@ -66,6 +66,8 @@ class MinStack:
 
 The invariant: **`mins` always has the same length as `stack`, and `mins[i]` is the minimum of `stack[0..i]`.** Every push and pop touches both stacks, so the invariant never breaks. The min you need is always sitting at the top, already computed.
 
+The Min Stack problem page also covers a single-stack variant that encodes the minimum into the stored values themselves, achieving `getMin` in O(1) with only O(1) extra space.
+
 ---
 
 ## Mental Model 2: Hash Map + Doubly Linked List

@@ -196,7 +196,7 @@ Input: `tokens = ["2", "1", "+", "3", "*"]`, meaning `(2 + 1) * 3`.
 End: result is the lone value on the stack → 9
 ```
 
-Note the **pop order**: the first value popped is the right operand. For `+` and `*` it doesn't matter, but for `-` and `/` it does. With tokens `["5", "3", "-"]` you pop `3` then `5`, computing `5 - 3 = 4`, not `3 - 5`.
+Note the **pop order**: the first value popped is the right operand. For `+` and `*` it doesn't matter, but for `-` and `/` it does. With tokens `["5", "3", "-"]` you pop `3` then `5`, computing `5 - 3 = 2`, not `3 - 5`.
 
 ---
 

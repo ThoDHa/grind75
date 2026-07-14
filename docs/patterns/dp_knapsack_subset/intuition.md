@@ -72,6 +72,8 @@ for coin in coins:
 
 If you go backward, `dp[a - coin]` hasn't been updated yet, missing the reuse opportunity.
 
+If the direction rule feels fragile, the partition problem page also shows the top-down memoized twin of this recurrence, which sidesteps the iteration-direction trap entirely.
+
 ---
 
 ## The Three Goals

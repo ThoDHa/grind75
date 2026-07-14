@@ -176,11 +176,11 @@ The values propagate diagonally toward the corner, each one a sum of the two tha
 ## Common Pitfalls
 
 ### Pitfall 1: Wrong Base Cases for the First Row and Column
-**Problem**: The recurrence `dp[i-1][j] + dp[i][j-1]` reads out of bounds at the top edge and left edge.
+**Problem**: The recurrence `dp[i-1][j] + dp[i][j-1]` has no valid "above" or "left" at the top and left edges. Worse, in Python this does not even crash: `dp[-1]` silently wraps around to the **last** row, so row 0 gets quietly corrupted with garbage instead of raising an error.
 
 ```python
-# Wrong: the interior recurrence has no valid "above" on row 0
-dp[0][j] = dp[-1][j] + dp[0][j-1]   # ERROR: dp[-1] is invalid
+# Wrong: on row 0, dp[-1][j] wraps to the LAST row (silent corruption, no error)
+dp[0][j] = dp[-1][j] + dp[0][j-1]
 
 # Right: seed the boundary directly before the main loop
 for j in range(n): dp[0][j] = 1   # only rights
@@ -208,7 +208,7 @@ for i in range(m): dp[i][0] = 1   # only downs
 
 ## Practice Progression
 
-The canonical entry point in the Grind75 set is **Unique Paths**, which asks you to count the monotone lattice paths across a grid using right-and-down moves. It is the purest expression of the additive recurrence and the ideal place to build the table-filling instinct.
+The canonical entry point in the Grind75 set is **Unique Paths**, which asks you to count the monotone lattice paths across a grid using right-and-down moves. It is the purest expression of the additive recurrence and the ideal place to build the table-filling instinct. The Unique Paths problem page also covers the top-down memoized twin of the bottom-up fill, if recursion is the direction your intuition runs.
 
 From there, the same machinery extends naturally to optimization variants. **Minimum Path Sum** swaps the additive recurrence for a `min` over the two neighbors plus the current cell. **Edit Distance** generalizes the idea further: the grid is indexed by positions in two strings, and each cell combines its neighbors to express insertions, deletions, and substitutions. All three are the same skeleton, differing only in what each cell aggregates.
 

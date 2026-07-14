@@ -282,4 +282,14 @@ Where:
 
 ---
 
+## Practice Progression
+
+Two classics exercise the sub-patterns above:
+
+1. **Largest Rectangle in Histogram** (LC 84): Histogram Expansion in its purest form. Each bar's best rectangle is width × its own limiting height, with the width bounded by the nearest smaller bars on both sides found via the stack.
+
+2. **Trapping Rain Water** (LC 42): Container/Valley Resolution. The water above each position is bounded by the nearest greater wall on both sides; the decreasing stack resolves each valley layer by layer as taller walls arrive.
+
+---
+
 *The stack remembers what's waiting. The pop reveals what's found. The push adds what's hoping.*
