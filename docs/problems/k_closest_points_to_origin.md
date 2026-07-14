@@ -24,7 +24,7 @@ You may return the answer in any order. The answer is guaranteed to be unique (e
 **Explanation:** The distance between `(1, 3)` and the origin is `sqrt(10)`.
 The distance between `(-2, 2)` and the origin is `sqrt(8)`.
 Since `sqrt(8) < sqrt(10)`, `(-2, 2)` is closer to the origin.
-We only want the closest `k = 1` points from the origin, so the answer is just [[-2,2]].
+We only want the closest `k = 1` points from the origin, so the answer is just `[[-2,2]]`.
 
 ### Example 2
 
