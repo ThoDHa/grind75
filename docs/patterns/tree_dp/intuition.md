@@ -90,20 +90,27 @@ def dfs(node):
 So when we return information to the parent, we can only give **one branch**.
 
 ```python
-def dfs(node):
-    if not node:
-        return 0
+def max_path_sum(root):
+    global_max = float('-inf')
 
-    left = max(0, dfs(node.left))   # Ignore negative branches
-    right = max(0, dfs(node.right))
+    def dfs(node):
+        nonlocal global_max
+        if not node:
+            return 0
 
-    # Path THROUGH this node (potential answer)
-    path_through = node.val + left + right
-    global_max = max(global_max, path_through)
+        left = max(0, dfs(node.left))   # Ignore negative branches
+        right = max(0, dfs(node.right))
 
-    # Return: best single-branch contribution
-    # (parent can only use ONE direction)
-    return node.val + max(left, right)
+        # Path THROUGH this node (potential answer)
+        path_through = node.val + left + right
+        global_max = max(global_max, path_through)
+
+        # Return: best single-branch contribution
+        # (parent can only use ONE direction)
+        return node.val + max(left, right)
+
+    dfs(root)
+    return global_max
 ```
 
 **Visual**:
@@ -205,9 +212,15 @@ Parent_state = f(left_state, right_state, node_val)
        return dfs(root)  # What if root returns 0 (uncovered)?
 
 ✅ def cameras(root):
+       count = 0
+
+       def dfs(node):
+           nonlocal count
+           ...  # state transitions from Pattern 3; count += 1 when placing a camera
+
        if dfs(root) == 0:
-           cameras += 1  # Root needs a camera
-       return cameras
+           count += 1  # Root needs a camera
+       return count
 ```
 
 ## Visual Summary
@@ -238,5 +251,10 @@ Tree optimization problem?
 │                 └─ Coverage → Multi-state (3+)
 └─ No → Use BFS/DFS traversal
 ```
+
+## Practice Progression
+
+1. **LC 543 - Diameter of Binary Tree**: The gentlest introduction to the through-value vs return-value split: the answer may use both branches, but the parent only gets one
+2. **LC 124 - Binary Tree Maximum Path Sum**: Pattern 2 in full: clamp negative branches to zero, let the path through each node compete for the global max
 
 Tree DP is about **propagating optimal decisions upward**. Think bottom-up: what do leaves know? What do parents need? Let the states flow.

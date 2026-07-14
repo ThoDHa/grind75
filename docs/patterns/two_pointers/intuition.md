@@ -426,7 +426,7 @@ The magic: *No element is ever reconsidered.* This is the irreversibility that t
 └────────────────────────────────────────────────────────────────────────┘
 
 Key observations:
-• We never examined (2,11) or (7,11) or (7,15): they were eliminated!
+• We never examined (7,11) or (7,15) or (11,15): they were eliminated!
 • Each step provably excluded possibilities based on monotonicity.
 ```
 
@@ -440,32 +440,32 @@ Key observations:
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
 │  Initial: [1]  [1]  [2]  [2]  [2]  [3]                                 │
-│            W    R                                                      │
+│            W,R                                                         │
 │                                                                        │
 │  Step 0:  nums[R]=1, nums[W-1]=undefined → KEEP                        │
 │           write_index becomes 1                                        │
 │           [1]  [1]  [2]  [2]  [2]  [3]                                 │
-│                 W    R                                                 │
+│                 W,R                                                    │
 │                                                                        │
 │  Step 1:  nums[R]=1 == nums[W-1]=1 → SKIP                              │
 │           [1]  [1]  [2]  [2]  [2]  [3]                                 │
-│                 W         R                                            │
+│                 W    R                                                 │
 │                                                                        │
 │  Step 2:  nums[R]=2 != nums[W-1]=1 → KEEP                              │
 │           [1]  [2]  [2]  [2]  [2]  [3]                                 │
-│                      W         R                                       │
+│                      W    R                                            │
 │                                                                        │
 │  Step 3:  nums[R]=2 == nums[W-1]=2 → SKIP                              │
 │           [1]  [2]  [2]  [2]  [2]  [3]                                 │
-│                      W              R                                  │
+│                      W         R                                       │
 │                                                                        │
 │  Step 4:  nums[R]=2 == nums[W-1]=2 → SKIP                              │
 │           [1]  [2]  [2]  [2]  [2]  [3]                                 │
-│                      W                   R                             │
+│                      W              R                                  │
 │                                                                        │
 │  Step 5:  nums[R]=3 != nums[W-1]=2 → KEEP                              │
 │           [1]  [2]  [3]  [2]  [2]  [3]                                 │
-│                           W                   R (done)                 │
+│                           W              R (done)                      │
 │                                                                        │
 │  Result:  First 3 elements [1, 2, 3] are the unique values             │
 └────────────────────────────────────────────────────────────────────────┘
@@ -501,15 +501,6 @@ Invariant maintained throughout:
 │                                                                        │
 │  Step 3:  S=4 (moved 1)                                                │
 │           F=4 (moved 2: 5→3→4)  ← F wrapped around the cycle!          │
-│                                                                        │
-│  Step 4:  S=5 (moved 1)                                                │
-│           F=3 (moved 2: 4→5→3)                                         │
-│                                                                        │
-│  Step 5:  S=3 (moved 1: 5→3)                                           │
-│           F=5 (moved 2: 3→4→5)                                         │
-│                                                                        │
-│  Step 6:  S=4 (moved 1)                                                │
-│           F=4 (moved 2: 5→3→4)                                         │
 │                                                                        │
 │           S == F → CYCLE DETECTED!                                     │
 └────────────────────────────────────────────────────────────────────────┘
@@ -553,12 +544,12 @@ Why they MUST meet:
 │                      ↑ examine 1: =1 → M++                             │
 │                                                                        │
 │  Step 5:  [0]  [0]  [1]  [1]  [2]  [2]                                 │
-│                      L        M,H                                      │
+│                      L    M,H                                          │
 │                           ↑ examine 1: =1 → M++                        │
 │                                                                        │
 │  Step 6:  [0]  [0]  [1]  [1]  [2]  [2]                                 │
-│                      L            M (M > H, done!)                     │
-│                               H                                        │
+│                      L         M (M > H, done!)                        │
+│                           H                                            │
 │                                                                        │
 │  Result: [0, 0, 1, 1, 2, 2]: sorted in single pass!                    │
 └────────────────────────────────────────────────────────────────────────┘
@@ -722,6 +713,22 @@ When you swap `arr[mid]` with `arr[high]`, the new value at `mid` is unclassifie
 
 ---
 
+## Practice Progression
+
+Work through the shapes in order of increasing difficulty. Each problem exercises one shape until it feels inevitable.
+
+### Level 1: One Shape, Pure Form
+1. **LC 125 - Valid Palindrome**: Opposite Approach, closing the gap from both ends of a string
+2. **LC 876 - Middle of the Linked List**: Fast-Slow, using the speed differential to land on the midpoint
+3. **LC 141 - Linked List Cycle**: Fast-Slow, the tortoise and hare detecting a loop
+
+### Level 2: Decision Rules and Regions
+4. **LC 11 - Container With Most Water**: Opposite Approach, moving the shorter wall on an exclusion proof
+5. **LC 75 - Sort Colors**: Partitioning, the Dutch National Flag in a single pass
+6. **LC 15 - 3Sum**: Dedup Enumeration, pinning an anchor and sweeping with opposite pointers
+
+---
+
 ## The Two Pointers Mantra
 
 > **One invariant: the answer lies between.**  
@@ -731,7 +738,4 @@ When you swap `arr[mid]` with `arr[high]`, the new value at `mid` is unclassifie
 When you see sorted sequences and pair-finding, think of the sentinels. When you see in-place modification, think of the writer following the reader. When you see cycles, think of the tortoise and hare.
 
 The pattern is always the same: *coordinated movement, irreversible exclusion, linear time.*
-
----
-
 

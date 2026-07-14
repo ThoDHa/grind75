@@ -42,16 +42,29 @@ Answer: heap[0] = 3rd largest
 
 **Trigger phrases**: "most frequent", "k closest", "k largest"
 
-**Mental model**: Same as kth element, but return all k elements.
+**Mental model**: Same as kth element, but return all k elements. The critical choice is the **heap type**, and it's the *opposite* of the extreme you want (see Pitfall 2):
+
+- **k largest** → min-heap of size k. The root is the weakest VIP; anyone stronger replaces them.
+- **k smallest / k closest** → max-heap of size k. The root is the farthest keeper; anyone closer replaces them. Python's heapq is min-only, so negate values (see Pitfall 1).
 
 ```python
-# Pattern: min-heap of size k
+# k LARGEST: min-heap of size k
 for element in elements:
     if len(heap) < k:
-        push(element)
-    elif element > heap[0]:  # Better than worst VIP
-        replace(element)
-return heap  # All k elements
+        heapq.heappush(heap, element)
+    elif element > heap[0]:  # Stronger than the weakest VIP
+        heapq.heapreplace(heap, element)
+return heap  # The k largest
+```
+
+```python
+# k SMALLEST / k CLOSEST: max-heap of size k (negate values)
+for element in elements:
+    if len(heap) < k:
+        heapq.heappush(heap, -element)
+    elif element < -heap[0]:  # Closer than the farthest keeper
+        heapq.heapreplace(heap, -element)
+return [-x for x in heap]  # The k smallest
 ```
 
 ### Signal: "Streaming median" or "running median"
@@ -204,18 +217,19 @@ heap[2] = new_value  # Heap property violated!
 
 ### Level 2: Top-K Variations
 3. **LC 347 - Top K Frequent Elements**: Frequency + heap
-4. **LC 703 - Kth Largest Element in Stream**: Online top-k
+4. **LC 973 - K Closest Points to Origin**: Max-heap of size k (k smallest by distance)
+5. **LC 703 - Kth Largest Element in Stream**: Online top-k
 
 ### Level 3: Two-Heap Pattern
-5. **LC 295 - Find Median from Data Stream**: Two-heap median
+6. **LC 295 - Find Median from Data Stream**: Two-heap median
 
 ### Level 4: K-Way Merge
-6. **LC 23 - Merge K Sorted Lists**: Classic k-way merge
-7. **LC 373 - Find K Pairs with Smallest Sums**: Virtual k-way merge
+7. **LC 23 - Merge K Sorted Lists**: Classic k-way merge
+8. **LC 373 - Find K Pairs with Smallest Sums**: Virtual k-way merge
 
 ### Level 5: Interval/Scheduling
-8. **LC 253 - Meeting Rooms II**: Resource scheduling
-9. **LC 621 - Task Scheduler**: Greedy scheduling with cooldown
+9. **LC 253 - Meeting Rooms II**: Resource scheduling
+10. **LC 621 - Task Scheduler**: Greedy scheduling with cooldown
 
 ---
 

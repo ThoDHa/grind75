@@ -98,7 +98,7 @@ Walk down along right → right--     Walk up along left → left++
 
 **The decision rule**: Skip leading whitespace. Read at most one `+` or `-`. Read consecutive digits, accumulating the number. Stop at the first non-digit or the end of input. Clamp the result to the signed 32-bit range if it overflows.
 
-**Why it works**: Each phase is a state. The transition from phase to phase is strictly one-directional: once you've passed the sign, you never look for another. The accumulation and the clamping are the rules that live inside the digit phase.
+**Why it works**: Each phase is a state. The transition from phase to phase is strictly one-directional: once you've passed the sign, you never look for another. The accumulation and the clamping are the rules that live inside the digit phase. The String to Integer (atoi) problem page (LC 8) makes this literal with an explicit table-driven State Machine (DFA) approach: the states and transitions written out as a lookup table.
 
 ---
 
@@ -156,6 +156,8 @@ The critical guard: after shrinking a wall, re-check the loop condition *before*
 
 ```python
 def spiral_order(matrix):
+    if not matrix or not matrix[0]:
+        return []
     top, bottom = 0, len(matrix) - 1
     left, right = 0, len(matrix[0]) - 1
     result = []

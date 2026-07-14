@@ -1,6 +1,5 @@
 # Linked List In-Place Reversal: Building Intuition
 
-> **API Kernel**: `LinkedListInPlaceReversal`
 > **Core Insight**: Reverse direction by changing where arrows point, not by moving data.
 
 ---
@@ -237,6 +236,14 @@ before_segment.next = prev      # before → new head
 | Recursive Variants | O(N) | O(N) or O(N/k) | Call stack depth |
 
 The iterative versions are strictly O(1) space because we only use a fixed number of pointer variables, regardless of input size.
+
+---
+
+## Practice Progression
+
+1. **Reverse Linked List (LC 206)**: the full three-pointer dance on the whole list. Master this first.
+2. **Reverse Linked List II (LC 92)**: segment reversal. Add the dummy node and the bookmark reconnection.
+3. **Reverse Nodes in k-Group (LC 25)**: repeated segment reversal, with an availability check before each group.
 
 ---
 

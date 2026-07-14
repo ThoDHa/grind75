@@ -614,6 +614,18 @@ Python has arbitrary precision integers, so this isn't an issue, but it's a crit
 
 ---
 
+## Practice Progression
+
+Master binary search through this sequence:
+
+1. **LC 704** (Binary Search): Shape 2 exact match, the pure template on a sorted array
+2. **LC 278** (First Bad Version): Shape 1 boundary search, find the first True when the "array" is an API you can only query
+3. **LC 33** (Search in Rotated Sorted Array): Shape 3, identify the sorted half before eliminating
+4. **LC 981** (Time Based Key-Value Store): Shape 1 boundary search per key, the last timestamp ≤ the query time
+5. **LC 1235** (Maximum Profit in Job Scheduling): Shape 1 boundary search as a subroutine, find the latest non-overlapping job inside a DP
+
+---
+
 ## The Binary Search Mantra
 
 > **One invariant: the answer lies within.**

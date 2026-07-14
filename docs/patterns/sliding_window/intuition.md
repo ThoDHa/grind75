@@ -88,6 +88,7 @@ The window EXPANDS freely, CONTRACTS only when forced.
 
 #### Flowchart: Maximize Window
 
+```
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │  Example: Longest Substring Without Repeating Characters                    │
 │  Sequence: [ a  b  c  a  b ]    Promise: "All chars unique"                 │
@@ -277,12 +278,12 @@ Visual Trace:
                              L         R
 
   Step 6:                             🟢R→
-                           [ 2    4    3 ]  sum=9 ≥ 7  ✅ VALID!   ans = min(4, 3) = 3
+                           [ 2    4    3 ]  sum=9 ≥ 7  ✅ VALID!   ans = min(3, 3) = 3
                              L              R
                                        │
                                        ▼ 
                             🔴L→ 🔴L
-                                [ 4    3 ]  sum=7 ≥ 7  ✅ VALID!   ans = min(4, 2) = 2
+                                [ 4    3 ]  sum=7 ≥ 7  ✅ VALID!   ans = min(3, 2) = 2
                                   L         R
                                        │
                                        ▼
@@ -720,9 +721,10 @@ def min_window(s: str, t: str) -> str:
         - Main loop: O(|s|), each character enters and exits once
         - All dictionary operations: O(1) each
     
-    Space Complexity: O(|t|)
+    Space Complexity: O(unique(s) + unique(t)), i.e. O(|s| + |t|) worst case
         - need_count: O(unique chars in t)
-        - have_count: O(unique chars in t), we only track needed chars
+        - have_count: O(unique chars in s), every char entering the window
+          is counted, not just the needed ones
     
     Args:
         s: Source string to search in

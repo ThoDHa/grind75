@@ -135,19 +135,24 @@ prefix[i][j] = current cell
              - prefix[i-1][j-1]   ← subtract overlap (counted twice)
 ```
 
-Querying a rectangle:
-```
-         ┌─────────────────────────┐
-         │  A  │        B          │
-         ├─────┼──────────┬────────┤
-         │  C  │ ▒▒TARGET▒▒│   D    │
-         │     │ ▒▒▒▒▒▒▒▒▒│        │
-         └─────┴──────────┴────────┘
+Querying a rectangle: every term is a **prefix rectangle**, anchored at the grid's top-left corner (0,0). To sum the target spanning rows `r1..r2` and columns `c1..c2`:
 
-TARGET = Total - B - C + A
+```
+            col c1-1   col c2
+  (0,0) ┌──────────┬──────────┐
+        │          │          │     A = prefix[r1-1][c1-1]  rows 0..r1-1, cols 0..c1-1
+row r1-1│    A     │  B \ A   │     B = prefix[r1-1][c2]    rows 0..r1-1, cols 0..c2
+        ├──────────┼──────────┤     C = prefix[r2][c1-1]    rows 0..r2,   cols 0..c1-1
+        │          │▒▒▒▒▒▒▒▒▒▒│     D = prefix[r2][c2]      rows 0..r2,   cols 0..c2
+row r2  │  C \ A   │▒▒TARGET▒▒│
+        └──────────┴──────────┘     B and C are full prefix rectangles: each
+                                    CONTAINS A as its top-left portion, and
+                                    D contains everything drawn above.
+
+TARGET = D - B - C + A
 ```
 
-The top-left corner (A) gets subtracted twice (once in B, once in C), so we add it back.
+D covers the whole area down to the target's bottom-right corner. Subtracting B removes the strip above the target, and subtracting C removes the strip to its left. But A lives inside both B and C, so it gets subtracted twice: add it back once.
 
 ---
 
@@ -180,13 +185,14 @@ The top-left corner (A) gets subtracted twice (once in B, once in C), so we add 
 Master prefix sum through this sequence:
 
 1. **LC 303** (Range Sum Query): Build basic intuition
-2. **LC 560** (Subarray Sum = K): Add hash map technique
-3. **LC 525** (Contiguous Array): Transform technique (0→-1)
-4. **LC 523** (Continuous Subarray Sum): Modular arithmetic variant
-5. **LC 304** (2D Range Sum): Extend to 2D
-6. **LC 238** (Product Except Self): Prefix/suffix products
-7. **LC 1094** (Car Pooling): Difference array
-8. **LC 1109** (Flight Bookings): Canonical difference array
+2. **LC 53** (Maximum Subarray): Prefix-Sum Minimum approach: the best subarray ending at j is prefix[j] minus the smallest prefix seen so far
+3. **LC 560** (Subarray Sum = K): Add hash map technique
+4. **LC 525** (Contiguous Array): Transform technique (0→-1)
+5. **LC 523** (Continuous Subarray Sum): Modular arithmetic variant
+6. **LC 304** (2D Range Sum): Extend to 2D
+7. **LC 238** (Product Except Self): Prefix/suffix products
+8. **LC 1094** (Car Pooling): Difference array
+9. **LC 1109** (Flight Bookings): Canonical difference array
 
 ---
 

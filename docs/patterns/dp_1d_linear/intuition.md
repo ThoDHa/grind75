@@ -54,6 +54,8 @@ To reach step 5, you add:
 
 **Problems**: LC 70 (Climbing Stairs), LC 746 (Min Cost Climbing)
 
+The Climbing Stairs problem page also covers an O(log n) matrix exponentiation solution and a closed-form formula for this same recurrence.
+
 ### Pattern 2: Selective (Max/Min)
 
 **Mental Model**: At each point, you make an optimal choice.
@@ -70,7 +72,7 @@ At each house, you choose:
 
 **Formula**: `dp[i] = max(dp[i-1], dp[i-2] + nums[i])`
 
-**Problems**: LC 198 (House Robber), LC 121 (Best Time Buy/Sell Stock)
+**Problems**: LC 198 (House Robber), LC 213 (House Robber II)
 
 ---
 
@@ -136,6 +138,8 @@ return prev1
 > *"Maximum subarray sum"*
 
 **Action**: Running min/max (implicit DP).
+
+**Problems**: LC 121 (Best Time Buy/Sell Stock), LC 53 (Maximum Subarray)
 
 ### Signal: "Circular array"
 > *"First and last elements are adjacent"*
@@ -208,6 +212,8 @@ Master 1D Linear DP through this sequence:
 3. **LC 198** (House Robber): Include/exclude framework
 4. **LC 213** (House Robber II): Circular decomposition
 5. **LC 121** (Best Time Buy/Sell): Implicit DP with running min
+6. **LC 53** (Maximum Subarray): Kadane's algorithm, "extend or restart" at each index
+7. **LC 139** (Word Break): dp[i] over string prefixes, transition scans earlier cut points
 
 ---
 

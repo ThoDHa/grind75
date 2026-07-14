@@ -48,7 +48,7 @@ Long chain:             After find(4):
     4
 ```
 
-**Path compression makes subsequent finds O(1) [amortized](../../foundations/glossary.md).**
+**Path compression flattens the tree; combined with union by rank (Mental Model 3), finds become O(α(n)) ≈ O(1) [amortized](../../foundations/glossary.md).**
 
 ```python
 def find(x):
@@ -129,12 +129,14 @@ def find(x):
         x = parent[x]
     return x
 
-# CORRECT: O(α(n)) ≈ O(1) amortized
+# CORRECT: path compression
 def find(x):
     if parent[x] != x:
         parent[x] = find(parent[x])  # Path compression
     return parent[x]
 ```
+
+Path compression alone (with naive linking) only guarantees Θ(log n) amortized. The famous O(α(n)) ≈ O(1) amortized bound comes from pairing it with union by rank or size (Mental Model 3).
 
 ### Pitfall 2: Wrong Index Range
 
@@ -180,10 +182,10 @@ for eq in equations:
 
 ### Level 3: Equivalence
 3. **LC 721 - Accounts Merge** (Group by common elements)
-4. **LC 990 - Equation Satisfaction** (Constraint checking)
+4. **LC 990 - Satisfiability of Equality Equations** (Constraint checking)
 
 ### Level 4: Network Operations
-5. **LC 1319 - Network Connected** (Count components + feasibility)
+5. **LC 1319 - Number of Operations to Make Network Connected** (Count components + feasibility)
 
 ---
 

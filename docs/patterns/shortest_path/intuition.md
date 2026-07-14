@@ -122,6 +122,8 @@ Graph:                     State Graph:
 | Any | Bellman-Ford | O(VE) | Negative edges |
 | K edge limit | Bellman-Ford K | O(KE) | Limited steps |
 
+The "all equal" row is the most common disguise. Word Ladder (LC 127) is the classic example: each word is a node, and an edge connects words that differ by one letter. Every transformation costs exactly 1, so plain BFS **is** the shortest-path algorithm; the first time BFS reaches the end word, the level count is the minimum ladder length. No heap, no relaxation, just level-by-level expansion (the problem page adds a bidirectional refinement that expands from both ends).
+
 ---
 
 ## Common Pitfalls
@@ -188,18 +190,21 @@ pq = [(0, start, 0)]  # (cost, node, stops_used)
 
 ## Practice Progression
 
-### Level 1: Basic Dijkstra
-1. **LC 743 - Network Delay Time** (Find max of shortest paths)
+### Level 1: Unweighted BFS
+1. **LC 127 - Word Ladder** (Uniform-cost word graph, plain BFS)
 
-### Level 2: Grid Variations
-2. **LC 1631 - Path With Minimum Effort** (Minimax objective)
+### Level 2: Basic Dijkstra
+2. **LC 743 - Network Delay Time** (Find max of shortest paths)
 
-### Level 3: Constrained Paths
-3. **LC 787 - Cheapest Flights Within K Stops** (Edge limit)
+### Level 3: Grid Variations
+3. **LC 1631 - Path With Minimum Effort** (Minimax objective)
 
-### Level 4: 0-1 BFS
-4. **LC 1368 - Minimum Cost Valid Path** (Direction changes)
-5. **LC 2290 - Minimum Obstacle Removal** (Remove obstacles)
+### Level 4: Constrained Paths
+4. **LC 787 - Cheapest Flights Within K Stops** (Edge limit)
+
+### Level 5: 0-1 BFS
+5. **LC 1368 - Minimum Cost Valid Path** (Direction changes)
+6. **LC 2290 - Minimum Obstacle Removal** (Remove obstacles)
 
 ---
 

@@ -23,10 +23,12 @@ Visualize intervals as horizontal bars on a timeline:
 ```
 Time:  0  1  2  3  4  5  6  7  8  9  10
        |--|--|--|--|--|--|--|--|--|--|
-A:     [------]
-B:        [--------]
-C:                    [----]
-D:                          [--------]
+A:     [--------]
+B:           [--------]
+C:                       [--]
+D:                             [-----]
+
+A = [0,3]   B = [2,5]   C = [6,7]   D = [8,10]
 ```
 
 **Key questions:**
@@ -108,7 +110,7 @@ Phase 2: MERGE    [====]  [====]  |←===overlap===→|
 Phase 3: AFTER    [====]  [====]  |  (merged)     |  [====]
 ```
 
-This works because the input is already sorted.
+This works because the input is already sorted. That sortedness buys a refinement too: you can locate the overlap window with binary search in O(log n) before the O(n) rebuild (the Insert Interval problem page walks through this).
 
 ---
 
@@ -157,7 +159,7 @@ intervals.sort(key=lambda x: x[1])  # Sort by end
 
 ### Pitfall 2: Off-by-One in Overlap Check
 
-```python
+```text
 # "Touching" intervals - problem dependent!
 # [1,2] and [2,3]: Do they overlap?
 
@@ -221,7 +223,7 @@ Space is typically O(n) for the output array, O(1) additional.
 │                  INTERVAL PATTERNS                       │
 ├─────────────────────────────────────────────────────────┤
 │                                                          │
-│  MERGE (LC 56, 57)           SCHEDULE (LC 435, 452)     │
+│  MERGE (LC 56)               SCHEDULE (LC 435, 452)     │
 │  ─────────────────           ──────────────────────      │
 │  Sort by: START              Sort by: END                │
 │  Action:  Extend end         Action:  Count/Skip         │
@@ -235,3 +237,5 @@ Space is typically O(n) for the output array, O(1) additional.
 │                                                          │
 └─────────────────────────────────────────────────────────┘
 ```
+
+LC 57 (Insert Interval) uses the merge check but needs no sort: the input is already sorted, so a single linear three-phase pass suffices.

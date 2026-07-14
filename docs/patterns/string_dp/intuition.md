@@ -118,7 +118,49 @@ t = "babbb" (reversed)
 LCS = "bbbb" (length 4)
 ```
 
-Why does this work? Any common subsequence between `s` and its reverse must appear in both directions, making it a palindrome.
+Why does this work? The length identity `LPS(s) = |LCS(s, reverse(s))|` holds: every palindromic subsequence of `s` is a common subsequence of `s` and its reverse, and one can show the longest common subsequence always has palindromic length. Note the claim is about lengths only: not every common subsequence is itself a palindrome (in `s = "abab"`, `"ab"` is common to both directions yet not a palindrome).
+
+### The Substring Variant: Longest Palindromic Substring
+
+**The insight**: A substring must be contiguous, so LCS-with-reverse no longer applies. Compare the two ends of an interval instead: `s[i..j]` is a palindrome exactly when its endpoints match and the inside is already a palindrome.
+
+```python
+# Interval DP: dp[i][j] = True if s[i..j] is a palindrome
+dp[i][j] = s[i] == s[j] and (length <= 2 or dp[i+1][j-1])
+```
+
+Each cell depends on the shorter interval inside it, so fill by **increasing length**: all single characters first, then pairs, then longer spans.
+
+```
+s = "babad"
+
+         b     a     b     a     d
+       ┌─────┬─────┬─────┬─────┬─────┐
+b      │  T  │  .  │  T  │  .  │  .  │   dp[0][2]: 'b'=='b' and dp[1][1] → "bab"
+       ├─────┼─────┼─────┼─────┼─────┤
+a      │     │  T  │  .  │  T  │  .  │   dp[1][3]: 'a'=='a' and dp[2][2] → "aba"
+       ├─────┼─────┼─────┼─────┼─────┤
+b      │     │     │  T  │  .  │  .  │
+       ├─────┼─────┼─────┼─────┼─────┤
+a      │     │     │     │  T  │  .  │
+       ├─────┼─────┼─────┼─────┼─────┤
+d      │     │     │     │     │  T  │
+       └─────┴─────┴─────┴─────┴─────┘
+
+Longest True cell: dp[0][2] → answer "bab" (length 3)
+```
+
+The fill loop, tracking the longest True cell:
+
+```python
+for length in range(1, n + 1):          # shorter intervals first
+    for i in range(n - length + 1):
+        j = i + length - 1
+        if s[i] == s[j] and (length <= 2 or dp[i+1][j-1]):
+            dp[i][j] = True             # record (i, j) if longest so far
+```
+
+This is O(n²) time and O(n²) space. Expand-around-center achieves the same O(n²) time in O(1) space by growing outward from each of the 2n-1 centers.
 
 ## Pattern 4: Regex Matching
 
@@ -180,6 +222,20 @@ if p[j-1] == s[i-1]:
 if p[j-2] == s[i-1]:
 ```
 
+## Practice Progression
+
+Build string DP skill through this sequence:
+
+1. **Longest Common Subsequence** (LC 1143): the canonical two-string grid. Match means diagonal plus one; mismatch means the best of skipping either character.
+
+2. **Longest Palindromic Substring** (LC 5): one string against itself, as interval DP. Endpoints match and the inside is a palindrome; fill by increasing length.
+
+3. **Longest Palindromic Subsequence** (LC 516): reuse LCS by comparing the string with its own reverse.
+
+4. **Edit Distance** (LC 72): three operations become three neighbor cells; take the minimum and add one.
+
+5. **Regular Expression Matching** (LC 10): the hardest transition. Each `*` branches into "use zero" and "use one more" of the preceding character.
+
 ## Quick Pattern Recognition
 
 | Clue | Pattern |
@@ -187,6 +243,7 @@ if p[j-2] == s[i-1]:
 | "longest common subsequence" | LCS |
 | "minimum operations to convert" | Edit Distance |
 | "palindrome subsequence" | LCS with reverse |
+| "palindromic substring" | Interval DP or expand-around-center |
 | "match pattern with . or *" | Regex DP |
 | "delete operation for two strings" | LCS-based |
 

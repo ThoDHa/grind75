@@ -227,8 +227,8 @@ Hashing costs O(n) extra space and gives unordered results. When the input is al
 
 Master hashing through this sequence of Grind75 problems:
 
-1. **Two Sum**: the canonical complement lookup. Store seen values, query for `target - x`.
-2. **Contains Duplicate**: the seen-set in its purest form. Check before insert, or compare set size to length.
+1. **Contains Duplicate**: the seen-set in its purest form. Check before insert, or compare set size to length.
+2. **Two Sum**: the canonical complement lookup. Store seen values, query for `target - x`.
 3. **Valid Anagram**: build a frequency map of one string, subtract the other, verify all counts return to zero.
 4. **Ransom Note**: frequency map as a budget. Count letters in the magazine, then subtract the note; if any count goes negative, you cannot build it. This is counter subtraction.
 5. **Longest Palindrome**: frequency *parity* counting. Every character used in pairs contributes to the palindrome; at most one odd-count character sits in the center. Count, then sum the even portions.
