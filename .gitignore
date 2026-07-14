@@ -5,3 +5,6 @@ site/
 __pycache__/
 *.pyc
 *.egg-info/
+
+# Personal practice-progress state (see practice/progress.py)
+practice/.progress.json
