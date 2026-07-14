@@ -68,6 +68,41 @@ uv sync           # creates .venv and installs pytest
 constraints. LeetCode's literal hidden tests are not public, but this set targets
 the same failure modes.
 
+## Tracking your progress
+
+`progress.py` is a small stdlib-only tracker that remembers which problems you
+have solved, how confident each solve felt, and which ones are due for a
+spaced-repetition review. Its state lives in `.progress.json` next to it
+(personal, gitignored, and never read by the tests).
+
+```bash
+uv run python progress.py scan             # run the suite, record per-problem status
+uv run python progress.py rate <slug> <solid|shaky|struggled>
+uv run python progress.py status           # full board in canonical Grind75 order
+uv run python progress.py due              # just the review queue
+```
+
+**Status model.** `scan` runs the full test suite and reports it honestly: a
+problem is `solved` only while every test passes, `attempted` when any test
+fails (or only some pass), and `unsolved` when everything skips. The date of
+the first successful solve is recorded automatically. If a solved problem
+later reverts to the stub, its status drops back to `unsolved`, but the solve
+date and rating history are kept.
+
+**Confidence and review.** After solving, rate how it felt with
+`rate <slug> <level>`. The rating sets the spaced-repetition interval:
+
+| Confidence | Review after |
+|------------|--------------|
+| `struggled` | 2 days |
+| `shaky` | 7 days |
+| `solid` | 21 days |
+| solved but unrated | 14 days |
+
+A problem is due once that many days have passed since you last practiced it
+(the later of the solve date and the rating date). `due` lists the queue,
+most overdue first: re-solve it, rate it again, and the clock resets.
+
 ## Case format
 
 Both `cases.json` and `cases_full.json` are lists of cases. For most problems a

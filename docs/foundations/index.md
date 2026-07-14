@@ -69,5 +69,12 @@ bottom of the file, then run the file directly
 values. The [practice README](https://github.com/ThoDHa/grind75/blob/main/practice/README.md)
 walks through the full workflow.
 
+The workspace also includes a small progress tracker, `progress.py`: `scan`
+records which problems your tests currently pass, `rate` captures how each
+solve felt, and `due` gives you a spaced-repetition review queue so earlier
+problems come back before they fade. The
+[practice README](https://github.com/ThoDHa/grind75/blob/main/practice/README.md)
+documents the commands and intervals.
+
 The point is not to finish fast. It is to build the mental models that make the
 next problem easier than the last.

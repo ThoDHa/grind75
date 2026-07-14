@@ -1,0 +1,97 @@
+# System Design: Start Here
+
+The coding rounds test whether you can solve a well-defined problem. The
+system design round tests something different: whether you can take a vague,
+open-ended prompt ("design a chat app") and turn it into a concrete
+architecture through a series of *reasoned tradeoffs*. There is no single
+correct answer, and the interviewer is not checking whether you know a
+specific technology. They are watching how you think when nothing is given.
+
+This section is a **scaffold, not a finished course**. It gives you a
+repeatable method, the arithmetic to size a system out loud, the vocabulary of
+standard components, and guided case studies with deliberate gaps for you to
+fill. Expect it to grow: the case study roadmap lists designs that are planned
+but not yet written.
+
+## What the round actually tests
+
+- **Tradeoff reasoning, not trivia.** "SQL or NoSQL?" is never the question.
+  "What does this workload need, and what are you willing to give up to get
+  it?" always is. Saying "Cassandra" earns nothing; explaining *why*
+  write-heavy, partition-friendly data tolerates eventual consistency earns a
+  lot.
+- **Structured thinking under ambiguity.** The prompt is vague on purpose.
+  Strong candidates narrow it with questions before drawing anything.
+- **Quantitative sanity.** You will be expected to estimate load and storage
+  with rough numbers and to notice when a design cannot possibly handle the
+  math you just did.
+- **Communication.** The round is a conversation. Interviewers steer, and
+  following their steering is graded.
+
+## How this section is organized
+
+| Guide | What it gives you | Read it when |
+|-------|-------------------|--------------|
+| [The Interview Method](method.md) | A repeatable 6-step framework with a time budget for a 45-minute round | First: everything else plugs into it |
+| [Back-of-Envelope Estimation](estimation.md) | Latency numbers, powers of two, QPS and storage arithmetic, worked examples | Second: step 2 of the method depends on it |
+| [Building Blocks](building_blocks.md) | The component vocabulary: load balancers, caches, databases, queues, and the rest | Third, or as a reference while doing case studies |
+| [Case Studies](case_studies/index.md) | Four guided workthroughs (URL shortener, rate limiter, news feed, chat) with answers hidden behind collapsible blocks | Last: this is where the method becomes muscle memory |
+
+## A suggested study path
+
+1. Read [The Interview Method](method.md) and internalize the 6 steps
+   (about 1 hour).
+2. Work through [Back-of-Envelope Estimation](estimation.md) with a pen.
+   Redo the worked examples yourself before opening the traces (2 to 3
+   hours, mostly practice).
+3. Read [Building Blocks](building_blocks.md) once end to end, then treat it
+   as a reference (2 to 3 hours).
+4. Do the four [case studies](case_studies/index.md) *actively*: attempt each
+   prompt yourself before opening the collapsed answers, and finish the
+   "extend this scaffold" checklist for at least one of them (2 to 3 hours
+   each, so 8 to 12 hours total).
+5. Repeat a case study cold a week later, out loud, with a 45-minute timer.
+   Talking through a design is a different skill from reading one.
+
+That is roughly 15 to 20 hours for a solid baseline. Senior-level depth comes
+from extending the scaffolds and from reading about real systems, not from
+rereading these pages.
+
+## How this complements the DSA sections
+
+The [How to Approach a Problem](../foundations/how_to_approach.md) guide is
+this section's sibling: both replace blank-page panic with a checklist. The
+mindset transfers directly. In a coding round you restate the problem, walk
+examples, write the brute force, then optimize. In a design round you clarify
+requirements, estimate, sketch the simple architecture, then deepen it where
+the numbers or the interviewer demand. In both cases the first version is
+deliberately simple, and the improvement is justified by identified cost, not
+by reflex.
+
+The DSA knowledge also shows up directly: hash-based sharding is
+[hashing](../patterns/hashing/intuition.md) at datacenter scale, an LRU cache
+is a Grind75 problem *and* a production component, and rate limiters are
+sliding windows over time instead of arrays.
+
+## Seniority expectations, honestly
+
+Interviewers calibrate the same prompt differently by level. Knowing the bar
+keeps you from over- or under-preparing.
+
+| Level | What passes | What is not yet expected |
+|-------|-------------|--------------------------|
+| Junior / new grad | A reasonable set of components wired together sensibly: a load balancer, app servers, a database, a cache, with correct data flow and honest estimation | Deep failure analysis, exotic components, defending consistency choices under fire |
+| Mid-level | All of the above, plus correct choices *with reasons*: why this partition key, why a queue here, what breaks first under 10x load | Designing for problems the interviewer has not raised |
+| Senior / staff | Deep tradeoffs and failure handling: what happens when the cache dies, how the system degrades, migration paths, consistency guarantees stated precisely, and pushing back on requirements when they conflict | Nothing is off the table; the interviewer will probe until they find the edge of your knowledge, which is normal |
+
+At every level, the fastest way to fail is the same: silence, hand-waved
+numbers, or ignoring the interviewer's steering. The method exists to prevent
+all three.
+
+## This section is growing
+
+The four case studies are scaffolded workthroughs with intentional gaps, and
+the [roadmap](case_studies/index.md#roadmap-case-studies-not-yet-written)
+lists classics that are not yet written. If a topic you need is missing, the
+building blocks page plus the method are usually enough to attempt it
+yourself, which is better practice anyway.

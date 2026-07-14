@@ -108,6 +108,17 @@ nav:
       - Greedy: patterns/greedy_core/intuition.md
       - K-Way Merge: patterns/k_way_merge/intuition.md
       - Linked List Reversal: patterns/linked_list_in_place_reversal/intuition.md
+  - System Design:
+    - system_design/index.md
+    - The Interview Method: system_design/method.md
+    - Back-of-Envelope Estimation: system_design/estimation.md
+    - Building Blocks: system_design/building_blocks.md
+    - Case Studies:
+      - system_design/case_studies/index.md
+      - URL Shortener: system_design/case_studies/url_shortener.md
+      - Rate Limiter: system_design/case_studies/rate_limiter.md
+      - News Feed: system_design/case_studies/news_feed.md
+      - Chat System: system_design/case_studies/chat_system.md
   - Problems:
     - "Two Sum": problems/two_sum.md
     - "Valid Parentheses": problems/valid_parentheses.md
