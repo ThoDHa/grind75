@@ -164,7 +164,7 @@ class Solution:
 
 This BFS approach treats the problem as finding a path from index 0 to index len(s) in a graph where:
 - Each valid starting position is a node
-- There's an edge from position i to position j if s[i:j] is in the dictionary
+- There's an edge from position i to position j if `s[i:j]` is in the dictionary
 
 BFS explores all reachable positions level by level until it either finds a path to the end or exhausts all possibilities.
 
@@ -280,7 +280,7 @@ class Solution:
 
 #### Approach
 
-This bottom-up DP solution builds up the answer for all prefixes of the string. For each position `i`, we check if there's any valid split where the prefix before position `j` can be segmented (dp[j] = True) and the substring from `j` to `i` is in the dictionary.
+This bottom-up DP solution builds up the answer for all prefixes of the string. For each position `i`, we check if there's any valid split where the prefix before position `j` can be segmented (`dp[j] = True`) and the substring from `j` to `i` is in the dictionary.
 
 The key insight is that `dp[i]` represents whether the substring `s[0:i]` can be segmented. We can compute this by trying all possible positions `j < i` where we could place the last word boundary.
 

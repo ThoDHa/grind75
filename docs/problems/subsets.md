@@ -62,11 +62,11 @@ class Solution:
 
 This iterative approach builds the power set incrementally. We start with just the empty subset, then for each new element, we duplicate all existing subsets and add the new element to the duplicates.
 
-The progression for nums = [1,2,3]:
-- Start: [[]]
-- Add 1: [[], [1]]
-- Add 2: [[], [1], [2], [1,2]]
-- Add 3: [[], [1], [2], [1,2], [3], [1,3], [2,3], [1,2,3]]
+The progression for `nums = [1,2,3]`:
+- Start: `[[]]`
+- Add 1: `[[], [1]]`
+- Add 2: `[[], [1], [2], [1,2]]`
+- Add 3: `[[], [1], [2], [1,2], [3], [1,3], [2,3], [1,2,3]]`
 
 This demonstrates how the power set can be constructed systematically without recursion.
 
@@ -236,16 +236,16 @@ class Solution:
 #### Approach
 
 This elegant approach uses bit manipulation to represent all possible subset combinations. Each number from 0 to 2^n - 1 represents a unique subset when interpreted as a bitmask:
-- Bit 0 represents whether nums[0] is included
-- Bit 1 represents whether nums[1] is included
+- Bit 0 represents whether `nums[0]` is included
+- Bit 1 represents whether `nums[1]` is included
 - And so on...
 
-For example, with nums = [1,2,3]:
-- 000 (0) → []
-- 001 (1) → [1]
-- 010 (2) → [2]
-- 011 (3) → [1,2]
-- 100 (4) → [3]
+For example, with `nums = [1,2,3]`:
+- 000 (0) → `[]`
+- 001 (1) → `[1]`
+- 010 (2) → `[2]`
+- 011 (3) → `[1,2]`
+- 100 (4) → `[3]`
 - etc.
 
 This provides a direct mathematical mapping between integers and subsets.
