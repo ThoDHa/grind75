@@ -2,6 +2,13 @@
 
 This repository is a structured study guide for algorithmic problem solving based on the popular [Grind75](https://www.techinterviewhandbook.org/grind75) list of LeetCode questions developed by the team at [Tech Interview Handbook](https://www.techinterviewhandbook.org/). All credit for the curated problem list goes to them for their excellent work in creating this focused interview preparation resource.
 
+**Read it as a website:** the full guide, including complete solution write-ups for every problem, is published at [thodha.github.io/grind75](https://thodha.github.io/grind75/).
+
+## How this repository is organized
+
+- The `main` branch is the study environment: problem statements, pattern guides, foundations, system design material, and the `practice/` workspace with unsolved stubs. Solution write-ups are deliberately absent here so you can attempt problems without spoilers.
+- The `solutions` branch adds the full multi-approach solution write-ups to every problem page. The published site is built from it, so read solutions on the website (or that branch) when you are ready to compare answers.
+
 ## First time here?
 
 New to algorithms or interview prep? Start with the [Foundations](docs/foundations/index.md) section before the problems. It teaches the prerequisites the problem pages assume, all from zero:
@@ -10,12 +17,13 @@ New to algorithms or interview prep? Start with the [Foundations](docs/foundatio
 2. [Recursion and the Call Stack](docs/foundations/recursion.md): how a function that calls itself actually works.
 3. [Data Structures in Pictures](docs/foundations/data_structures.md): arrays, hash maps, stacks, queues, trees, graphs, and heaps.
 4. [How to Approach a Problem](docs/foundations/how_to_approach.md): a repeatable method from problem statement to working solution.
+5. [Glossary](docs/foundations/glossary.md): the jargon the guides lean on, defined in plain language.
 
 Then work the problems in order, reading each one's linked **Pattern** guide for the *why* behind the technique.
 
 ## Problem List
 
-The following table tracks your progress through all 75 problems:
+The canonical 75 problems in study order (for real progress tracking, use the [practice progress tracker](#practice-workspace) instead of editing this table):
 
 | Status | # | Problem | Difficulty | Category | Time |
 |--------|---|---------|------------|----------|------|
@@ -95,15 +103,21 @@ The following table tracks your progress through all 75 problems:
 | 󰄰 | [74](https://leetcode.com/problems/merge-k-sorted-lists/) | [Merge k Sorted Lists](docs/problems/merge_k_sorted_lists.md) | Hard | Linked List | 30 minutes |
 | 󰄰 | [75](https://leetcode.com/problems/largest-rectangle-in-histogram/) | [Largest Rectangle in Histogram](docs/problems/largest_rectangle_in_histogram.md) | Hard | Stack | 35 minutes |
 
+Two bonus problems beyond the canonical 75 are also covered: [Binary Tree Maximum Path Sum](docs/problems/binary_tree_maximum_path_sum.md) (Hard) and [Maximum Frequency Stack](docs/problems/maximum_frequency_stack.md) (Hard).
+
 This 8-week schedule organizes the problems in increasing order of difficulty, with related problem types grouped together. Each week has a manageable number of problems, and earlier weeks focus on foundational concepts while later weeks tackle more advanced topics.
 
 ## Pattern Intuition
 
 Beyond the individual problems, the guide includes [algorithm pattern intuition guides](docs/patterns/index.md) covering the recurring patterns these problems share (sliding window, two pointers, binary search, backtracking, dynamic programming, graph traversal, and more). Each guide explains *why* the pattern works, when it applies, and the invariant that makes it correct, then maps the pattern to the Grind75 problems that use it. The guides are adapted from the [NeetCode practice framework](https://lufftw.github.io/neetcode/).
 
+## System Design
+
+Coding rounds are only half the interview loop. The [System Design section](docs/system_design/index.md) is a growing scaffold for the other half: a repeatable [interview method](docs/system_design/method.md) with a 45-minute time budget, [back-of-envelope estimation](docs/system_design/estimation.md) skills, a [building-blocks vocabulary](docs/system_design/building_blocks.md) from load balancers to consistency models, and [guided case studies](docs/system_design/case_studies/index.md) (URL shortener, rate limiter, news feed, chat) that walk the method with collapsible answers and extension checklists.
+
 ## Practice Workspace
 
-The [`practice/`](practice/) directory is a `pytest` workspace for solving the problems yourself rather than just reading them. Each problem has its own folder with a `solution.py` to implement, two test sets that mirror LeetCode's Run (the examples) and Submit (a full edge-case gauntlet), and a `__main__` block for stepping through a single case in a debugger. An unsolved `solution.py` raises `NotSolved` so its tests skip until you fill it in. See [`practice/README.md`](practice/README.md) for setup and the full workflow.
+The [`practice/`](practice/) directory is a `pytest` workspace for solving the problems yourself rather than just reading them. Each problem has its own folder with a `solution.py` to implement, two test sets that mirror LeetCode's Run (the examples) and Submit (a full edge-case gauntlet), and a `__main__` block for stepping through a single case in a debugger. An unsolved `solution.py` raises `NotSolved` so its tests skip until you fill it in. A progress tracker (`practice/progress.py`) derives solved status from the test suite, records your confidence per problem, and maintains a spaced-repetition review queue. See [`practice/README.md`](practice/README.md) for setup and the full workflow.
 
 ## Creating a PDF with Pandoc
 
