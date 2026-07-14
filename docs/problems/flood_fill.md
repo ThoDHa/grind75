@@ -42,6 +42,6 @@ Return the modified image after performing the flood fill.
 - `m == image.length`
 - `n == image[i].length`
 - `1 <= m, n <= 50`
-- `0 <= image[i][j], color < 216`
+- `0 <= image[i][j], color < 2^16`
 - `0 <= sr < m`
 - `0 <= sc < n`

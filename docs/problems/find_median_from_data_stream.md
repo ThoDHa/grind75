@@ -19,16 +19,20 @@ Implement the MedianFinder class:
 
 ## Examples
 
-**Example 1:**
+### Example 1
+
+**Input:**
 
 ```
-Input
 ["MedianFinder", "addNum", "addNum", "findMedian", "addNum", "findMedian"]
 [[], [1], [2], [], [3], []]
-Output
-[null, null, null, 1.5, null, 2.0]
+```
 
-Explanation
+**Output:** `[null, null, null, 1.5, null, 2.0]`
+
+**Explanation:**
+
+```
 MedianFinder medianFinder = new MedianFinder();
 medianFinder.addNum(1);    // arr = [1]
 medianFinder.addNum(2);    // arr = [1, 2]
@@ -43,7 +47,7 @@ medianFinder.findMedian(); // return 2.0
 - There will be at least one element in the data structure before calling `findMedian`.
 - At most `5 * 10^4` calls will be made to `addNum` and `findMedian`.
 
-**Follow up:**
+## Follow-up
 
 - If all integer numbers from the stream are in the range `[0, 100]`, how would you optimize your solution?
 - If `99%` of all integer numbers from the stream are in the range `[0, 100]`, how would you optimize your solution?

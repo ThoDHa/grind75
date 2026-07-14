@@ -44,6 +44,6 @@ The word can be constructed from letters of sequentially adjacent cells, where a
 - `1 <= word.length <= 15`
 - `board` and `word` consists of only lowercase and uppercase English letters.
 
-## Follow up
+## Follow-up
 
 Could you use search pruning to make your solution faster with a larger `board`?

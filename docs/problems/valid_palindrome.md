@@ -1,4 +1,4 @@
-# [Valid Palindrome](https://leetcode.com/problems/valid-palindrome)
+# [Valid Palindrome](https://leetcode.com/problems/valid-palindrome/)
 
 **Easy** | **15 minutes** | **String**
 

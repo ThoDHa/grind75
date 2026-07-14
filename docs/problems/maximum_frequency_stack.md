@@ -4,6 +4,8 @@
 
 **Pattern:** [Data-Structure Design](../patterns/design/intuition.md)
 
+**Practice:** [`practice/maximum_frequency_stack/solution.py`](../../practice/maximum_frequency_stack/solution.py)
+
 Design a stack-like data structure to push elements to the stack and pop the most frequent element from the stack.
 
 Implement the `FreqStack` class:
