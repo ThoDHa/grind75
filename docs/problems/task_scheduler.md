@@ -31,9 +31,9 @@ There is at least 2 units of time between any two same tasks.
 **Output:** `6`
 
 **Explanation:** On this case any permutation of size 6 would work since n = 0.
-["A","A","A","B","B","B"]
-["A","B","A","B","A","B"]
-["B","B","B","A","A","A"]
+`["A","A","A","B","B","B"]`
+`["A","B","A","B","A","B"]`
+`["B","B","B","A","A","A"]`
 ...
 And so on.
 
