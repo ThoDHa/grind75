@@ -4,6 +4,8 @@
 
 **Pattern:** [Two Pointers](../patterns/two_pointers/intuition.md)
 
+**Algorithm:** [Dutch national flag problem](https://en.wikipedia.org/wiki/Dutch_national_flag_problem) · [Two-pointer technique](https://www.geeksforgeeks.org/dsa/two-pointers-technique/)
+
 **Practice:** [`practice/sort_colors/solution.py`](../../practice/sort_colors/solution.py)
 
 Given an array `nums` with `n` objects colored red, white, or blue, sort them in-place so that objects of the same color are adjacent, with the colors in the order red, white, and blue.
@@ -59,7 +61,7 @@ class Solution:
 
 #### Approach
 
-The problem forbids the library sort, so the most direct response is to write a sort by hand. Selection sort needs no extra structure and no insight about the values: it just repeatedly finds the minimum of the unsorted region and swaps it to the front. With only `0`, `1`, and `2` present this still produces the correct red-white-blue order because ascending numeric order is exactly the required color order.
+The problem forbids the library sort, so the most direct response is to [write a sort by hand](https://en.wikipedia.org/wiki/Sorting_algorithm). [Selection sort](https://en.wikipedia.org/wiki/Selection_sort) needs no extra structure and no insight about the values: it just repeatedly finds the minimum of the unsorted region and swaps it to the front. With only `0`, `1`, and `2` present this still produces the correct red-white-blue order because ascending numeric order is exactly the required color order.
 
 1. Treat the prefix before index `i` as already sorted.
 2. Scan the unsorted tail `i+1 .. n-1` to find the index of the smallest value.
@@ -127,7 +129,7 @@ class Solution:
 
 #### Approach
 
-A more intuitive two-pass approach that first counts occurrences of each color, then rebuilds the array. While conceptually simpler and easier to implement, it requires two passes through the data.
+A more intuitive two-pass approach that first [counts occurrences of each color](https://en.wikipedia.org/wiki/Counting_sort), then rebuilds the array. While conceptually simpler and easier to implement, it requires two passes through the data.
 
 This solution leverages the constraint that only three distinct values exist, making a specialized counting sort more efficient than general-purpose sorting.
 
@@ -181,7 +183,7 @@ class Solution:
 
 #### Approach
 
-This is the classic algorithm designed by Edsger Dijkstra using three pointers to partition the array into three regions in a single pass. We maintain `left` (boundary between 0s and 1s), `right` (boundary between 1s and 2s), and `current` (element being examined). The key insight is that when swapping a 2 to the right, we must re-examine the swapped element without advancing `current`.
+This is the [classic algorithm](https://en.wikipedia.org/wiki/Dutch_national_flag_problem) designed by Edsger Dijkstra using three pointers to partition the array into three regions in a single pass. We maintain `left` (boundary between 0s and 1s), `right` (boundary between 1s and 2s), and `current` (element being examined). The key insight is that when swapping a 2 to the right, we must re-examine the swapped element without advancing `current`.
 
 This solution leverages the constraint that only three distinct values exist, making a specialized partitioning algorithm more efficient than general-purpose sorting.
 

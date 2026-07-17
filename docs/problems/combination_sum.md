@@ -4,6 +4,8 @@
 
 **Pattern:** [Backtracking](../patterns/backtracking_exploration/intuition.md)
 
+**Algorithm:** [Backtracking](https://en.wikipedia.org/wiki/Backtracking) · [Dynamic programming](https://en.wikipedia.org/wiki/Dynamic_programming)
+
 **Practice:** [`practice/combination_sum/solution.py`](../../practice/combination_sum/solution.py)
 
 Given an array of **distinct** integers `candidates` and a target integer `target`, return a list of all **unique combinations** of `candidates` where the chosen numbers sum to `target`. You may return the combinations in **any order**.
@@ -80,7 +82,7 @@ class Solution:
 
 #### Approach
 
-The most direct way to think about the problem is a binary decision tree: at each
+The most direct way to think about the problem is a [binary decision tree](https://en.wikipedia.org/wiki/Backtracking): at each
 candidate, we either include it (and stay put so it can be used again) or exclude it
 (and move to the next candidate). This frames the search without needing to sort the
 input first.
@@ -205,7 +207,7 @@ class Solution:
 #### Approach
 
 This is the same search expressed with a loop rather than a binary tree, plus a
-sorting optimization. We explore with the classic "choose, explore, unchoose"
+sorting optimization. We explore with the classic ["choose, explore, unchoose"](https://en.wikipedia.org/wiki/Backtracking)
 pattern. Two details make it both correct and efficient:
 
 1. Sort `candidates` ascending. This lets us `break` out of the loop the moment a
@@ -276,7 +278,7 @@ class Solution:
 
 #### Approach
 
-Instead of recursing, we build up answers for every sub-target from `0` to
+Instead of recursing, we [build up answers for every sub-target](https://en.wikipedia.org/wiki/Dynamic_programming) from `0` to
 `target`. The outer loop over candidates (rather than an inner loop) is the trick
 that prevents duplicate combinations: by the time we consider a candidate, every
 combination already stored uses only earlier candidates, so appending the current

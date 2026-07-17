@@ -4,6 +4,8 @@
 
 **Pattern:** [Graph Traversal](../patterns/graph/intuition.md)
 
+**Algorithm:** [Depth-first search](https://en.wikipedia.org/wiki/Depth-first_search) · [Breadth-first search](https://en.wikipedia.org/wiki/Breadth-first_search) · [Hash table](https://en.wikipedia.org/wiki/Hash_table)
+
 **Practice:** [`practice/clone_graph/solution.py`](../../practice/clone_graph/solution.py)
 
 Given a reference of a node in a connected undirected graph, return a deep copy (clone) of the graph. Each node in the graph contains a value (`int`) and a list of its neighbors.
@@ -116,7 +118,7 @@ stops infinite recursion around cycles.
 
 1. Handle the empty graph: if the input `node` is `None`, return `None`.
 2. Keep a `cloned` dictionary mapping each original node to its copy.
-3. In the DFS, if the current original is already in `cloned`, return its
+3. In the [DFS](https://en.wikipedia.org/wiki/Depth-first_search), if the current original is already in `cloned`, return its
    existing copy immediately.
 4. Otherwise create the copy, **register it in `cloned` before recursing**, then
    recurse into each neighbor and append the returned clones to
@@ -232,7 +234,7 @@ class Solution:
 
 #### Approach
 
-This variant replaces recursion with an explicit queue while keeping the same
+This variant replaces recursion with an [explicit queue](https://en.wikipedia.org/wiki/Breadth-first_search) while keeping the same
 original-to-clone map at the heart of the algorithm. The map still serves the
 dual role of visited set and lookup table for wiring neighbors.
 

@@ -4,6 +4,8 @@
 
 **Pattern:** [Two Pointers](../patterns/two_pointers/intuition.md)
 
+**Algorithm:** [Two-pointer technique](https://www.geeksforgeeks.org/dsa/two-pointers-technique/) · [Sorting](https://en.wikipedia.org/wiki/Sorting_algorithm) · [Hash table](https://en.wikipedia.org/wiki/Hash_table)
+
 **Practice:** [`practice/3sum/solution.py`](../../practice/3sum/solution.py)
 
 Given an integer array nums, return all the triplets `[nums[i], nums[j], nums[k]]` such that `i != j`, `i != k`, and `j != k`, and `nums[i] + nums[j] + nums[k] == 0`.
@@ -168,7 +170,7 @@ class Solution:
 
 #### Approach
 
-The 3Sum problem is solved using a combination of sorting and the two-pointer technique. The key insight is to fix one number and then use two pointers to find pairs that sum to the negative of the fixed number.
+The 3Sum problem is solved using a combination of sorting and the [two-pointer technique](https://www.geeksforgeeks.org/dsa/two-pointers-technique/). The key insight is to fix one number and then use two pointers to find pairs that sum to the negative of the fixed number.
 
 Here's the step-by-step approach:
 
@@ -245,7 +247,7 @@ class Solution:
 
 #### Approach
 
-This approach also fixes the first number but replaces the two-pointer scan with a hash set lookup. For each fixed element `nums[i]`, we walk the remainder of the array and, for every `nums[j]`, ask whether the complement `-(nums[i] + nums[j])` has already been seen. The array is sorted first so that both the fixed element and duplicate triplets can be skipped by comparing adjacent values.
+This approach also fixes the first number but replaces the two-pointer scan with a [hash set](https://en.wikipedia.org/wiki/Hash_table) lookup. For each fixed element `nums[i]`, we walk the remainder of the array and, for every `nums[j]`, ask whether the complement `-(nums[i] + nums[j])` has already been seen. The array is sorted first so that both the fixed element and duplicate triplets can be skipped by comparing adjacent values.
 
 Here's the step-by-step approach:
 

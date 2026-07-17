@@ -1,5 +1,7 @@
 # DP 1D Linear: Pattern Intuition Guide
 
+**Reference:** [Dynamic programming](https://en.wikipedia.org/wiki/Dynamic_programming)
+
 > *"Dynamic programming is just careful brute force: you solve every subproblem, but you remember what you've already solved."*
 
 ---

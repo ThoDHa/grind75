@@ -4,6 +4,8 @@
 
 **Pattern:** [Interval](../patterns/interval/intuition.md)
 
+**Algorithm:** [Binary search](https://en.wikipedia.org/wiki/Binary_search_algorithm)
+
 **Practice:** [`practice/insert_interval/solution.py`](../../practice/insert_interval/solution.py)
 
 You are given an array of non-overlapping intervals where `intervals[i] = [starti, endi]` represent the start and the end of the `ith` interval and `intervals` is sorted in ascending order by `starti`. You are also given an interval `newInterval = [start, end]` that represents the start and end of another interval.
@@ -253,7 +255,7 @@ class Solution:
 
 #### Approach
 
-Because the intervals are sorted by start and do not overlap, their end values are also in ascending order: each interval ends before the next one begins. That means two boundary binary searches can locate the block of intervals that touch `newInterval`, replacing the linear scans of the earlier approaches with `O(log n)` lookups.
+Because the intervals are sorted by start and do not overlap, their end values are also in ascending order: each interval ends before the next one begins. That means two boundary [binary searches](https://en.wikipedia.org/wiki/Binary_search_algorithm) can locate the block of intervals that touch `newInterval`, replacing the linear scans of the earlier approaches with `O(log n)` lookups.
 
 An interval overlaps `newInterval` exactly when both `intervals[i][1] >= newInterval[0]` (it does not end before the new one starts) and `intervals[i][0] <= newInterval[1]` (it does not start after the new one ends). Each condition gets its own search:
 
@@ -301,7 +303,7 @@ class Solution:
 
 #### Approach
 
-This recursive approach compares `newInterval` with the first interval and recurses on the rest, peeling one interval per call. There are three cases:
+This [recursive](https://en.wikipedia.org/wiki/Recursion_(computer_science)) approach compares `newInterval` with the first interval and recurses on the rest, peeling one interval per call. There are three cases:
 
 1. The new interval lies entirely before the first interval: prepend it and return.
 2. The new interval lies entirely after the first interval: keep the first interval and recurse on the remainder.

@@ -4,6 +4,8 @@
 
 **Pattern:** [Tree Traversal](../patterns/tree/intuition.md)
 
+**Algorithm:** [Tree traversal](https://en.wikipedia.org/wiki/Tree_traversal) · [Recursion](https://en.wikipedia.org/wiki/Recursion_(computer_science))
+
 **Practice:** [`practice/construct_binary_tree_from_preorder_and_inorder_traversal/solution.py`](../../practice/construct_binary_tree_from_preorder_and_inorder_traversal/solution.py)
 
 Given two integer arrays `preorder` and `inorder` where `preorder` is the preorder traversal of a binary tree and `inorder` is the inorder traversal of the same tree, construct and return the binary tree.
@@ -69,7 +71,7 @@ class Solution:
 
 #### Approach
 
-The two traversals encode the tree in complementary ways. Preorder visits the
+The two traversals encode the tree in complementary ways. [Preorder](https://en.wikipedia.org/wiki/Tree_traversal) visits the
 root before its subtrees, so the first preorder value is always the root of the
 current subtree. Inorder visits the left subtree, then the root, then the right
 subtree, so once we know the root we can split inorder into its left and right
@@ -191,7 +193,7 @@ The slicing approach repeats two expensive operations: scanning inorder for the
 root and copying slices. Both disappear once we precompute root positions and pass
 array bounds instead of physical slices.
 
-1. Build a hash map `inorder_index` from each value to its index in `inorder`.
+1. Build a [hash map](https://en.wikipedia.org/wiki/Hash_table) `inorder_index` from each value to its index in `inorder`.
    Because all values are unique, this gives `O(1)` root-position lookups.
 2. Describe each subtree by two half-open ranges: `[pre_start, pre_end)` into
    `preorder` and `[in_start, in_end)` into `inorder`. A range with
@@ -273,7 +275,7 @@ right-subtree node.
 1. Build the same `inorder_index` map for `O(1)` lookups.
 2. Keep one moving pointer `pre_pos` into `preorder`, starting at `0`. Each node
    we create consumes exactly one preorder value and advances the pointer.
-3. Recurse with the inclusive inorder bounds `[left, right]` for the current
+3. [Recurse](https://en.wikipedia.org/wiki/Recursion_(computer_science)) with the inclusive inorder bounds `[left, right]` for the current
    subtree. When `left > right` the subtree is empty, so return `None`.
 4. Take the root from `preorder[pre_pos]`, advance the pointer, find its index
    `mid` in inorder, then build the left child from `[left, mid - 1]` and the

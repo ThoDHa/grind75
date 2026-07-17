@@ -1,5 +1,7 @@
 # K-Way Merge - Intuition Guide
 
+**Reference:** [K-way merge](https://en.wikipedia.org/wiki/K-way_merge_algorithm)
+
 ## The Mental Model: Racing Snails
 
 Imagine K snails racing on parallel tracks, each carrying numbered flags in ascending order. You need to announce the numbers in global sorted order.

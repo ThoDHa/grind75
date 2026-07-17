@@ -4,6 +4,8 @@
 
 **Pattern:** [Simulation](../patterns/simulation/intuition.md)
 
+**Algorithm:** [Finite-state machine](https://en.wikipedia.org/wiki/Finite-state_machine)
+
 **Practice:** [`practice/string_to_integer_atoi/solution.py`](../../practice/string_to_integer_atoi/solution.py)
 
 Implement the `myAtoi(string s)` function, which converts a string to a 32-bit signed integer (similar to C/C++'s `atoi` function).
@@ -289,7 +291,7 @@ class Solution:
 
 #### Approach
 
-This solution reformulates the parse as a **deterministic finite automaton** (the classic LeetCode editorial framing). Every character of the input belongs to exactly one of four input classes: `space` (the literal `' '`), `sign` (`'+'` or `'-'`), `digit` (`'0'` through `'9'`), or `other` (anything else). The parser itself is always in exactly one of four states, and a fixed transition table maps each (state, input class) pair to the next state:
+This solution reformulates the parse as a **[deterministic finite automaton](https://en.wikipedia.org/wiki/Deterministic_finite_automaton)** (the classic LeetCode editorial framing). Every character of the input belongs to exactly one of four input classes: `space` (the literal `' '`), `sign` (`'+'` or `'-'`), `digit` (`'0'` through `'9'`), or `other` (anything else). The parser itself is always in exactly one of four states, and a fixed transition table maps each (state, input class) pair to the next state:
 
 | State | `space` | `sign` | `digit` | `other` |
 |-------|---------|--------|---------|---------|
@@ -425,7 +427,7 @@ class Solution:
 
 #### Approach
 
-This solution uses **regular expressions** to extract the valid integer pattern from the string in one step. The regex `^\s*([+-]?\d+)` matches leading whitespace, optional sign, and digits. This approach is more concise but relies on Python's built-in `int()` function for conversion and manual clamping for overflow.
+This solution uses **[regular expressions](https://docs.python.org/3/library/re.html)** to extract the valid integer pattern from the string in one step. The regex `^\s*([+-]?\d+)` matches leading whitespace, optional sign, and digits. This approach is more concise but relies on Python's built-in `int()` function for conversion and manual clamping for overflow.
 
 #### Time and Space Complexity Analysis
 

@@ -4,6 +4,8 @@
 
 **Pattern:** [Tree Traversal](../patterns/tree/intuition.md)
 
+**Algorithm:** [Breadth-first search](https://en.wikipedia.org/wiki/Breadth-first_search) · [Depth-first search](https://en.wikipedia.org/wiki/Depth-first_search)
+
 **Practice:** [`practice/binary_tree_level_order_traversal/solution.py`](../../practice/binary_tree_level_order_traversal/solution.py)
 
 Given the `root` of a binary tree, return the level order traversal of its nodes' values. (i.e., from left to right, level by level).
@@ -171,7 +173,7 @@ class Solution:
 
 #### Approach
 
-A depth-first traversal can produce level-order output if it tracks how deep each node sits and appends values into the correct per-level bucket:
+A [depth-first traversal](https://en.wikipedia.org/wiki/Depth-first_search) can produce level-order output if it tracks how deep each node sits and appends values into the correct per-level bucket:
 
 1. Maintain a `result` list whose index `depth` holds the values for that level.
 2. Recurse with a `depth` parameter, starting at `0` for the root.
@@ -235,7 +237,7 @@ class Solution:
 
 #### Approach
 
-Level order traversal is a textbook breadth-first search. The trick that separates it from the brute force is grouping nodes by level on the fly, which we achieve by measuring each level's size before draining it:
+Level order traversal is a textbook [breadth-first search](https://en.wikipedia.org/wiki/Breadth-first_search). The trick that separates it from the brute force is grouping nodes by level on the fly, which we achieve by measuring each level's size before draining it:
 
 1. Return an empty list immediately when the tree is empty.
 2. Seed a queue with `root`.

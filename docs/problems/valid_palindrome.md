@@ -4,6 +4,8 @@
 
 **Pattern:** [Two Pointers](../patterns/two_pointers/intuition.md)
 
+**Algorithm:** [Two-pointer technique](https://www.geeksforgeeks.org/dsa/two-pointers-technique/)
+
 **Practice:** [`practice/valid_palindrome/solution.py`](../../practice/valid_palindrome/solution.py)
 
 A phrase is a palindrome if, after converting all uppercase letters into lowercase letters and
@@ -164,7 +166,7 @@ reads the same forward and backward.
 
 1. Walk the input once, keeping only the characters for which `isalnum()` is
    true and converting each to lowercase. Collect them into a list `filtered`.
-2. Place a `left` pointer at the start of `filtered` and a `right` pointer at the
+2. Place a [`left` pointer](https://www.geeksforgeeks.org/dsa/two-pointers-technique/) at the start of `filtered` and a `right` pointer at the
    end.
 3. While `left < right`, compare the two characters. If they differ, the cleaned
    string is not a palindrome, so return `False`.
@@ -215,7 +217,7 @@ class Solution:
 #### Approach
 
 This refinement removes the auxiliary buffer by filtering on the fly. Instead of
-materializing a cleaned string, the pointers skip past non-alphanumeric
+materializing a cleaned string, the [pointers](https://www.geeksforgeeks.org/dsa/two-pointers-technique/) skip past non-alphanumeric
 characters as they advance.
 
 1. Start `left` at index `0` and `right` at the last index of the original

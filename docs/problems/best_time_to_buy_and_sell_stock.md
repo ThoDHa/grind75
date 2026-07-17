@@ -4,6 +4,8 @@
 
 **Pattern:** [DP 1D Linear](../patterns/dp_1d_linear/intuition.md)
 
+**Algorithm:** [Kadane's algorithm](https://en.wikipedia.org/wiki/Maximum_subarray_problem)
+
 **Practice:** [`practice/best_time_to_buy_and_sell_stock/solution.py`](../../practice/best_time_to_buy_and_sell_stock/solution.py)
 
 You are given an array `prices` where `prices[i]` is the price of a given stock on the
@@ -152,7 +154,7 @@ single pass suffices if we remember the lowest price encountered so far.
 
 Because `min_price` always holds the cheapest day at or before the current index, the
 candidate profit `price - min_price` is the best achievable sale ending on that day.
-This is Kadane's algorithm applied to the array of day-to-day differences.
+This is [Kadane's algorithm](https://en.wikipedia.org/wiki/Maximum_subarray_problem) applied to the array of day-to-day differences.
 
 #### Time and Space Complexity Analysis
 

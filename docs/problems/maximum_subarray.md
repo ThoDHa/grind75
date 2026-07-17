@@ -4,6 +4,8 @@
 
 **Pattern:** [Prefix Sum](../patterns/prefix_sum/intuition.md), [DP 1D Linear](../patterns/dp_1d_linear/intuition.md)
 
+**Algorithm:** [Kadane's algorithm](https://en.wikipedia.org/wiki/Maximum_subarray_problem) · [Dynamic programming](https://en.wikipedia.org/wiki/Dynamic_programming) · [Divide and conquer](https://en.wikipedia.org/wiki/Divide-and-conquer_algorithm) · [Prefix sum](https://en.wikipedia.org/wiki/Prefix_sum)
+
 **Practice:** [`practice/maximum_subarray/solution.py`](../../practice/maximum_subarray/solution.py)
 
 Given an integer array `nums`, find the contiguous subarray (containing at least one number) which has the largest sum and return *its sum*.
@@ -145,7 +147,7 @@ class Solution:
 
 #### Approach
 
-Kadane's algorithm scans the array once while tracking two quantities: `current_sum`, the largest sum of any subarray that ends at the current index, and `max_sum`, the largest sum seen anywhere so far.
+[Kadane's algorithm](https://en.wikipedia.org/wiki/Maximum_subarray_problem) scans the array once while tracking two quantities: `current_sum`, the largest sum of any subarray that ends at the current index, and `max_sum`, the largest sum seen anywhere so far.
 
 1. Initialize both `current_sum` and `max_sum` to `nums[0]`, since the answer must contain at least one element.
 2. For each subsequent element, decide whether to extend the running subarray or begin a new one at the current element: `current_sum = max(nums[i], current_sum + nums[i])`.
@@ -191,7 +193,7 @@ class Solution:
 
 #### Approach
 
-This formulation makes the dynamic-programming recurrence behind Kadane's algorithm explicit by storing every intermediate state in an array.
+This formulation makes the [dynamic-programming](https://en.wikipedia.org/wiki/Dynamic_programming) recurrence behind Kadane's algorithm explicit by storing every intermediate state in an array.
 
 1. Define `dp[i]` as the maximum sum of a subarray that ends at index `i`.
 2. Set the base case `dp[0] = nums[0]`.
@@ -253,7 +255,7 @@ class Solution:
 
 #### Approach
 
-The divide-and-conquer solution (requested by the follow-up) splits the array and observes that the maximum subarray falls into exactly one of three categories.
+The [divide-and-conquer](https://en.wikipedia.org/wiki/Divide-and-conquer_algorithm) solution (requested by the follow-up) splits the array and observes that the maximum subarray falls into exactly one of three categories.
 
 1. Base case: a single element returns its own value.
 2. Split at `mid` and recursively solve the left and right halves.
@@ -302,7 +304,7 @@ class Solution:
 
 The sum of the subarray `nums[i..j]` equals `prefix[j] - prefix[i - 1]`. To maximize it while ending at index `j`, subtract the smallest prefix sum seen before `j`.
 
-1. Maintain a running `prefix` sum and `min_prefix`, the smallest prefix sum seen at any earlier boundary.
+1. Maintain a running `prefix` sum and `min_prefix`, the smallest [prefix sum](https://en.wikipedia.org/wiki/Prefix_sum) seen at any earlier boundary.
 2. At each element, the best subarray ending here is `prefix - min_prefix`; update `best` with it.
 3. Update `min_prefix` after using it, so the boundary is always strictly before the current end.
 4. Return `best`.
@@ -339,7 +341,7 @@ class Solution:
 
 #### Approach
 
-`itertools.accumulate` carries Kadane's recurrence as its binary combiner, producing the stream of best-sums-ending-here, and `max` selects the overall best.
+[`itertools.accumulate`](https://docs.python.org/3/library/itertools.html) carries Kadane's recurrence as its binary combiner, producing the stream of best-sums-ending-here, and `max` selects the overall best.
 
 1. The accumulator starts at `nums[0]` (the first element passes through unchanged).
 2. Each step applies `max(x, acc + x)`, exactly the Kadane decision to extend or restart.

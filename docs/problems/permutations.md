@@ -4,6 +4,8 @@
 
 **Pattern:** [Backtracking](../patterns/backtracking_exploration/intuition.md)
 
+**Algorithm:** [Backtracking](https://en.wikipedia.org/wiki/Backtracking) · [Permutation](https://en.wikipedia.org/wiki/Permutation) · [Heap's algorithm](https://en.wikipedia.org/wiki/Heap%27s_algorithm)
+
 **Practice:** [`practice/permutations/solution.py`](../../practice/permutations/solution.py)
 
 Given an array `nums` of distinct integers, return all the possible permutations. You can return the answer in any order.
@@ -62,7 +64,7 @@ class Solution:
 
 #### Approach
 
-This is the classic backtracking template applied directly: build one permutation element by element, and at each position try every number that has not been placed yet. The recursion follows the choose, explore, unchoose pattern.
+This is the classic [backtracking](https://en.wikipedia.org/wiki/Backtracking) template applied directly: build one permutation element by element, and at each position try every number that has not been placed yet. The recursion follows the choose, explore, unchoose pattern.
 
 1. Maintain a `current` list holding the partial permutation under construction.
 2. When `current` reaches the length of `nums`, a complete permutation has been formed, so append a copy to `result`.
@@ -242,7 +244,7 @@ class Solution:
 
 #### Approach
 
-This non-recursive approach builds the full set of permutations by repeated insertion. Starting from the single empty permutation, each new number is inserted at every possible position of every permutation gathered so far.
+This non-recursive approach builds the full set of [permutations](https://en.wikipedia.org/wiki/Permutation) by repeated insertion. Starting from the single empty permutation, each new number is inserted at every possible position of every permutation gathered so far.
 
 1. Seed `result` with one empty permutation, `[[]]`.
 2. For each `num` in `nums`, create an empty `new_result`.
@@ -295,7 +297,7 @@ class Solution:
 
 #### Approach
 
-This is the classic minimal-change permutation generator published by B. R. Heap in 1963. The name refers to its author and has nothing to do with the heap data structure: no priority queue or heap property appears anywhere in the algorithm. Its defining property is that each permutation is produced from the previous one by a single swap of two elements, whereas the backtracking approaches rebuild a path prefix between outputs.
+This is the classic [minimal-change permutation generator](https://en.wikipedia.org/wiki/Heap%27s_algorithm) published by B. R. Heap in 1963. The name refers to its author and has nothing to do with the heap data structure: no priority queue or heap property appears anywhere in the algorithm. Its defining property is that each permutation is produced from the previous one by a single swap of two elements, whereas the backtracking approaches rebuild a path prefix between outputs.
 
 1. `generate(k)` emits every permutation of the first `k` positions of `nums` while leaving `nums[k..n-1]` untouched.
 2. When `k == 1`, the arrangement is fully determined, so snapshot `nums[:]` into `result`.
@@ -336,7 +338,7 @@ class Solution:
 
 #### Approach
 
-Python's `itertools.permutations` generates every ordering of the input. Each yielded item is a tuple, so the comprehension converts them to lists to match the expected return type.
+Python's [`itertools.permutations`](https://docs.python.org/3/library/itertools.html) generates every ordering of the input. Each yielded item is a tuple, so the comprehension converts them to lists to match the expected return type.
 
 1. Call `permutations(nums)` to obtain an iterator over all orderings as tuples.
 2. Convert each tuple to a list and collect them into the result.

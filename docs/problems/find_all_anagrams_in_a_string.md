@@ -4,6 +4,8 @@
 
 **Pattern:** [Sliding Window](../patterns/sliding_window/intuition.md)
 
+**Algorithm:** [Sliding window](https://www.geeksforgeeks.org/dsa/window-sliding-technique/)
+
 **Practice:** [`practice/find_all_anagrams_in_a_string/solution.py`](../../practice/find_all_anagrams_in_a_string/solution.py)
 
 Given two strings `s` and `p`, return an array of all the start indices of `p`'s anagrams in `s`. You may return the answer in any order.
@@ -187,7 +189,7 @@ class Solution:
 
 #### Approach
 
-Adjacent windows overlap heavily: sliding one step removes a single character on
+Adjacent windows overlap heavily: [sliding one step](https://www.geeksforgeeks.org/dsa/window-sliding-technique/) removes a single character on
 the left and adds a single character on the right. Rather than recounting, we
 maintain the window's 26-slot count incrementally and track a running `matches`
 value, the number of letters whose window count already equals the needed count.

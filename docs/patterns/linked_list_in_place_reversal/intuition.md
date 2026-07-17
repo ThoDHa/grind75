@@ -1,5 +1,7 @@
 # Linked List In-Place Reversal: Building Intuition
 
+**Reference:** [Linked list](https://en.wikipedia.org/wiki/Linked_list)
+
 > **Core Insight**: Reverse direction by changing where arrows point, not by moving data.
 
 ---

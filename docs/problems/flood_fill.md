@@ -4,6 +4,8 @@
 
 **Pattern:** [Graph Traversal](../patterns/graph/intuition.md)
 
+**Algorithm:** [Flood fill](https://en.wikipedia.org/wiki/Flood_fill) · [Depth-first search](https://en.wikipedia.org/wiki/Depth-first_search) · [Breadth-first search](https://en.wikipedia.org/wiki/Breadth-first_search)
+
 **Practice:** [`practice/flood_fill/solution.py`](../../practice/flood_fill/solution.py)
 
 You are given an image represented by an m x n grid of integers `image`, where `image[i][j]` represents the pixel value of the image. You are also given three integers `sr`, `sc`, and `color`. Your task is to perform a flood fill on the image starting from the pixel `image[sr][sc]`.
@@ -80,7 +82,7 @@ class Solution:
 
 #### Approach
 
-This solution uses a recursive depth-first search (DFS) approach to implement the flood fill algorithm:
+This solution uses a recursive [depth-first search (DFS)](https://en.wikipedia.org/wiki/Depth-first_search) approach to implement the flood fill algorithm:
 
 - We first check if the starting pixel already has the target color to avoid unnecessary work
 - For each pixel, we check if it's valid (within bounds and has the initial color)
@@ -169,7 +171,7 @@ class Solution:
 
 #### Approach
 
-This solution implements flood fill using an iterative depth-first search approach with a stack:
+This solution implements flood fill using an iterative [depth-first search](https://en.wikipedia.org/wiki/Depth-first_search) approach with a stack:
 
 - We use a stack to keep track of pixels we need to process
 - For each pixel, we check if it's valid and has the initial color
@@ -233,7 +235,7 @@ class Solution:
 
 #### Approach
 
-This solution implements a breadth-first search using recursive level-by-level processing:
+This solution implements a [breadth-first search](https://en.wikipedia.org/wiki/Breadth-first_search) using recursive level-by-level processing:
 
 - Instead of processing one pixel at a time, we process entire "levels" of pixels
 - Each recursive call handles all pixels at the same distance from the starting point
@@ -290,7 +292,7 @@ class Solution:
 
 #### Approach
 
-This solution implements a standard iterative breadth-first search using a queue:
+This solution implements a standard iterative [breadth-first search](https://en.wikipedia.org/wiki/Breadth-first_search) using a queue:
 
 - We use a list as a queue to process pixels in order of their distance from the start
 - For each pixel, we check if it's valid and has the initial color

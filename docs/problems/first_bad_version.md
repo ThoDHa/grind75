@@ -4,6 +4,8 @@
 
 **Pattern:** [Binary Search](../patterns/binary_search/intuition.md)
 
+**Algorithm:** [Binary search](https://en.wikipedia.org/wiki/Binary_search_algorithm)
+
 **Practice:** [`practice/first_bad_version/solution.py`](../../practice/first_bad_version/solution.py)
 
 You are a product manager and currently leading a team to develop a new product. Unfortunately, the latest version of your product fails the quality check. Since each version is developed based on the previous version, all the versions after a bad version are also bad.
@@ -56,7 +58,7 @@ class Solution:
 
 #### Approach
 
-The most direct reading of the problem: walk the versions in order and return
+The most direct reading of the problem: [walk the versions in order](https://en.wikipedia.org/wiki/Linear_search) and return
 the first one the API reports as bad. Because every version after a bad version
 is also bad, the first `True` the scan encounters is the boundary we want.
 
@@ -131,7 +133,7 @@ class Solution:
 The version sequence is monotonic: once versions go bad they stay bad, so the
 `isBadVersion` results form `False, False, ..., False, True, True, ..., True`.
 That is a sorted boolean array, and finding the first `True` is a textbook
-binary search for the left boundary.
+[binary search](https://en.wikipedia.org/wiki/Binary_search_algorithm) for the left boundary.
 
 1. Maintain a closed search range `[lo, hi]` (both endpoints inclusive), starting at `lo = 1`, `hi = n`.
 2. While `lo < hi`, compute `mid = lo + (hi - lo) // 2`.
@@ -181,7 +183,7 @@ class Solution:
 
 #### Approach
 
-`bisect.bisect_left` already performs the left-boundary binary search. Treating
+[`bisect.bisect_left`](https://docs.python.org/3/library/bisect.html) already performs the left-boundary binary search. Treating
 the versions as a virtual sorted sequence whose key is `isBadVersion`, the
 predicate maps to `False < True`, so the leftmost insertion point of `True` is
 the first bad version.

@@ -1,5 +1,7 @@
 # Two Pointers: Pattern Intuition Guide
 
+**Reference:** [Two-pointer technique](https://www.geeksforgeeks.org/dsa/two-pointers-technique/)
+
 > *"Two points of attention, moving in coordinated rhythm: each step permanently narrows the world of possibilities."*
 
 ---

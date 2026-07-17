@@ -4,6 +4,8 @@
 
 **Pattern:** [Hashing & Frequency Counting](../patterns/hashing/intuition.md)
 
+**Algorithm:** [Hash table](https://en.wikipedia.org/wiki/Hash_table) · [Greedy algorithm](https://en.wikipedia.org/wiki/Greedy_algorithm)
+
 **Practice:** [`practice/longest_palindrome/solution.py`](../../practice/longest_palindrome/solution.py)
 
 Given a string `s` which consists of lowercase or uppercase letters, return the length of the longest palindrome that can be built with those letters.
@@ -68,7 +70,7 @@ class Solution:
 
 The most direct idea follows straight from how a palindrome is built: characters mirror around the center, so each character can contribute only in pairs, except for a single character allowed in the middle. Counting how many of each character we have and then taking as many pairs as possible answers the question without ever constructing a palindrome.
 
-1. Count the frequency of every character with a plain dictionary.
+1. Count the frequency of every character with a plain [dictionary](https://en.wikipedia.org/wiki/Hash_table).
 2. For each frequency, add its largest even part `(count // 2) * 2` to the running length, because only complete pairs can mirror across the palindrome.
 3. Record whether any frequency is odd, since an odd frequency leaves one unpaired character.
 4. If any odd frequency was seen, add `1` for a single center character.
@@ -149,7 +151,7 @@ class Solution:
 
 #### Approach
 
-This solution uses a set to track unpaired characters as it processes the string:
+This solution uses a [set](https://en.wikipedia.org/wiki/Hash_table) to track unpaired characters as it processes the string:
 
 1. For each character in the string:
     - If it's already in the set, we've found a pair. Remove it from the set and increase count by 2.
@@ -202,7 +204,7 @@ class Solution:
 
 This refinement of the brute force avoids the explicit pair arithmetic by working backward from `len(s)`. Every odd-frequency character forces one unpaired character to be discarded, except that one of them may sit in the center:
 
-1. Create a hash map (dictionary) to store the count of each character.
+1. Create a [hash map](https://en.wikipedia.org/wiki/Hash_table) (dictionary) to store the count of each character.
 2. Initialize an odd counter at `-1`, which pre-credits one odd character as the allowed center.
 3. After counting characters, iterate through the values to count how many have an odd frequency.
 4. Calculate the palindrome length:
@@ -249,7 +251,7 @@ class Solution:
 
 #### Approach
 
-This solution leans on `collections.Counter` to tally character frequencies, then derives the answer directly from those counts:
+This solution leans on [`collections.Counter`](https://docs.python.org/3/library/collections.html#collections.Counter) to tally character frequencies, then derives the answer directly from those counts:
 
 1. Build a `Counter` over `s`, mapping each character to its frequency.
 2. For each frequency, add its largest even part (`freq - (freq & 1)`) to the running length, since pairs of characters always contribute to a palindrome.

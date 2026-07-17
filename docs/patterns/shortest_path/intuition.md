@@ -1,5 +1,7 @@
 # Shortest Path Patterns: Mental Models & Intuition
 
+**Reference:** [Dijkstra's algorithm](https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm)
+
 > Build deep understanding of when and why different shortest path algorithms work.
 
 ## The Core Insight

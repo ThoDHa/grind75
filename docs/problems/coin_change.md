@@ -4,6 +4,8 @@
 
 **Pattern:** [DP Knapsack/Subset](../patterns/dp_knapsack_subset/intuition.md)
 
+**Algorithm:** [Dynamic programming](https://en.wikipedia.org/wiki/Dynamic_programming) · [Memoization](https://en.wikipedia.org/wiki/Memoization) · [Breadth-first search](https://en.wikipedia.org/wiki/Breadth-first_search)
+
 **Practice:** [`practice/coin_change/solution.py`](../../practice/coin_change/solution.py)
 
 You are given an integer array `coins` representing coins of different denominations and an integer `amount` representing a total amount of money.
@@ -75,7 +77,7 @@ class Solution:
 
 #### Approach
 
-This is a naive recursive approach without memoization. It explores all possible combinations of coins by trying each coin at each step and recursively solving the remaining amount.
+This is a naive [recursive](https://en.wikipedia.org/wiki/Recursion_(computer_science)) approach without memoization. It explores all possible combinations of coins by trying each coin at each step and recursively solving the remaining amount.
 
 While conceptually simple, this approach has exponential time complexity due to overlapping subproblems being solved multiple times.
 
@@ -175,7 +177,7 @@ class Solution:
 
 #### Approach
 
-This top-down approach uses recursion with memoization. We start from the target amount and recursively try using each coin, asking "what's the minimum coins needed for the remaining amount?"
+This top-down approach uses recursion with [memoization](https://en.wikipedia.org/wiki/Memoization). We start from the target amount and recursively try using each coin, asking "what's the minimum coins needed for the remaining amount?"
 
 The recursive relation is the same: for amount `x`, try each coin `c` and take the minimum of `1 + dp(x - c)` for all valid coins. Memoization prevents recomputing the same subproblems multiple times.
 
@@ -227,7 +229,7 @@ class Solution:
 
 #### Approach
 
-This bottom-up dynamic programming solution builds the answer for all amounts from 0 to the target amount. For each amount, we try using each coin denomination and choose the combination that requires the fewest total coins.
+This bottom-up [dynamic programming](https://en.wikipedia.org/wiki/Dynamic_programming) solution builds the answer for all amounts from 0 to the target amount. For each amount, we try using each coin denomination and choose the combination that requires the fewest total coins.
 
 The key insight is that to make amount `i`, we can use any coin `c` (where `c <= i`) and then optimally make the remaining amount `i - c`. This gives us the recurrence relation: `dp[i] = min(dp[i], 1 + dp[i - c])` for all valid coins `c`.
 
@@ -290,7 +292,7 @@ class Solution:
 
 #### Approach
 
-This BFS approach treats the problem as finding the shortest path from amount 0 to the target amount, where each coin represents an edge with weight 1. We use level-by-level BFS where each level represents using one more coin.
+This [BFS](https://en.wikipedia.org/wiki/Breadth-first_search) approach treats the problem as finding the shortest path from amount 0 to the target amount, where each coin represents an edge with weight 1. We use level-by-level BFS where each level represents using one more coin.
 
 The key insight is that BFS naturally finds the minimum number of steps (coins) to reach any amount, since it explores all possibilities with fewer coins before exploring those with more coins. This reframing is a clever lateral leap rather than a direct refinement of the recursion, which is why it lands last among the approaches.
 

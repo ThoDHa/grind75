@@ -4,6 +4,8 @@
 
 **Pattern:** [Hashing & Frequency Counting](../patterns/hashing/intuition.md)
 
+**Algorithm:** [Hash table](https://en.wikipedia.org/wiki/Hash_table)
+
 **Practice:** [`practice/ransom_note/solution.py`](../../practice/ransom_note/solution.py)
 
 Given two strings `ransomNote` and `magazine`, return `true` if `ransomNote` can be constructed from `magazine` and `false` otherwise.
@@ -62,7 +64,7 @@ class Solution:
 
 #### Approach
 
-The most direct idea mirrors the physical act the problem describes: cut each letter out of the magazine. For every character the ransom note needs, scan the remaining magazine letters for a matching copy and remove it so it cannot be reused. No counting structure is involved at all, just repeated linear search over a shrinking pool.
+The most direct idea mirrors the physical act the problem describes: cut each letter out of the magazine. For every character the ransom note needs, scan the remaining magazine letters for a matching copy and remove it so it cannot be reused. No counting structure is involved at all, just repeated [linear search](https://en.wikipedia.org/wiki/Linear_search) over a shrinking pool.
 
 1. Copy the magazine into a list that acts as a pool of available letters.
 2. For each character in the ransom note, scan the pool left to right for that character.
@@ -122,7 +124,7 @@ class Solution:
 
 #### Approach
 
-This solution uses a hash map to count the occurrences of each character in the magazine. We first check if the ransom note is longer than the magazine: if so, it is immediately impossible to construct the note. Then we:
+This solution uses a [hash map](https://en.wikipedia.org/wiki/Hash_table) to count the occurrences of each character in the magazine. We first check if the ransom note is longer than the magazine: if so, it is immediately impossible to construct the note. Then we:
 
 1. Build a frequency counter of all characters in the magazine
 2. Iterate through the ransom note, checking if each character is available in sufficient quantity
@@ -219,7 +221,7 @@ class Solution:
 
 #### Approach
 
-This solution leverages Python's built-in `Counter` class, which is specifically designed for counting hashable objects. The approach is conceptually similar to the Hash Map approach:
+This solution leverages Python's built-in [`Counter`](https://docs.python.org/3/library/collections.html#collections.Counter) class, which is specifically designed for counting hashable objects. The approach is conceptually similar to the Hash Map approach:
 
 1. Create frequency counters for both the magazine and ransom note
 2. Check if each character in the ransom note appears in the magazine with sufficient frequency

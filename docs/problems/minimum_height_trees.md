@@ -4,6 +4,8 @@
 
 **Pattern:** [Topological Sort](../patterns/topological_sort/intuition.md)
 
+**Algorithm:** [Topological sorting](https://en.wikipedia.org/wiki/Topological_sorting) · [Breadth-first search](https://en.wikipedia.org/wiki/Breadth-first_search)
+
 **Practice:** [`practice/minimum_height_trees/solution.py`](../../practice/minimum_height_trees/solution.py)
 
 A tree is an undirected graph in which any two vertices are connected by exactly one path. In other words, any connected graph without simple cycles is a tree.
@@ -96,7 +98,7 @@ minimizers.
 
 1. Handle `n == 1` up front: a lone node has height 0 and is the only root.
 2. Build an undirected adjacency list from the edge list.
-3. For each node, run a breadth-first search from that node and record how many
+3. For each node, run a [breadth-first search](https://en.wikipedia.org/wiki/Breadth-first_search) from that node and record how many
    layers it takes to reach the farthest node. That layer count is the height of
    the tree rooted there.
 4. Find the minimum height across all roots and return every root that achieves
@@ -218,7 +220,7 @@ The roots that minimize tree height are the *centroids* of the tree, the nodes
 that sit in the middle of its longest path. A tree always has exactly one or two
 centroids, and a brute-force "try every root and BFS" approach would cost
 `O(n^2)`. Instead we find the centroids directly by repeatedly trimming the
-outermost layer of leaves, which is topological sorting specialized to an
+outermost layer of leaves, which is [topological sorting](https://en.wikipedia.org/wiki/Topological_sorting) specialized to an
 undirected tree.
 
 1. Handle the tiny cases: if `n <= 2`, every node is a valid root, so return all

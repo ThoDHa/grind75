@@ -4,6 +4,8 @@
 
 **Pattern:** [Graph Traversal](../patterns/graph/intuition.md)
 
+**Algorithm:** [Depth-first search](https://en.wikipedia.org/wiki/Depth-first_search) · [Breadth-first search](https://en.wikipedia.org/wiki/Breadth-first_search) · [Disjoint-set / Union-Find](https://en.wikipedia.org/wiki/Disjoint-set_data_structure)
+
 **Practice:** [`practice/number_of_islands/solution.py`](../../practice/number_of_islands/solution.py)
 
 Given an `m x n` 2D binary grid `grid` which represents a map of `'1'`s (land) and `'0'`s (water), return the number of islands.
@@ -94,7 +96,7 @@ class Solution:
 
 #### Approach
 
-This DFS solution treats each unvisited land cell ('1') as the start of a new island. When we encounter such a cell, we increment our island count and use DFS to explore and mark all connected land cells as visited (by changing them to '0').
+This [DFS](https://en.wikipedia.org/wiki/Depth-first_search) solution treats each unvisited land cell ('1') as the start of a new island. When we encounter such a cell, we increment our island count and use DFS to explore and mark all connected land cells as visited (by changing them to '0').
 
 The key insight is that we're finding connected components in an implicit graph where:
 - Each land cell is a node
@@ -218,7 +220,7 @@ class Solution:
 
 #### Approach
 
-This BFS solution follows the same logic as the DFS approach but uses a queue to explore connected components level by level. BFS can be preferable when dealing with very deep recursion scenarios or when you need to find the shortest path within connected components.
+This [BFS](https://en.wikipedia.org/wiki/Breadth-first_search) solution follows the same logic as the DFS approach but uses a queue to explore connected components level by level. BFS can be preferable when dealing with very deep recursion scenarios or when you need to find the shortest path within connected components.
 
 BFS explores nodes in order of their distance from the starting point, which can be useful for certain extensions of this problem.
 
@@ -351,7 +353,7 @@ class Solution:
 
 #### Approach
 
-This solution uses an explicit stack to simulate DFS without recursion, avoiding potential stack overflow issues for very large grids. The logic is identical to recursive DFS but uses a stack data structure instead of the call stack.
+This solution uses an explicit [stack](https://en.wikipedia.org/wiki/Stack_(abstract_data_type)) to simulate DFS without recursion, avoiding potential stack overflow issues for very large grids. The logic is identical to recursive DFS but uses a stack data structure instead of the call stack.
 
 #### Time and Space Complexity Analysis
 
@@ -449,7 +451,7 @@ class Solution:
 
 #### Approach
 
-Union-Find treats this as a dynamic connectivity problem. We initially consider each cell as a separate component, then union adjacent land cells. The final number of islands equals the number of connected components minus the water cells.
+[Union-Find](https://en.wikipedia.org/wiki/Disjoint-set_data_structure) treats this as a dynamic connectivity problem. We initially consider each cell as a separate component, then union adjacent land cells. The final number of islands equals the number of connected components minus the water cells.
 
 This approach is particularly powerful for scenarios where the grid is built dynamically or when you need to support queries about connectivity between arbitrary cells.
 

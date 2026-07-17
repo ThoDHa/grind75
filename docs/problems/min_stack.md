@@ -4,6 +4,8 @@
 
 **Pattern:** [Data-Structure Design](../patterns/design/intuition.md)
 
+**Algorithm:** [Stack](https://en.wikipedia.org/wiki/Stack_(abstract_data_type))
+
 **Practice:** [`practice/min_stack/solution.py`](../../practice/min_stack/solution.py)
 
 Design a stack that supports push, pop, top, and retrieving the minimum element in constant time.
@@ -89,7 +91,7 @@ class MinStack:
 #### Approach
 
 The most direct idea ignores the `O(1)` requirement at first and keeps a single
-plain stack of values. `push`, `pop`, and `top` are trivial list operations.
+plain [stack](https://en.wikipedia.org/wiki/Stack_(abstract_data_type)) of values. `push`, `pop`, and `top` are trivial list operations.
 For `getMin`, with no extra bookkeeping, the only option is to walk every
 element and track the smallest one seen.
 

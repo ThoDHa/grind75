@@ -4,6 +4,8 @@
 
 **Pattern:** [Hashing & Frequency Counting](../patterns/hashing/intuition.md)
 
+**Algorithm:** [Hash table](https://en.wikipedia.org/wiki/Hash_table) · [Two-pointer technique](https://www.geeksforgeeks.org/dsa/two-pointers-technique/) · [Sorting](https://en.wikipedia.org/wiki/Sorting_algorithm)
+
 **Practice:** [`practice/two_sum/solution.py`](../../practice/two_sum/solution.py)
 
 Given an array of integers nums and an integer target, return indices of the two
@@ -131,7 +133,7 @@ class Solution:
 
 #### Approach
 
-This solution sorts the values and then converges two pointers from the ends of the sorted array. If the pointed values sum to less than the target, the left pointer moves right to increase the sum; if they sum to more, the right pointer moves left to decrease it. When the sum matches, we have found the pair.
+This solution sorts the values and then converges [two pointers](https://www.geeksforgeeks.org/dsa/two-pointers-technique/) from the ends of the sorted array. If the pointed values sum to less than the target, the left pointer moves right to increase the sum; if they sum to more, the right pointer moves left to decrease it. When the sum matches, we have found the pair.
 
 Because the problem asks for the original indices, we cannot sort `nums` directly without losing that information. We instead pair each value with its original index before sorting, sort by value, and return the stored original indices when the matching pair is found.
 
@@ -173,7 +175,7 @@ class Solution:
 
 #### Approach
 
-This solution uses a hash map to store previously encountered numbers and their indices. For each element, we check if its complement (`target - current number`) already exists in the hash map. If found, we've identified our pair. Otherwise, we add the current number and its index to the hash map.
+This solution uses a [hash map](https://en.wikipedia.org/wiki/Hash_table) to store previously encountered numbers and their indices. For each element, we check if its complement (`target - current number`) already exists in the hash map. If found, we've identified our pair. Otherwise, we add the current number and its index to the hash map.
 
 #### Time and Space Complexity Analysis
 

@@ -4,6 +4,8 @@
 
 **Pattern:** [DP Knapsack/Subset](../patterns/dp_knapsack_subset/intuition.md)
 
+**Algorithm:** [Subset sum problem](https://en.wikipedia.org/wiki/Subset_sum_problem) · [Dynamic programming](https://en.wikipedia.org/wiki/Dynamic_programming) · [Knapsack problem](https://en.wikipedia.org/wiki/Knapsack_problem)
+
 **Practice:** [`practice/partition_equal_subset_sum/solution.py`](../../practice/partition_equal_subset_sum/solution.py)
 
 Given an integer array `nums`, return `true` if you can partition the array into two subsets such that the sum of the elements in both subsets is equal.
@@ -69,7 +71,7 @@ up to exactly half the total? Two subsets have equal sum only when the total is 
 and one of them sums to `total // 2`, so an odd total returns `False` immediately.
 
 To find such a subset we try every possibility by hand. Walking the array index by
-index, each number is either included in the chosen subset or left out, and we recurse
+index, each number is either included in the chosen subset or left out, and we [recurse](https://en.wikipedia.org/wiki/Recursion_(computer_science))
 on both branches:
 
 1. Compute `total = sum(nums)`. If it is odd, return `False`.
@@ -172,7 +174,7 @@ class Solution:
 
 #### Approach
 
-This is the Brute Force recursion, unchanged, plus a cache. The observation that saves
+This is the Brute Force recursion, unchanged, plus a [cache](https://en.wikipedia.org/wiki/Memoization). The observation that saves
 it is that a call to `search(i, remaining)` depends only on its two arguments: which
 index comes next and how much of the target is still unmet. Different include/exclude
 histories that arrive at the same `(i, remaining)` pair face the exact same subproblem,
@@ -257,7 +259,7 @@ class Solution:
 
 #### Approach
 
-This is the textbook 0/1 subset-sum dynamic program. Two subsets have equal sum only
+This is the textbook 0/1 subset-sum [dynamic program](https://en.wikipedia.org/wiki/Dynamic_programming). Two subsets have equal sum only
 when the total is even and one subset sums to exactly `total // 2`, so an odd total
 returns `False` immediately.
 
@@ -326,7 +328,7 @@ class Solution:
 
 #### Approach
 
-This is a subset-sum problem in disguise. Two subsets have equal sum only when the
+This is a [subset-sum problem](https://en.wikipedia.org/wiki/Subset_sum_problem) in disguise. Two subsets have equal sum only when the
 total is even and one subset sums to exactly `total // 2`. If the total is odd, no
 partition can exist, so we return `False` immediately.
 

@@ -1,5 +1,7 @@
 # Sliding Window: Pattern Intuition Guide
 
+**Reference:** [Sliding window](https://www.geeksforgeeks.org/dsa/window-sliding-technique/)
+
 > *"The window is a moving lens of attention: it forgets the past to focus on what matters now."*
 
 ---

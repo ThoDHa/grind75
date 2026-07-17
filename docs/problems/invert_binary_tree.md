@@ -4,6 +4,8 @@
 
 **Pattern:** [Tree Traversal](../patterns/tree/intuition.md)
 
+**Algorithm:** [Tree traversal](https://en.wikipedia.org/wiki/Tree_traversal) · [Depth-first search](https://en.wikipedia.org/wiki/Depth-first_search) · [Breadth-first search](https://en.wikipedia.org/wiki/Breadth-first_search)
+
 **Practice:** [`practice/invert_binary_tree/solution.py`](../../practice/invert_binary_tree/solution.py)
 
 Given the `root` of a binary tree, invert the tree, and return its root.
@@ -61,7 +63,7 @@ class Solution:
 
 #### Approach
 
-Inverting a binary tree is self-similar: the inverted tree is the one whose root children are swapped and whose two subtrees are themselves inverted. That recursive definition translates directly into code:
+Inverting a binary tree is self-similar: the inverted tree is the one whose root children are swapped and whose two subtrees are themselves inverted. That [recursive](https://en.wikipedia.org/wiki/Recursion_(computer_science)) definition translates directly into code:
 
 1. Base case: when `root` is `None`, there is nothing to invert, so return `None`.
 2. Swap the current node's `left` and `right` children with a single tuple assignment.
@@ -138,7 +140,7 @@ class Solution:
 
 #### Approach
 
-Because each node's swap is independent, the recursion can be made explicit by managing the pending nodes with a stack instead of the call stack. This keeps the same depth-first visit order:
+Because each node's swap is independent, the recursion can be made explicit by managing the pending nodes with a stack instead of the call stack. This keeps the same [depth-first](https://en.wikipedia.org/wiki/Depth-first_search) visit order:
 
 1. Return `None` when the tree is empty.
 2. Seed a stack with `root`.
@@ -193,7 +195,7 @@ class Solution:
 
 #### Approach
 
-Swapping the stack for a queue turns the depth-first walk into a level-order (breadth-first) one while keeping the logic identical:
+Swapping the stack for a queue turns the depth-first walk into a level-order ([breadth-first](https://en.wikipedia.org/wiki/Breadth-first_search)) one while keeping the logic identical:
 
 1. Return `None` immediately when the tree is empty.
 2. Seed a queue with `root`.

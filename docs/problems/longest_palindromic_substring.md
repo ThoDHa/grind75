@@ -4,6 +4,8 @@
 
 **Pattern:** [String DP](../patterns/string_dp/intuition.md)
 
+**Algorithm:** [Longest palindromic substring](https://en.wikipedia.org/wiki/Longest_palindromic_substring) · [Dynamic programming](https://en.wikipedia.org/wiki/Dynamic_programming)
+
 **Practice:** [`practice/longest_palindromic_substring/solution.py`](../../practice/longest_palindromic_substring/solution.py)
 
 Given a string `s`, return the longest palindromic substring in `s`.
@@ -160,7 +162,7 @@ class Solution:
 
 Define `dp[i][j]` to be `True` when the substring `s[i..j]` (inclusive) is a
 palindrome. A substring is a palindrome exactly when its two ends match and the
-inside is already known to be a palindrome, which gives the recurrence:
+inside is already known to be a palindrome, which gives the [recurrence](https://en.wikipedia.org/wiki/Dynamic_programming):
 
 `dp[i][j] = (s[i] == s[j]) and (j - i < 2 or dp[i + 1][j - 1])`
 
@@ -233,7 +235,7 @@ single-character centers and `n - 1` gap centers, so `2n - 1` centers in total.
 The idea is to try every possible center and expand outward as long as the
 characters on both sides match, recording the longest palindrome seen.
 
-1. Define a helper `expand(left, right)` that walks the two pointers outward
+1. Define a helper `expand(left, right)` that walks the [two pointers](https://www.geeksforgeeks.org/dsa/two-pointers-technique/) outward
    while they stay in bounds and `s[left] == s[right]`.
 2. When the loop stops, the pointers have overshot by one, so return
    `(left + 1, right - 1)` as the inclusive bounds of the matched palindrome.
@@ -312,7 +314,7 @@ class Solution:
 
 #### Approach
 
-Manacher's algorithm achieves linear time by never re-examining characters it
+[Manacher's algorithm](https://en.wikipedia.org/wiki/Longest_palindromic_substring) achieves linear time by never re-examining characters it
 already knows to match. It first transforms the string so that odd- and
 even-length palindromes are handled uniformly, then reuses palindrome symmetry
 to give each new center a head start.

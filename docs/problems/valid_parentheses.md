@@ -4,6 +4,8 @@
 
 **Pattern:** [Stack](../patterns/stack/intuition.md)
 
+**Algorithm:** [Stack (abstract data type)](https://en.wikipedia.org/wiki/Stack_(abstract_data_type)) · [Hash table](https://en.wikipedia.org/wiki/Hash_table)
+
 **Practice:** [`practice/valid_parentheses/solution.py`](../../practice/valid_parentheses/solution.py)
 
 Given a string `s` containing just the characters `'('`, `')'`, `'{'`, `'}'`, `'['` and `']'`,
@@ -74,7 +76,7 @@ class Solution:
 #### Approach
 
 Brackets must close in last-opened, first-closed order, which is exactly the
-behaviour of a stack. The most direct idea is to push each opening bracket as it
+behaviour of a [stack](https://en.wikipedia.org/wiki/Stack_(abstract_data_type)). The most direct idea is to push each opening bracket as it
 appears, then on a closing bracket check that the most recently opened bracket is
 its matching opener:
 
@@ -153,7 +155,7 @@ class Solution:
 #### Approach
 
 This variant keeps the same stack mechanics but makes the bracket relationships
-explicit with a hash map from each closing bracket to its opening counterpart:
+explicit with a [hash map](https://en.wikipedia.org/wiki/Hash_table) from each closing bracket to its opening counterpart:
 
 1. Build a map `pairs` so that `pairs[")"] == "("` and so on.
 2. Walk the string. If a character is a key in `pairs`, it is a closing bracket;

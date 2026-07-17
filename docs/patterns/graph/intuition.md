@@ -1,5 +1,7 @@
 # Graph Traversal: Intuition Guide
 
+**Reference:** [Depth-first search](https://en.wikipedia.org/wiki/Depth-first_search) · [Breadth-first search](https://en.wikipedia.org/wiki/Breadth-first_search)
+
 ## The Mental Model
 
 Imagine you're exploring a maze. You have two fundamental strategies:

@@ -4,6 +4,8 @@
 
 **Pattern:** [Two Pointers](../patterns/two_pointers/intuition.md)
 
+**Algorithm:** [Two-pointer technique](https://www.geeksforgeeks.org/dsa/two-pointers-technique/)
+
 **Practice:** [`practice/container_with_most_water/solution.py`](../../practice/container_with_most_water/solution.py)
 
 You are given an integer array `height` of length `n`. There are `n` vertical lines drawn such that the two endpoints of the `i`th line are `(i, 0)` and `(i, height[i])`.
@@ -154,7 +156,7 @@ class Solution:
 
 #### Approach
 
-This problem uses the **two-pointer technique** with a key optimization insight. The container's water capacity is determined by the shorter of the two lines and the distance between them (area = width × height).
+This problem uses the **[two-pointer technique](https://www.geeksforgeeks.org/dsa/two-pointers-technique/)** with a key optimization insight. The container's water capacity is determined by the shorter of the two lines and the distance between them (area = width × height).
 
 The algorithm works as follows:
 
@@ -217,7 +219,7 @@ class Solution:
 
 #### Approach
 
-This is the same two-pointer scan, refined with a pruning observation. After
+This is the same [two-pointer scan](https://www.geeksforgeeks.org/dsa/two-pointers-technique/), refined with a pruning observation. After
 processing a pair, the limiting wall is the shorter of the two. Any line on that
 side whose height is less than or equal to the current limiting height cannot
 improve the answer: moving inward reduces the width while the height stays capped

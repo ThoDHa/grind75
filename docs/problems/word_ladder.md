@@ -4,6 +4,8 @@
 
 **Pattern:** [Shortest Path](../patterns/shortest_path/intuition.md)
 
+**Algorithm:** [Breadth-first search](https://en.wikipedia.org/wiki/Breadth-first_search) · [Depth-first search](https://en.wikipedia.org/wiki/Depth-first_search)
+
 **Practice:** [`practice/word_ladder/solution.py`](../../practice/word_ladder/solution.py)
 
 A **transformation sequence** from word `beginWord` to word `endWord` using a dictionary `wordList` is a sequence of words `beginWord -> s1 -> s2 -> ... -> sk` such that:
@@ -95,7 +97,7 @@ class Solution:
 
 #### Approach
 
-The most direct idea is to first answer "which words are neighbors?" by brute force, then run an ordinary shortest-path BFS over that graph. Two words are neighbors when they differ in exactly one position, which a hand-written character scan can decide.
+The most direct idea is to first answer "which words are neighbors?" by brute force, then run an ordinary shortest-path [BFS](https://en.wikipedia.org/wiki/Breadth-first_search) over that graph. Two words are neighbors when they differ in exactly one position, which a hand-written character scan can decide.
 
 1. Collect every word as a node, including `beginWord`, since the path may start from a word that is not in `wordList`.
 2. Compare every pair of words with `is_one_diff`, building an adjacency list for each word from the matches.
@@ -194,7 +196,7 @@ class Solution:
 This solution models the problem as a shortest-path search in an unweighted graph:
 
 1. Each word is a node, and two words share an edge when they differ by exactly one letter.
-2. BFS explores the graph level by level, so the first time it reaches `endWord` it has used the fewest possible transformations.
+2. [BFS](https://en.wikipedia.org/wiki/Breadth-first_search) explores the graph level by level, so the first time it reaches `endWord` it has used the fewest possible transformations.
 3. For the word at the front of the queue, generate every one-letter variation by replacing each character position with each of the 26 lowercase letters.
 4. A generated word is a valid neighbor when it appears in `word_set` and has not been visited. Mark it visited as soon as it is enqueued to prevent revisits.
 
@@ -263,7 +265,7 @@ This approach precomputes adjacency instead of regenerating neighbors on the fly
 
 1. For every word, build `M` wildcard patterns by replacing one character at a time with `*`, and group words under each pattern in `pattern_dict`.
 2. Two words that share a pattern differ by exactly one letter, so the pattern map encodes the graph's edges.
-3. During BFS, look up the current word's patterns and visit every word recorded under them.
+3. During [BFS](https://en.wikipedia.org/wiki/Breadth-first_search), look up the current word's patterns and visit every word recorded under them.
 4. The first time `endWord` is encountered, return the accumulated length plus one.
 
 By precomputing patterns, the search only ever touches words that actually exist in the dictionary, rather than the full 26-letter expansion at every step.
@@ -327,7 +329,7 @@ class Solution:
 
 #### Approach
 
-This recursive approach explores transformation paths depth-first and takes the shortest:
+This recursive approach explores transformation paths [depth-first](https://en.wikipedia.org/wiki/Depth-first_search) and takes the shortest:
 
 1. From the current word, scan the dictionary for every word that differs by exactly one character.
 2. Recurse into each such neighbor, marking it visited before the call and unmarking it afterward so the `visited` set always reflects the current path only.
@@ -403,7 +405,7 @@ class Solution:
 
 #### Approach
 
-Bidirectional BFS searches inward from both ends at once:
+[Bidirectional BFS](https://en.wikipedia.org/wiki/Breadth-first_search) searches inward from both ends at once:
 
 1. Maintain a `front` set starting at `beginWord` and a `back` set starting at `endWord`, plus a shared `visited` set.
 2. On each iteration, expand whichever frontier is smaller so the branching factor stays low.

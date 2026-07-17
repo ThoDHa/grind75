@@ -4,6 +4,8 @@
 
 **Pattern:** [DP 1D Linear](../patterns/dp_1d_linear/intuition.md), [Trie](../patterns/trie/intuition.md)
 
+**Algorithm:** [Dynamic programming](https://en.wikipedia.org/wiki/Dynamic_programming) · [Breadth-first search](https://en.wikipedia.org/wiki/Breadth-first_search) · [Trie](https://en.wikipedia.org/wiki/Trie)
+
 **Practice:** [`practice/word_break/solution.py`](../../practice/word_break/solution.py)
 
 Given a string `s` and a dictionary of strings `wordDict`, return `true` if `s` can be segmented into a space-separated sequence of one or more dictionary words.
@@ -75,7 +77,7 @@ class Solution:
 
 #### Approach
 
-This naive recursive approach explores all possible segmentations without memoization. While correct, it has exponential time complexity due to overlapping subproblems being solved multiple times.
+This naive [recursive approach](https://en.wikipedia.org/wiki/Recursion_(computer_science)) explores all possible segmentations without memoization. While correct, it has exponential time complexity due to overlapping subproblems being solved multiple times.
 
 1. From the current `start_index`, try every possible word boundary `end_index`.
 2. If `s[start_index:end_index]` is a dictionary word, recurse on the remaining suffix.
@@ -162,7 +164,7 @@ class Solution:
 
 #### Approach
 
-This BFS approach treats the problem as finding a path from index 0 to index len(s) in a graph where:
+This [BFS](https://en.wikipedia.org/wiki/Breadth-first_search) approach treats the problem as finding a path from index 0 to index len(s) in a graph where:
 - Each valid starting position is a node
 - There's an edge from position i to position j if `s[i:j]` is in the dictionary
 
@@ -226,7 +228,7 @@ class Solution:
 
 #### Approach
 
-This top-down approach uses recursion with memoization. Starting from index 0, we try all possible words that can start at the current position. If we find a valid word in the dictionary, we recursively check if the remaining string can be segmented.
+This top-down approach uses recursion with [memoization](https://en.wikipedia.org/wiki/Memoization). Starting from index 0, we try all possible words that can start at the current position. If we find a valid word in the dictionary, we recursively check if the remaining string can be segmented.
 
 The memoization cache stores results for each starting index, preventing redundant computation of the same subproblems.
 
@@ -280,7 +282,7 @@ class Solution:
 
 #### Approach
 
-This bottom-up DP solution builds up the answer for all prefixes of the string. For each position `i`, we check if there's any valid split where the prefix before position `j` can be segmented (`dp[j] = True`) and the substring from `j` to `i` is in the dictionary.
+This [bottom-up DP](https://en.wikipedia.org/wiki/Dynamic_programming) solution builds up the answer for all prefixes of the string. For each position `i`, we check if there's any valid split where the prefix before position `j` can be segmented (`dp[j] = True`) and the substring from `j` to `i` is in the dictionary.
 
 The key insight is that `dp[i]` represents whether the substring `s[0:i]` can be segmented. We can compute this by trying all possible positions `j < i` where we could place the last word boundary.
 
@@ -354,7 +356,7 @@ class Solution:
 
 #### Approach
 
-This approach builds a Trie (prefix tree) from the dictionary words, allowing for more efficient word matching. Instead of slicing and hashing every possible substring, we walk the Trie character by character and only continue while the current span remains a valid word prefix.
+This approach builds a [Trie](https://en.wikipedia.org/wiki/Trie) (prefix tree) from the dictionary words, allowing for more efficient word matching. Instead of slicing and hashing every possible substring, we walk the Trie character by character and only continue while the current span remains a valid word prefix.
 
 Starting from each reachable position `i`, we descend the Trie following `s[i], s[i+1], ...`. Whenever we land on a node that marks a complete word, the position just past it becomes reachable. We stop early the moment the next character leaves the Trie, since no dictionary word can extend that span.
 

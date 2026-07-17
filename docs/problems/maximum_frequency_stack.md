@@ -4,6 +4,8 @@
 
 **Pattern:** [Data-Structure Design](../patterns/design/intuition.md)
 
+**Algorithm:** [Hash table](https://en.wikipedia.org/wiki/Hash_table) · [Stack](https://en.wikipedia.org/wiki/Stack_(abstract_data_type)) · [Priority queue](https://en.wikipedia.org/wiki/Priority_queue)
+
 **Practice:** [`practice/maximum_frequency_stack/solution.py`](../../practice/maximum_frequency_stack/solution.py)
 
 Design a stack-like data structure to push elements to the stack and pop the most frequent element from the stack.
@@ -188,7 +190,7 @@ class FreqStack:
 
 #### Approach
 
-This solution uses a **stack of stacks design** where each frequency level has its own stack. Elements are grouped by their current frequency, and we maintain the maximum frequency seen. The key insight is that elements with the same frequency should be processed in LIFO order (most recent first), which naturally handles the tie-breaking requirement.
+This solution uses a **stack of stacks design** where each frequency level has its own [stack](https://en.wikipedia.org/wiki/Stack_(abstract_data_type)). Elements are grouped by their current frequency, and we maintain the maximum frequency seen. The key insight is that elements with the same frequency should be processed in LIFO order (most recent first), which naturally handles the tie-breaking requirement.
 
 #### Time and Space Complexity Analysis
 
@@ -244,7 +246,7 @@ class FreqStack:
 
 #### Approach
 
-This solution lets a **priority queue (max heap)** do the priority work. Each push records an entry keyed by `(-frequency, -timestamp, val)`, so the heap always surfaces the element with the highest current frequency, breaking ties toward the most recent push.
+This solution lets a **[priority queue](https://en.wikipedia.org/wiki/Priority_queue) (max heap)** do the priority work. Each push records an entry keyed by `(-frequency, -timestamp, val)`, so the heap always surfaces the element with the highest current frequency, breaking ties toward the most recent push.
 
 1. On push, increment the element's frequency and a global timestamp counter, then push the tuple `(-frequency, -timestamp, val)`.
 2. On pop, take the heap's top tuple. Because each push records the frequency the element had *at that moment*, the top entry is always the live winner; no stale entries can outrank it.

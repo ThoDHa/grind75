@@ -4,6 +4,8 @@
 
 **Pattern:** [Monotonic Stack](../patterns/monotonic_stack/intuition.md)
 
+**Algorithm:** [Monotonic stack](https://www.geeksforgeeks.org/introduction-to-monotonic-stack-data-structure-and-algorithm/) · [Divide and conquer](https://en.wikipedia.org/wiki/Divide-and-conquer_algorithm)
+
 **Practice:** [`practice/largest_rectangle_in_histogram/solution.py`](../../practice/largest_rectangle_in_histogram/solution.py)
 
 Given an array of integers `heights` representing the histogram's bar height where the width of each bar is `1`, return the area of the largest rectangle in the histogram.
@@ -184,7 +186,7 @@ class Solution:
 
 #### Approach
 
-This solution uses **divide and conquer** anchored on the minimum height in the current range. The largest rectangle either uses the minimum bar (spanning the whole range), lies entirely to the left of it, or lies entirely to the right of it.
+This solution uses **[divide and conquer](https://en.wikipedia.org/wiki/Divide-and-conquer_algorithm)** anchored on the minimum height in the current range. The largest rectangle either uses the minimum bar (spanning the whole range), lies entirely to the left of it, or lies entirely to the right of it.
 
 1. Find the index of the minimum bar in `[start, end]`.
 2. Compute the area of the rectangle that uses that bar across the full range.
@@ -236,7 +238,7 @@ class Solution:
 
 #### Approach
 
-This solution uses a **monotonic stack** of indices kept in increasing height order. For each bar we need the first shorter bar to its left and right; those define how wide a rectangle of that bar's height can be. The stack resolves both boundaries in a single pass.
+This solution uses a **[monotonic stack](https://www.geeksforgeeks.org/introduction-to-monotonic-stack-data-structure-and-algorithm/)** of indices kept in increasing height order. For each bar we need the first shorter bar to its left and right; those define how wide a rectangle of that bar's height can be. The stack resolves both boundaries in a single pass.
 
 1. Iterate over the bars, maintaining a stack whose heights increase from bottom to top.
 2. When the current bar is shorter than the stack top, pop it: the current index is its right boundary and the new stack top is its left boundary.

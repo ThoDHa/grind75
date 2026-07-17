@@ -4,6 +4,8 @@
 
 **Pattern:** [Trie](../patterns/trie/intuition.md)
 
+**Algorithm:** [Trie](https://en.wikipedia.org/wiki/Trie)
+
 **Practice:** [`practice/implement_trie_prefix_tree/solution.py`](../../practice/implement_trie_prefix_tree/solution.py)
 
 A trie (pronounced as "try") or prefix tree is a tree data structure used to efficiently store and retrieve keys in a dataset of strings. There are various applications of this data structure, such as autocomplete and spellchecker.
@@ -92,7 +94,7 @@ class Trie:
 #### Approach
 
 Before reaching for any tree structure, the most direct idea is to store every
-inserted word in a list and answer each query by scanning that list. No shared
+inserted word in a list and answer each query by [scanning that list](https://en.wikipedia.org/wiki/Linear_search). No shared
 prefixes, no nodes, just a literal record of what was inserted.
 
 1. `insert` appends the word to a running list.
@@ -201,7 +203,7 @@ class Trie:
 
 #### Approach
 
-A trie stores strings character by character along tree paths, so shared
+A [trie](https://en.wikipedia.org/wiki/Trie) stores strings character by character along tree paths, so shared
 prefixes share nodes. Representing each node as a dictionary mapping a character
 to its child node keeps the implementation compact while giving constant-time
 child access.
@@ -310,7 +312,7 @@ key.
 4. `startsWith` reuses `_find`; any reachable node along the prefix path suffices.
 
 Indexing into a contiguous array is the fastest possible child lookup, which is
-why this layout is common in performance-sensitive trie implementations.
+why this layout is common in performance-sensitive [trie implementations](https://en.wikipedia.org/wiki/Trie).
 
 #### Time and Space Complexity Analysis
 

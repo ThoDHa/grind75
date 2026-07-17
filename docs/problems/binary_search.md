@@ -4,6 +4,8 @@
 
 **Pattern:** [Binary Search](../patterns/binary_search/intuition.md)
 
+**Algorithm:** [Binary search](https://en.wikipedia.org/wiki/Binary_search_algorithm)
+
 **Practice:** [`practice/binary_search/solution.py`](../../practice/binary_search/solution.py)
 
 Given an array of integers `nums` which is sorted in ascending order, and an
@@ -55,7 +57,7 @@ class Solution:
 
 #### Approach
 
-Before exploiting the sorted order, the most direct idea is to look at every element in turn and report the first index that matches `target`. This works on any array, sorted or not, and needs no insight beyond a single pass:
+Before exploiting the sorted order, the most direct idea is a [linear search](https://en.wikipedia.org/wiki/Linear_search): look at every element in turn and report the first index that matches `target`. This works on any array, sorted or not, and needs no insight beyond a single pass:
 
 1. Iterate over the indices `0` to `len(nums) - 1`.
 2. If `nums[i]` equals `target`, return `i` immediately.
@@ -125,7 +127,7 @@ class Solution:
 
 #### Approach
 
-The array is sorted, so a single comparison against the middle element reveals which half of the remaining range can still contain the target. Maintaining an inclusive search interval `[left, right]` and repeatedly halving it is the most direct way to express this:
+The array is sorted, so [binary search](https://en.wikipedia.org/wiki/Binary_search_algorithm) applies: a single comparison against the middle element reveals which half of the remaining range can still contain the target. Maintaining an inclusive search interval `[left, right]` and repeatedly halving it is the most direct way to express this:
 
 1. Initialize `left` to `0` and `right` to `len(nums) - 1`, bounding the full array.
 2. While the interval is non-empty (`left <= right`):
@@ -184,7 +186,7 @@ class Solution:
 
 #### Approach
 
-This is the same halving strategy expressed through recursion, where each call owns one subinterval and delegates the smaller subinterval to the next call:
+This is the same halving strategy expressed through [recursion](https://en.wikipedia.org/wiki/Recursion_(computer_science)), where each call owns one subinterval and delegates the smaller subinterval to the next call:
 
 1. The public `search` method seeds the recursion with the full range `[0, len(nums) - 1]`.
 2. The helper `_binary_search` handles one interval at a time:
@@ -231,7 +233,7 @@ class Solution:
 
 #### Approach
 
-Python's `bisect` module performs binary search over a sorted sequence, so the work reduces to a single library call plus a membership check:
+Python's [`bisect`](https://docs.python.org/3/library/bisect.html) module performs binary search over a sorted sequence, so the work reduces to a single library call plus a membership check:
 
 1. `bisect.bisect_left(nums, target)` returns the leftmost index where `target` could be inserted to keep `nums` sorted.
 2. If that index is within bounds and `nums[index]` equals `target`, the target is present, so return `index`.

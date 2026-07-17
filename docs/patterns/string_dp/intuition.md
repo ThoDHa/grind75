@@ -1,5 +1,7 @@
 # String DP - Intuition Guide
 
+**Reference:** [Dynamic programming](https://en.wikipedia.org/wiki/Dynamic_programming)
+
 ## The Mental Model: Filling a Grid
 
 Imagine you have two strings written along the edges of a grid:

@@ -4,6 +4,8 @@
 
 **Pattern:** [Multi-Source BFS](../patterns/grid_bfs_multi_source/intuition.md)
 
+**Algorithm:** [Breadth-first search](https://en.wikipedia.org/wiki/Breadth-first_search) · [Dynamic programming](https://en.wikipedia.org/wiki/Dynamic_programming)
+
 **Practice:** [`practice/01_matrix/solution.py`](../../practice/01_matrix/solution.py)
 
 Given an `m x n` binary matrix `mat`, return the distance of the nearest `0` for each cell.
@@ -81,7 +83,7 @@ class Solution:
 Treat each `1`-cell independently and search outward from it for the closest `0`.
 
 1. Allocate a `dist` matrix of zeros; cells that already hold `0` keep distance `0`.
-2. For every cell containing `1`, run a breadth-first search starting at that cell.
+2. For every cell containing `1`, run a [breadth-first search](https://en.wikipedia.org/wiki/Breadth-first_search) starting at that cell.
 3. BFS explores the grid level by level, so the first `0` it dequeues sits at the
    minimum distance; return that level as the cell's answer.
 4. Store each result in `dist` and return the completed matrix.
@@ -259,7 +261,7 @@ class Solution:
 
 #### Approach
 
-Run a single BFS that starts from every `0`-cell at the same time, letting the
+Run a single [BFS](https://en.wikipedia.org/wiki/Breadth-first_search) that starts from every `0`-cell at the same time, letting the
 distance field grow outward in lockstep.
 
 1. Initialize `dist` to infinity, then set every `0`-cell to `0` and enqueue it.

@@ -1,5 +1,7 @@
 # Greedy Core: Pattern Intuition Guide
 
+**Reference:** [Greedy algorithm](https://en.wikipedia.org/wiki/Greedy_algorithm)
+
 > *"Greedy is not about being short-sighted, it's about having the confidence that local wisdom leads to global success."*
 
 ---

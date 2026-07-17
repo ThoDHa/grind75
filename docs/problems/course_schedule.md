@@ -4,6 +4,8 @@
 
 **Pattern:** [Graph Traversal](../patterns/graph/intuition.md), [Topological Sort](../patterns/topological_sort/intuition.md)
 
+**Algorithm:** [Depth-first search](https://en.wikipedia.org/wiki/Depth-first_search) · [Breadth-first search](https://en.wikipedia.org/wiki/Breadth-first_search) · [Topological sorting](https://en.wikipedia.org/wiki/Topological_sorting)
+
 **Practice:** [`practice/course_schedule/solution.py`](../../practice/course_schedule/solution.py)
 
 There are a total of `numCourses` courses you have to take, labeled from `0` to
@@ -191,7 +193,7 @@ prerequisite pair `[a, b]` becomes an edge from `b` to `a`. Every course can be
 finished if and only if this graph has no cycle, because a cycle is a set of
 courses that mutually depend on one another.
 
-Detect the cycle with a depth-first search that colors each vertex:
+Detect the cycle with a [depth-first search](https://en.wikipedia.org/wiki/Depth-first_search) that colors each vertex:
 
 1. Build the adjacency list, pointing each prerequisite at the courses that
    depend on it.
@@ -275,7 +277,7 @@ recursion walks dependencies before the course that needs them.
 1. Build the adjacency list mapping each course to the courses it requires.
 2. Keep a `visited` set of fully processed courses and a `path` set of courses
    currently on the recursion stack.
-3. For each unvisited course, run DFS. Add the course to both sets on entry.
+3. For each unvisited course, run [DFS](https://en.wikipedia.org/wiki/Depth-first_search). Add the course to both sets on entry.
 4. If DFS reaches a course already in `path`, the recursion has looped back on
    itself, so a cycle exists and the answer is `false`.
 5. After exploring a course's prerequisites, remove it from `path` (backtrack)
@@ -335,7 +337,7 @@ class Solution:
 
 #### Approach
 
-Kahn's algorithm performs a topological sort with BFS. The key observation is
+Kahn's algorithm performs a [topological sort](https://en.wikipedia.org/wiki/Topological_sorting) with BFS. The key observation is
 that in an acyclic dependency graph there is always at least one course with no
 remaining prerequisites, so we can finish courses one in-degree-zero layer at a
 time.

@@ -4,6 +4,8 @@
 
 **Pattern:** [Tree DP](../patterns/tree_dp/intuition.md)
 
+**Algorithm:** [Depth-first search](https://en.wikipedia.org/wiki/Depth-first_search) · [Dynamic programming](https://en.wikipedia.org/wiki/Dynamic_programming)
+
 **Practice:** [`practice/binary_tree_maximum_path_sum/solution.py`](../../practice/binary_tree_maximum_path_sum/solution.py)
 
 A **path** in a binary tree is a sequence of nodes where each pair of adjacent nodes in the sequence has an edge connecting them. A node can only appear in the sequence **at most once**. Note that the path does not need to pass through the root.
@@ -209,7 +211,7 @@ maximum captures the best bent path seen anywhere.
    the parent extends can only pass through one of this node's sides.
 
 Tracking the bent sum separately from the returned straight sum is what lets a
-single post-order traversal consider every possible path.
+single [post-order traversal](https://en.wikipedia.org/wiki/Tree_traversal) consider every possible path.
 
 #### Time and Space Complexity Analysis
 

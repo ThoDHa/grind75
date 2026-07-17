@@ -4,6 +4,8 @@
 
 **Pattern:** [Prefix Sum](../patterns/prefix_sum/intuition.md)
 
+**Algorithm:** [Prefix sum](https://en.wikipedia.org/wiki/Prefix_sum)
+
 **Practice:** [`practice/product_of_array_except_self/solution.py`](../../practice/product_of_array_except_self/solution.py)
 
 Given an integer array `nums`, return an array `answer` such that `answer[i]` is
@@ -144,7 +146,7 @@ class Solution:
 
 The product of all elements except `nums[i]` equals the product of everything to its left times the product of everything to its right. Build those two pieces explicitly:
 
-1. **Prefix array**: `prefix[i]` holds the product of all elements before index `i`. Seed `prefix[0] = 1` and roll forward.
+1. **[Prefix](https://en.wikipedia.org/wiki/Prefix_sum) array**: `prefix[i]` holds the product of all elements before index `i`. Seed `prefix[0] = 1` and roll forward.
 2. **Suffix array**: `suffix[i]` holds the product of all elements after index `i`. Seed `suffix[n-1] = 1` and roll backward.
 3. **Combine**: `result[i] = prefix[i] * suffix[i]`.
 
@@ -194,7 +196,7 @@ class Solution:
 
 This is the prefix/suffix idea with the auxiliary arrays removed:
 
-1. **Pass 1**: Store the prefix products directly in the output array, so `result[i]` becomes the product of everything before `i`.
+1. **Pass 1**: Store the [prefix products](https://en.wikipedia.org/wiki/Prefix_sum) directly in the output array, so `result[i]` becomes the product of everything before `i`.
 2. **Pass 2**: Sweep right to left with one running `suffix_product` variable, multiplying each `result[i]` by the product of everything after `i`, then folding `nums[i]` into the running suffix.
 
 The output array doubles as the prefix store, and the suffix only ever needs a single scalar, so no extra arrays are required.

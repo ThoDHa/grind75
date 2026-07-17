@@ -4,6 +4,8 @@
 
 **Pattern:** [Heap / Priority Queue](../patterns/heap/intuition.md)
 
+**Algorithm:** [Heap](https://en.wikipedia.org/wiki/Heap_(data_structure)) · [Quickselect](https://en.wikipedia.org/wiki/Quickselect) · [Sorting](https://en.wikipedia.org/wiki/Sorting_algorithm)
+
 **Practice:** [`practice/k_closest_points_to_origin/solution.py`](../../practice/k_closest_points_to_origin/solution.py)
 
 Given an array of points where `points[i] = [xi, yi]` represents a point on the X-Y plane and an integer `k`, return the `k` closest points to the origin `(0, 0)`.
@@ -148,7 +150,7 @@ class Solution:
 
 Comparing squared distances avoids the square root entirely, since `√a < √b`
 iff `a < b` for non-negative values. To keep only the `k` closest points we hold
-a max-heap of size `k` keyed by negated squared distance, so the heap's top is
+a [max-heap](https://en.wikipedia.org/wiki/Heap_(data_structure)) of size `k` keyed by negated squared distance, so the heap's top is
 the farthest of the current candidates.
 
 1. Iterate over the points, computing each squared distance `x*x + y*y`.
@@ -220,7 +222,7 @@ class Solution:
 
 #### Approach
 
-Quickselect rearranges the array so the `k` smallest-distance points occupy the
+[Quickselect](https://en.wikipedia.org/wiki/Quickselect) rearranges the array so the `k` smallest-distance points occupy the
 first `k` slots, without fully sorting the rest. It reuses the partition step of
 quicksort but recurses into only one side.
 
@@ -270,7 +272,7 @@ class Solution:
 
 #### Approach
 
-Let the language do the work: sort every point by its squared distance from the
+Let the language do the work: [sort](https://en.wikipedia.org/wiki/Sorting_algorithm) every point by its squared distance from the
 origin, then slice off the first `k`. Comparing squared distances `x*x + y*y` is
 sufficient because `√a < √b` iff `a < b` for non-negative values, so the square
 root adds cost without changing the order.

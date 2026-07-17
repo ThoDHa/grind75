@@ -4,6 +4,8 @@
 
 **Pattern:** [Stack](../patterns/stack/intuition.md)
 
+**Algorithm:** [Stack](https://en.wikipedia.org/wiki/Stack_(abstract_data_type)) · [Tree traversal](https://en.wikipedia.org/wiki/Tree_traversal)
+
 **Practice:** [`practice/evaluate_reverse_polish_notation/solution.py`](../../practice/evaluate_reverse_polish_notation/solution.py)
 
 You are given an array of strings `tokens` that represents an arithmetic expression in Reverse Polish Notation (RPN).
@@ -96,7 +98,7 @@ class Solution:
 
 #### Approach
 
-An RPN expression is the post-order traversal of an expression tree, so the
+An RPN expression is the [post-order traversal](https://en.wikipedia.org/wiki/Tree_traversal) of an expression tree, so the
 final token is always the root operator and the values before it split into a
 right operand subtree followed by a left operand subtree. Reading the tokens
 from right to left, we can reconstruct and evaluate that tree directly, with no
@@ -205,7 +207,7 @@ class Solution:
 #### Approach
 
 Reverse Polish Notation places each operator immediately after its two operands,
-which is exactly the order a stack consumes. Scanning left to right, we push
+which is exactly the order a [stack](https://en.wikipedia.org/wiki/Stack_(abstract_data_type)) consumes. Scanning left to right, we push
 operands and, on seeing an operator, pop the two most recent values, combine
 them, and push the result back.
 
@@ -275,7 +277,7 @@ class Solution:
 
 #### Approach
 
-This is the same stack-based evaluation, but the four-way `if`/`elif` chain is
+This is the same [stack-based evaluation](https://en.wikipedia.org/wiki/Stack_(abstract_data_type)), but the four-way `if`/`elif` chain is
 replaced by a dictionary that maps each operator symbol to the function that
 applies it. The scan logic becomes uniform: every operator is handled by one
 lookup and one call.

@@ -1,5 +1,7 @@
 # Stack: Pattern Intuition Guide
 
+**Reference:** [Stack (abstract data type)](https://en.wikipedia.org/wiki/Stack_(abstract_data_type))
+
 > *"A stack is a memory of unfinished business: the last thing you started is the first thing you must finish."*
 
 ---

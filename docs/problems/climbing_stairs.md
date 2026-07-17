@@ -4,6 +4,8 @@
 
 **Pattern:** [DP 1D Linear](../patterns/dp_1d_linear/intuition.md)
 
+**Algorithm:** [Dynamic programming](https://en.wikipedia.org/wiki/Dynamic_programming) · [Memoization](https://en.wikipedia.org/wiki/Memoization)
+
 **Practice:** [`practice/climbing_stairs/solution.py`](../../practice/climbing_stairs/solution.py)
 
 You are climbing a staircase. It takes `n` steps to reach the top.
@@ -60,7 +62,7 @@ class Solution:
 
 #### Approach
 
-The most direct idea restates the problem as a recurrence and counts every path by hand. To stand on step `n`, the final move was either a single step from `n - 1` or a double step from `n - 2`, so the count for `n` is the sum of the counts for those two predecessors. Recursing without any caching explores the full tree of choices:
+The most direct idea restates the problem as a recurrence and counts every path by hand. To stand on step `n`, the final move was either a single step from `n - 1` or a double step from `n - 2`, so the count for `n` is the sum of the counts for those two predecessors. [Recursing](https://en.wikipedia.org/wiki/Recursion_(computer_science)) without any caching explores the full tree of choices:
 
 1. If `step` is 0 or 1, return 1, since each of those positions is reached exactly one way (an empty climb for 0, a single move for 1)
 2. Otherwise return `climb(step - 1) + climb(step - 2)`, summing the ways the two legal final moves could have arrived
@@ -132,7 +134,7 @@ class Solution:
 
 #### Approach
 
-This solution keeps the brute force recurrence but caches each step's result in a hand-rolled dictionary so no subproblem is solved twice:
+This solution keeps the brute force recurrence but [caches each step's result](https://en.wikipedia.org/wiki/Memoization) in a hand-rolled dictionary so no subproblem is solved twice:
 
 1. The number of ways to reach step `n` equals the ways to reach `n - 1` (then take a single step) plus the ways to reach `n - 2` (then take a double step)
 2. Base cases return 1 for steps 0 and 1, since each has exactly one way to be reached
@@ -178,7 +180,7 @@ class Solution:
 
 #### Approach
 
-This solution uses bottom-up dynamic programming with tabulation to solve the climbing stairs problem:
+This solution uses bottom-up [dynamic programming](https://en.wikipedia.org/wiki/Dynamic_programming) with tabulation to solve the climbing stairs problem:
 
 1. We create a DP array where `dp[i]` represents the number of ways to climb to the ith step
 2. Base cases: `dp[0] = dp[1] = 1` (there's only one way to reach steps 0 and 1)
@@ -226,7 +228,7 @@ class Solution:
 
 #### Approach
 
-This solution optimizes the space usage of the dynamic programming approach:
+This solution optimizes the space usage of the [dynamic programming](https://en.wikipedia.org/wiki/Dynamic_programming) approach:
 
 1. We observe that at any step, we only need the previous two values in the sequence
 2. Instead of using an array to store all intermediate results, we use two variables
@@ -286,7 +288,7 @@ class Solution:
 
 #### Approach
 
-This solution rewrites the Fibonacci recurrence as a matrix power and computes that power with repeated squaring, dropping the time below linear:
+This solution rewrites the Fibonacci recurrence as a matrix power and computes that power with [repeated squaring](https://en.wikipedia.org/wiki/Exponentiation_by_squaring), dropping the time below linear:
 
 1. The recurrence `F(n+1) = F(n) + F(n-1)` can be packaged as a matrix equation: multiplying the state vector `[F(n), F(n-1)]` by the matrix `[[1, 1], [1, 0]]` advances it one step to `[F(n+1), F(n)]`
 2. Advancing `n` steps therefore means raising that matrix to the nth power: `[[1, 1], [1, 0]]^n = [[F(n+1), F(n)], [F(n), F(n-1)]]`, and since the ways to climb `n` stairs equal `F(n+1)`, the answer sits in the top-left entry
@@ -342,7 +344,7 @@ class Solution:
 
 #### Approach
 
-This solution uses the closed-form expression for the Fibonacci sequence (Binet's formula):
+This solution uses the closed-form expression for the Fibonacci sequence ([Binet's formula](https://en.wikipedia.org/wiki/Fibonacci_sequence#Closed-form_expression)):
 
 1. Since the climbing stairs problem follows the Fibonacci sequence where F(n) = ways to climb n stairs
 2. We can use the mathematical closed-form solution: F(n) = (φⁿ - (1-φ)ⁿ)/√5

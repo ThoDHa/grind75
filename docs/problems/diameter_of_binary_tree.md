@@ -4,6 +4,8 @@
 
 **Pattern:** [Tree DP](../patterns/tree_dp/intuition.md)
 
+**Algorithm:** [Depth-first search](https://en.wikipedia.org/wiki/Depth-first_search) · [Tree traversal](https://en.wikipedia.org/wiki/Tree_traversal)
+
 **Practice:** [`practice/diameter_of_binary_tree/solution.py`](../../practice/diameter_of_binary_tree/solution.py)
 
 Given the `root` of a binary tree, return the length of the **diameter** of the tree.
@@ -85,7 +87,7 @@ subtrees.
 4. Return the diameter of the whole tree from `diameter(root)`.
 
 This separates the two questions (how tall is a subtree, how wide is its best
-path) into two independent recursions, which is the straightforward but wasteful
+path) into two independent [recursions](https://en.wikipedia.org/wiki/Recursion_(computer_science)), which is the straightforward but wasteful
 way to reach a correct answer.
 
 #### Time and Space Complexity Analysis
@@ -179,7 +181,7 @@ that for any single node, the longest path that bends at that node has length
 deepest leaf on that side. The overall diameter is therefore the maximum of this
 quantity taken over every node.
 
-A single post-order DFS computes both pieces of information in one pass:
+A single [post-order DFS](https://en.wikipedia.org/wiki/Depth-first_search) computes both pieces of information in one pass:
 
 1. Define a helper `height(node)` that returns the height of the subtree rooted
    at `node`, measured in edges (an empty subtree has height `0`).
@@ -244,7 +246,7 @@ class Solution:
 
 #### Approach
 
-This is the same single-pass post-order DFS as above, but the shared maximum lives
+This is the same single-pass [post-order DFS](https://en.wikipedia.org/wiki/Depth-first_search) as above, but the shared maximum lives
 in a local variable captured by the closure instead of on the instance. The
 `nonlocal` keyword lets the inner `height` function rebind the enclosing
 `diameter`, keeping all state confined to the method call rather than persisting on
@@ -301,7 +303,7 @@ class Solution:
 
 #### Approach
 
-This version carries no shared state at all. Each recursive call returns a tuple
+This version carries no shared state at all. Each [recursive call](https://en.wikipedia.org/wiki/Recursion_(computer_science)) returns a tuple
 `(height, diameter)` describing the subtree it just processed, and every value
 flows purely through return values.
 

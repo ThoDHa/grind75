@@ -4,6 +4,8 @@
 
 **Pattern:** [Heap / Priority Queue](../patterns/heap/intuition.md), [Greedy](../patterns/greedy_core/intuition.md)
 
+**Algorithm:** [Greedy algorithm](https://en.wikipedia.org/wiki/Greedy_algorithm) · [Heap (data structure)](https://en.wikipedia.org/wiki/Heap_(data_structure))
+
 **Practice:** [`practice/task_scheduler/solution.py`](../../practice/task_scheduler/solution.py)
 
 Given a characters array `tasks`, representing the tasks a CPU needs to do, where each letter represents a different task. Tasks could be done in any order. Each task is done in one unit of time. For each unit of time, the CPU could complete either one task or just be idle.
@@ -109,7 +111,7 @@ decision is which task to run when several are eligible.
    it still has copies left and enough time has passed since it last ran
    (`time - last_used[i] > n`).
 3. Among the eligible tasks, pick the one with the largest remaining count. Running
-   the scarcest-to-schedule task first is the greedy choice that keeps later idle
+   the scarcest-to-schedule task first is the [greedy choice](https://en.wikipedia.org/wiki/Greedy_algorithm) that keeps later idle
    gaps fillable.
 4. If a task was chosen, decrement it, stamp `last_used`, and mark one more task
    done. If none was eligible, the unit is idle. Either way, advance the clock.
@@ -319,7 +321,7 @@ minimum gap before the most frequent task may repeat.
    of tasks executed.
 5. Return the accumulated `time`.
 
-Sorting each round greedily keeps the schedule tight, and the idle accounting falls
+Sorting each round [greedily](https://en.wikipedia.org/wiki/Greedy_algorithm) keeps the schedule tight, and the idle accounting falls
 out naturally from whether work is still pending.
 
 #### Time and Space Complexity Analysis
@@ -395,7 +397,7 @@ class Solution:
 #### Approach
 
 The greedy choice (always run the task with the most copies left) is exactly what
-a max-heap gives in `O(log 26)` per pop. Each cooldown cycle is `n + 1` slots wide,
+a [max-heap](https://en.wikipedia.org/wiki/Heap_(data_structure)) gives in `O(log 26)` per pop. Each cooldown cycle is `n + 1` slots wide,
 the minimum gap before the most frequent task may repeat, so each cycle pops up to
 `n + 1` tasks, decrements them, and defers any survivors to the next cycle.
 

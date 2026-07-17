@@ -4,6 +4,8 @@
 
 **Pattern:** [Sliding Window](../patterns/sliding_window/intuition.md)
 
+**Algorithm:** [Sliding window](https://www.geeksforgeeks.org/dsa/window-sliding-technique/) · [Two-pointer technique](https://www.geeksforgeeks.org/dsa/two-pointers-technique/) · [Hash table](https://en.wikipedia.org/wiki/Hash_table)
+
 **Practice:** [`practice/minimum_window_substring/solution.py`](../../practice/minimum_window_substring/solution.py)
 
 Given two strings s and t of lengths m and n respectively, return the **minimum window substring** of s such that every character in t (including duplicates) is included in the window. If there is no such substring, return the empty string "".
@@ -93,7 +95,7 @@ class Solution:
 
 #### Approach
 
-The most direct reading of the problem is to enumerate every substring and keep the shortest one that contains all of `t`. Validity is checked from scratch by counting `t`'s characters into a dictionary and decrementing as the window is scanned.
+The most direct reading of the problem is to enumerate every substring and keep the shortest one that contains all of `t`. Validity is checked from scratch by counting `t`'s characters into a [dictionary](https://en.wikipedia.org/wiki/Hash_table) and decrementing as the window is scanned.
 
 1. Build a frequency dictionary of `t` by hand inside `is_valid_window`, then scan the candidate substring decrementing each matched count until the dictionary empties.
 2. For each start index `i`, extend the end `j` from the smallest feasible length upward, testing each substring for validity.
@@ -203,7 +205,7 @@ class Solution:
 
 #### Approach
 
-This solution uses the **sliding window technique** with two pointers. We expand the window by moving the right pointer and contract it by moving the left pointer when we have a valid window. The key insight is tracking when we have all required characters with correct frequencies, then trying to minimize the window size.
+This solution uses the **[sliding window technique](https://www.geeksforgeeks.org/dsa/window-sliding-technique/)** with two pointers. We expand the window by moving the right pointer and contract it by moving the left pointer when we have a valid window. The key insight is tracking when we have all required characters with correct frequencies, then trying to minimize the window size.
 
 #### Time and Space Complexity Analysis
 

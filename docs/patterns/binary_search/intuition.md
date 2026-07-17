@@ -1,5 +1,7 @@
 # Binary Search: Pattern Intuition Guide
 
+**Reference:** [Binary search algorithm](https://en.wikipedia.org/wiki/Binary_search_algorithm)
+
 > *"The answer hides in a shrinking world. With each question, half the universe becomes impossible."*
 
 ---

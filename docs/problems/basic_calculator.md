@@ -4,6 +4,8 @@
 
 **Pattern:** [Stack](../patterns/stack/intuition.md)
 
+**Algorithm:** [Stack](https://en.wikipedia.org/wiki/Stack_(abstract_data_type)) · [Recursion](https://en.wikipedia.org/wiki/Recursion_(computer_science))
+
 **Practice:** [`practice/basic_calculator/solution.py`](../../practice/basic_calculator/solution.py)
 
 Given a string `s` representing a valid expression, implement a basic calculator to evaluate it, and return the result of the evaluation.
@@ -211,7 +213,7 @@ class Solution:
 The expression contains only addition, subtraction, parentheses, and spaces, and
 crucially has no multiplication or division, so there is no operator precedence
 to worry about beyond grouping. That lets us evaluate left to right with a single
-running total, using a stack only to remember context across parentheses.
+running total, using a [stack](https://en.wikipedia.org/wiki/Stack_(abstract_data_type)) only to remember context across parentheses.
 
 We track three running values: `result` (the sum so far at the current level),
 `sign` (the `+1`/`-1` to apply to the next number), and `number` (the digits of
@@ -295,7 +297,7 @@ class Solution:
 
 #### Approach
 
-Instead of saving the partial `result` on a stack and reconstructing it when a
+Instead of saving the partial `result` on a [stack](https://en.wikipedia.org/wiki/Stack_(abstract_data_type)) and reconstructing it when a
 group closes, this approach distributes each group's sign down into the terms it
 contains. A single running `result` accumulates every term with its fully
 resolved sign, so there is nothing to restore when a parenthesis closes.
@@ -384,7 +386,7 @@ shared index `self.i` walks the string while `_parse` evaluates one parenthesis
 level and returns when it hits the matching `)` or the end of the string.
 
 When `_parse` encounters `(`, it calls itself to evaluate the inner expression.
-The recursive call advances the shared index past the matching `)` and returns
+The [recursive call](https://en.wikipedia.org/wiki/Recursion_(computer_science)) advances the shared index past the matching `)` and returns
 that group's value, which is treated exactly like a freshly parsed number and
 folded in with the current `sign`.
 

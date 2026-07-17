@@ -4,6 +4,8 @@
 
 **Pattern:** [Tree Traversal](../patterns/tree/intuition.md)
 
+**Algorithm:** [Tree traversal](https://en.wikipedia.org/wiki/Tree_traversal) · [Binary search tree](https://en.wikipedia.org/wiki/Binary_search_tree)
+
 **Practice:** [`practice/kth_smallest_element_in_a_bst/solution.py`](../../practice/kth_smallest_element_in_a_bst/solution.py)
 
 Given the `root` of a binary search tree, and an integer `k`, return the `kth` smallest value (1-indexed) of all the values of the nodes in the tree.
@@ -66,7 +68,7 @@ class Solution:
 This solution performs a complete recursive in-order traversal to collect all values in sorted order, then returns the kth element.
 
 1. Recurse into the left subtree, then visit the node, then recurse into the right subtree, accumulating values in a list.
-2. Because an in-order walk of a BST yields values in ascending order, the resulting list is sorted.
+2. Because an in-order walk of a [BST](https://en.wikipedia.org/wiki/Binary_search_tree) yields values in ascending order, the resulting list is sorted.
 3. Return the value at index `k - 1`, converting the 1-indexed `k` to a 0-indexed lookup.
 
 The approach is conceptually simple but processes every node regardless of how small `k` is.
@@ -162,7 +164,7 @@ class Solution:
 
 #### Approach
 
-This solution uses an iterative in-order traversal with early termination.
+This solution uses an iterative [in-order traversal](https://en.wikipedia.org/wiki/Tree_traversal) with early termination.
 
 1. Use an explicit stack to simulate the recursion: push nodes while descending left, so the top of the stack is always the smallest unvisited value.
 2. Pop a node to "visit" it and increment a running counter.
@@ -234,7 +236,7 @@ class Solution:
 
 #### Approach
 
-This solution uses Morris traversal to perform an in-order walk with `O(1)` auxiliary space.
+This solution uses Morris traversal to perform an [in-order walk](https://en.wikipedia.org/wiki/Tree_traversal) with `O(1)` auxiliary space.
 
 1. For a node with no left child, visit it (increment the counter) and move right.
 2. For a node with a left child, find its in-order predecessor: the rightmost node of the left subtree.

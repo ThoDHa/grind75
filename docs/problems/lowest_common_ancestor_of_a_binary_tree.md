@@ -4,6 +4,8 @@
 
 **Pattern:** [Tree Traversal](../patterns/tree/intuition.md)
 
+**Algorithm:** [Lowest common ancestor](https://en.wikipedia.org/wiki/Lowest_common_ancestor) · [Depth-first search](https://en.wikipedia.org/wiki/Depth-first_search) · [Breadth-first search](https://en.wikipedia.org/wiki/Breadth-first_search)
+
 **Practice:** [`practice/lowest_common_ancestor_of_a_binary_tree/solution.py`](../../practice/lowest_common_ancestor_of_a_binary_tree/solution.py)
 
 Given a binary tree, find the lowest common ancestor (LCA) of two given nodes in the tree.
@@ -84,7 +86,7 @@ class Solution:
 
 #### Approach
 
-The most direct way to think about a lowest common ancestor is to first find the
+The most direct way to think about a [lowest common ancestor](https://en.wikipedia.org/wiki/Lowest_common_ancestor) is to first find the
 two paths that lead from the root down to `p` and to `q`. Once both paths are in
 hand, they share a common prefix that starts at the root and runs until they
 diverge; the last node before that divergence is the LCA.
@@ -207,7 +209,7 @@ class Solution:
 
 The lowest common ancestor is the deepest node from which `p` and `q` are
 reachable in different directions (or the node that is itself one of them while
-the other lies below). A single post-order traversal answers this: each call
+the other lies below). A single [post-order traversal](https://en.wikipedia.org/wiki/Depth-first_search) answers this: each call
 reports back the relevant node it found, and the first node that hears back from
 *both* of its sides is the LCA.
 
@@ -290,7 +292,7 @@ class Solution:
 #### Approach
 
 Instead of recursing, this approach makes the tree's implicit upward edges
-explicit by recording each node's parent during a breadth-first walk. Once both
+explicit by recording each node's parent during a [breadth-first](https://en.wikipedia.org/wiki/Breadth-first_search) walk. Once both
 `p` and `q` have parents on record, the LCA becomes the first shared node along
 the two upward paths to the root.
 

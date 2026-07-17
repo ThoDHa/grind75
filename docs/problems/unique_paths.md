@@ -4,6 +4,8 @@
 
 **Pattern:** [Grid DP](../patterns/grid_dp/intuition.md)
 
+**Algorithm:** [Dynamic programming](https://en.wikipedia.org/wiki/Dynamic_programming) · [Memoization](https://en.wikipedia.org/wiki/Memoization) · [Combination](https://en.wikipedia.org/wiki/Combination)
+
 **Practice:** [`practice/unique_paths/solution.py`](../../practice/unique_paths/solution.py)
 
 There is a robot on an `m x n` grid. The robot is initially located at the top-left corner (i.e., `grid[0][0]`). The robot tries to move to the bottom-right corner (i.e., `grid[m - 1][n - 1]`). The robot can only move either down or right at any point in time.
@@ -58,7 +60,7 @@ class Solution:
 
 #### Approach
 
-The most direct idea mirrors the problem statement exactly: from any cell the robot may step down or step right, so the number of paths from a cell is the sum of the paths from the cell below and the cell to its right. Recurse on both choices and add the results, with no table and no memory of past work.
+The most direct idea mirrors the problem statement exactly: from any cell the robot may step down or step right, so the number of paths from a cell is the sum of the paths from the cell below and the cell to its right. [Recurse](https://en.wikipedia.org/wiki/Recursion_(computer_science)) on both choices and add the results, with no table and no memory of past work.
 
 1. Start at the top-left cell `(0, 0)`.
 2. If the current cell is the bottom-right corner, this branch is one complete path, so return `1`.
@@ -143,7 +145,7 @@ class Solution:
 
 This is the recursion above with one addition: a cache. The number of paths from `(i, j)` to the corner depends only on the cell itself, not on how the robot arrived there, so the result of `count(i, j)` can be stored the first time it is computed and returned instantly on every later visit. A dictionary keyed on the `(i, j)` pair serves as the cache: before branching, the function returns the memoized value if one exists; otherwise it computes `count(i + 1, j) + count(i, j + 1)` once, records it, and returns it.
 
-The recurrence and base cases are identical to the pure recursion, but the cost model collapses. The brute force enumerates every down/right path, and its `O(2^(m + n))` call tree times out on the 23 x 12 full-size case. There are only `m × n` distinct cells, however, so with the cache each cell's body executes at most once and every repeated visit is a constant-time lookup. The memo is the same table the Bottom-Up DP below fills explicitly; memoization simply fills it lazily, in whatever order the recursion demands, while keeping the top-down framing that reads straight off the problem statement.
+The recurrence and base cases are identical to the pure recursion, but the cost model collapses. The brute force enumerates every down/right path, and its `O(2^(m + n))` call tree times out on the 23 x 12 full-size case. There are only `m × n` distinct cells, however, so with the cache each cell's body executes at most once and every repeated visit is a constant-time lookup. The memo is the same table the Bottom-Up DP below fills explicitly; [memoization](https://en.wikipedia.org/wiki/Memoization) simply fills it lazily, in whatever order the recursion demands, while keeping the top-down framing that reads straight off the problem statement.
 
 #### Time and Space Complexity Analysis
 
@@ -187,7 +189,7 @@ The base cases are:
 - First row: only 1 way to reach each cell (keep moving right)
 - First column: only 1 way to reach each cell (keep moving down)
 
-This bottom-up approach fills a full 2D table, mirroring the recurrence directly.
+This [bottom-up approach](https://en.wikipedia.org/wiki/Dynamic_programming) fills a full 2D table, mirroring the recurrence directly.
 
 #### Time and Space Complexity Analysis
 
@@ -259,7 +261,7 @@ class Solution:
 
 #### Approach
 
-From a mathematical perspective, the robot needs to make exactly (m-1) down moves and (n-1) right moves for a total of (m+n-2) moves. The problem reduces to: "In how many ways can we choose (m-1) positions for down moves out of (m+n-2) total positions?" This is the binomial coefficient C(m+n-2, m-1). By symmetry C(m+n-2, m-1) = C(m+n-2, n-1), the loop iterates over the smaller of the two counts, and it multiplies before dividing to keep intermediate values integral and avoid overflow.
+From a mathematical perspective, the robot needs to make exactly (m-1) down moves and (n-1) right moves for a total of (m+n-2) moves. The problem reduces to: "In how many ways can we choose (m-1) positions for down moves out of (m+n-2) total positions?" This is the [binomial coefficient](https://en.wikipedia.org/wiki/Combination) C(m+n-2, m-1). By symmetry C(m+n-2, m-1) = C(m+n-2, n-1), the loop iterates over the smaller of the two counts, and it multiplies before dividing to keep intermediate values integral and avoid overflow.
 
 #### Time and Space Complexity Analysis
 

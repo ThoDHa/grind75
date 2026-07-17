@@ -4,6 +4,8 @@
 
 **Pattern:** [Heap / Priority Queue](../patterns/heap/intuition.md), [K-Way Merge](../patterns/k_way_merge/intuition.md)
 
+**Algorithm:** [K-way merge](https://en.wikipedia.org/wiki/K-way_merge_algorithm) · [Divide and conquer](https://en.wikipedia.org/wiki/Divide-and-conquer_algorithm) · [Heap (data structure)](https://en.wikipedia.org/wiki/Heap_(data_structure))
+
 **Practice:** [`practice/merge_k_sorted_lists/solution.py`](../../practice/merge_k_sorted_lists/solution.py)
 
 You are given an array of k linked-lists lists, each linked-list is sorted in ascending order.
@@ -93,7 +95,7 @@ class Solution:
 
 #### Approach
 
-The most direct idea is the greedy one: at every step, the next node of the merged list must be the smallest of the k current heads. Hold one cursor per list and find that minimum by scanning all cursors by hand, no sort and no heap. Append it, advance only the list it came from, and repeat until every cursor is `None`.
+The most direct idea is the [greedy](https://en.wikipedia.org/wiki/Greedy_algorithm) one: at every step, the next node of the merged list must be the smallest of the k current heads. Hold one cursor per list and find that minimum by scanning all cursors by hand, no sort and no heap. Append it, advance only the list it came from, and repeat until every cursor is `None`.
 
 1. Copy the list heads into a `heads` array of live cursors, one per input list.
 2. Scan all cursors and record the index of the smallest non-`None` head.
@@ -181,7 +183,7 @@ class Solution:
 
 #### Approach
 
-This solution **sequentially merges** each list with the accumulated result. While simple to implement, it's less efficient because earlier nodes are processed multiple times as the result list grows.
+This solution **sequentially [merges](https://en.wikipedia.org/wiki/Merge_algorithm)** each list with the accumulated result. While simple to implement, it's less efficient because earlier nodes are processed multiple times as the result list grows.
 
 #### Time and Space Complexity Analysis
 
@@ -251,7 +253,7 @@ class Solution:
 
 #### Approach
 
-This solution uses **divide and conquer** by repeatedly merging pairs of lists until only one remains. The key insight is that merging k lists can be reduced to log(k) levels of pairwise merges, which is more efficient than sequential merging.
+This solution uses **[divide and conquer](https://en.wikipedia.org/wiki/Divide-and-conquer_algorithm)** by repeatedly merging pairs of lists until only one remains. The key insight is that merging k lists can be reduced to log(k) levels of pairwise merges, which is more efficient than sequential merging.
 
 #### Time and Space Complexity Analysis
 
@@ -314,7 +316,7 @@ class Solution:
 
 #### Approach
 
-This solution uses a **min-heap (priority queue)** to always select the node with the smallest value from all available list heads. It replaces the brute force's linear `O(k)` minimum scan with an `O(log k)` heap pop, maintaining k active candidates and efficiently finding the minimum at each step.
+This solution uses a **[min-heap](https://en.wikipedia.org/wiki/Heap_(data_structure)) (priority queue)** to always select the node with the smallest value from all available list heads. It replaces the brute force's linear `O(k)` minimum scan with an `O(log k)` heap pop, maintaining k active candidates and efficiently finding the minimum at each step.
 
 #### Time and Space Complexity Analysis
 

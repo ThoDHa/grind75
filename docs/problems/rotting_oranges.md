@@ -4,6 +4,8 @@
 
 **Pattern:** [Multi-Source BFS](../patterns/grid_bfs_multi_source/intuition.md)
 
+**Algorithm:** [Breadth-first search](https://en.wikipedia.org/wiki/Breadth-first_search)
+
 **Practice:** [`practice/rotting_oranges/solution.py`](../../practice/rotting_oranges/solution.py)
 
 You are given an `m x n` grid where each cell can have one of three values:
@@ -222,7 +224,7 @@ class Solution:
 
 The rot spreads outward from every rotten orange simultaneously, one ring of
 neighbors per minute. That "all sources advance together, one step at a time"
-behavior is exactly multi-source breadth-first search: seed the BFS frontier
+behavior is exactly multi-source [breadth-first search](https://en.wikipedia.org/wiki/Breadth-first_search): seed the BFS frontier
 with *all* rotten oranges at once, then expand level by level, where each level
 corresponds to one elapsed minute.
 

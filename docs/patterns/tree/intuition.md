@@ -1,5 +1,7 @@
 # Tree Traversal: Intuition Guide
 
+**Reference:** [Tree traversal](https://en.wikipedia.org/wiki/Tree_traversal)
+
 ## The Mental Model
 
 A binary tree is a specialized graph where each node has at most two children (left and right). Unlike general graphs, trees have:

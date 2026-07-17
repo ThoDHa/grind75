@@ -1,5 +1,7 @@
 # Tree DP - Intuition Guide
 
+**Reference:** [Dynamic programming](https://en.wikipedia.org/wiki/Dynamic_programming)
+
 ## The Mental Model: A Family Inheritance Decision
 
 Imagine a family tree where each person has some wealth. You're the family advisor helping them make inheritance decisions, but there's a catch: **if a parent takes an inheritance, their children can't, and vice versa** (they're too proud to both claim it).

@@ -4,6 +4,8 @@
 
 **Pattern:** [Tree Traversal](../patterns/tree/intuition.md)
 
+**Algorithm:** [Lowest common ancestor](https://en.wikipedia.org/wiki/Lowest_common_ancestor) · [Binary search tree](https://en.wikipedia.org/wiki/Binary_search_tree)
+
 **Practice:** [`practice/lowest_common_ancestor_of_a_binary_search_tree/solution.py`](../../practice/lowest_common_ancestor_of_a_binary_search_tree/solution.py)
 
 Given a binary search tree (BST), find the lowest common ancestor (LCA) node of two given nodes in the BST.
@@ -90,7 +92,7 @@ class Solution:
 
 #### Approach
 
-The most direct idea, without relying on any tree property, is to find the full path from the root down to each target, then compare the two paths. The lowest common ancestor is simply the last node the two paths share before they diverge. This works on any binary tree because it only uses parent-to-child links, not value ordering.
+The most direct idea, without relying on any tree property, is to find the full path from the root down to each target, then compare the two paths. The [lowest common ancestor](https://en.wikipedia.org/wiki/Lowest_common_ancestor) is simply the last node the two paths share before they diverge. This works on any binary tree because it only uses parent-to-child links, not value ordering.
 
 1. For each target, run a DFS that returns the list of nodes from `root` down to that target, recording a node only on the branch that actually reaches the target.
 2. Walk the two paths in parallel from the root.
@@ -187,7 +189,7 @@ class Solution:
 
 #### Approach
 
-This refines the brute force by collapsing the two separate path searches into a single traversal that never builds explicit path lists. It still ignores the BST ordering and works for any binary tree, searching both subtrees with a post-order traversal. If each subtree reports back one target, the current node is the split point and therefore the LCA. If only one subtree reports a target, the LCA lies entirely within that subtree.
+This refines the brute force by collapsing the two separate path searches into a single traversal that never builds explicit path lists. It still ignores the BST ordering and works for any binary tree, searching both subtrees with a [post-order traversal](https://en.wikipedia.org/wiki/Tree_traversal). If each subtree reports back one target, the current node is the split point and therefore the LCA. If only one subtree reports a target, the LCA lies entirely within that subtree.
 
 1. Return `None` for an empty subtree.
 2. If the current node matches `p` or `q`, return it as a candidate.
@@ -239,7 +241,7 @@ class Solution:
 
 #### Approach
 
-This solution leverages the Binary Search Tree property: values smaller than a node sit in its left subtree, and values greater sit in its right subtree. We navigate down the tree, recursing into one side only when both targets fall on that side. The first node where the targets diverge (one on each side, or one equal to the node itself) is the lowest common ancestor.
+This solution leverages the [Binary Search Tree](https://en.wikipedia.org/wiki/Binary_search_tree) property: values smaller than a node sit in its left subtree, and values greater sit in its right subtree. We navigate down the tree, recursing into one side only when both targets fall on that side. The first node where the targets diverge (one on each side, or one equal to the node itself) is the lowest common ancestor.
 
 1. Compare both `p.val` and `q.val` against `root.val`.
 2. If both are smaller, recurse into `root.left`.
@@ -293,7 +295,7 @@ class Solution:
 
 #### Approach
 
-This solution uses the same BST logic as the recursive approach but replaces the call stack with a single loop. We start at the root and descend, moving left when both targets are smaller than the current node and right when both are larger. The first node where the targets diverge (or where one of them equals the current node) is the LCA.
+This solution uses the same [BST](https://en.wikipedia.org/wiki/Binary_search_tree) logic as the recursive approach but replaces the call stack with a single loop. We start at the root and descend, moving left when both targets are smaller than the current node and right when both are larger. The first node where the targets diverge (or where one of them equals the current node) is the LCA.
 
 1. Set `current` to `root`.
 2. While `current` is not `None`, compare both target values against `current.val`.

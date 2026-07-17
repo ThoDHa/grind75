@@ -1,5 +1,7 @@
 # Union-Find Patterns: Mental Models & Intuition
 
+**Reference:** [Disjoint-set data structure](https://en.wikipedia.org/wiki/Disjoint-set_data_structure)
+
 > Build deep understanding of when and why Union-Find works.
 
 ## The Core Insight

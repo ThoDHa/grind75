@@ -4,6 +4,8 @@
 
 **Pattern:** [Binary Search](../patterns/binary_search/intuition.md)
 
+**Algorithm:** [Interval scheduling](https://en.wikipedia.org/wiki/Interval_scheduling) · [Dynamic programming](https://en.wikipedia.org/wiki/Dynamic_programming) · [Binary search](https://en.wikipedia.org/wiki/Binary_search_algorithm)
+
 **Practice:** [`practice/maximum_profit_in_job_scheduling/solution.py`](../../practice/maximum_profit_in_job_scheduling/solution.py)
 
 We have `n` jobs, where every job is scheduled to be done from `startTime[i]` to `endTime[i]`, obtaining a profit of `profit[i]`.
@@ -81,7 +83,7 @@ class Solution:
 
 Solve the problem head-on by enumerating every subset of jobs that can legally be
 chosen, then keeping the most profitable one. Walk the jobs in their given order and,
-at each one, branch on two choices: take it or skip it. We carry along `chosen`, the
+at each one, [branch on two choices: take it or skip it](https://en.wikipedia.org/wiki/Backtracking). We carry along `chosen`, the
 intervals already committed on the current path, so a candidate can be rejected the
 moment it overlaps any of them.
 
@@ -200,7 +202,7 @@ class Solution:
 
 #### Approach
 
-This is the weighted interval scheduling problem. Sorting jobs by end time gives a
+This is the weighted [interval scheduling](https://en.wikipedia.org/wiki/Interval_scheduling) problem. Sorting jobs by end time gives a
 clean dynamic programming order: when we consider a job, every job that could legally
 precede it (one that ends at or before this job's start) appears earlier in the sorted
 list, so its answer is already computed.
@@ -295,7 +297,7 @@ search that finds the first index whose end time is strictly greater than `start
 That index equals the number of jobs ending at or before `start`, which is exactly
 the `best` slot we want (jobs ending at `X` may precede a job starting at `X`).
 
-The binary search restricts itself to the window `[0, i - 1)` so the current job can
+The [binary search](https://en.wikipedia.org/wiki/Binary_search_algorithm) restricts itself to the window `[0, i - 1)` so the current job can
 never pair with itself or a later-sorted job sharing the same end time.
 
 #### Time and Space Complexity Analysis
@@ -359,7 +361,7 @@ jobs by end time, then for each job choose the better of skipping it or taking i
 the best compatible earlier job.
 
 The only difference from the DP with Manual Binary Search approach is that the manual
-search loop is replaced by `bisect.bisect_right`. Searching the sorted `ends` array for
+search loop is replaced by [`bisect.bisect_right`](https://docs.python.org/3/library/bisect.html). Searching the sorted `ends` array for
 `start` returns the insertion point just past every entry that is `<= start`, which is
 the number of jobs ending at or before this job's start. Because a job ending at `X` may
 precede a job starting at `X`, that count is precisely the `best` index we want.

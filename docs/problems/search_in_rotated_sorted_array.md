@@ -4,6 +4,8 @@
 
 **Pattern:** [Binary Search](../patterns/binary_search/intuition.md)
 
+**Algorithm:** [Binary search](https://en.wikipedia.org/wiki/Binary_search_algorithm)
+
 **Practice:** [`practice/search_in_rotated_sorted_array/solution.py`](../../practice/search_in_rotated_sorted_array/solution.py)
 
 There is an integer array `nums` sorted in ascending order (with distinct values).
@@ -60,7 +62,7 @@ class Solution:
 
 #### Approach
 
-The most direct reading of the problem ignores the rotated-sorted structure entirely and simply walks the array looking for `target`:
+The most direct reading of the problem ignores the rotated-sorted structure entirely and simply [walks the array](https://en.wikipedia.org/wiki/Linear_search) looking for `target`:
 
 1. Iterate over the array, tracking each index.
 2. Return the index as soon as an element equals `target`.
@@ -157,7 +159,7 @@ class Solution:
 
 #### Approach
 
-This solution decomposes the problem into two independent phases, each a familiar binary search:
+This solution decomposes the problem into two independent phases, each a familiar [binary search](https://en.wikipedia.org/wiki/Binary_search_algorithm):
 
 1. Locate the rotation pivot, the index of the smallest element. If `nums[left] <= nums[right]` the array is not rotated and the pivot is index `0`. Otherwise binary search for the point where the descending step occurs: when `nums[mid] > nums[right]` the pivot lies to the right, so move `left = mid + 1`; otherwise the pivot is at `mid` or to its left, so set `right = mid`.
 2. The pivot splits the array into two sorted runs, `[0, pivot - 1]` and `[pivot, n - 1]`. Run a standard binary search over the first run, and if the target is not found there, run it over the second.
@@ -212,7 +214,7 @@ class Solution:
 
 #### Approach
 
-This solution handles the rotation inside a single binary search. The key observation is that for any `mid`, at least one of the two halves `[left, mid]` and `[mid, right]` is fully sorted:
+This solution handles the rotation inside a single [binary search](https://en.wikipedia.org/wiki/Binary_search_algorithm). The key observation is that for any `mid`, at least one of the two halves `[left, mid]` and `[mid, right]` is fully sorted:
 
 1. Compute `mid` and return immediately if `nums[mid]` equals `target`.
 2. If `nums[left] <= nums[mid]`, the left half is sorted. When `nums[left] <= target < nums[mid]`, the target can only be in that sorted half, so set `right = mid - 1`; otherwise discard it with `left = mid + 1`.

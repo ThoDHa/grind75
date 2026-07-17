@@ -335,7 +335,7 @@ class Solution:
 
 #### Approach
 
-Treat the matrix as a set of nested rings and process one ring per call. The helper walks the outer layer (top row right, right column down, bottom row left, left column up, skipping already-visited corners), then recurses on the inner rectangle defined by `top + 1, bottom - 1, left + 1, right - 1`. Dedicated base cases handle a single remaining row or column, and an empty range stops the recursion.
+Treat the matrix as a set of nested rings and process one ring per call. The helper walks the outer layer (top row right, right column down, bottom row left, left column up, skipping already-visited corners), then [recurses](https://en.wikipedia.org/wiki/Recursion_(computer_science)) on the inner rectangle defined by `top + 1, bottom - 1, left + 1, right - 1`. Dedicated base cases handle a single remaining row or column, and an empty range stops the recursion.
 
 #### Time and Space Complexity Analysis
 

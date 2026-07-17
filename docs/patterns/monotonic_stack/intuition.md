@@ -1,5 +1,7 @@
 # Monotonic Stack: Pattern Intuition Guide
 
+**Reference:** [Monotonic stack](https://www.geeksforgeeks.org/introduction-to-monotonic-stack-data-structure-and-algorithm/)
+
 > *"The tallest building blocks the view. Once you see something taller, everything shorter behind it becomes irrelevant."*
 
 ---

@@ -4,6 +4,8 @@
 
 **Pattern:** [Hashing & Frequency Counting](../patterns/hashing/intuition.md)
 
+**Algorithm:** [Boyer-Moore majority vote](https://en.wikipedia.org/wiki/Boyer%E2%80%93Moore_majority_vote_algorithm) · [Hash table](https://en.wikipedia.org/wiki/Hash_table) · [Sorting algorithm](https://en.wikipedia.org/wiki/Sorting_algorithm)
+
 **Practice:** [`practice/majority_element/solution.py`](../../practice/majority_element/solution.py)
 
 Given an array `nums` of size `n`, return the majority element.
@@ -128,7 +130,7 @@ class Solution:
 Count how many times each value appears, then return whichever value carries the
 highest count. The steps:
 
-1. Walk the array once, incrementing a per-value counter in a dictionary.
+1. Walk the array once, incrementing a per-value counter in a [dictionary](https://en.wikipedia.org/wiki/Hash_table).
 2. Walk the dictionary once, tracking the value whose count is largest.
 3. Return that value.
 
@@ -182,7 +184,7 @@ Maintain a single `candidate` and a running `count`. The steps:
    otherwise.
 3. After the pass, the surviving `candidate` is the majority element.
 
-Conceptually, each non-majority value cancels out one majority value. Since the
+Conceptually, [each non-majority value cancels out one majority value](https://en.wikipedia.org/wiki/Boyer%E2%80%93Moore_majority_vote_algorithm). Since the
 majority element appears more than `⌊n / 2⌋` times, it cannot be fully cancelled
 and remains as the final candidate.
 
@@ -216,7 +218,7 @@ class Solution:
 
 #### Approach
 
-Sort the array and return the middle element. Any value occupying more than half
+[Sort](https://en.wikipedia.org/wiki/Sorting_algorithm) the array and return the middle element. Any value occupying more than half
 the positions must straddle the center index after sorting, so the element at
 index `len(nums) // 2` is always the majority element.
 
@@ -251,7 +253,7 @@ class Solution:
 
 #### Approach
 
-Let the standard library do the counting. `Counter(nums)` tallies frequencies in
+Let the standard library do the counting. [`Counter`](https://docs.python.org/3/library/collections.html#collections.Counter)`(nums)` tallies frequencies in
 one pass, and `most_common(1)` returns the single highest-frequency `(value,
 count)` pair, from which we take the value.
 

@@ -4,6 +4,8 @@
 
 **Pattern:** [Hashing & Frequency Counting](../patterns/hashing/intuition.md)
 
+**Algorithm:** [Hash table](https://en.wikipedia.org/wiki/Hash_table) · [Sorting](https://en.wikipedia.org/wiki/Sorting_algorithm)
+
 **Practice:** [`practice/contains_duplicate/solution.py`](../../practice/contains_duplicate/solution.py)
 
 Given an integer array `nums`, return `true` if any value appears **at least twice** in the array, and return `false` if every element is distinct.
@@ -121,7 +123,7 @@ Track every value as it is encountered and report the first repeat:
 4. Otherwise add `num` to `seen` and continue.
 5. If the loop finishes without a hit, every element was distinct, so return `False`.
 
-Membership tests and insertions on a hash set are constant time on average, which keeps the whole scan linear. The early return means the work stops the moment the first duplicate appears.
+Membership tests and insertions on a [hash set](https://en.wikipedia.org/wiki/Hash_table) are constant time on average, which keeps the whole scan linear. The early return means the work stops the moment the first duplicate appears.
 
 #### Time and Space Complexity Analysis
 
@@ -156,7 +158,7 @@ class Solution:
 
 #### Approach
 
-Sorting brings equal values next to each other so duplicates can be spotted with a single adjacent-pair scan:
+[Sorting](https://en.wikipedia.org/wiki/Sorting_algorithm) brings equal values next to each other so duplicates can be spotted with a single adjacent-pair scan:
 
 1. Sort a copy of `nums` into ascending order.
 2. Walk from the second element to the last, comparing each element with its predecessor.
@@ -194,7 +196,7 @@ class Solution:
 
 #### Approach
 
-A `set` discards duplicate values, so comparing sizes answers the question directly:
+A [`set`](https://en.wikipedia.org/wiki/Hash_table) discards duplicate values, so comparing sizes answers the question directly:
 
 1. Build a set from `nums`, which keeps only distinct values.
 2. If the set is smaller than the original list, at least one value was dropped as a duplicate, so return `True`.
@@ -232,7 +234,7 @@ class Solution:
 
 #### Approach
 
-`collections.Counter` tallies how many times each value appears, and any count above one signals a duplicate:
+[`collections.Counter`](https://docs.python.org/3/library/collections.html#collections.Counter) tallies how many times each value appears, and any count above one signals a duplicate:
 
 1. Build a `Counter` over `nums` to map each value to its frequency.
 2. Scan the frequency values and return `True` as soon as one exceeds `1`.

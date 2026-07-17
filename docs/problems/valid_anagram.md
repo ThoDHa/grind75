@@ -4,6 +4,8 @@
 
 **Pattern:** [Hashing & Frequency Counting](../patterns/hashing/intuition.md)
 
+**Algorithm:** [Hash table](https://en.wikipedia.org/wiki/Hash_table) · [Sorting](https://en.wikipedia.org/wiki/Sorting_algorithm) · [Python `collections.Counter`](https://docs.python.org/3/library/collections.html#collections.Counter)
+
 **Practice:** [`practice/valid_anagram/solution.py`](../../practice/valid_anagram/solution.py)
 
 Given two strings `s` and `t`, return `true` if `t` is an anagram of `s`, and `false` otherwise.
@@ -172,7 +174,7 @@ class Solution:
 This solution counts characters once and then cancels them out, all by hand:
 
 1. Reject mismatched lengths immediately.
-2. Build a dictionary mapping each character of `s` to its frequency.
+2. Build a [dictionary](https://en.wikipedia.org/wiki/Hash_table) mapping each character of `s` to its frequency.
 3. Walk `t`, decrementing the matching count for each character.
 4. If a character of `t` has no remaining count, return `False`.
 5. Surviving the full walk means every count cancelled exactly, so return `True`.
@@ -261,7 +263,7 @@ class Solution:
 This solution relies on a single observation: two strings are anagrams if and
 only if they contain the same characters with the same frequencies. Sorting both
 strings places their characters in a canonical order, so anagrams produce
-identical sorted sequences. Comparing the two sorted lists yields the answer
+identical sorted sequences. Comparing the two [sorted](https://en.wikipedia.org/wiki/Sorting_algorithm) lists yields the answer
 directly, and unequal lengths naturally produce unequal lists.
 
 #### Time and Space Complexity Analysis
@@ -296,7 +298,7 @@ class Solution:
 
 #### Approach
 
-This solution defers the counting to Python's built-in `Counter`, which tallies
+This solution defers the counting to Python's built-in [`Counter`](https://docs.python.org/3/library/collections.html#collections.Counter), which tallies
 the occurrences of each element. Building a `Counter` from each string and
 comparing the two for equality determines whether they hold the same characters
 with the same frequencies. The equality check covers the length mismatch case for

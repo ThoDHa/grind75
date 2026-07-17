@@ -1,5 +1,7 @@
 # Trie Patterns: Mental Models & Intuition
 
+**Reference:** [Trie](https://en.wikipedia.org/wiki/Trie)
+
 > Build deep understanding of when and why Tries work for string problems.
 
 ## The Core Insight

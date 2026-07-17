@@ -4,6 +4,8 @@
 
 **Pattern:** [Linked List Reversal](../patterns/linked_list_in_place_reversal/intuition.md)
 
+**Algorithm:** [Linked list](https://en.wikipedia.org/wiki/Linked_list) · [Recursion](https://en.wikipedia.org/wiki/Recursion_(computer_science))
+
 **Practice:** [`practice/reverse_linked_list/solution.py`](../../practice/reverse_linked_list/solution.py)
 
 Given the `head` of a singly linked list, reverse the list, and return the reversed list.
@@ -139,7 +141,7 @@ class Solution:
 
 #### Approach
 
-This solution reverses the linked list iteratively using three pointers. We maintain a `prev` pointer that initially points to `None` (representing the new tail), a `curr` pointer at the node being processed, and a temporary `next_node` reference. For each node in the original list, we:
+This solution reverses the [linked list](https://en.wikipedia.org/wiki/Linked_list) iteratively using three pointers. We maintain a `prev` pointer that initially points to `None` (representing the new tail), a `curr` pointer at the node being processed, and a temporary `next_node` reference. For each node in the original list, we:
 
 1. Save the current node's `next` into `next_node` before the link is overwritten.
 2. Point the current node's `next` back to `prev`, reversing that edge.
@@ -187,7 +189,7 @@ class Solution:
 
 #### Approach
 
-The recursive solution reverses the tail first, then fixes the current node on the way back up the call stack:
+The [recursive](https://en.wikipedia.org/wiki/Recursion_(computer_science)) solution reverses the tail first, then fixes the current node on the way back up the call stack:
 
 1. The base case returns `head` directly for an empty list or a single node, since either is already reversed.
 2. Recurse on `head.next` to reverse the rest of the list; `new_head` is the original tail, which becomes the head of the reversed list and is passed back unchanged through every frame.

@@ -4,6 +4,8 @@
 
 **Pattern:** [K-Way Merge](../patterns/k_way_merge/intuition.md)
 
+**Algorithm:** [Merge algorithm](https://en.wikipedia.org/wiki/Merge_algorithm) · [Linked list](https://en.wikipedia.org/wiki/Linked_list)
+
 **Practice:** [`practice/merge_two_sorted_lists/solution.py`](../../practice/merge_two_sorted_lists/solution.py)
 
 You are given the heads of two sorted linked lists `list1` and `list2`.
@@ -85,7 +87,7 @@ class Solution:
 The most direct idea ignores the gift that both inputs are sorted and treats the
 problem as "produce a sorted list from a bag of numbers." Collect every value
 into an array, then build the answer one node at a time by scanning for the
-minimum remaining value and removing it, selection-sort style. This never
+minimum remaining value and removing it, [selection-sort style](https://en.wikipedia.org/wiki/Sorting_algorithm). This never
 exploits the sorted order, which is exactly why it is the brute force.
 
 1. Walk both lists and append every node's value to an array.
@@ -181,7 +183,7 @@ class Solution:
 
 #### Approach
 
-This solution uses a dummy head node technique with an iterative approach to merge the two sorted lists. We maintain a "current" pointer that builds the merged list as we traverse both input lists simultaneously. At each step, we compare the values at the heads of both lists and connect the smaller node to our result list, then advance the appropriate list pointer. Once one list is exhausted, we simply attach the remainder of the other list, as it's already sorted.
+This solution uses a dummy head node technique with an iterative approach to [merge the two sorted lists](https://en.wikipedia.org/wiki/Merge_algorithm). We maintain a "current" pointer that builds the merged list as we traverse both input lists simultaneously. At each step, we compare the values at the heads of both lists and connect the smaller node to our result list, then advance the appropriate list pointer. Once one list is exhausted, we simply attach the remainder of the other list, as it's already sorted.
 
 #### Time and Space Complexity Analysis
 
@@ -231,7 +233,7 @@ class Solution:
 
 #### Approach
 
-This solution expresses the merge as a recurrence. The smaller of the two heads
+This solution expresses the merge as a [recurrence](https://en.wikipedia.org/wiki/Recursion_(computer_science)). The smaller of the two heads
 is the head of the merged list, and its `next` is the merge of the remainder of
 that list with the entire other list. The recursion bottoms out when either
 list becomes empty, at which point the other list is already sorted and can be

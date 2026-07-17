@@ -4,6 +4,8 @@
 
 **Pattern:** [Tree Traversal](../patterns/tree/intuition.md)
 
+**Algorithm:** [Tree traversal](https://en.wikipedia.org/wiki/Tree_traversal) · [Depth-first search](https://en.wikipedia.org/wiki/Depth-first_search) · [Breadth-first search](https://en.wikipedia.org/wiki/Breadth-first_search)
+
 **Practice:** [`practice/serialize_and_deserialize_binary_tree/solution.py`](../../practice/serialize_and_deserialize_binary_tree/solution.py)
 
 Serialization is the process of converting a data structure or object into a sequence of bits so that it can be stored in a file or memory buffer, or transmitted across a network connection link to be reconstructed later in the same or another computer environment.
@@ -75,7 +77,7 @@ class Codec:
 
 #### Approach
 
-This solution uses **preorder traversal (root → left → right)** for serialization with explicit null markers. The key insight is that preorder traversal with null placeholders provides enough information to uniquely reconstruct the tree. Deserialization uses recursive reconstruction following the same preorder pattern.
+This solution uses **[preorder traversal](https://en.wikipedia.org/wiki/Depth-first_search) (root → left → right)** for serialization with explicit null markers. The key insight is that preorder traversal with null placeholders provides enough information to uniquely reconstruct the tree. Deserialization uses recursive reconstruction following the same preorder pattern.
 
 #### Time and Space Complexity Analysis
 
@@ -194,7 +196,7 @@ class Codec:
 
 #### Approach
 
-This solution uses **level-order traversal (BFS)** which processes nodes level by level from left to right. This approach is more intuitive for many people as it matches the way trees are often visualized. The serialization creates a queue-like structure that can be directly reconstructed.
+This solution uses **[level-order traversal (BFS)](https://en.wikipedia.org/wiki/Breadth-first_search)** which processes nodes level by level from left to right. This approach is more intuitive for many people as it matches the way trees are often visualized. The serialization creates a queue-like structure that can be directly reconstructed.
 
 #### Time and Space Complexity Analysis
 
@@ -256,7 +258,7 @@ class Codec:
 
 #### Approach
 
-This solution uses **postorder traversal (left → right → root)** for serialization with explicit null markers. Because the root is written last, the root token sits at the very end of the serialized string. Deserialization consumes tokens from the **end** of the list, which reverses the traversal order to root → right → left, so the right subtree must be built before the left. The null markers tell the recursion exactly where each subtree ends, allowing any general binary tree to be reconstructed uniquely.
+This solution uses **[postorder traversal](https://en.wikipedia.org/wiki/Tree_traversal) (left → right → root)** for serialization with explicit null markers. Because the root is written last, the root token sits at the very end of the serialized string. Deserialization consumes tokens from the **end** of the list, which reverses the traversal order to root → right → left, so the right subtree must be built before the left. The null markers tell the recursion exactly where each subtree ends, allowing any general binary tree to be reconstructed uniquely.
 
 #### Time and Space Complexity Analysis
 

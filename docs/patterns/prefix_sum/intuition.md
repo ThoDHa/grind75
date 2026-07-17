@@ -1,5 +1,7 @@
 # Prefix Sum: Pattern Intuition Guide
 
+**Reference:** [Prefix sum](https://en.wikipedia.org/wiki/Prefix_sum)
+
 > *"The prefix sum is a ledger of the past: it remembers everything you've accumulated so you don't have to count again."*
 
 ---

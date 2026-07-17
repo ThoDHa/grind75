@@ -4,6 +4,8 @@
 
 **Pattern:** [Backtracking](../patterns/backtracking_exploration/intuition.md)
 
+**Algorithm:** [Backtracking](https://en.wikipedia.org/wiki/Backtracking)
+
 **Practice:** [`practice/letter_combinations_of_a_phone_number/solution.py`](../../practice/letter_combinations_of_a_phone_number/solution.py)
 
 Given a string containing digits from `2-9` inclusive, return all possible letter combinations that the number could represent. Return the answer in **any order**.
@@ -73,7 +75,7 @@ class Solution:
 
 Build the combinations one digit at a time. Start with a single empty
 combination, then for each digit replace the current list with an expanded list
-that appends every letter of that digit to every existing combination.
+that [appends every letter of that digit to every existing combination](https://en.wikipedia.org/wiki/Cartesian_product).
 
 1. Return `[]` immediately for empty input, since no combinations exist.
 2. Seed the working list with one empty string.
@@ -174,7 +176,7 @@ class Solution:
 
 #### Approach
 
-Frame the problem with divide and conquer: the combinations for `digits[index:]`
+Frame the problem with [divide and conquer](https://en.wikipedia.org/wiki/Divide-and-conquer_algorithm): the combinations for `digits[index:]`
 equal each letter of `digits[index]` prepended to every combination of
 `digits[index + 1:]`.
 
@@ -234,7 +236,7 @@ class Solution:
 
 #### Approach
 
-Treat each digit as a level in an implicit tree and explore breadth-first. The
+Treat each digit as a level in an implicit tree and explore [breadth-first](https://en.wikipedia.org/wiki/Breadth-first_search). The
 queue holds all combinations of the current length; processing one digit advances
 every entry to the next length.
 
@@ -301,7 +303,7 @@ class Solution:
 
 #### Approach
 
-Walk a decision tree depth-first, where each level chooses one letter for the
+Walk a decision tree [depth-first](https://en.wikipedia.org/wiki/Depth-first_search), where each level chooses one letter for the
 current digit. A shared `path` accumulates the current choices; on reaching the
 end it is joined and recorded, then the last choice is undone before trying the
 next branch.
@@ -359,7 +361,7 @@ class Solution:
 #### Approach
 
 The problem is exactly the Cartesian product of the per-digit letter sets, which
-`itertools.product` computes directly.
+[`itertools.product`](https://docs.python.org/3/library/itertools.html) computes directly.
 
 1. Return `[]` for empty input.
 2. Map each digit to its letter group.

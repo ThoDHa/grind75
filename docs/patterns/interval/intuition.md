@@ -1,5 +1,7 @@
 # Interval Patterns: Mental Models & Intuition
 
+**Reference:** [Interval scheduling](https://en.wikipedia.org/wiki/Interval_scheduling)
+
 > Build deep understanding of when and why interval patterns work.
 
 ## The Core Insight

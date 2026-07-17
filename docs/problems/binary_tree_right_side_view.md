@@ -4,6 +4,8 @@
 
 **Pattern:** [Tree Traversal](../patterns/tree/intuition.md)
 
+**Algorithm:** [Breadth-first search](https://en.wikipedia.org/wiki/Breadth-first_search) · [Depth-first search](https://en.wikipedia.org/wiki/Depth-first_search)
+
 **Practice:** [`practice/binary_tree_right_side_view/solution.py`](../../practice/binary_tree_right_side_view/solution.py)
 
 Given the `root` of a binary tree, imagine yourself standing on the **right side** of it, return the values of the nodes you can see ordered from top to bottom.
@@ -72,7 +74,7 @@ class Solution:
 
 The most direct reading of the problem is literal: group every node by its level, then the rightmost node of each level is simply the last one written when we walk left to right. This needs no clever ordering trick, just an honest bucket-per-depth collection.
 
-1. Walk the tree with a plain depth-first traversal, carrying the current `depth`.
+1. Walk the tree with a plain [depth-first traversal](https://en.wikipedia.org/wiki/Depth-first_search), carrying the current `depth`.
 2. The first time a `depth` is reached, append a fresh empty list so `levels[depth]` exists.
 3. Append the current node's value to its depth's bucket, then recurse left child before right child so each bucket fills left to right.
 4. After the walk, take the last value of every bucket: that is the node visible from the right.
@@ -151,7 +153,7 @@ class Solution:
 
 #### Approach
 
-If a depth-first traversal always explores the right subtree before the left, then the first node it reaches at any depth is the rightmost node on that level:
+If a [depth-first traversal](https://en.wikipedia.org/wiki/Depth-first_search) always explores the right subtree before the left, then the first node it reaches at any depth is the rightmost node on that level:
 
 1. Track the current `depth`, starting at `0` for the root.
 2. When `depth == len(result)`, no node has been recorded for this level yet, so the current node is the first (and therefore rightmost) one seen there. Append its value.
@@ -213,7 +215,7 @@ class Solution:
 
 #### Approach
 
-The right side view is exactly the last node of each level when scanning left to right. A breadth-first traversal that processes the tree one level at a time gives us that node directly:
+The right side view is exactly the last node of each level when scanning left to right. A [breadth-first traversal](https://en.wikipedia.org/wiki/Breadth-first_search) that processes the tree one level at a time gives us that node directly:
 
 1. Return an empty list immediately when the tree is empty.
 2. Seed a queue with `root` and process the tree level by level.

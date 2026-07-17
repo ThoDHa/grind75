@@ -4,6 +4,8 @@
 
 **Pattern:** [Two Pointers](../patterns/two_pointers/intuition.md)
 
+**Algorithm:** [Two-pointer technique](https://www.geeksforgeeks.org/dsa/two-pointers-technique/) · [Linked list](https://en.wikipedia.org/wiki/Linked_list)
+
 **Practice:** [`practice/middle_of_the_linked_list/solution.py`](../../practice/middle_of_the_linked_list/solution.py)
 
 Given the `head` of a singly linked list, return the middle node of the linked list.
@@ -148,7 +150,7 @@ class Solution:
 
 #### Approach
 
-This solution uses the fast-and-slow pointer technique (also known as the
+This solution uses the [fast-and-slow pointer technique](https://www.geeksforgeeks.org/dsa/two-pointers-technique/) (also known as the
 "tortoise and hare"). Both pointers start at `head`:
 
 1. Advance `slow` by one node and `fast` by two nodes on each iteration.

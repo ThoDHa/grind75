@@ -1,5 +1,7 @@
 # Hashing & Frequency Counting: Pattern Intuition Guide
 
+**Reference:** [Hash table](https://en.wikipedia.org/wiki/Hash_table)
+
 > *"A hash map is memory with an instant recall: it remembers everything you've seen so you never have to look twice."*
 
 ---

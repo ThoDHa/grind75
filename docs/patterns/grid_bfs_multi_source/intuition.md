@@ -1,5 +1,7 @@
 # Multi-Source BFS - Intuition Guide
 
+**Reference:** [Breadth-first search](https://en.wikipedia.org/wiki/Breadth-first_search)
+
 ## The Mental Model: Dropping Multiple Pebbles
 
 Imagine dropping pebbles into a still pond. Each pebble creates ripples that expand outward. If you drop **one pebble**, you see one set of ripples expanding from that point. But what if you drop **multiple pebbles simultaneously**?

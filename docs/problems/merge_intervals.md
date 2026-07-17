@@ -4,6 +4,8 @@
 
 **Pattern:** [Interval](../patterns/interval/intuition.md)
 
+**Algorithm:** [Sorting algorithm](https://en.wikipedia.org/wiki/Sorting_algorithm) · [Depth-first search](https://en.wikipedia.org/wiki/Depth-first_search)
+
 **Practice:** [`practice/merge_intervals/solution.py`](../../practice/merge_intervals/solution.py)
 
 Given an array of `intervals` where `intervals[i] = [start_i, end_i]`, merge all
@@ -162,7 +164,7 @@ class Solution:
 
 #### Approach
 
-After sorting intervals by their start times, every group of intervals that
+After [sorting](https://en.wikipedia.org/wiki/Sorting_algorithm) intervals by their start times, every group of intervals that
 should merge becomes a contiguous run, so a single linear pass suffices:
 
 1. **Sort by start time.** Processing left to right then visits intervals in
@@ -241,7 +243,7 @@ class Solution:
 
 #### Approach
 
-Decouple the endpoints and sweep a vertical line across the number line,
+Decouple the endpoints and [sweep a vertical line](https://en.wikipedia.org/wiki/Sweep_line_algorithm) across the number line,
 tracking how many intervals are currently open:
 
 1. **Separate and sort endpoints.** Collect all starts and all ends into two
@@ -335,7 +337,7 @@ Treat overlap as a graph relation and merge by finding connected components:
 1. **Build the overlap graph.** Add an undirected edge between every pair of
    intervals that overlap, where `overlaps(a, b)` is `a[0] <= b[1] and
    b[0] <= a[1]`.
-2. **Find connected components.** Run depth-first search from each unvisited
+2. **Find connected components.** Run [depth-first search](https://en.wikipedia.org/wiki/Depth-first_search) from each unvisited
    node to collect every interval reachable through a chain of overlaps.
 3. **Collapse each component.** A component must merge into a single interval
    spanning from its minimum start to its maximum end, since overlap is

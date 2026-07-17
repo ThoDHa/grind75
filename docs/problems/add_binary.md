@@ -4,6 +4,8 @@
 
 **Pattern:** [Simulation](../patterns/simulation/intuition.md)
 
+**Algorithm:** [Bitwise operation](https://en.wikipedia.org/wiki/Bitwise_operation)
+
 **Practice:** [`practice/add_binary/solution.py`](../../practice/add_binary/solution.py)
 
 Given two binary strings `a` and `b`, return their sum as a binary string.
@@ -215,7 +217,7 @@ class Solution:
 #### Approach
 
 This solution performs the addition using the classic carry-propagation loop
-built entirely from bitwise operators. The XOR of two values gives their sum at
+built entirely from [bitwise operators](https://en.wikipedia.org/wiki/Bitwise_operation). The XOR of two values gives their sum at
 each bit position while ignoring any carries, and the AND of the two values
 (shifted left by one) gives exactly the carry bits. Folding the carry back in
 repeatedly, the carry eventually becomes zero and `x` holds the final sum.

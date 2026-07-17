@@ -4,6 +4,8 @@
 
 **Pattern:** [Binary Search](../patterns/binary_search/intuition.md)
 
+**Algorithm:** [Binary search](https://en.wikipedia.org/wiki/Binary_search_algorithm)
+
 **Practice:** [`practice/time_based_key_value_store/solution.py`](../../practice/time_based_key_value_store/solution.py)
 
 Design a time-based key-value data structure that can store multiple values for the same key at different time stamps and retrieve the key's value at a certain timestamp.
@@ -192,7 +194,7 @@ The storage and `set` logic are identical to the Linear Scan: each key keeps a l
 guarantee.
 
 The improvement is in `get`. Instead of a linear backward walk, a hand-written
-binary search finds the first index whose timestamp is strictly greater than the
+[binary search](https://en.wikipedia.org/wiki/Binary_search_algorithm) finds the first index whose timestamp is strictly greater than the
 query. That index equals the number of entries with timestamp `<=` the query, so the
 entry just before it (`lo - 1`) holds the largest qualifying timestamp. If `lo` is
 `0`, no entry qualifies and the answer is `""`.
@@ -261,7 +263,7 @@ class TimeMap:
 
 The storage and `set` logic mirror the previous approaches: each key keeps its history
 sorted by time thanks to the increasing-timestamp guarantee. Here the timestamps live in
-their own list so they can be passed straight to `bisect`, with the values kept in a
+their own list so they can be passed straight to [`bisect`](https://docs.python.org/3/library/bisect.html), with the values kept in a
 parallel list at matching indices.
 
 The `get` logic is the same idea as the Manual Binary Search, with the search delegated

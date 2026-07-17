@@ -4,6 +4,8 @@
 
 **Pattern:** [Tree Traversal](../patterns/tree/intuition.md)
 
+**Algorithm:** [Depth-first search](https://en.wikipedia.org/wiki/Depth-first_search) · [Breadth-first search](https://en.wikipedia.org/wiki/Breadth-first_search) · [Tree traversal](https://en.wikipedia.org/wiki/Tree_traversal)
+
 **Practice:** [`practice/maximum_depth_of_binary_tree/solution.py`](../../practice/maximum_depth_of_binary_tree/solution.py)
 
 Given the `root` of a binary tree, return its maximum depth.
@@ -60,7 +62,7 @@ class Solution:
 
 #### Approach
 
-This recursive solution uses depth-first search to traverse the binary tree. The depth of a node is defined in terms of its children, which makes recursion a natural fit:
+This recursive solution uses [depth-first search](https://en.wikipedia.org/wiki/Depth-first_search) to traverse the binary tree. The depth of a node is defined in terms of its children, which makes recursion a natural fit:
 
 1. If the node is `None`, the subtree is empty and its depth is `0`.
 2. Otherwise, recursively compute the maximum depth of the left and right subtrees.
@@ -156,7 +158,7 @@ class Solution:
 
 #### Approach
 
-This solution uses breadth-first search to walk the tree one level at a time, counting the number of levels:
+This solution uses [breadth-first search](https://en.wikipedia.org/wiki/Breadth-first_search) to walk the tree one level at a time, counting the number of levels:
 
 1. If the root is `None`, return `0`.
 2. Seed a queue with the root and start a `depth` counter at `0`.
@@ -215,7 +217,7 @@ class Solution:
 
 #### Approach
 
-This solution simulates the recursive traversal with an explicit stack, carrying each node's depth alongside the node:
+This solution simulates the recursive traversal with an explicit [stack](https://en.wikipedia.org/wiki/Stack_(abstract_data_type)), carrying each node's depth alongside the node:
 
 1. If the root is `None`, return `0`.
 2. Push `(root, 1)` onto the stack and initialize `max_depth` to `0`.

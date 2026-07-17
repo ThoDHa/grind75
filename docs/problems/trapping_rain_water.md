@@ -4,6 +4,8 @@
 
 **Pattern:** [Monotonic Stack](../patterns/monotonic_stack/intuition.md)
 
+**Algorithm:** [Dynamic programming](https://en.wikipedia.org/wiki/Dynamic_programming) · [Monotonic stack](https://www.geeksforgeeks.org/introduction-to-monotonic-stack-data-structure-and-algorithm/) · [Two-pointer technique](https://www.geeksforgeeks.org/dsa/two-pointers-technique/)
+
 **Practice:** [`practice/trapping_rain_water/solution.py`](../../practice/trapping_rain_water/solution.py)
 
 Given `n` non-negative integers representing an elevation map where the width of each bar is `1`, compute how much water it can trap after raining.
@@ -156,7 +158,7 @@ class Solution:
 
 #### Approach
 
-This is the dynamic programming formulation: `left_max` and `right_max` are DP tables
+This is the [dynamic programming](https://en.wikipedia.org/wiki/Dynamic_programming) formulation: `left_max` and `right_max` are DP tables
 where each entry depends on the previous one (`left_max[i] = max(left_max[i-1], height[i])`),
 caching the subproblem results that the trapping formula needs. We precompute, for every
 index, the tallest bar at or to its left (`left_max`) and at or to its right (`right_max`),
@@ -222,7 +224,7 @@ class Solution:
 #### Approach
 
 Instead of asking how much water sits above each bar, this approach fills water in
-horizontal layers between bars. The stack holds indices of bars whose heights are
+horizontal layers between bars. The [stack](https://www.geeksforgeeks.org/introduction-to-monotonic-stack-data-structure-and-algorithm/) holds indices of bars whose heights are
 decreasing from bottom to top, so the top is always the most recent dip.
 
 When a bar taller than the stack top arrives, it can act as a right wall. The bar just
@@ -296,7 +298,7 @@ The water sitting above any bar `i` equals `min(maxLeft[i], maxRight[i]) - heigh
 where `maxLeft` and `maxRight` are the tallest bars to the left and right. The
 challenge is computing that minimum without storing both prefix arrays.
 
-The two-pointer method exploits a key observation: if `left_max <= right_max`, then
+The [two-pointer method](https://www.geeksforgeeks.org/dsa/two-pointers-technique/) exploits a key observation: if `left_max <= right_max`, then
 the water level at the left pointer is bounded by `left_max`, regardless of what taller
 bars might lie further right, because we already know some bar on the right is at least
 `right_max >= left_max`. So we can safely settle the left pointer's water using only

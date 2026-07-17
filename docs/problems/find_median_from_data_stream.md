@@ -4,6 +4,8 @@
 
 **Pattern:** [Heap / Priority Queue](../patterns/heap/intuition.md)
 
+**Algorithm:** [Heap (data structure)](https://en.wikipedia.org/wiki/Heap_(data_structure))
+
 **Practice:** [`practice/find_median_from_data_stream/solution.py`](../../practice/find_median_from_data_stream/solution.py)
 
 The **median** is the middle value in an ordered integer list. If the size of the list is even, there is no middle value, and the median is the mean of the two middle values.
@@ -97,7 +99,7 @@ lives in one Python list that is always kept in sorted order, so the median is
 just a matter of reading the middle of that list.
 
 1. Maintain a single list `nums` that is invariantly sorted ascending.
-2. On `addNum`, run a hand-written binary search to find the leftmost index
+2. On `addNum`, run a hand-written [binary search](https://en.wikipedia.org/wiki/Binary_search_algorithm) to find the leftmost index
    where the new value belongs, then call `list.insert` to place it there. The
    binary search locates the slot in `O(log n)` comparisons, but the insert
    itself must shift every element after that slot, making the operation `O(n)`.
@@ -199,7 +201,7 @@ class MedianFinder:
 #### Approach
 
 The median sits at the boundary between the smaller and larger halves of the
-data. By keeping each half in its own heap, the two values straddling the median
+data. By keeping each half in its own [heap](https://en.wikipedia.org/wiki/Heap_(data_structure)), the two values straddling the median
 stay at the heap tops, available in constant time.
 
 1. Maintain a max-heap `lower` for the smaller half (stored as negated values so
@@ -276,7 +278,7 @@ class MedianFinder:
 #### Approach
 
 This is the same sorted-list strategy as the first solution, but it lets the
-standard library do the binary search and the insertion. `bisect.insort` finds
+standard library do the binary search and the insertion. [`bisect.insort`](https://docs.python.org/3/library/bisect.html) finds
 the leftmost slot where `num` belongs and inserts it there, keeping the list
 sorted at all times.
 

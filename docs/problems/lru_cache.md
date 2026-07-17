@@ -4,6 +4,8 @@
 
 **Pattern:** [Data-Structure Design](../patterns/design/intuition.md)
 
+**Algorithm:** [Hash table](https://en.wikipedia.org/wiki/Hash_table) · [Linked list](https://en.wikipedia.org/wiki/Linked_list)
+
 **Practice:** [`practice/lru_cache/solution.py`](../../practice/lru_cache/solution.py)
 
 Design a data structure that follows the constraints of a Least Recently Used (LRU) cache.
@@ -101,7 +103,7 @@ class LRUCache:
 
 #### Approach
 
-The most direct idea is to store values in a dict and track recency by hand in a
+The most direct idea is to store values in a [dict](https://en.wikipedia.org/wiki/Hash_table) and track recency by hand in a
 separate list of keys, kept in access order. This mirrors what an LRU cache must
 do without reaching for any specialized structure: it just pays a linear cost to
 maintain the ordering.
@@ -252,7 +254,7 @@ class LRUCache:
 
 This is the from-scratch implementation using no imports. It builds the same
 machinery `OrderedDict` provides internally: a hash map for `O(1)` lookup paired
-with a doubly linked list that tracks recency order.
+with a [doubly linked list](https://en.wikipedia.org/wiki/Linked_list) that tracks recency order.
 
 1. Each entry is a `Node` holding its key, value, and `prev`/`next` pointers. A
    dict maps key to node for constant-time access.
@@ -333,7 +335,7 @@ class LRUCache:
 #### Approach
 
 An LRU cache needs `O(1)` lookup by key plus `O(1)` identification and removal
-of the least recently used entry. Python's `OrderedDict` provides exactly this:
+of the least recently used entry. Python's [`OrderedDict`](https://docs.python.org/3/library/collections.html#collections.OrderedDict) provides exactly this:
 hash-table access combined with a doubly linked list that preserves insertion
 and re-insertion order.
 

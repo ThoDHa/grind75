@@ -1,5 +1,7 @@
 # Grid DP: Pattern Intuition Guide
 
+**Reference:** [Dynamic programming](https://en.wikipedia.org/wiki/Dynamic_programming)
+
 > *"A grid is a staircase with two directions. Every cell's answer is built from the cells you already solved."*
 
 ---

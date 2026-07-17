@@ -4,6 +4,8 @@
 
 **Pattern:** [Backtracking](../patterns/backtracking_exploration/intuition.md)
 
+**Algorithm:** [Power set](https://en.wikipedia.org/wiki/Power_set) · [Backtracking](https://en.wikipedia.org/wiki/Backtracking)
+
 **Practice:** [`practice/subsets/solution.py`](../../practice/subsets/solution.py)
 
 Given an integer array `nums` of unique elements, return all possible subsets (the power set).
@@ -60,7 +62,7 @@ class Solution:
 
 #### Approach
 
-This iterative approach builds the power set incrementally. We start with just the empty subset, then for each new element, we duplicate all existing subsets and add the new element to the duplicates.
+This iterative approach builds the [power set](https://en.wikipedia.org/wiki/Power_set) incrementally. We start with just the empty subset, then for each new element, we duplicate all existing subsets and add the new element to the duplicates.
 
 The progression for `nums = [1,2,3]`:
 - Start: `[[]]`
@@ -134,7 +136,7 @@ class Solution:
 
 #### Approach
 
-This backtracking solution uses the classic "choose, explore, unchoose" pattern. For each element, we make a binary decision: include it in the current subset or skip it. The `start_index` parameter ensures we don't revisit earlier elements, preventing duplicate subsets.
+This [backtracking](https://en.wikipedia.org/wiki/Backtracking) solution uses the classic "choose, explore, unchoose" pattern. For each element, we make a binary decision: include it in the current subset or skip it. The `start_index` parameter ensures we don't revisit earlier elements, preventing duplicate subsets.
 
 The key insight is that we add the current subset to results at every recursive call (not just base cases), since every partial subset is a valid subset. This naturally generates all 2^n possible subsets.
 
@@ -187,7 +189,7 @@ class Solution:
 
 #### Approach
 
-This recursive solution makes the binary choice explicit: for each element, we recursively explore both possibilities (include it or skip it). This creates a binary decision tree where each path from root to leaf represents a unique subset.
+This [recursive](https://en.wikipedia.org/wiki/Recursion_(computer_science)) solution makes the binary choice explicit: for each element, we recursively explore both possibilities (include it or skip it). This creates a binary decision tree where each path from root to leaf represents a unique subset.
 
 The approach differs from the Iterative Build-Up by making the choice or skip decision explicit and only adding complete subsets at base cases, rather than adding partial subsets during recursion.
 

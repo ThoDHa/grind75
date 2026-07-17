@@ -4,6 +4,8 @@
 
 **Pattern:** [Tree Traversal](../patterns/tree/intuition.md)
 
+**Algorithm:** [Binary search tree](https://en.wikipedia.org/wiki/Binary_search_tree) · [Depth-first search](https://en.wikipedia.org/wiki/Depth-first_search) · [Tree traversal](https://en.wikipedia.org/wiki/Tree_traversal)
+
 **Practice:** [`practice/validate_binary_search_tree/solution.py`](../../practice/validate_binary_search_tree/solution.py)
 
 Given the `root` of a binary tree, determine if it is a valid binary search tree (BST).
@@ -86,7 +88,7 @@ class Solution:
 
 #### Approach
 
-The BST definition reads almost like an algorithm: every value in a node's left subtree is strictly smaller, every value in its right subtree is strictly larger, and both subtrees are themselves BSTs. The most direct implementation simply enforces that definition word for word at every node, scanning the full subtrees each time.
+The [BST definition](https://en.wikipedia.org/wiki/Binary_search_tree) reads almost like an algorithm: every value in a node's left subtree is strictly smaller, every value in its right subtree is strictly larger, and both subtrees are themselves BSTs. The most direct implementation simply enforces that definition word for word at every node, scanning the full subtrees each time.
 
 1. For each node, scan its entire left subtree and confirm every value is strictly less than `node.val`.
 2. Scan its entire right subtree and confirm every value is strictly greater than `node.val`.
@@ -161,7 +163,7 @@ The naive check, comparing a node only against its immediate children, is wrong:
 
 1. Start at the root with the widest possible bounds, `(-inf, +inf)`.
 2. For each node, verify `low < node.val < high` using a strict comparison so duplicates are rejected.
-3. Recurse left, tightening the upper bound to the current node's value: everything in the left subtree must be smaller.
+3. [Recurse](https://en.wikipedia.org/wiki/Depth-first_search) left, tightening the upper bound to the current node's value: everything in the left subtree must be smaller.
 4. Recurse right, tightening the lower bound to the current node's value: everything in the right subtree must be larger.
 5. An empty subtree is trivially valid.
 
@@ -211,7 +213,7 @@ class Solution:
 
 #### Approach
 
-An inorder traversal of a binary search tree visits values in strictly increasing order. So validating a BST is equivalent to confirming the inorder sequence never decreases or repeats.
+An [inorder traversal](https://en.wikipedia.org/wiki/Tree_traversal) of a binary search tree visits values in strictly increasing order. So validating a BST is equivalent to confirming the inorder sequence never decreases or repeats.
 
 1. Traverse in inorder (left, node, right).
 2. Track the previously visited value in `prev`.

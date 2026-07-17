@@ -4,6 +4,8 @@
 
 **Pattern:** [Graph Traversal](../patterns/graph/intuition.md), [Backtracking](../patterns/backtracking_exploration/intuition.md)
 
+**Algorithm:** [Backtracking](https://en.wikipedia.org/wiki/Backtracking) · [Depth-first search](https://en.wikipedia.org/wiki/Depth-first_search)
+
 **Practice:** [`practice/word_search/solution.py`](../../practice/word_search/solution.py)
 
 Given an `m x n` grid of characters `board` and a string `word`, return `true` if `word` exists in the grid.
@@ -93,7 +95,7 @@ class Solution:
 #### Approach
 
 Each path that spells `word` is a self-avoiding walk through the grid, so we
-explore those walks with depth-first search and undo our choices on the way back
+explore those walks with [depth-first search](https://en.wikipedia.org/wiki/Depth-first_search) and undo our choices on the way back
 up (backtracking). The index `i` tracks how many characters of `word` we have
 matched so far along the current path.
 
@@ -217,7 +219,7 @@ class Solution:
 
 #### Approach
 
-This is the same depth-first backtracking search, but it tracks used cells in an
+This is the same depth-first [backtracking](https://en.wikipedia.org/wiki/Backtracking) search, but it tracks used cells in an
 explicit `set` of `(row, col)` coordinates rather than mutating the board. Keeping
 the visited state separate from the data is often clearer and is the right move
 when the input must not be modified, even temporarily.
@@ -322,7 +324,7 @@ plain search would eventually waste.
    qualify as starting points.
 3. Run the in-place sentinel DFS exactly as before.
 
-The `Counter` here only powers an optional precheck and the symmetric reversal
+The [`Counter`](https://docs.python.org/3/library/collections.html#collections.Counter) here only powers an optional precheck and the symmetric reversal
 decision; the core search is hand-written, so the algorithm does not depend on a
 library to do its real work.
 

@@ -4,6 +4,8 @@
 
 **Pattern:** [Two Pointers](../patterns/two_pointers/intuition.md)
 
+**Algorithm:** [Floyd's cycle detection](https://en.wikipedia.org/wiki/Cycle_detection) · [Hash table](https://en.wikipedia.org/wiki/Hash_table)
+
 **Practice:** [`practice/linked_list_cycle/solution.py`](../../practice/linked_list_cycle/solution.py)
 
 Given `head`, the head of a linked list, determine if the linked list has a cycle in it.
@@ -139,7 +141,7 @@ class Solution:
 
 #### Approach
 
-This solution uses a hash set to keep track of nodes we've already visited. As we traverse the linked list, we check if we've seen the current node before. If we have, there must be a cycle. If we reach the end of the list (a null pointer), then there's no cycle.
+This solution uses a [hash set](https://en.wikipedia.org/wiki/Hash_table) to keep track of nodes we've already visited. As we traverse the linked list, we check if we've seen the current node before. If we have, there must be a cycle. If we reach the end of the list (a null pointer), then there's no cycle.
 
 #### Time and Space Complexity Analysis
 
@@ -217,7 +219,7 @@ class Solution:
 
 #### Approach
 
-This solution implements Floyd's Cycle-Finding Algorithm, also known as the "tortoise and hare" algorithm. We use two pointers that move at different speeds: a slow pointer that moves one step at a time and a fast pointer that moves two steps at a time. If there's a cycle, the fast pointer will eventually catch up to the slow pointer. If there's no cycle, the fast pointer will reach the end of the list.
+This solution implements [Floyd's Cycle-Finding Algorithm](https://en.wikipedia.org/wiki/Cycle_detection), also known as the "tortoise and hare" algorithm. We use two pointers that move at different speeds: a slow pointer that moves one step at a time and a fast pointer that moves two steps at a time. If there's a cycle, the fast pointer will eventually catch up to the slow pointer. If there's no cycle, the fast pointer will reach the end of the list.
 
 #### Time and Space Complexity Analysis
 

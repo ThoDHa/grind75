@@ -4,6 +4,8 @@
 
 **Pattern:** [Data-Structure Design](../patterns/design/intuition.md)
 
+**Algorithm:** [Queue](https://en.wikipedia.org/wiki/Queue_(abstract_data_type)) · [Stack](https://en.wikipedia.org/wiki/Stack_(abstract_data_type))
+
 **Practice:** [`practice/implement_queue_using_stacks/solution.py`](../../practice/implement_queue_using_stacks/solution.py)
 
 Implement a first in first out (FIFO) queue using only two stacks. The implemented queue should support all the functions of a normal queue (`push`, `pop`, `peek`, and `empty`).
@@ -95,7 +97,7 @@ class MyQueue:
 
 #### Approach
 
-This solution implements a queue using two stacks with an "eager" approach where elements are rearranged immediately during the push operation:
+This solution implements a [queue](https://en.wikipedia.org/wiki/Queue_(abstract_data_type)) using two stacks with an "eager" approach where elements are rearranged immediately during the push operation:
 
 1. We maintain a primary stack (`queue`) where elements are stored in queue order
 2. When pushing a new element:
@@ -184,7 +186,7 @@ class MyQueue:
 
 #### Approach
 
-This solution uses a "lazy" approach with two stacks serving different purposes:
+This solution uses a "lazy" approach with [two stacks](https://en.wikipedia.org/wiki/Stack_(abstract_data_type)) serving different purposes:
 
 1. `stack_input`: Used exclusively for push operations - new elements are simply added here
 2. `stack_output`: Used exclusively for pop/peek operations - elements are consumed from here

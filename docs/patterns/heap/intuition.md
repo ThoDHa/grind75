@@ -1,5 +1,7 @@
 # Heap / Priority Queue: Intuition Guide
 
+**Reference:** [Heap (data structure)](https://en.wikipedia.org/wiki/Heap_(data_structure))
+
 ## The Mental Model
 
 Imagine you're a hospital triage nurse. Patients arrive continuously, but you don't treat them in arrival order: you treat the most critical patient first. You need a system that:

@@ -1,5 +1,7 @@
 # DP Knapsack / Subset: Pattern Intuition Guide
 
+**Reference:** [Knapsack problem](https://en.wikipedia.org/wiki/Knapsack_problem)
+
 > *"The knapsack question is simple: take it or leave it. The art is in how you remember what you've already considered."*
 
 ---

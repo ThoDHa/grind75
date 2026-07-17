@@ -4,6 +4,8 @@
 
 **Pattern:** [Tree Traversal](../patterns/tree/intuition.md)
 
+**Algorithm:** [Tree traversal](https://en.wikipedia.org/wiki/Tree_traversal) · [Depth-first search](https://en.wikipedia.org/wiki/Depth-first_search)
+
 **Practice:** [`practice/balanced_binary_tree/solution.py`](../../practice/balanced_binary_tree/solution.py)
 
 Given a binary tree, determine if it is height-balanced.
@@ -73,7 +75,7 @@ class Solution:
 
 This approach follows the problem definition literally. A tree is balanced when
 every node has left and right subtrees whose heights differ by at most `1`, so
-we check that condition at each node and recurse into the children.
+we check that condition at each node and [recurse](https://en.wikipedia.org/wiki/Recursion_(computer_science)) into the children.
 
 1. An empty tree is balanced, so return `True` for a null `root`.
 2. Compute the height of the left and right subtrees and compare them. If they
@@ -166,7 +168,7 @@ class Solution:
 #### Approach
 
 The top-down version is slow because it recomputes heights. The fix is to fold
-the balance check into a single post-order traversal that returns the height of
+the balance check into a single [post-order traversal](https://en.wikipedia.org/wiki/Tree_traversal) that returns the height of
 each subtree and reuses a sentinel value to report imbalance.
 
 1. The inner `check` returns the height of a balanced subtree, or `-1` if any
@@ -232,7 +234,7 @@ class Solution:
 
 This approach reproduces the bottom-up logic without recursion, which avoids any
 risk of exceeding the interpreter's recursion limit on a deeply skewed tree. It
-performs an explicit post-order traversal with a manual stack, recording each
+performs an explicit [post-order traversal](https://en.wikipedia.org/wiki/Tree_traversal) with a manual stack, recording each
 node's height in a dictionary as it is finished.
 
 1. Keep a `heights` map seeded with `None -> 0` so absent children contribute a

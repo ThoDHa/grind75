@@ -4,6 +4,8 @@
 
 **Pattern:** [Sliding Window](../patterns/sliding_window/intuition.md)
 
+**Algorithm:** [Sliding window](https://www.geeksforgeeks.org/dsa/window-sliding-technique/) · [Hash table](https://en.wikipedia.org/wiki/Hash_table)
+
 **Practice:** [`practice/longest_substring_without_repeating_characters/solution.py`](../../practice/longest_substring_without_repeating_characters/solution.py)
 
 Given a string `s`, find the length of the longest substring without repeating characters.
@@ -168,7 +170,7 @@ class Solution:
 
 #### Approach
 
-We maintain a sliding window `[left, right]` whose characters are kept in a set,
+We maintain a [sliding window](https://www.geeksforgeeks.org/dsa/window-sliding-technique/) `[left, right]` whose characters are kept in a set,
 guaranteeing the window never holds a duplicate. The `right` pointer expands the
 window one character at a time. Whenever the incoming character already lives in
 the window, we advance `left` one step at a time, removing each evicted
@@ -232,7 +234,7 @@ no repeated characters. The `right` pointer scans forward one character at a
 time, and the `left` pointer jumps forward whenever a repeat would enter the
 window.
 
-The key is a hash map `last_seen` that records the most recent index of each
+The key is a [hash map](https://en.wikipedia.org/wiki/Hash_table) `last_seen` that records the most recent index of each
 character. When the current character has been seen at an index that falls
 inside the current window, the window must shrink from the left past that
 occurrence.

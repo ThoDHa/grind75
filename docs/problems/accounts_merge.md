@@ -4,6 +4,8 @@
 
 **Pattern:** [Union-Find](../patterns/union_find/intuition.md)
 
+**Algorithm:** [Depth-first search](https://en.wikipedia.org/wiki/Depth-first_search) · [Disjoint-set (Union-Find)](https://en.wikipedia.org/wiki/Disjoint-set_data_structure)
+
 **Practice:** [`practice/accounts_merge/solution.py`](../../practice/accounts_merge/solution.py)
 
 Given a list of accounts where each element `accounts[i]` is a list of strings, where the first element `accounts[i][0]` is a name, and the rest of the elements are emails representing emails of the account.
@@ -235,7 +237,7 @@ class Solution:
 Two accounts belong to the same person exactly when they share an email. We can
 model this directly as a graph where each email is a node and emails appearing
 together in an account are connected by edges. Each connected component of that
-graph is one merged person, and a depth-first search recovers every component.
+graph is one merged person, and a [depth-first search](https://en.wikipedia.org/wiki/Depth-first_search) recovers every component.
 
 1. For each account, add edges between the first email and every other email in
    that account. Because connectivity is transitive, linking each email to a
@@ -325,7 +327,7 @@ class Solution:
 
 Two accounts belong to the same person exactly when they share an email, and
 "shares an email" is a connectivity relation that is reflexive, symmetric, and
-transitive. That makes union-find the natural fit: treat each email as a node,
+transitive. That makes [union-find](https://en.wikipedia.org/wiki/Disjoint-set_data_structure) the natural fit: treat each email as a node,
 connect all emails that appear together in one account, and each connected
 component becomes one merged person.
 

@@ -1,5 +1,7 @@
 # Topological Sort Patterns: Mental Models & Intuition
 
+**Reference:** [Topological sorting](https://en.wikipedia.org/wiki/Topological_sorting)
+
 > Build deep understanding of when and why Topological Sort works.
 
 ## The Core Insight

@@ -1,5 +1,7 @@
 # Backtracking: The Art of Reversible Exploration
 
+**Reference:** [Backtracking](https://en.wikipedia.org/wiki/Backtracking)
+
 > **Core Intuition**: You're exploring a maze of choices. You walk forward, leaving footprints. When you hit a dead end, you walk backward (erasing each footprint) until you find an untried path.
 
 ---
