@@ -21,8 +21,44 @@ class Solution:
         Time:  O(?):
         Space: O(?):
         """
-        raise NotSolved
 
+        """
+            What do I want to do?
+            create a new list, and keep on finding the closest one and then once I get k items
+            That's the brute force solution.
+
+
+            Maxheap, where you use the minimum heap of the python library, where we add till k items
+            then start doing replace. heapq, it's a max heap so how do you turn it to a min heap?
+
+
+            QuickSelect, just uses the a partial quick sort, to sort the first k elements, but how?
+            Only do left side if mid is less then k, then right if mid is greater than k.
+            it keeps on sorting, till mid mid is k, then it's it.
+
+            Just use built sorting algorithm.
+
+            x1*x1 + y1*y1
+
+        """
+
+
+        k_list: List[List[int]] = []
+        points = points.copy()
+        for _ in range(k):
+
+            best = 0
+            best_dist = self.dist(points[best])
+            for i in range(1, len(points)):
+                curr_dist = self.dist(points[i])
+                if curr_dist < best_dist:
+                    best_dist = curr_dist
+                    best = i
+            k_list.append(points.pop(best))
+        return k_list
+
+    def dist(self, point: List[int]) -> int:
+        return point[0]*point[0] + point[1]*point[1]
 
 if __name__ == "__main__":
     # Debug playground: set a breakpoint in kClosest above, then run this file.
