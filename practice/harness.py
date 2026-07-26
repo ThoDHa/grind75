@@ -90,6 +90,15 @@ def build_tree(values: List[Optional[int]]) -> Optional[TreeNode]:
     return root
 
 
+def find_tree_node(root: Optional[TreeNode], val: int) -> Optional[TreeNode]:
+    """Locate the TreeNode whose .val equals `val`, for problems taking node refs."""
+    if root is None:
+        return None
+    if root.val == val:
+        return root
+    return find_tree_node(root.left, val) or find_tree_node(root.right, val)
+
+
 def tree_to_list(root: Optional[TreeNode]) -> List[Optional[int]]:
     """Serialize a binary tree to LeetCode level-order form, trailing Nones trimmed."""
     out: List[Optional[int]] = []

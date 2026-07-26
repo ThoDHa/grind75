@@ -10,9 +10,7 @@ lowest common ancestor: the lowest node that has both `p` and `q` as descendants
   uv run pytest lowest_common_ancestor_of_a_binary_search_tree/              # run the test sets
 """
 
-from typing import Optional
-
-from harness import NotSolved, TreeNode, build_tree, pick_case
+from harness import NotSolved, TreeNode, build_tree, find_tree_node, pick_case
 
 
 # Definition for a binary tree node.
@@ -35,15 +33,6 @@ class Solution:
         raise NotSolved
 
 
-def _find_node(root: Optional[TreeNode], val: int) -> Optional[TreeNode]:
-    """Locate the TreeNode whose .val equals `val` via a small DFS."""
-    if root is None:
-        return None
-    if root.val == val:
-        return root
-    return _find_node(root.left, val) or _find_node(root.right, val)
-
-
 if __name__ == "__main__":
     # Debug playground: set a breakpoint in lowestCommonAncestor above, then run
     # this file. The case stores the tree as a level-order array plus p/q values;
@@ -52,8 +41,8 @@ if __name__ == "__main__":
     case = pick_case(__file__, CASE)
     tree_array, p_val, q_val = case["args"]
     root = build_tree(tree_array)
-    p_node = _find_node(root, p_val)
-    q_node = _find_node(root, q_val)
+    p_node = find_tree_node(root, p_val)
+    q_node = find_tree_node(root, q_val)
     result = Solution().lowestCommonAncestor(root, p_node, q_node)
     print(f"case {case['id']}: tree = {tree_array}, p = {p_val}, q = {q_val}")
     print(f"expected: {case['expected']}")

@@ -8,7 +8,7 @@ in ../../docs/problems/lowest_common_ancestor_of_a_binary_tree.md.
 
 import pytest
 
-from harness import NotSolved, build_tree, load_cases, load_solution
+from harness import NotSolved, build_tree, find_tree_node, load_cases, load_solution
 
 SIMPLE = load_cases(__file__, "cases.json")
 FULL = SIMPLE + load_cases(__file__, "cases_full.json")
@@ -20,19 +20,11 @@ def _ids(cases):
     return [case["id"] for case in cases]
 
 
-def _find(root, val):
-    if root is None:
-        return None
-    if root.val == val:
-        return root
-    return _find(root.left, val) or _find(root.right, val)
-
-
 def _check(method, case):
     tree_array, p_val, q_val = case["args"]
     root = build_tree(tree_array)
-    p_node = _find(root, p_val)
-    q_node = _find(root, q_val)
+    p_node = find_tree_node(root, p_val)
+    q_node = find_tree_node(root, q_val)
     result = method(root, p_node, q_node)
     assert result is not None
     assert result.val == case["expected"]
