@@ -10,6 +10,7 @@ cell holds the distance to the nearest `0`. Adjacent cells are distance `1` apar
 """
 
 from typing import List
+from collections import deque
 
 from harness import NotSolved, pick_case
 
@@ -18,10 +19,29 @@ class Solution:
     def updateMatrix(self, mat: List[List[int]]) -> List[List[int]]:
         """State the time and space complexity of your approach, and explain why.
 
-        Time:  O(?):
-        Space: O(?):
+        Time:  O(nm): Time to go through the matrix
+        Space: O(nm): Size of dist matrix, and the queue
         """
-        raise NotSolved
+        rows, cols = len(mat), len(mat[0])
+        queue = deque()
+        dist = [[float("inf")] * cols for _ in range(rows)]
+        for i in range(rows):
+            for j in range(cols):
+                if mat[i][j] == 0:
+                    dist[i][j] = 0
+                    queue.append((i, j))
+        while queue:
+            i, j = queue.popleft()
+            directions = [(i+1, j), (i-1, j), (i, j+1), (i, j-1)]
+
+            for n, m in directions:
+                if 0 <= n < rows and 0 <= m < cols and dist[n][m] > dist[i][j]:
+                    dist[n][m] = dist[i][j] + 1
+                    queue.append((n, m))
+
+        return dist
+
+
 
 
 if __name__ == "__main__":
