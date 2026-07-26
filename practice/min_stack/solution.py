@@ -15,15 +15,17 @@ from harness import NotSolved, pick_case, run_operations
 class MinStack:
     def __init__(self) -> None:
         # Initialize empty state here; methods below raise until implemented.
-        pass
+        self.stack: list[tuple[int, int]] = []
 
     def push(self, val: int) -> None:
         """State the time and space complexity of your approach, and explain why.
 
-        Time:  O(?):
-        Space: O(?):
         """
-        raise NotSolved
+        current_min = val
+        if self.stack:
+            current_min = min(current_min, self.getMin())
+        current_min = val if not self.stack else min(val, self.stack[-1][1])
+        self.stack.append((val, current_min))
 
     def pop(self) -> None:
         """State the time and space complexity of your approach, and explain why.
@@ -31,7 +33,7 @@ class MinStack:
         Time:  O(?):
         Space: O(?):
         """
-        raise NotSolved
+        self.stack.pop()
 
     def top(self) -> int:
         """State the time and space complexity of your approach, and explain why.
@@ -39,7 +41,7 @@ class MinStack:
         Time:  O(?):
         Space: O(?):
         """
-        raise NotSolved
+        return self.stack[-1][0]
 
     def getMin(self) -> int:
         """State the time and space complexity of your approach, and explain why.
@@ -47,7 +49,7 @@ class MinStack:
         Time:  O(?):
         Space: O(?):
         """
-        raise NotSolved
+        return self.stack[-1][1]
 
 
 if __name__ == "__main__":
