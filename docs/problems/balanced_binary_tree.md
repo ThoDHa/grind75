@@ -182,7 +182,7 @@ balanced(T) == abs(h(v.left) - h(v.right)) <= 1  for all nodes v in T
 
 Evaluating the \(\bigwedge\) and the \(h\) separately is what makes the top-down
 version \(O(n^2)\): every node recomputes the heights beneath it. This solution
-fuses them by overloading the return value — `check` yields a real height when
+fuses them by overloading the return value. `check` yields a real height when
 the subtree is balanced and the sentinel `-1` when it is not:
 
 $$

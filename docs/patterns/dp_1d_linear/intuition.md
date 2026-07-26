@@ -55,7 +55,7 @@ for j in range(a, b + 1):   # +1 because the upper bound is inclusive
 That `+ 1` is the most common slip when moving from math to Python: math bounds
 include both ends, `range` excludes the right one.
 
-A transition with a \(\sum\) in it becomes a nested loop — the outer loop fills
+A transition with a \(\sum\) in it becomes a nested loop. The outer loop fills
 the table, the inner loop *is* the sum:
 
 $$
@@ -82,7 +82,7 @@ operation change:
 | \(\bigvee\) any / or | `False` | `ok = ok or x` |
 | \(\bigwedge\) all / and | `True` | `ok = ok and x` |
 
-Each init is the **identity** for its operator — the value that leaves the
+Each init is the **identity** for its operator, the value that leaves the
 result unchanged. That is why Coin Change seeds its table with infinity and
 Word Break seeds its with `False`: an empty range must collapse to the identity,
 so an unreachable state stays unreachable.

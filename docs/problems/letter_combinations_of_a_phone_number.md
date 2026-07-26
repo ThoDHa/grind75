@@ -98,7 +98,7 @@ len(answer) = product over i in 0..n-1 of len(digit_to_letters[digits[i]])
 ```
 
 Since each digit maps to 3 or 4 letters, the count sits between \(3^n\) and
-\(4^n\) — exponential, which is why \(O(4^n \cdot n)\) is the honest bound: one
+\(4^n\), exponential, which is why \(O(4^n \cdot n)\) is the honest bound: one
 factor for the number of combinations, and \(n\) for assembling each string.
 
 This solution computes the product left to right, using the fact that a
@@ -114,7 +114,7 @@ combinations(0) = [""]
                   (combinations(k) is the value of combinations after k passes)
 ```
 
-The seed `[""]` is the identity for that operation — the product of zero sets is
+The seed `[""]` is the identity for that operation: the product of zero sets is
 the single empty tuple, not the empty set. Starting from `[]` instead would
 annihilate everything, since anything crossed with the empty set stays empty.
 

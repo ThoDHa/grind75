@@ -210,7 +210,7 @@ is what guarantees termination and the single-pass bound.
 The asymmetry in the code follows directly. Swapping a `0` leftward exchanges it
 with a position in the all-`1` region, whose value is already known to be `1`,
 so `current` may advance immediately. Swapping a `2` rightward brings back a
-value from the **unexamined** region, which has not been classified yet — so
+value from the **unexamined** region, which has not been classified yet, so
 `current` must hold still and re-examine it. Advancing there would step over an
 unclassified element and break the invariant.
 

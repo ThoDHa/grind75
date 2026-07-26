@@ -226,8 +226,8 @@ dist[i][j] = 1 + min(dist[a][b]),   otherwise
              (min over the four neighbors (a, b) of (i, j))
 ```
 
-where \(N(i,j)\) is the four-neighborhood. This is circular as written — each
-cell depends on all four neighbors, including ones not yet computed — so it
+where \(N(i,j)\) is the four-neighborhood. This is circular as written (each
+cell depends on all four neighbors, including ones not yet computed), so it
 cannot be evaluated in a single sweep. Splitting the neighborhood by direction
 breaks the cycle: the forward pass resolves the up and left dependencies, and
 the backward pass the down and right ones. Every shortest path is monotone in

@@ -215,8 +215,8 @@ once per deletion, and since \(m\) occupies strictly more than half the array,
 no sequence of such pairings can exhaust it. Every pairing removes one \(m\) and
 one non-\(m\), so the strict majority survives to the end.
 
-The strictness matters. With exactly \(n/2\) occurrences the guarantee fails —
-`[1,1,2,2]` cancels to `count == 0` and returns whichever value came last — which
+The strictness matters. With exactly \(n/2\) occurrences the guarantee fails:
+`[1,1,2,2]` cancels to `count == 0` and returns whichever value came last, which
 is why the problem states *more than* \(\lfloor n/2 \rfloor\).
 
 #### Approach

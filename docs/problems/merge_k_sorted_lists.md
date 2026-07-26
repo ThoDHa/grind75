@@ -296,7 +296,7 @@ $$
 sum over i = 1 to k of O(i * N / k) = O(N * k)
 ```
 
-— the growing prefix is what makes it quadratic in `k`. Pairwise merging keeps
+The growing prefix is what makes it quadratic in `k`. Pairwise merging keeps
 each node in exactly \(\log k\) merges instead of up to \(k\).
 
 #### Approach

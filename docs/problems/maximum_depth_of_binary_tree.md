@@ -83,7 +83,7 @@ The empty tree contributing `0` is the base case, and the `+1` charges one level
 for the node itself. This is the smallest complete example of tree DP: the
 answer at a node needs nothing but the answers at its children, so a single
 post-order pass computes it. Swapping \(\max\) for \(\min\) gives minimum depth,
-and swapping it for \(+\) gives the node count — same traversal, different
+and swapping it for \(+\) gives the node count: same traversal, different
 combiner.
 
 #### Approach

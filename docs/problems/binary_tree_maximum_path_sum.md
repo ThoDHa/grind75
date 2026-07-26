@@ -194,8 +194,8 @@ class Solution:
 #### Recurrence
 
 Two different quantities are in play, and separating them is the whole trick.
-Let \(g(v)\) be the best sum of a path that starts at `v` and only descends —
-the value `max_gain` returns:
+Let \(g(v)\) be the best sum of a path that starts at `v` and only descends
+(the value `max_gain` returns):
 
 $$
 g(v) = v.\text{val} + \max\bigl(0,\ g(v.\text{left}),\ g(v.\text{right})\bigr),
@@ -230,7 +230,7 @@ max_sum = max(b(v)) over all nodes v in T
 ```
 
 The clamp at \(0\) encodes "a negative branch is better skipped than taken."
-\(b(v)\) cannot be returned upward — a bent path already uses both children, so
+\(b(v)\) cannot be returned upward: a bent path already uses both children, so
 extending it through the parent would revisit `v` and no longer be a path. That
 asymmetry is why the recursion returns \(g\) while \(b\) accumulates into a
 separate running maximum.

@@ -349,7 +349,7 @@ in_degree[v] = number of edges u -> v in the graph
 
 A course is takeable once that reaches zero. The queue holds exactly the
 currently takeable set, and removing a course decrements the in-degree of
-everything depending on it — peeling the graph one layer at a time.
+everything depending on it, peeling the graph one layer at a time.
 
 The correctness rests on a property of finite directed graphs:
 
@@ -365,7 +365,7 @@ graph is acyclic  if and only if  every non-empty subgraph of it
 Forward: a DAG has a topological order, whose first vertex has no incoming
 edges. Backward: if some subgraph had no such vertex, every vertex would have a
 predecessor, and walking backwards through a finite graph must eventually
-revisit a vertex — a cycle.
+revisit a vertex: a cycle.
 
 So the queue empties early precisely when a non-empty set of courses remains in
 which every course still waits on another, which is a cycle. That makes the

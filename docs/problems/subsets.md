@@ -248,8 +248,8 @@ $$
 number of subsets of nums = 2^n   where n = len(nums)
 ```
 
-members, since each element is independently in or out — \(n\) binary choices,
-multiplying to \(2^n\). This solution makes that counting argument literal by
+Each element is independently in or out, so there are \(n\) binary choices, and
+they multiply to \(2^n\). This solution makes that counting argument literal by
 building a bijection between subsets and the integers below \(2^n\):
 
 $$
@@ -265,7 +265,7 @@ Iterating `mask` from \(0\) to \(2^n - 1\) therefore enumerates every subset
 exactly once, with no recursion and no bookkeeping to avoid duplicates.
 
 The total output size is also worth stating, because it bounds every solution on
-this page — each element appears in exactly half of the subsets:
+this page (each element appears in exactly half of the subsets):
 
 $$
 \sum_{k=0}^{n} k\binom{n}{k} = n \cdot 2^{\,n-1}

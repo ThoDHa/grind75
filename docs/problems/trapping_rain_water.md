@@ -208,9 +208,9 @@ right_max[n - 1] = height[n - 1]
 right_max[i] = max(right_max[i + 1], height[i])   for 0 <= i <= n - 2
 ```
 
-The outer \(\max(0, \cdot)\) is redundant here — \(\min(L[i], R[i]) \ge
+The outer \(\max(0, \cdot)\) is redundant here: \(\min(L[i], R[i]) \ge
 \text{height}[i]\) always holds, because `height[i]` is itself a candidate in
-both maxima — which is why the code adds the difference unguarded.
+both maxima, which is why the code adds the difference unguarded.
 
 #### Approach
 

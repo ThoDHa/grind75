@@ -93,7 +93,7 @@ $$
 number of pairs = C(n, 2) = n * (n - 1) / 2
 ```
 
-pairs — the source of the \(O(n^2)\) bound. The two-pointer solution below
+which is the source of the \(O(n^2)\) bound. The two-pointer solution below
 discards pairs in bulk instead: moving the taller wall inward can only shrink
 both factors at once, so no pair it skips can beat the one just measured.
 

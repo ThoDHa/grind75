@@ -177,7 +177,7 @@ dp[i][j] = (s[i] == s[j]) and dp[i + 1][j - 1]   for j - i >= 2
 ```
 
 The answer is the longest span with \(dp[i][j]\) true. Because the state at
-\((i, j)\) depends on \((i+1, j-1)\) — a span two characters shorter — the table
+\((i, j)\) depends on \((i+1, j-1)\), a span two characters shorter, the table
 must be filled in increasing order of length rather than row by row, otherwise
 the dependency is not yet computed. Spans of length 1 and 2 have no inner
 substring, so they terminate the recursion on the character comparison alone.

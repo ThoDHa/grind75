@@ -217,7 +217,7 @@ median = (x[n / 2] + x[n / 2 + 1]) / 2,   for n even
          (x sorted ascending, indices 1-based)
 ```
 
-Only the one or two middle values matter — the rest of the order is irrelevant.
+Only the one or two middle values matter: the rest of the order is irrelevant.
 That is what the two heaps exploit. They maintain the partition
 
 $$

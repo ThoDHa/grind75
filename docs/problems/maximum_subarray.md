@@ -175,7 +175,7 @@ answer = max(end[i]) over 0 <= i < n
 ```
 
 Anchoring the state to "ends at `i`" is what makes the problem one-dimensional.
-The obvious state — "best subarray within the first `i` elements" — cannot be
+The obvious state ("best subarray within the first `i` elements") cannot be
 extended, because it does not record whether the winning subarray touches the
 right edge. `current_sum` carries \(\text{end}[i]\) and `max_sum` carries the
 running outer maximum, so Kadane's is this pair of formulas with the array

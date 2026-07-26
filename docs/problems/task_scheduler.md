@@ -230,7 +230,7 @@ enough for the \(c\) tasks tied at the peak. The other term applies when there
 are enough distinct tasks to fill every idle slot, at which point no idling
 happens and the schedule is just its own length.
 
-Note that \(n\) does not appear in the second term at all — once the task mix is
+Note that \(n\) does not appear in the second term at all: once the task mix is
 diverse enough, the cooldown stops binding entirely.
 
 #### Approach

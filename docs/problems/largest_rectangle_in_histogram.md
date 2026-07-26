@@ -267,7 +267,7 @@ max_area = max area(i) over all 0 <= i < n
 
 The \(-1\) excludes both boundary bars, which are strictly shorter and therefore
 not part of the rectangle. \(L\) and \(R\) are the previous and next *smaller*
-elements — the canonical monotonic-stack query. The stack resolves both at once:
+elements, the canonical monotonic-stack query. The stack resolves both at once:
 a bar is popped exactly when the current index becomes its \(R\), and whatever
 sits beneath it on the stack is its \(L\).
 

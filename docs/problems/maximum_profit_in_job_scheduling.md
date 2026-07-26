@@ -234,7 +234,7 @@ best[i] = max(best[i - 1], best[p(i)] + gain)   for i >= 1
 ```
 
 Taking job `i` jumps the state all the way back to \(p(i)\), discarding every
-job in between — those overlap job `i` and cannot be combined with it. Sorting
+job in between: those overlap job `i` and cannot be combined with it. Sorting
 by *end* time is what makes \(p(i)\) well defined and monotone; sorting by start
 time would leave a job's legal predecessors scattered on both sides of it. The
 three solutions differ only in how they evaluate \(p(i)\): a backward scan here

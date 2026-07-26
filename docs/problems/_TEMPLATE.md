@@ -95,7 +95,7 @@ FORMULAS
     Condition`, `#### Invariant and Bound`.
   - An invariant block should say what the property is, why each branch
     preserves it, and what it implies at loop exit. The payoff is explaining a
-    line of code that otherwise looks arbitrary — why Dutch National Flag does
+    line of code that otherwise looks arbitrary: why Dutch National Flag does
     not advance `current` after a right swap, why the majority vote may adopt
     any value at `count == 0`, why sorting by start collapses a two-sided
     overlap test into a one-sided one.

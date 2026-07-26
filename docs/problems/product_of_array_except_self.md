@@ -154,8 +154,8 @@ $$
 result[i] = product of nums[j] over 0 <= j < n with j != i
 ```
 
-Splitting that product at `i` factors it into a left half and a right half —
-this is the multiplicative analogue of a [prefix sum](https://en.wikipedia.org/wiki/Prefix_sum),
+Splitting that product at `i` factors it into a left half and a right half.
+This is the multiplicative analogue of a [prefix sum](https://en.wikipedia.org/wiki/Prefix_sum),
 with \(\prod\) in place of \(\sum\) and `1` in place of `0` as the identity:
 
 $$
@@ -184,7 +184,7 @@ suffix[i] = suffix[i + 1] * nums[i + 1]   for i <= n - 2
 
 An empty product is `1`, which is why `prefix[0]` and `suffix[n-1]` are seeded
 there. Because the index `i` is never a factor on either side, this stays
-correct when `nums[i]` is zero — the reason it beats the division approach
+correct when `nums[i]` is zero: the reason it beats the division approach
 further down, which needs a special case for zeros.
 
 #### Approach

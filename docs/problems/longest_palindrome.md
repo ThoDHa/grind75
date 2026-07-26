@@ -242,7 +242,7 @@ answer = len(s) - k + 1  for k >= 1
 ```
 
 because each odd-frequency character contributes exactly one discarded unit.
-That is why the code initializes its counter at `-1` — pre-crediting the one
+That is why the code initializes its counter at `-1`: pre-crediting the one
 character allowed in the center folds the `+1` into the subtraction, collapsing
 both cases into `len(s) - odd`.
 

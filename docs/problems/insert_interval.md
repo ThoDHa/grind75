@@ -88,7 +88,7 @@ intervals[i] overlaps newInterval  if and only if
 ```
 
 Because the input is sorted by start and never overlaps itself, that single
-condition partitions the list into three contiguous runs — which is precisely
+condition partitions the list into three contiguous runs, which is precisely
 the three `while` loops:
 
 $$

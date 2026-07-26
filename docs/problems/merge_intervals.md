@@ -191,7 +191,7 @@ $$
 
 Sorting by start collapses the symmetric test into a one-sided one. With
 \(a_1 \le a_2\) guaranteed, \(\max(a_1, a_2) = a_2\), so the condition reduces to
-`start <= last[1]` — a single comparison against the running end. That is the
+`start <= last[1]`: a single comparison against the running end. That is the
 entire payoff of the sort.
 
 The `<=` treats touching intervals such as \([1,5]\) and \([5,8]\) as

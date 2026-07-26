@@ -139,7 +139,7 @@ if target in nums, then its index lies in [left, right]
 
 Every branch preserves it. Sortedness means `nums[mid] < target` rules out
 everything at or left of `mid`, so `left = mid + 1` discards only indices that
-provably cannot hold the answer — and symmetrically on the other side. When
+provably cannot hold the answer, and symmetrically on the other side. When
 `left > right` the interval is empty, so the invariant says the target was never
 present, which is what justifies returning `-1` rather than searching further.
 
@@ -157,7 +157,7 @@ n / 2^k < 1   if and only if   k > log2(n)
         (k = iterations completed, n = number of candidates)
 ```
 
-giving \(O(\log n)\) — roughly 20 steps for a million elements, and 30 for a
+giving \(O(\log n)\): roughly 20 steps for a million elements, and 30 for a
 billion.
 
 Computing the midpoint as `left + (right - left) // 2` rather than

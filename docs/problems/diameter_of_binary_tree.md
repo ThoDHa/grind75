@@ -208,7 +208,7 @@ bend(node)    = height(node.left) + height(node.right)
 self.diameter = max bend(node) over all nodes in the tree
 ```
 
-Only \(h\) is returned upward — \(\text{bend}(v)\) already spends both children
+Only \(h\) is returned upward: \(\text{bend}(v)\) already spends both children
 and cannot be extended through `v`'s parent. Computing the two in one pass is
 what separates this from the brute force, which recomputes \(h\) at every node
 and pays \(O(n^2)\) for it.

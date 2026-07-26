@@ -415,7 +415,7 @@ F(n) = (phi**n - psi**n) / sqrt(5)
 
 Since \(dp[n] = F(n+1)\), the code evaluates the expression at `n + 1`. The two
 roots \(\varphi\) and \(\psi\) are exactly the solutions of \(x^2 = x + 1\), the
-characteristic equation of the recurrence — which is why a sum of their powers
+characteristic equation of the recurrence, which is why a sum of their powers
 satisfies it. Because \(|\psi| < 1\), the second term shrinks toward zero and
 \(F(n)\) is simply \(\varphi^{\,n}/\sqrt{5}\) rounded to the nearest integer.
 
