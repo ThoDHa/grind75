@@ -30,8 +30,33 @@ class Solution:
         Time:  O(?):
         Space: O(?):
         """
-        raise NotSolved
+        self.previous = None
+        return self.inNode(root)
 
+    def inNode(self, root: Optional[TreeNode]) -> bool:
+        """Visit very node in order in the tree, if the last node is always greater than
+            the current node, then it's a valid BST
+        """
+        if root is None:
+            return True
+        if not self.inNode(root.left):
+            return False
+
+        if self.previous and root.val <= self.previous:
+            return False
+        self.previous = root.val
+
+        return self.inNode(root.right)
+
+    def isBST(self, root: Optional[TreeNode], min: int, max: int) -> bool:
+        if root is None:
+            return True
+
+        if min >= root.val:
+            return False
+        if max <= root.val:
+            return False
+        return self.isBST(root.left, min, root.val) and self.isBST(root.right, root.val, max)
 
 if __name__ == "__main__":
     # Debug playground: set a breakpoint in isValidBST above, then run this file.
