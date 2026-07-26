@@ -34,7 +34,22 @@ class Solution:
         Time:  O(?):
         Space: O(?):
         """
-        raise NotSolved
+        if not node:
+            return None
+        clone = {}
+        def dfs(original: Optional[Node]) -> Optional[Node]:
+            if original in clone:
+                return clone[original]
+
+            copy = Node(original.val)
+            clone[original] = copy
+
+            for neighbor in original.neighbors:
+                copy.neighbors.append(dfs(neighbor))
+
+            return copy
+
+        return dfs(node)
 
 
 if __name__ == "__main__":
