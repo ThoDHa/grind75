@@ -9,7 +9,7 @@ Return `True` if you can finish every course, otherwise `False`.
   uv run python course_schedule/solution.py     # debug one case (see CASE below)
   uv run pytest course_schedule/                # run the test sets
 """
-
+from collections import deque
 from typing import List
 
 from harness import NotSolved, pick_case
@@ -22,7 +22,24 @@ class Solution:
         Time:  O(?):
         Space: O(?):
         """
-        raise NotSolved
+        # This generates a list of prerequests by course.
+        # Lists all the courses prereq, where the index is the course itself.
+        courses: List[List[int]] = [[] for _ in range(numCourses)]
+        in_degree = [0] * numCourses
+        for course, prereq in prerequisites:
+            courses[prereq].append(course)
+            in_degree[course] += 1
+        queue = deque(i for i in range(numCourses) if in_degree[i] == 0)
+        completed = 0
+
+        while queue:
+            course = queue.popleft()
+            completed += 1
+            for prereq in courses[course]:
+                in_degree[prereq] -= 1
+                if in_degree[prereq] == 0:
+                    queue.append(prereq)
+        return completed == numCourses
 
 
 if __name__ == "__main__":
