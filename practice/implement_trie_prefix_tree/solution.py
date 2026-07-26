@@ -25,7 +25,11 @@ class Trie:
         Time:  O(?):
         Space: O(?):
         """
-        raise NotSolved
+        node = self.root
+        for ch in word:
+            node = node.setdefault(ch, {})
+        node["*"] = True
+
 
     def search(self, word: str) -> bool:
         """State the time and space complexity of your approach, and explain why.
@@ -33,7 +37,14 @@ class Trie:
         Time:  O(?):
         Space: O(?):
         """
-        raise NotSolved
+        node = self.root
+        for ch in word:
+            if ch not in node:
+                return False
+            node = node[ch]
+        if "*" not in node:
+            return False
+        return True
 
     def startsWith(self, prefix: str) -> bool:
         """State the time and space complexity of your approach, and explain why.
@@ -41,7 +52,12 @@ class Trie:
         Time:  O(?):
         Space: O(?):
         """
-        raise NotSolved
+        node = self.root
+        for ch in prefix:
+            if ch not in node:
+                return False
+            node = node[ch]
+        return True
 
 
 if __name__ == "__main__":
