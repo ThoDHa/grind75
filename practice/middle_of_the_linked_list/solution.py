@@ -25,10 +25,16 @@ class Solution:
     def middleNode(self, head: Optional[ListNode]) -> Optional[ListNode]:
         """State the time and space complexity of your approach, and explain why.
 
-        Time:  O(?):
-        Space: O(?):
+        Time:  O(n): where n is the length of the linked list
+        Space: O(1): No space taken
         """
-        raise NotSolved
+        fast = head
+        slow = head
+
+        while fast and fast.next:
+            fast = fast.next.next
+            slow = slow.next
+        return slow
 
 
 if __name__ == "__main__":
