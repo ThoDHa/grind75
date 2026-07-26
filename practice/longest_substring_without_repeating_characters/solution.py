@@ -19,7 +19,18 @@ class Solution:
         Time:  O(?):
         Space: O(?):
         """
-        raise NotSolved
+
+        seen = set()
+        left = 0
+        length = 0
+
+        for right in range(0, len(s)):
+            while s[right] in seen:
+                seen.remove(s[left])
+                left += 1
+            seen.add(s[right])
+            length = max(length, right-left +1)
+        return length
 
 
 if __name__ == "__main__":
