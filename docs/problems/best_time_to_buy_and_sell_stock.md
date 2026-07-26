@@ -140,13 +140,17 @@ class Solution:
         return max_profit
 ```
 
-#### Recurrence
+#### Formula
 
 Stated directly, the problem maximizes over ordered pairs of days:
 
 $$
 \text{answer} = \max\Bigl(0,\ \max_{0 \le i < j < n}\bigl(\text{prices}[j] - \text{prices}[i]\bigr)\Bigr)
 $$
+
+```text
+max_profit = max(0, max(prices[j] - prices[i]) over 0 <= i < j < n)
+```
 
 Fixing the sell day `j` and pushing the inner maximum onto the buy day turns
 that into one pass, because \(\text{prices}[j]\) is constant with respect to `i`:
@@ -156,12 +160,23 @@ $$
 = \text{prices}[j] - \min_{i < j} \text{prices}[i]
 $$
 
-So with \(m[j] = \min_{0 \le i \le j} \text{prices}[i]\), which satisfies the
-one-step recurrence \(m[j] = \min(m[j-1], \text{prices}[j])\):
+```text
+max(prices[j] - prices[i]) over i < j  ==  prices[j] - min(prices[i]) over i < j
+```
+
+So with \(m[j] = \min_{0 \le i \le j} \text{prices}[i]\), which starts at
+\(m[0] = \text{prices}[0]\) and satisfies the one-step recurrence
+\(m[j] = \min(m[j-1], \text{prices}[j])\) for \(j \ge 1\):
 
 $$
 \text{answer} = \max_{0 \le j < n} \bigl(\text{prices}[j] - m[j]\bigr)
 $$
+
+```text
+min_price[0] = prices[0]
+min_price[j] = min(min_price[j-1], prices[j]),  for j >= 1
+max_profit   = max(prices[j] - min_price[j]) over 0 <= j < n
+```
 
 The outer \(\max\) with `0` is the "do nothing" option, which is why
 `max_profit` starts at `0` rather than at negative infinity.

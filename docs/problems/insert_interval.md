@@ -82,6 +82,11 @@ $$
 \max(a_i, s) \le \min(b_i, e)
 $$
 
+```text
+intervals[i] overlaps newInterval  if and only if
+    max(intervals[i][0], newInterval[0]) <= min(intervals[i][1], newInterval[1])
+```
+
 Because the input is sorted by start and never overlaps itself, that single
 condition partitions the list into three contiguous runs — which is precisely
 the three `while` loops:
@@ -94,6 +99,13 @@ $$
 \underbrace{a_i > e}_{\text{strictly after}}
 $$
 
+```text
+strictly before: intervals[i][1] <  newInterval[0]
+overlapping:     intervals[i][0] <= newInterval[1]
+                 and intervals[i][1] >= newInterval[0]
+strictly after:  intervals[i][0] >  newInterval[1]
+```
+
 Each loop tests only the one side that can still change, since the previous loop
 has already established the other. The middle run absorbs into a single
 interval:
@@ -101,6 +113,12 @@ interval:
 $$
 \Bigl[\ \min\bigl(s,\ \min_i a_i\bigr),\ \ \max\bigl(e,\ \max_i b_i\bigr)\ \Bigr]
 $$
+
+```text
+newInterval = [min(newInterval[0], min of intervals[i][0]),
+               max(newInterval[1], max of intervals[i][1])]
+              (min and max taken over the overlapping run only)
+```
 
 The runs are contiguous only because the input is disjoint and sorted; that is
 what makes one pass sufficient and why no sort is needed here, unlike in Merge

@@ -266,6 +266,11 @@ $$
 \text{target} = \frac{1}{2}\sum_{i=0}^{n-1} \text{nums}[i]
 $$
 
+```text
+target = (sum over i = 0 to n - 1 of nums[i]) / 2
+         (only defined when that sum is even)
+```
+
 Let \(dp_k[s]\) be true when some subset of the first `k` numbers sums to `s`.
 Each number is either taken or left:
 
@@ -273,6 +278,12 @@ $$
 dp_k[s] = dp_{k-1}[s] \ \vee \ dp_{k-1}[s - \text{nums}[k-1]],
 \qquad dp_0[s] = [\,s = 0\,]
 $$
+
+```text
+dp_0[s] = (s == 0)
+dp_k[s] = dp_(k-1)[s] or dp_(k-1)[s - nums[k - 1]]
+          (second term only when s >= nums[k - 1])
+```
 
 The code keeps a single row and walks `s` downward, so every read of
 \(dp[s - \text{num}]\) still refers to row \(k-1\). Iterating upward would let

@@ -168,6 +168,57 @@ class Solution:
         return result
 ```
 
+#### Invariant
+
+Two properties carry this solution, and the less obvious one is the duplicate
+skipping.
+
+The two inner `while` loops do not advance *past* a repeated value; they advance
+*to the last copy of it*. The condition
+`left < right and nums[left] == nums[left + 1]` tests the element ahead, so the
+loop exits with `left` still parked on the final element of that run, holding the
+same value it started on. That is why the unconditional `left += 1` and
+`right -= 1` follow the skip loops rather than replace them: the skip loops
+*position* the pointers, and only the increments *move off* the pair just
+recorded. Delete the increments and a triplet whose neighbors are all distinct
+leaves both pointers where they were, so the same triplet is appended forever.
+Delete the skip loops instead and the code still terminates, but a repeated value
+can emit its triplet more than once, once for each pass that lands the two pointers
+back on the same pair of values.
+
+The second property is what makes the sign test exhaustive rather than a
+heuristic. With `nums[i]` fixed, the pair search seeks
+
+$$
+\textit{nums}[\textit{left}] + \textit{nums}[\textit{right}] = -\,\textit{nums}[i]
+$$
+
+```text
+nums[left] + nums[right] == -nums[i]     (nums[i] fixed)
+```
+
+and the loop maintains that no valid pair lies outside `[left, right]`. Suppose
+the current sum falls short. Sortedness gives
+\(\textit{nums}[j] \le \textit{nums}[\textit{right}]\) for every \(j\) with
+\(\textit{left} < j < \textit{right}\), so
+
+$$
+\textit{nums}[\textit{left}] + \textit{nums}[j]
+\;\le\; \textit{nums}[\textit{left}] + \textit{nums}[\textit{right}]
+\;<\; -\,\textit{nums}[i]
+$$
+
+```text
+nums[left] + nums[j] <= nums[left] + nums[right] < -nums[i]
+        for every j with left < j < right
+```
+
+Every pair still available that uses `left` is at most as large as the one just
+tested, hence also too small. So `left += 1` discards a whole set of candidates
+*proven* impossible, not merely unpromising, and the mirrored argument justifies
+`right -= 1`. At `left == right` the window contains no pair, and the invariant
+reads: no pair completing `nums[i]` was ever skipped.
+
 #### Approach
 
 The 3Sum problem is solved using a combination of sorting and the [two-pointer technique](https://www.geeksforgeeks.org/dsa/two-pointers-technique/). The key insight is to fix one number and then use two pointers to find pairs that sum to the negative of the fixed number.
@@ -183,11 +234,14 @@ Here's the step-by-step approach:
 4. **Handle duplicates carefully**: Skip duplicate values at all three positions to ensure unique triplets:
     - Skip duplicate first numbers in the main loop
     - Skip duplicate second and third numbers after finding a valid triplet
+    - The two skip loops leave `left` and `right` sitting on the *last* copy of each repeated value, so the unconditional `left += 1` and `right -= 1` that follow them are what actually advance past the recorded pair; without those two lines a triplet with no adjacent duplicates would be appended forever
 
 5. **Adjust pointers based on sum**:
     - If sum equals 0: found a triplet, record it and move both pointers
     - If sum is less than 0: increase sum by moving left pointer right
     - If sum is greater than 0: decrease sum by moving right pointer left
+
+Step 5 is exhaustive rather than merely greedy because the array is sorted: when `nums[i] + nums[left] + nums[right] < 0`, every remaining pair that uses `left` is at most as large as the one just tested, so discarding `left` cannot discard an answer. The Invariant above states both properties formally.
 
 #### Time and Space Complexity Analysis
 

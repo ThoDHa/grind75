@@ -343,6 +343,10 @@ $$
 \deg^{-}(v) = \bigl|\{\, u : (u \to v) \in E \,\}\bigr|
 $$
 
+```text
+in_degree[v] = number of edges u -> v in the graph
+```
+
 A course is takeable once that reaches zero. The queue holds exactly the
 currently takeable set, and removing a course decrements the in-degree of
 everything depending on it — peeling the graph one layer at a time.
@@ -352,6 +356,11 @@ The correctness rests on a property of finite directed graphs:
 $$
 G \text{ is acyclic} \iff \text{every non-empty subgraph of } G \text{ has a vertex with } \deg^{-} = 0
 $$
+
+```text
+graph is acyclic  if and only if  every non-empty subgraph of it
+                                  has a vertex with in_degree == 0
+```
 
 Forward: a DAG has a topological order, whose first vertex has no incoming
 edges. Backward: if some subgraph had no such vertex, every vertex would have a
@@ -365,6 +374,10 @@ final check a cycle test rather than mere bookkeeping:
 $$
 \text{all courses finishable} \iff \textit{completed} = \textit{numCourses}
 $$
+
+```text
+all courses finishable  if and only if  completed == numCourses
+```
 
 Each vertex enters the queue at most once (only on the decrement that brings it
 to zero) and each edge is relaxed exactly once, giving \(O(V + E)\).

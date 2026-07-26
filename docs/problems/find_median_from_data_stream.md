@@ -211,6 +211,12 @@ x_{\frac{n+1}{2}}, & n \text{ odd} \\[6pt]
 \end{cases}
 $$
 
+```text
+median = x[(n + 1) / 2],                  for n odd
+median = (x[n / 2] + x[n / 2 + 1]) / 2,   for n even
+         (x sorted ascending, indices 1-based)
+```
+
 Only the one or two middle values matter — the rest of the order is irrelevant.
 That is what the two heaps exploit. They maintain the partition
 
@@ -219,6 +225,11 @@ $$
 \qquad
 0 \ \le \ |\textit{lower}| - |\textit{upper}| \ \le \ 1
 $$
+
+```text
+max(lower) <= min(upper)
+0 <= len(lower) - len(upper) <= 1
+```
 
 so `lower` holds \(\lceil n/2 \rceil\) elements and `upper` the rest. Under that
 invariant the two definitions above read directly off the heap tops, with no
@@ -231,6 +242,11 @@ $$
 \dfrac{\max(\textit{lower}) + \min(\textit{upper})}{2}, & |\textit{lower}| = |\textit{upper}|
 \end{cases}
 $$
+
+```text
+median = max(lower),                     when len(lower) > len(upper)
+median = (max(lower) + min(upper)) / 2,  when len(lower) == len(upper)
+```
 
 The push-then-funnel in `addNum` is what enforces the ordering half of the
 invariant: routing every new number through `lower` before moving its top to

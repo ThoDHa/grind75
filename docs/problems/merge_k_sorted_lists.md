@@ -251,16 +251,28 @@ class Solution:
         return lists[0] if lists else None
 ```
 
-#### Recurrence
+#### Cost Recurrence
 
-Merging two sorted lists is linear in their combined length. Pairing the `k`
-lists halves their count each round, giving the classic divide-and-conquer
-recurrence over the total node count \(N\):
+Merging two sorted lists is linear in their combined length. Pairing the `k` lists
+halves their count each round, and the two halves split the nodes between them, so
+both parameters shrink together. Writing \(k\) for the lists still to merge and
+\(N\) for the total nodes across them:
 
 $$
-T(k) = 2\,T\!\left(\frac{k}{2}\right) + O(N),
-\qquad T(1) = O(1)
+T(k, N) = 2\,T\!\left(\frac{k}{2}, \frac{N}{2}\right) + O(N),
+\qquad T(1, n) = O(1)
 $$
+
+```text
+T(k, N) = 2 * T(k / 2, N / 2) + O(N)
+T(1, n) = O(1)
+          (k = lists still to merge, N = total nodes across them)
+```
+
+Both parameters have to appear. Holding the node count fixed at every level would
+give \(T(k) = 2\,T(k/2) + O(N)\), which solves to \(\Theta(Nk)\), the sequential
+cost rather than this one. What makes the divide-and-conquer version cheaper is
+that a whole round of merges costs \(O(N)\) in total, not \(O(N)\) per subproblem.
 
 Every round touches all \(N\) nodes exactly once, and there are \(\log_2 k\)
 rounds, so the total is:
@@ -269,12 +281,20 @@ $$
 T(k) = \sum_{r=1}^{\lceil \log_2 k \rceil} O(N) = O(N \log k)
 $$
 
+```text
+T(k) = sum over r = 1 to ceil(log2 k) of O(N) = O(N log k)
+```
+
 The contrast with Sequential Merge is worth reading off the sum. Folding one
 list in at a time re-walks the accumulated result on every step, so its cost is
 
 $$
 \sum_{i=1}^{k} O\!\left(\frac{iN}{k}\right) = O(Nk)
 $$
+
+```text
+sum over i = 1 to k of O(i * N / k) = O(N * k)
+```
 
 — the growing prefix is what makes it quadratic in `k`. Pairwise merging keeps
 each node in exactly \(\log k\) merges instead of up to \(k\).

@@ -257,9 +257,50 @@ class Solution:
         return result
 ```
 
+#### Invariant
+
+The four boundaries describe exactly the part of the matrix still owed to the
+output. At the top of every `while` iteration:
+
+$$
+\{\,\text{cells not yet in } \textit{result}\,\}
+\;=\; [\,\textit{top},\ \textit{bottom}\,] \times [\,\textit{left},\ \textit{right}\,]
+$$
+
+```text
+cells not yet in result = { matrix[row][col] : top <= row <= bottom
+                                              and left <= col <= right }
+                          (holds at the top of every while iteration)
+```
+
+and `result` already holds every other cell, in spiral order. Call that rectangle
+\(R\). Each of the four traversals emits one full edge of \(R\) and then shrinks
+\(R\) past that edge: the top row followed by `top += 1`, the right column
+followed by `right -= 1`, the bottom row followed by `bottom -= 1`, and the left
+column followed by `left += 1`. Emitted cells leave \(R\), and nothing ever
+re-enters it.
+
+The subtlety is that \(R\) shrinks *four times* per iteration while the `while`
+test is evaluated only once, at the top. By the time the third traversal runs,
+`top` and `right` have already moved, so \(R\) may have emptied in a dimension the
+`while` test cleared several lines earlier. Re-checking that is exactly what the
+two guards do, which is why they are not redundant:
+
+- `if top <= bottom` asks whether \(R\) still has a row. On a single-row matrix
+  the first traversal consumed that row and pushed `top` past `bottom`, yet
+  `range(right, left - 1, -1)` is still non-empty and would emit part of row
+  `bottom`, the very row already consumed, a second time.
+- `if left <= right` asks whether \(R\) still has a column. On a single-column
+  matrix the second traversal consumed that column and pulled `right` below
+  `left`, yet `range(bottom, top - 1, -1)` would emit cells of column `left`
+  again.
+
+At loop exit `top > bottom` or `left > right`, so \(R\) is empty: every cell has
+been emitted, and by the invariant each of them exactly once.
+
 #### Approach
 
-Once you notice the walk only ever needs to know which ring it is on, the `visited` array becomes unnecessary. Maintain four boundaries (`top`, `bottom`, `left`, `right`) that mark the current outer ring, then peel that ring off one edge at a time. Traverse the top row left to right and shrink `top`, the right column top to bottom and shrink `right`, the bottom row right to left and shrink `bottom`, then the left column bottom to top and shrink `left`. The two inner traversals are guarded so a degenerate single remaining row or column is not revisited. The loop repeats until the boundaries cross.
+Once you notice the walk only ever needs to know which ring it is on, the `visited` array becomes unnecessary. Maintain four boundaries (`top`, `bottom`, `left`, `right`) that mark the current outer ring, then peel that ring off one edge at a time. Traverse the top row left to right and shrink `top`, the right column top to bottom and shrink `right`, the bottom row right to left and shrink `bottom`, then the left column bottom to top and shrink `left`. The unemitted cells are always exactly the rectangle `[top, bottom] x [left, right]`, and each traversal shrinks that rectangle by one row or column. The two inner traversals are guarded because the rectangle can empty part-way through an iteration, after the `while` test has already been checked, and without the guards a degenerate single remaining row or column would be emitted twice. The Invariant above states the property formally. The loop repeats until the boundaries cross.
 
 1. Initialize `top`, `bottom`, `left`, `right` to the matrix edges.
 2. Emit the top row left to right, then increment `top`.

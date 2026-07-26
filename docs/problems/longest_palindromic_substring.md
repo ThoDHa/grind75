@@ -171,6 +171,11 @@ dp[i][j] =
 \end{cases}
 $$
 
+```text
+dp[i][j] = True                                  for j - i < 2 and s[i] == s[j]
+dp[i][j] = (s[i] == s[j]) and dp[i + 1][j - 1]   for j - i >= 2
+```
+
 The answer is the longest span with \(dp[i][j]\) true. Because the state at
 \((i, j)\) depends on \((i+1, j-1)\) — a span two characters shorter — the table
 must be filled in increasing order of length rather than row by row, otherwise

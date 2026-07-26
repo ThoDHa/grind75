@@ -188,9 +188,54 @@ class FreqStack:
         return val
 ```
 
+#### Invariant
+
+Write \(F_k\) for `freq_stacks[k]`, the bucket holding one entry for every
+element whose count has reached \(k\). Two properties hold after every `push`
+and every `pop`:
+
+$$
+\text{(1)}\quad \text{the entries of } \textit{val} \text{ occupy exactly } F_1, F_2, \ldots, F_{\textit{freq\_count}[\textit{val}]}
+$$
+
+$$
+\text{(2)}\quad F_k \ne \varnothing \ \Longrightarrow\ F_{k-1} \ne \varnothing
+\qquad (2 \le k \le \textit{max\_freq})
+$$
+
+```text
+(1) the entries of val occupy exactly freq_stacks[1], freq_stacks[2], ...,
+    freq_stacks[freq_count[val]]
+(2) freq_stacks[k] non-empty implies freq_stacks[k - 1] non-empty,
+    for 2 <= k <= max_freq
+```
+
+`push` maintains (1) directly: an element climbs its counter one step at a time,
+and each increment appends it to the bucket named by its *new* count, so arriving
+in \(F_k\) means it already left an entry in every bucket below. Property (2)
+follows from (1): anything sitting in \(F_k\) also sits in \(F_{k-1}\), so a
+non-empty bucket can never have an empty bucket beneath it. Pushing only adds
+entries, and `max_freq` rises to \(k\) only on the push that fills \(F_k\), so
+both properties survive.
+
+`pop` preserves them too. It removes one entry of `val` from
+\(F_{\textit{max\_freq}}\), which by (1) and (2) is the topmost bucket `val`
+occupies, and decrements `freq_count[val]` to match. No other bucket is touched,
+so the only way (2) could break is through the change to `max_freq` itself.
+
+That is where the payoff lands. The bare `self.max_freq -= 1` reads like it ought
+to be a downward scan for the next non-empty bucket, and (2) is precisely what
+makes the scan unnecessary: when \(F_{\textit{max\_freq}}\) empties,
+\(F_{\textit{max\_freq}-1}\) is guaranteed non-empty, or else `max_freq` drops to
+`0` and the structure is empty. A single decrement cannot skip past an empty
+bucket, so on entry to the next `pop`, `max_freq` still names the true maximum
+frequency and `freq_stacks[max_freq]` is non-empty.
+
 #### Approach
 
 This solution uses a **stack of stacks design** where each frequency level has its own [stack](https://en.wikipedia.org/wiki/Stack_(abstract_data_type)). Elements are grouped by their current frequency, and we maintain the maximum frequency seen. The key insight is that elements with the same frequency should be processed in LIFO order (most recent first), which naturally handles the tie-breaking requirement.
+
+Because an element only reaches count `k` after leaving an entry in every bucket from `1` to `k - 1`, a non-empty `freq_stacks[k]` guarantees a non-empty `freq_stacks[k-1]`. That is what lets an emptied top bucket be handled with `max_freq -= 1` instead of a scan downward for the next non-empty level. The Invariant above states the property formally and shows that both `push` and `pop` preserve it.
 
 #### Time and Space Complexity Analysis
 

@@ -190,6 +190,11 @@ dp[i-1] + dp[i-2], & i \ge 2
 \end{cases}
 $$
 
+```text
+dp[i] = 1,                     for i <= 1
+dp[i] = dp[i-1] + dp[i-2],     for i >= 2
+```
+
 This is the Fibonacci recurrence with the index shifted by one, so
 \(dp[n] = F(n+1)\) under the usual convention \(F(0)=0,\ F(1)=1\). That shift is
 why the two solutions further down, which compute Fibonacci numbers directly,
@@ -303,7 +308,7 @@ class Solution:
         return result[0][0]
 ```
 
-#### Recurrence
+#### Closed Form (Matrix Power)
 
 One step of the recurrence is a single matrix-vector product, which stacks into
 a matrix power:
@@ -319,9 +324,19 @@ $$
 \begin{pmatrix} F(n+1) & F(n) \\ F(n) & F(n-1) \end{pmatrix}
 $$
 
-The answer `ways(n)` is \(F(n+1)\), the top-left entry. Binary exponentiation
-then evaluates the power in \(O(\log n)\) multiplications by squaring rather
-than multiplying the matrix in one copy at a time.
+```text
+[[1, 1], [1, 0]] * [F(n), F(n-1)] = [F(n+1), F(n)]     (column vectors)
+    implies  [[1, 1], [1, 0]]^n = [[F(n+1), F(n)], [F(n), F(n-1)]]
+             with F(0) = 0, F(1) = 1
+```
+
+Here \(F\) is the Fibonacci sequence under the usual convention
+\(F(0) = 0,\ F(1) = 1\), which also supplies the base of the identity: at
+\(n = 1\) it reads \(\begin{pmatrix} 1 & 1 \\ 1 & 0 \end{pmatrix} =
+\begin{pmatrix} F(2) & F(1) \\ F(1) & F(0) \end{pmatrix}\), true because
+\(F(2) = 1\). The answer `ways(n)` is \(F(n+1)\), the top-left entry. Binary
+exponentiation then evaluates the power in \(O(\log n)\) multiplications by
+squaring rather than multiplying the matrix in one copy at a time.
 
 #### Approach
 
@@ -391,6 +406,12 @@ F(n) = \frac{\varphi^{\,n} - \psi^{\,n}}{\sqrt{5}},
 \qquad
 \psi = \frac{1 - \sqrt{5}}{2}
 $$
+
+```text
+F(n) = (phi**n - psi**n) / sqrt(5)
+       phi = (1 + sqrt(5)) / 2
+       psi = (1 - sqrt(5)) / 2
+```
 
 Since \(dp[n] = F(n+1)\), the code evaluates the expression at `n + 1`. The two
 roots \(\varphi\) and \(\psi\) are exactly the solutions of \(x^2 = x + 1\), the

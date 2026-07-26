@@ -205,6 +205,10 @@ $$
 \bigl(|i - a| + |j - b|\bigr)
 $$
 
+```text
+dist[i][j] = min(abs(i - a) + abs(j - b)) over all (a, b) with mat[a][b] == 0
+```
+
 Stated that way it looks quadratic, but the shortest route to a `0` steps
 through a neighbor whose own distance is one smaller, which gives a local rule:
 
@@ -215,6 +219,12 @@ $$
 1 + \displaystyle\min_{(a,b)\,\in\,N(i,j)} \text{dist}[a][b], & \text{otherwise}
 \end{cases}
 $$
+
+```text
+dist[i][j] = 0,                     if mat[i][j] == 0
+dist[i][j] = 1 + min(dist[a][b]),   otherwise
+             (min over the four neighbors (a, b) of (i, j))
+```
 
 where \(N(i,j)\) is the four-neighborhood. This is circular as written — each
 cell depends on all four neighbors, including ones not yet computed — so it

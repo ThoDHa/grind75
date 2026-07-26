@@ -185,6 +185,11 @@ h(v) =
 \end{cases}
 $$
 
+```text
+height(None) = 0
+height(node) = 1 + max(height(node.left), height(node.right))
+```
+
 The longest path that *bends* at `v` joins the deepest reach on each side:
 
 $$
@@ -197,6 +202,11 @@ the diameter:
 $$
 \text{answer} = \max_{v \in T} \text{bend}(v)
 $$
+
+```text
+bend(node)    = height(node.left) + height(node.right)
+self.diameter = max bend(node) over all nodes in the tree
+```
 
 Only \(h\) is returned upward — \(\text{bend}(v)\) already spends both children
 and cannot be extended through `v`'s parent. Computing the two in one pass is

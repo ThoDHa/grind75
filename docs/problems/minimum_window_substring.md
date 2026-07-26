@@ -203,9 +203,62 @@ class Solution:
         return "" if min_len == float('inf') else s[min_left:min_left + min_len]
 ```
 
+#### Invariant
+
+`t_count` holds the required multiplicity of each character of `t`, and
+`required = len(t_count)`. Call a character \(c\) of `t` *satisfied* when the
+window holds at least as many copies as `t` demands. The loop maintains:
+
+$$
+\textit{formed} = \bigl|\{\, c \in \textit{t\_count} \ :\ \textit{window\_counts}[c] \ge \textit{t\_count}[c] \,\}\bigr|
+$$
+
+```text
+formed = number of characters c in t_count with window_counts[c] >= t_count[c]
+```
+
+Each of the `required` characters is either satisfied or not, so the count
+saturates exactly on validity:
+
+$$
+\textit{formed} = \textit{required} \iff \text{the window contains every character of } t \text{, duplicates included}
+$$
+
+```text
+formed == required
+    if and only if  the window contains every character of t, duplicates included
+```
+
+The definition uses \(\ge\), not \(=\): surplus copies are permitted and must not
+change a character's status. That fixes both comparison operators, since counts
+move by one and `formed` can change only at a crossing. Going up, a character
+becomes satisfied exactly when its count lands on `t_count[char]`, hence the `==`
+in the expansion test. Going down, it becomes unsatisfied exactly when the count
+falls to `t_count[char] - 1`, hence the strict `<` after the decrement.
+
+Relaxing that `<` to `!=` breaks the invariant whenever the window carries
+surplus. With `t = "AB"` and `s = "AAAB"` the window holds three copies of `A`
+where one is needed; removing one leaves two, `2 != 1` fires, and `formed` drops
+while `A` is still satisfied, so the shrink loop exits and reports `"AAAB"`.
+
+The minimum-window update sits inside the shrink loop for the same reason. The
+`while` condition asserts `formed == required` at the top of the body, so the
+window is valid *there*, and the decrement below is the only step that can
+invalidate it. Updating on every pass before that decrement therefore measures
+every valid window at this `right`, down to the shortest. Hoisted above the loop it
+would run unconditionally and measure windows before they are known valid at all;
+hoisted below, `left` has already passed validity.
+
+At exit `min_len` is the shortest valid width over all `right`, and
+`min_len == inf` means no window was ever valid: the empty-string case.
+
 #### Approach
 
 This solution uses the **[sliding window technique](https://www.geeksforgeeks.org/dsa/window-sliding-technique/)** with two pointers. We expand the window by moving the right pointer and contract it by moving the left pointer when we have a valid window. The key insight is tracking when we have all required characters with correct frequencies, then trying to minimize the window size.
+
+In plain text the invariant above is `formed == number of characters c of t with
+window_counts[c] >= t_count[c]`, so `formed == required` holds exactly when the
+window is valid.
 
 #### Time and Space Complexity Analysis
 

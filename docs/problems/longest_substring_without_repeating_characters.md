@@ -227,6 +227,55 @@ class Solution:
         return longest
 ```
 
+#### Invariant
+
+The loop maintains two properties. The first is the window property, true at the
+end of every iteration:
+
+$$
+\forall\, i \ne j \in [\,\textit{left},\ \textit{right}\,]\ :\quad s[i] \ne s[j]
+$$
+
+```text
+for all i != j with left <= i <= right and left <= j <= right:  s[i] != s[j]
+```
+
+No character repeats inside `[left, right]`, so `right - left + 1` is always the
+length of a valid substring and taking a running maximum over it is sound.
+
+The second says what `last_seen` holds, and it is deliberately *not*
+window-scoped:
+
+$$
+\textit{last\_seen}[c] = \max \{\, i \le \textit{right} \ :\ s[i] = c \,\}
+$$
+
+```text
+last_seen[c] = max { i <= right : s[i] == c }
+               for every c in s[0..right]
+```
+
+That is the last occurrence anywhere in the prefix, which may sit far to the left
+of `left`.
+
+Expansion is the only step that can break the first property, and only
+`char = s[right]` can break it, since the rest of the window was already
+duplicate-free. The previous occurrence of `char` sits at `last_seen[char]`, and
+it lies inside the window exactly when `last_seen[char] >= left`. The jump
+`left = last_seen[char] + 1` evicts it and nothing beyond it, restoring the
+property with the smallest possible move. When `last_seen[char] < left` the entry
+is stale, no duplicate is entering, and `left` must hold still.
+
+That stale case is why the conjunct cannot be dropped. Testing only
+`char in last_seen` would assign `left = last_seen[char] + 1` from an index
+already passed, a value that can be *smaller* than the current `left`. On
+`"abba"` at `right = 3`, `last_seen['a'] == 0` while `left == 2`, so the window
+would rewind to `[1, 3]` and swallow both `b` characters.
+
+The conjunct therefore also gives monotonicity: `left` is reassigned only when
+`last_seen[char] >= left`, so it never decreases. Both pointers advance at most
+`n` times, and at exit `longest` is the maximum width over all valid windows.
+
 #### Approach
 
 We maintain a sliding window `[left, right]` that always holds a substring with
@@ -249,7 +298,8 @@ occurrence.
 
 The guard `last_seen[char] >= left` is essential: a character may exist in the
 map from a position that has already been passed by `left`, and that stale entry
-must not drag `left` backward.
+must not drag `left` backward. The Invariant above is the formal statement of
+why, resting on `no duplicate in s[left..right]` plus `left never decreases`.
 
 #### Time and Space Complexity Analysis
 

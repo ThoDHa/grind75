@@ -184,6 +184,10 @@ $$
 \exists\, m \ :\ \bigl|\{\, i : \text{nums}[i] = m \,\}\bigr| > \frac{n}{2}
 $$
 
+```text
+there exists m with:  number of i such that nums[i] == m  >  n / 2
+```
+
 The algorithm never counts occurrences. It maintains, over the prefix processed
 so far, the invariant that `count` is the surplus of `candidate` over everything
 else in the *suffix of that prefix* not yet cancelled away:
@@ -194,7 +198,14 @@ $$
               \ \ge 0
 $$
 
-where \(S\) is the un-cancelled tail. Each mismatch pairs off one candidate
+```text
+count = (number of j in S with nums[j] == candidate)
+      - (number of j in S with nums[j] != candidate)
+      >= 0
+      where S = the un-cancelled tail of the prefix processed so far
+```
+
+Each mismatch pairs off one candidate
 occurrence against one non-candidate occurrence and discards both; `count == 0`
 means the prefix has cancelled out completely and carries no information, so any
 value may be adopted fresh.

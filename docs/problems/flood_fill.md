@@ -80,11 +80,51 @@ class Solution:
         self.fill(image, sr, sc+1, initial_color, color)  # Right
 ```
 
+#### Termination Condition
+
+The guard `if initial_color == color: return image` is not an optimization. It is
+what makes the recursion terminate at all.
+
+Look for a visited marker in `fill` and there is none: no set, no auxiliary grid,
+no parent parameter. The only thing distinguishing a processed pixel from an
+unprocessed one is its own value. The write `image[sr][sc] = color` doubles as the
+visited mark, and the bounds-and-color guard that reads it back is the base case:
+
+$$
+\textit{image}[r][c] \ne \textit{initial\_color} \;\Longrightarrow\; \text{return}
+$$
+
+```text
+image[r][c] != initial_color  implies  return
+```
+
+Recursion bottoms out only when this fires, or when the coordinates leave the
+grid. Progress therefore requires that recoloring a pixel actually falsify the
+test for that pixel, which holds exactly when
+\(\textit{color} \ne \textit{initial\_color}\). Under that condition, every `fill`
+call that gets past the guard strictly decreases the number of pixels still equal
+to `initial_color`, and that count is a non-negative integer, so the recursion is
+finite.
+
+When \(\textit{color} = \textit{initial\_color}\) the write is a no-op. The pixel
+still matches, so nothing is ever marked, the count never decreases, and
+`fill(sr, sc)` recurses up into `fill(sr - 1, sc)`, which recurses back down into
+`fill(sr, sc)`, and so on until Python raises `RecursionError`. Two adjacent
+matching pixels are enough to trap it; the four-way recursion never reaches a
+base case.
+
+The early return also happens to give the right answer on its own terms, since
+filling a region with the color it already holds changes nothing, which is what
+Example 2 shows. But answering correctly is the smaller half of its job.
+
+Every other solution on this page marks visited pixels the same way, so the same
+guard is load-bearing in each of them for the same reason.
+
 #### Approach
 
 This solution uses a recursive [depth-first search (DFS)](https://en.wikipedia.org/wiki/Depth-first_search) approach to implement the flood fill algorithm:
 
-- We first check if the starting pixel already has the target color to avoid unnecessary work
+- We first check whether the starting pixel already has the target color. This check is required for termination, not an optimization: the recolor `image[sr][sc] = color` is the only visited marker in this solution, so when `color == initial_color` no pixel is ever marked and the recursion never reaches its base case `image[sr][sc] != initial_color`
 - For each pixel, we check if it's valid (within bounds and has the initial color)
 - If valid, we change its color and recursively apply the algorithm to its four adjacent neighbors
 - The recursion naturally stops when there are no more pixels matching the initial color
@@ -103,7 +143,7 @@ This solution uses a recursive [depth-first search (DFS)](https://en.wikipedia.o
 
 #### Key Insights
 
-- The early check for `initial_color == color` is an important optimization that prevents unnecessary processing
+- The early check for `initial_color == color` is a termination requirement rather than an optimization: recoloring a pixel is the only visited marker here, so without the guard nothing is ever marked and the recursion runs until `RecursionError`
 - Using recursion provides an elegant solution for traversing connected components
 - The algorithm only modifies pixels that match the initial color, precisely implementing the flood fill behavior
 

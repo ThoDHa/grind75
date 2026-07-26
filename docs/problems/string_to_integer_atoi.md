@@ -221,12 +221,59 @@ class Solution:
         return sign * result
 ```
 
+#### Overflow Condition
+
+Write \(q\) for `INT_MAX // 10` and \(r\) for `INT_MAX % 10`, so that
+\(\textit{INT\_MAX} = 10q + r\). For \(\textit{INT\_MAX} = 2^{31} - 1\) that is
+\(q = 214748364\) and \(r = 7\). Appending `digit` to `result` overflows exactly
+when:
+
+$$
+10 \cdot \textit{result} + \textit{digit} > \textit{INT\_MAX}
+\iff
+\textit{result} > q
+\ \ \text{or} \ \
+\bigl(\textit{result} = q \ \text{and} \ \textit{digit} > r\bigr)
+$$
+
+```text
+10 * result + digit > INT_MAX
+    <=>  result > INT_MAX // 10
+         or (result == INT_MAX // 10 and digit > INT_MAX % 10)
+    given 0 <= digit <= 9
+```
+
+The equivalence uses only \(0 \le \textit{digit} \le 9\). If
+\(\textit{result} \ge q + 1\) then
+\(10\,\textit{result} + \textit{digit} \ge 10q + 10 > 10q + r\). If
+\(\textit{result} \le q - 1\) then
+\(10\,\textit{result} + \textit{digit} \le 10q - 1 < 10q + r\). Only
+\(\textit{result} = q\) is left undecided by `result` alone, and there the
+comparison reduces to `digit` against `r`.
+
+The right-hand side is what the code evaluates, and it must be evaluated *before*
+the multiply. In a fixed-width 32-bit type the product `result * 10 + digit` is
+the very value that overflows, so it wraps and a test performed afterwards would
+be reading a corrupted number. The pre-multiply form compares only `result`
+(already known to be in range) against a constant and one digit against another,
+so nothing intermediate can leave the range. Passing the guard establishes
+\(10\,\textit{result} + \textit{digit} \le \textit{INT\_MAX}\), which carries the
+invariant \(0 \le \textit{result} \le \textit{INT\_MAX}\) into the next iteration.
+
+Testing against `INT_MAX` stays correct under a negative sign even though the
+true range \([-2^{31},\ 2^{31} - 1]\) is asymmetric. The guard measures
+magnitude, so it calls the magnitude \(2^{31}\) an overflow where a negative
+parse would accept it exactly. The returned verdict is unaffected: the clamp
+yields `INT_MIN`, and \(-2^{31}\) is precisely the value the exact parse would
+have produced. Every larger magnitude genuinely exceeds the range and clamps to
+`INT_MIN` regardless, so a single boundary serves both signs.
+
 #### Approach
 
 This refines the brute force by fusing digit collection and conversion into one loop, dropping the intermediate `digits` substring. The string is consumed in a single forward pass while the running integer is built directly, which brings the space down to constant.
 
 1. Skip leading spaces, then read the optional sign exactly as before.
-2. For each digit, check overflow *before* the multiply by comparing against `INT_MAX // 10` and the boundary digit `INT_MAX % 10`.
+2. For each digit, check overflow *before* the multiply by comparing against `INT_MAX // 10` and the boundary digit `INT_MAX % 10`. In plain text the condition is `result * 10 + digit > INT_MAX`, restated above as the pre-multiply test the code can safely evaluate.
 3. Accumulate into `result` in place, and clamp to `INT_MAX` or `INT_MIN` the instant an overflow would occur.
 
 #### Time and Space Complexity Analysis

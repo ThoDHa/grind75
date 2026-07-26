@@ -237,12 +237,16 @@ class Solution:
 
 #### Formula
 
-The [power set](https://en.wikipedia.org/wiki/Power_set) of an `n`-element set
-has
+The [power set](https://en.wikipedia.org/wiki/Power_set) of an `n`-element set has
+\(2^n\) members:
 
 $$
 |\mathcal{P}(S)| = 2^{n}
 $$
+
+```text
+number of subsets of nums = 2^n   where n = len(nums)
+```
 
 members, since each element is independently in or out — \(n\) binary choices,
 multiplying to \(2^n\). This solution makes that counting argument literal by
@@ -251,6 +255,11 @@ building a bijection between subsets and the integers below \(2^n\):
 $$
 \text{mask} \ \longleftrightarrow \ \bigl\{\, \text{nums}[i] \ :\ \text{bit } i \text{ of mask is } 1 \,\bigr\}
 $$
+
+```text
+mask  <-->  { nums[i] : bit i of mask is 1 }
+            for mask = 0 .. 2^n - 1
+```
 
 Iterating `mask` from \(0\) to \(2^n - 1\) therefore enumerates every subset
 exactly once, with no recursion and no bookkeeping to avoid duplicates.
@@ -261,6 +270,10 @@ this page — each element appears in exactly half of the subsets:
 $$
 \sum_{k=0}^{n} k\binom{n}{k} = n \cdot 2^{\,n-1}
 $$
+
+```text
+sum over k = 0 .. n of k * (n choose k) = n * 2^(n - 1)
+```
 
 So even writing the answer down costs \(\Theta(n 2^n)\), and no approach can be
 asymptotically faster.

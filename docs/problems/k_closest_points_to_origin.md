@@ -76,6 +76,10 @@ $$
 d(x, y) = \sqrt{(x - 0)^2 + (y - 0)^2} = \sqrt{x^2 + y^2}
 $$
 
+```text
+d(x, y) = sqrt((x - 0)^2 + (y - 0)^2) = sqrt(x^2 + y^2)
+```
+
 Every solution on this page compares \(d^2 = x^2 + y^2\) and never calls
 `sqrt`. That is safe because \(t \mapsto \sqrt{t}\) is strictly increasing on
 \(t \ge 0\), so for non-negative \(a, b\):
@@ -83,6 +87,10 @@ Every solution on this page compares \(d^2 = x^2 + y^2\) and never calls
 $$
 \sqrt{a} < \sqrt{b} \iff a < b
 $$
+
+```text
+sqrt(a) < sqrt(b)  if and only if  a < b,  for a >= 0 and b >= 0
+```
 
 Ordering by \(d^2\) therefore produces exactly the same ordering as \(d\).
 Dropping the square root also keeps the arithmetic in exact integers rather than

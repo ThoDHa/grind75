@@ -133,6 +133,10 @@ $$
 \text{if } \textit{target} \in \textit{nums}, \text{ then its index lies in } [\,\textit{left},\ \textit{right}\,]
 $$
 
+```text
+if target in nums, then its index lies in [left, right]
+```
+
 Every branch preserves it. Sortedness means `nums[mid] < target` rules out
 everything at or left of `mid`, so `left = mid + 1` discards only indices that
 provably cannot hold the answer — and symmetrically on the other side. When
@@ -148,6 +152,11 @@ $$
 k > \log_2 n
 $$
 
+```text
+n / 2^k < 1   if and only if   k > log2(n)
+        (k = iterations completed, n = number of candidates)
+```
+
 giving \(O(\log n)\) — roughly 20 steps for a million elements, and 30 for a
 billion.
 
@@ -157,6 +166,10 @@ Computing the midpoint as `left + (right - left) // 2` rather than
 $$
 \textit{left} + \frac{\textit{right} - \textit{left}}{2} = \frac{\textit{left} + \textit{right}}{2}
 $$
+
+```text
+left + (right - left) / 2 == (left + right) / 2     (in exact arithmetic)
+```
 
 but in a fixed-width integer type the second form can overflow when `left` and
 `right` are both large, while the first never exceeds `right`. Python's integers

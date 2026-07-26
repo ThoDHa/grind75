@@ -148,6 +148,51 @@ class Solution:
         return slow
 ```
 
+#### Invariant
+
+Number the nodes \(0\) through \(n - 1\) from the head. After \(k\) iterations,
+both pointers have advanced in lockstep at their fixed speeds:
+
+$$
+\textit{slow} = k, \qquad \textit{fast} = 2k
+$$
+
+```text
+after k iterations:  slow = k,  fast = 2 * k
+                     (node indices, numbered 0 through n - 1 from the head)
+```
+
+Each pass preserves this because `slow` gains one index and `fast` gains two, so
+`fast` is always exactly twice as far from the head as `slow`.
+
+The guard `while fast and fast.next` decides where that stops, and therefore
+which middle we return. It fails in one of two ways:
+
+- Odd \(n\): `fast` lands on the last node, index \(n - 1\), so `fast.next` is
+  null. Then \(2k = n - 1\), giving \(k = (n - 1)/2\).
+- Even \(n\): `fast` steps past the last index and becomes null. Then \(2k = n\),
+  giving \(k = n/2\).
+
+Both cases read off the same answer:
+
+$$
+\textit{slow} = \left\lfloor n/2 \right\rfloor
+$$
+
+```text
+at loop exit:  slow = floor(n / 2)   for both parities of n
+```
+
+For \(n = 5\) that is index \(2\), the single central node. For \(n = 6\) it is
+index \(3\), the *second* of the two middles, which is what the problem asks for.
+The floor does the parity work, so no branch is needed.
+
+This is why the guard is the specification rather than a formality. Writing
+`while fast.next and fast.next.next` instead stops one iteration earlier
+whenever \(n\) is even, leaving `slow` at \(\lceil n/2 \rceil - 1\): index \(2\)
+for \(n = 6\), the *first* middle. Identical loop body, wrong node, and nothing
+else in the code would flag it.
+
 #### Approach
 
 This solution uses the [fast-and-slow pointer technique](https://www.geeksforgeeks.org/dsa/two-pointers-technique/) (also known as the
@@ -159,9 +204,12 @@ This solution uses the [fast-and-slow pointer technique](https://www.geeksforgee
 3. When `fast` runs off the end, `slow` has covered exactly half the distance and
    sits on the middle node.
 
-Because `fast` travels at twice the speed of `slow`, the position of `slow` when
-`fast` finishes is the midpoint. For even-length lists, the loop condition stops
-`fast` one step later, which leaves `slow` on the second of the two middle nodes.
+Because `fast` travels at twice the speed of `slow`, `fast` sits at index `2k`
+whenever `slow` sits at index `k`, so the loop exits with `slow` at index
+`n // 2` for both parities: the central node when `n` is odd, and the second of
+the two middle nodes when `n` is even. The Invariant above states that formally,
+along with why the guard has to be `fast and fast.next` rather than
+`fast.next and fast.next.next`, which would return the first middle instead.
 
 #### Time and Space Complexity Analysis
 

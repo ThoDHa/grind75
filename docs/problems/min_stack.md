@@ -343,6 +343,68 @@ class MinStack:
 # param_4 = obj.getMin()
 ```
 
+#### Invariant
+
+Write \(\textit{min}\) for `self.min`. Call a stored entry *plain* when it is the
+pushed value itself and *encoded* when it is `2 * val - min`. Everything rests on
+one property, checked against the minimum current while the entry sits on top:
+
+$$
+\text{plain entry } e:\ e \ge \textit{min}
+\qquad\qquad
+\text{encoded entry } e:\ e < \textit{min}
+$$
+
+```text
+plain entry e:    e >= self.min
+encoded entry e:  e <  self.min
+                  (self.min taken while e sits on top of the stack)
+```
+
+Both halves hold. A plain entry is stored only when `val >= self.min`, and
+`self.min` always equals the minimum over the values still in the stack, so it
+can never exceed a buried entry: that entry is still at least the minimum when it
+resurfaces. Note the minimum does *rise* as encoded entries are popped, so it is
+this stack-wide reading, not a claim that the minimum never increases, that
+carries the argument. An encoded entry is stored only when
+`val < self.min`, and
+
+$$
+2\,\textit{val} - \textit{min} \;=\; \textit{val} - (\textit{min} - \textit{val}) \;<\; \textit{val} \;=\; \textit{min}_{\text{new}}
+$$
+
+```text
+when val < self.min:
+    2 * val - self.min = val - (self.min - val) < val = new self.min
+```
+
+so the stored number lands strictly below the minimum it announces. The strict
+`<` in the push test is what keeps the two ranges disjoint: on `val == self.min`
+the same arithmetic gives `2 * val - min == val == min`, which would sit in both
+ranges at once and make the classification test ambiguous. Relaxing it to `<=`
+happens to change no observable behavior, since that branch would then store
+`val` and leave the minimum untouched, which is what the plain branch already
+does. The invariant is what needs the strictness, not the output. Equal values are stored
+plainly instead, which is exactly right, since discarding one of several equal
+minima leaves the minimum where it is.
+
+Because the ranges are disjoint, the single test `popped < self.min` in `pop`
+(and `value < self.min` in `top`) classifies an entry with no flag, tuple, or
+second container. For an encoded entry the decode then inverts the encode: with
+`popped = 2 * val - old_min` and `self.min == val`,
+
+$$
+2\,\textit{min} - \textit{popped} \;=\; 2\,\textit{val} - (2\,\textit{val} - \textit{old\_min}) \;=\; \textit{old\_min}
+$$
+
+```text
+when popped = 2 * val - old_min and self.min == val:
+    2 * self.min - popped = 2 * val - (2 * val - old_min) = old_min
+```
+
+so `pop` restores the previous minimum exactly, and `top` reports `self.min`,
+which is the `val` the encoded entry stood for.
+
 #### Approach
 
 Both cached approaches above store an extra integer for every pushed element.
@@ -366,8 +428,10 @@ only overhead beyond the values themselves is that one variable.
    is the value. `getMin` just returns the variable.
 
 The invariant that makes this work is that no plain entry is ever below the
-current minimum, so "stored entry is less than `min`" is an unambiguous signal
-that the entry encodes a minimum change. Note that equal values are stored
+current minimum while every encoded entry is strictly below it, so "stored entry
+is less than `min`" is an unambiguous signal that the entry encodes a minimum
+change. The Invariant above states that formally, along with why the encode and
+decode are inverses. Note that equal values are stored
 plainly (the test is a strict `<`), so repeated minima pop off without
 disturbing `min` until the entry that actually changed it is removed.
 

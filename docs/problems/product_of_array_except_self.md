@@ -150,6 +150,10 @@ $$
 \text{result}[i] = \prod_{\substack{0 \le j < n \\ j \ne i}} \text{nums}[j]
 $$
 
+```text
+result[i] = product of nums[j] over 0 <= j < n with j != i
+```
+
 Splitting that product at `i` factors it into a left half and a right half —
 this is the multiplicative analogue of a [prefix sum](https://en.wikipedia.org/wiki/Prefix_sum),
 with \(\prod\) in place of \(\sum\) and `1` in place of `0` as the identity:
@@ -158,6 +162,12 @@ $$
 \text{result}[i] = \underbrace{\prod_{j<i} \text{nums}[j]}_{\text{prefix}[i]} \ \cdot \ \underbrace{\prod_{j>i} \text{nums}[j]}_{\text{suffix}[i]}
 $$
 
+```text
+prefix[i] = product of nums[j] over j < i
+suffix[i] = product of nums[j] over j > i
+result[i] = prefix[i] * suffix[i]
+```
+
 Each side is a one-step recurrence, so both tables fill in linear time:
 
 $$
@@ -165,6 +175,12 @@ $$
 \qquad
 \text{suffix}[i] = \text{suffix}[i+1] \cdot \text{nums}[i+1]
 $$
+
+```text
+prefix[0] = 1,  suffix[n - 1] = 1         (the empty product)
+prefix[i] = prefix[i - 1] * nums[i - 1]   for i >= 1
+suffix[i] = suffix[i + 1] * nums[i + 1]   for i <= n - 2
+```
 
 An empty product is `1`, which is why `prefix[0]` and `suffix[n-1]` are seeded
 there. Because the index `i` is never a factor on either side, this stays

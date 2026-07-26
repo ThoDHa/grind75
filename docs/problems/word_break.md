@@ -291,6 +291,12 @@ dp[i] = \bigvee_{j=0}^{i-1} \Bigl( dp[j] \ \wedge \ s[j{:}i] \in \text{wordDict}
 \qquad dp[0] = \text{true}
 $$
 
+```text
+dp[0] = True
+dp[i] = OR over j = 0 .. i - 1 of (dp[j] and s[j:i] in word_set)
+        for 1 <= i <= n
+```
+
 \(\bigvee\) is the "or" counterpart of \(\sum\): it runs over the same index
 range, but combines with logical **or** instead of addition, so `dp[i]` is true
 as soon as one boundary works. That is exactly what the inner loop's `break`

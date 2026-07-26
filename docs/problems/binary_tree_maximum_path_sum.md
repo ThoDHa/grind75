@@ -202,6 +202,11 @@ g(v) = v.\text{val} + \max\bigl(0,\ g(v.\text{left}),\ g(v.\text{right})\bigr),
 \qquad g(\text{null}) = 0
 $$
 
+```text
+max_gain(null) = 0
+max_gain(v)    = v.val + max(0, max_gain(v.left), max_gain(v.right))
+```
+
 Let \(b(v)\) be the best path whose highest point is `v`, which may bend into
 both subtrees:
 
@@ -209,12 +214,20 @@ $$
 b(v) = v.\text{val} + \max\bigl(0, g(v.\text{left})\bigr) + \max\bigl(0, g(v.\text{right})\bigr)
 $$
 
+```text
+b(v) = v.val + max(0, max_gain(v.left)) + max(0, max_gain(v.right))
+```
+
 The answer maximizes \(b\) over every node, since any path has exactly one
 highest point:
 
 $$
 \text{answer} = \max_{v \in T} b(v)
 $$
+
+```text
+max_sum = max(b(v)) over all nodes v in T
+```
 
 The clamp at \(0\) encodes "a negative branch is better skipped than taken."
 \(b(v)\) cannot be returned upward — a bent path already uses both children, so

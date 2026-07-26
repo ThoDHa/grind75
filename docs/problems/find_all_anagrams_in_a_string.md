@@ -187,12 +187,62 @@ class Solution:
         return result
 ```
 
+#### Invariant
+
+Both `need` and `window` are 26-slot counts indexed by a letter
+\(c \in \{0, \ldots, 25\}\). The loop maintains one property about the integer
+`matches`:
+
+$$
+\textit{matches} = \bigl|\{\, c \ :\ \textit{window}[c] = \textit{need}[c] \,\}\bigr|
+$$
+
+```text
+matches = number of letters c in 0..25 with window[c] == need[c]
+```
+
+It counts how many of the 26 letters currently agree. Since that set can only be
+a subset of all 26 letters, the count saturates exactly when every slot agrees:
+
+$$
+\textit{matches} = 26 \iff \textit{window} = \textit{need}
+$$
+
+```text
+matches == 26  if and only if  window == need
+```
+
+This equivalence is the payoff: the brute force's slot-by-slot array comparison
+collapses into a single integer test. The price is that every write to `window`
+must keep `matches` honest, and that is what the decrement-bump-increment triple
+around each count change is for.
+
+A write to `window[c]` can change the agreement status of slot `c` and of no
+other slot, so only that slot's contribution to the count needs revisiting.
+Subtract it before the write if it was agreeing, then add it back after the write
+if it now agrees. Both count changes follow that shape: the entering letter
+around `window[entering] += 1`, and the leaving letter around
+`window[leaving] -= 1`. Drop either half and `matches` keeps a stale verdict for
+that slot, so the invariant fails.
+
+The invariant holds before the first iteration because `matches` is initialized
+by direct comparison: `window` is all zeros, so it counts exactly the zero slots
+of `need`.
+
+At the test the eviction step has already run, so the window is `s[i-k+1 .. i]`,
+exactly `k` characters wide once `i >= k - 1`. Reading the invariant there,
+`matches == 26` says the window's letter counts equal `p`'s, so the window is an
+anagram of `p` and its start index `i - k + 1` is recorded.
+
 #### Approach
 
 Adjacent windows overlap heavily: [sliding one step](https://www.geeksforgeeks.org/dsa/window-sliding-technique/) removes a single character on
 the left and adds a single character on the right. Rather than recounting, we
 maintain the window's 26-slot count incrementally and track a running `matches`
 value, the number of letters whose window count already equals the needed count.
+In plain text the invariant above is `matches == number of letters c with
+window[c] == need[c]`, which is what makes the test `matches == 26` equivalent to
+comparing the two arrays outright.
 
 1. If `p` is longer than `s`, return an empty list.
 2. Build `need` and a zeroed `window`, both fixed 26-slot arrays, then initialize

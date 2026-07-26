@@ -211,6 +211,11 @@ $$
 \ + \ \bigl[\, \exists\, x : c_x \text{ is odd} \,\bigr]
 $$
 
+```text
+answer = sum over x of 2 * (counter[x] // 2)
+         + 1 if counter[x] is odd for some x, else + 0
+```
+
 The floor-halve-and-double term keeps the largest even portion of each
 frequency; the bracket adds `1` if any character has a leftover, since exactly
 one leftover may occupy the center.
@@ -227,6 +232,14 @@ $$
 |s| - k + 1, & k \ge 1
 \end{cases}
 $$
+
+```text
+sum over x of 2 * (counter[x] // 2) = len(s) - k
+    therefore
+answer = len(s)          for k = 0
+answer = len(s) - k + 1  for k >= 1
+         where k = number of characters x with counter[x] odd
+```
 
 because each odd-frequency character contributes exactly one discarded unit.
 That is why the code initializes its counter at `-1` — pre-crediting the one

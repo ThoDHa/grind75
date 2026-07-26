@@ -220,6 +220,41 @@ class Solution:
         return minutes if fresh == 0 else -1
 ```
 
+#### Invariant
+
+At the top of every pass of the `while` loop, the queue holds exactly the oranges
+that became rotten at minute `minutes`:
+
+$$
+\textit{queue} = \{\,\text{cells that rotted at minute } \textit{minutes}\,\}
+$$
+
+```text
+at the top of every while pass:
+    queue = { cells that rotted at minute minutes }
+    (initially minutes = 0 and queue holds the cells already rotten in the input)
+```
+
+It starts true: `minutes` is `0` and the queue holds the oranges already rotten in
+the input, which is the level-`0` frontier. Each pass preserves it. The
+`for _ in range(len(queue))` snapshot fixes the level size before any append, so
+the pass drains precisely that level and everything appended during it belongs to
+the next one. Incrementing `minutes` *before* the drain is what labels that next
+level correctly: the oranges enqueued during the pass are the ones that rot at the
+new `minutes`, so the loop re-enters one level deeper with the property restored.
+
+The `fresh > 0` guard is what keeps the final level from being counted. After the
+pass that rots the last fresh orange, `minutes` already holds the answer, yet the
+queue is not empty: it still carries that final level, whose oranges have no fresh
+neighbors left to rot. Under `while queue` alone the loop would run once more,
+increment `minutes` one past the answer, drain the level, rot nothing, and return
+an off-by-one count. Testing `fresh > 0` stops the moment there is nothing left to
+rot, so the last harmless level never adds a phantom minute.
+
+The other exit, an empty queue with `fresh > 0`, means the survivors are
+unreachable. `minutes` is over-counted by one there as well, and it does not
+matter: that branch returns `-1`.
+
 #### Approach
 
 The rot spreads outward from every rotten orange simultaneously, one ring of
@@ -241,7 +276,9 @@ corresponds to one elapsed minute.
    otherwise return `-1` because the survivors are unreachable.
 
 Processing a full level per minute is what makes the minute count correct: every
-orange enqueued during minute `k` rots its neighbors at minute `k + 1`.
+orange enqueued during minute `k` rots its neighbors at minute `k + 1`. The
+Invariant above states that formally, along with why the `fresh > 0` half of the
+loop guard is needed to stop the final level from adding a phantom minute.
 
 #### Time and Space Complexity Analysis
 

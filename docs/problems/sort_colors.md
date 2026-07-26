@@ -196,6 +196,13 @@ $$
 \underbrace{(\,\textit{right},\ n\,)}_{\text{all } 2}
 $$
 
+```text
+nums[0 .. left - 1]        all 0
+nums[left .. current - 1]  all 1
+nums[current .. right]     unexamined
+nums[right + 1 .. n - 1]   all 2
+```
+
 The loop runs while the unexamined region is non-empty
 (\(\textit{current} \le \textit{right}\)) and shrinks it by one each pass, which
 is what guarantees termination and the single-pass bound.

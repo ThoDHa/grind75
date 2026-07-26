@@ -173,11 +173,21 @@ $$
 \max(a_1, a_2) \le \min(b_1, b_2)
 $$
 
+```text
+[a1, b1] intersect [a2, b2] is non-empty
+    if and only if  max(a1, a2) <= min(b1, b2)
+```
+
 and their union, when they do intersect, is:
 
 $$
 [a_1, b_1] \cup [a_2, b_2] = \bigl[\min(a_1, a_2),\ \max(b_1, b_2)\bigr]
 $$
+
+```text
+[a1, b1] union [a2, b2] = [min(a1, a2), max(b1, b2)]
+    when the two intervals intersect
+```
 
 Sorting by start collapses the symmetric test into a one-sided one. With
 \(a_1 \le a_2\) guaranteed, \(\max(a_1, a_2) = a_2\), so the condition reduces to

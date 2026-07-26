@@ -276,13 +276,79 @@ class Solution:
         return dp[target]
 ```
 
+#### Invariant
+
+This DP is collection-valued: each `dp[t]` holds a *list of combinations*
+summing to \(t\), not a scalar optimum. There is no honest recurrence to state
+here, because the obvious one is false. The relation to reach for is a union over
+the last candidate added:
+
+$$
+dp[t] \ \stackrel{?}{=} \bigcup_{\substack{c \,\in\, \text{candidates} \\ c \,\le\, t}}
+\bigl\{\, \textit{combo} + [c] \ :\ \textit{combo} \in dp[t - c] \,\bigr\}
+$$
+
+```text
+dp[t] =? union of { combo + [c] : combo in dp[t - c] }
+         over c in candidates with c <= t
+        (the ? marks this relation as FALSE: it is stated only to be refuted)
+```
+
+That relation over-counts. With `candidates = [2,3]` and \(t = 5\) it appends `3` to `[2]`
+drawn from \(dp[2]\), and appends `2` to `[3]` drawn from \(dp[3]\), producing
+both `[2,3]` and `[3,2]`: two permutations of one combination. The relation
+carries no notion of candidate order, so nothing in it can rule the duplicate
+out.
+
+What the code maintains instead is a property of the outer loop. Let \(i\) be
+the number of sorted candidates processed so far. After each pass of the outer
+loop:
+
+$$
+\forall t,\ \forall \textit{combo} \in dp[t]:\quad
+\textit{combo} = [\,c_1 \le c_2 \le \cdots \le c_k\,]
+\quad\text{with every } c_j \in \{\text{candidates}[0], \ldots, \text{candidates}[i-1]\}
+$$
+
+```text
+for all t, for all combo in dp[t]:
+    combo == [c_1 <= c_2 <= ... <= c_k]
+    with every c_j in {candidates[0], ..., candidates[i-1]}
+        (i = sorted candidates processed so far; holds after each outer pass)
+```
+
+Every combination stored anywhere in the table draws only on the first \(i\)
+candidates, and is listed in non-decreasing order.
+
+Both writes to the table preserve it. The initialization `dp[0] = [[]]` holds it
+trivially at \(i = 0\): the empty combination is non-decreasing and uses no
+candidate at all. The single append step `dp[t].append(combo + [candidate])`
+holds it too. Because `candidates` is sorted and processed in order, `candidate`
+is greater than or equal to every candidate available to a stored `combo`, hence
+greater than or equal to every element of `combo` itself. Appending it at the
+*end* therefore keeps the combination non-decreasing, and introduces no
+candidate from beyond position \(i\).
+
+At loop exit \(i\) is the full candidate count, so `dp[target]` holds every
+valid combination, each already in canonical non-decreasing order, and each
+exactly once, since a combination has exactly one non-decreasing listing and the
+appends can only have built it in that order. No deduplication pass is needed.
+
+This is what makes the loop nesting load-bearing rather than stylistic.
+Candidates must be the outer loop and sub-targets the inner one. Swap them and
+each `dp[t]` is finished while later candidates are still unprocessed, so a
+smaller candidate can be appended after a larger one: the invariant fails, and
+the permutation duplicates of the naive relation come straight back.
+
 #### Approach
 
 Instead of recursing, we [build up answers for every sub-target](https://en.wikipedia.org/wiki/Dynamic_programming) from `0` to
 `target`. The outer loop over candidates (rather than an inner loop) is the trick
 that prevents duplicate combinations: by the time we consider a candidate, every
 combination already stored uses only earlier candidates, so appending the current
-candidate keeps each combination in non-decreasing order and unique.
+candidate keeps each combination in non-decreasing order and unique. The
+Invariant above states that property formally, along with why the naive
+`dp[t] = union of dp[t - c] + [c]` relation would over-count.
 
 The steps:
 
@@ -311,8 +377,9 @@ strictly more memory than backtracking, which only keeps one path plus the outpu
 
 - Looping over candidates on the outside (and sub-targets on the inside) is what
   enforces non-decreasing order and therefore uniqueness.
-- Each `dp[t]` is independent of candidate order within it, so canonicalizing for
-  comparison is still required.
+- Every combination in `dp[t]` already comes out non-decreasing, so unlike the
+  include-exclude approach only the outer ordering is arbitrary: an equality check needs
+  the list of combinations sorted, not their contents.
 - The table makes every intermediate combination explicit, which trades memory for
   the removal of recursion.
 
@@ -359,5 +426,7 @@ strictly more memory than backtracking, which only keeps one path plus the outpu
   could only `continue`, which does not cut subtrees.
 - Reuse always comes from staying on the same index (`i` or `index`) in the include
   branch, never from a separate counter.
-- All three approaches produce combinations in arbitrary order, so any equality
-  check must canonicalize with `sorted(map(sorted, result))`.
+- Include-Exclude Backtracking emits each combination in input order, so comparing
+  its output needs the full `sorted(map(sorted, result))` canonicalization. The two
+  sorted approaches already emit non-decreasing combinations, so for those only the
+  outer list needs sorting.

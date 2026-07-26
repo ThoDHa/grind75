@@ -71,6 +71,10 @@ $$
 n \times (n-1) \times \dots \times 1 = n!
 $$
 
+```text
+n * (n - 1) * ... * 1 = n!
+```
+
 The recursion tree is wider than its leaf count suggests. At depth `k` there is
 one node per ordered arrangement of `k` distinct elements, so the total node
 count is:
@@ -78,6 +82,12 @@ count is:
 $$
 \sum_{k=0}^{n} \frac{n!}{(n-k)!} \ = \ n! \sum_{j=0}^{n} \frac{1}{j!} \ \approx \ e \cdot n!
 $$
+
+```text
+sum over k = 0 to n of n! / (n - k)!
+    = n! * (sum over j = 0 to n of 1 / j!)
+    approximately e * n!
+```
 
 The interior nodes only add a constant factor of about \(e \approx 2.718\) over
 the \(n!\) leaves, which is why the bound is quoted as \(O(n! \times n)\): the

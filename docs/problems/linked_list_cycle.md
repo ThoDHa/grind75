@@ -217,9 +217,58 @@ class Solution:
         return False
 ```
 
+#### Invariant
+
+Suppose the list contains a cycle of length \(L\). Once both pointers are inside
+that cycle, let \(d\) be the forward distance from `fast` to `slow` around it:
+the number of `next` steps `fast` still needs to take to land on `slow`, so
+\(0 \le d < L\). Each iteration moves `slow` one step forward (adding \(1\) to
+the gap) and `fast` two steps forward (subtracting \(2\)):
+
+$$
+d_{k+1} = (d_k + 1 - 2) \bmod L = (d_k - 1) \bmod L
+$$
+
+```text
+d[k + 1] = (d[k] + 1 - 2) mod L = (d[k] - 1) mod L
+           where d[k] = forward distance from fast to slow after k iterations,
+           0 <= d[k] < L, and L = cycle length
+```
+
+The gap closes by *exactly* one node per iteration, and that exactness is what
+makes the 2:1 ratio non-arbitrary rather than a convention. A quantity that
+decreases by one cannot step over zero, so the pointers can never pass each
+other unmet. Since \(d_0 < L\), the gap reaches \(0\) within \(L\) iterations,
+and \(d = 0\) is precisely the condition `slow == fast`. The `return True` is
+therefore forced after at most one cycle length of passes, which is where the
+`O(n)` bound comes from.
+
+A faster hare does not lose the meeting, but it does lose this argument. With
+`fast` advancing three steps the gap changes by \(-2\) each pass, and a quantity
+falling by two can step over \(0\) instead of landing on it, so nothing about
+termination follows from the invariant alone. It still meets here, but only for reasons
+outside the invariant, and they differ by parity. When \(L\) is even, the entry
+offsets save it: both pointers start at the head, so `slow` enters the cycle after
+\(\mu\) steps with `fast` at in-cycle offset \(2\mu\), forcing \(d_0\) even, and a
+gap falling by two then lands on \(0\) rather than stepping over it. When \(L\) is
+odd, \(d_0\) is no longer forced even, so the gap can step over \(0\) and wrap, and
+meeting then rests on something else: \(2\) is invertible modulo an odd \(L\), so
+\((d_0 - 2k) \bmod L\) sweeps every residue and cannot avoid \(0\). At a 2:1 ratio neither argument is
+needed, which is the sense in which the ratio is not arbitrary.
+
+The other exit is equally forced. Coincidence requires \(d = 0\) inside a cycle,
+so on an acyclic list the pointers can never meet and the loop can only end by
+its guard failing. `fast` and `fast.next` are exactly the two references that
+`fast = fast.next.next` dereferences, so the guard fails the moment the hare runs
+out of track ahead of it. A null `next` anywhere means the chain terminates,
+which means no node is reachable twice: `return False` is not a fallback but the
+correct reading of the invariant.
+
 #### Approach
 
 This solution implements [Floyd's Cycle-Finding Algorithm](https://en.wikipedia.org/wiki/Cycle_detection), also known as the "tortoise and hare" algorithm. We use two pointers that move at different speeds: a slow pointer that moves one step at a time and a fast pointer that moves two steps at a time. If there's a cycle, the fast pointer will eventually catch up to the slow pointer. If there's no cycle, the fast pointer will reach the end of the list.
+
+The meeting is forced rather than merely likely. Once both pointers are in the cycle, the gap between them shrinks by exactly one node per iteration (`gap = (gap - 1) mod L`, where `L` is the cycle length), so it cannot skip past zero. The Invariant above states that formally, along with why `fast.next` reaching null is the correct no-cycle exit.
 
 #### Time and Space Complexity Analysis
 

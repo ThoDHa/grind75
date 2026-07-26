@@ -73,6 +73,12 @@ $$
 \end{cases}
 $$
 
+```text
+maxDepth(None) = 0
+maxDepth(root) = 1 + max(maxDepth(root.left), maxDepth(root.right))
+                 for root != None
+```
+
 The empty tree contributing `0` is the base case, and the `+1` charges one level
 for the node itself. This is the smallest complete example of tree DP: the
 answer at a node needs nothing but the answers at its children, so a single

@@ -184,6 +184,48 @@ class MyQueue:
                 self.stack_output.append(self.stack_input.pop())
 ```
 
+#### Invariant
+
+List `stack_output` bottom to top as \(o_1, \ldots, o_p\) and `stack_input`
+bottom to top as \(i_1, \ldots, i_q\). The queue those two stacks represent, read
+front to back, is:
+
+$$
+\underbrace{o_p,\, o_{p-1},\, \ldots,\, o_1}_{\text{reversed}(\textit{stack\_output})}
+\;,\;\;
+\underbrace{i_1,\, i_2,\, \ldots,\, i_q}_{\textit{stack\_input}}
+$$
+
+```text
+queue front to back = reversed(stack_output), then stack_input
+                      (both stacks listed bottom to top)
+```
+
+The front of the queue is therefore the *top* of `stack_output` whenever \(p > 0\),
+which is what lets `pop` and `peek` be plain stack operations.
+
+Every method preserves this. `push` appends to the top of `stack_input`, adding
+\(i_{q+1}\) at the back, where a newly pushed element belongs. `pop` and `peek`
+read the top of `stack_output`, which is the front. A refill moves all of
+`stack_input` across, and because it runs only when \(p = 0\) the queue at that
+moment is exactly \(i_1, \ldots, i_q\); popping those top to bottom and appending
+leaves `stack_output` \(= i_q, \ldots, i_1\), whose reverse is \(i_1, \ldots,
+i_q\) again. The order is unchanged.
+
+This is why `if not self.stack_output:` is the correctness condition and not an
+optimization. Refilling while \(p > 0\) would leave `stack_output`
+\(= o_1, \ldots, o_p, i_q, \ldots, i_1\), which reads front to back as
+\(i_1, \ldots, i_q, o_p, \ldots, o_1\): every newly pushed element jumps ahead of
+elements that were already waiting, and the structure stops being FIFO.
+
+The same guard carries the amortized bound. A refill drains `stack_input`
+completely, and an element enters `stack_input` exactly once (on its `push`), so
+each element takes part in at most one refill. Its entire lifetime is a fixed
+number of stack operations: one append to `stack_input`, at most one
+pop-and-append across, and one pop from `stack_output`. Across \(n\) operations
+the total work is \(O(n)\), which is amortized \(O(1)\) each even though a single
+refill can cost \(O(n)\) on its own.
+
 #### Approach
 
 This solution uses a "lazy" approach with [two stacks](https://en.wikipedia.org/wiki/Stack_(abstract_data_type)) serving different purposes:
@@ -198,6 +240,8 @@ The key insight is that we only transfer elements from input to output when nece
     - If empty, we transfer all elements from input to output (which reverses their order)
     - If not empty, we directly use the output stack
 - This transfer naturally reverses the elements, converting LIFO to FIFO behavior
+
+The property that makes this correct is that the queue always equals `reversed(stack_output) + stack_input`, so transferring only when `stack_output` is empty is what stops newly pushed elements from jumping ahead of ones already waiting. The Invariant above states that formally and derives the amortized `O(1)` bound from it.
 
 #### Time and Space Complexity Analysis
 

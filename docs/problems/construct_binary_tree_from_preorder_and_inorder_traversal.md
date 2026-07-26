@@ -265,6 +265,58 @@ class Solution:
         return build(0, len(inorder) - 1)
 ```
 
+#### Invariant
+
+Where the bounds version hands each subtree its own preorder range, this version
+keeps one mutable cursor for the whole build. The property that makes the two
+equivalent is:
+
+$$
+\text{on entry to } \textit{build}(\textit{left},\ \textit{right}):\quad
+\textit{preorder}[\textit{pre\_pos}] = \text{root of that subtree}
+$$
+
+```text
+on entry to build(left, right):  preorder[pre_pos] == root of that subtree
+        (for every non-empty call, that is left <= right)
+```
+
+Here `[left, right]` are the inclusive inorder bounds of the subtree being built,
+and `pre_pos` is the number of nodes created so far.
+
+It holds because preorder lays a subtree out as its root, then the entire left
+subtree, then the entire right subtree:
+
+$$
+\underbrace{\textit{root}}_{1 \text{ value}}\ \
+\underbrace{\cdots}_{\textit{left\_size} \text{ values}}\ \
+\underbrace{\cdots}_{\text{the rest}}
+$$
+
+```text
+preorder for one subtree:  root     then  left subtree      then  right subtree
+                           1 value        left_size values        the rest
+```
+
+So the cursor must consume exactly one value for the root and then be advanced
+past precisely the left subtree before the right subtree's root is read. The code
+does the first with `self.pre_pos += 1` and the second by *finishing*
+`build(left, mid - 1)` before starting `build(mid + 1, right)`. By induction that
+left call creates one node per value it consumes and returns with the cursor on
+the next unconsumed value, which is exactly the right subtree's root.
+
+Nothing verifies this at runtime. Swap the order of the two recursive calls so the
+right subtree is built first, and the right subtree reads its root from a position
+belonging to the left, so the cursor and the bounds stop agreeing about which
+subtree is being built. On the problem's own Example 1 that desynchronization
+compounds until the recursion walks off the end of `preorder` and raises
+`IndexError`. The outcome is strictly binary: the swap raises on every input
+containing a node with two children, and is a harmless no-op on every input
+without one, since there one of the two calls is empty and their order cannot
+matter. The inorder bounds constrain only the *shape* of
+each subtree; the cursor order is the sole thing pinning *which value* lands at
+each position.
+
 #### Approach
 
 The bounds approach still threads four indices through every call. We can shrink
@@ -283,7 +335,9 @@ right-subtree node.
 
 Building the left subtree fully before the right subtree is essential: it keeps
 the preorder pointer synchronized, since preorder lays out the entire left subtree
-before any right-subtree node.
+before any right-subtree node. The Invariant above states that formally: on entry
+to every call, `preorder[pre_pos]` is that subtree's root, which only stays true
+if the left subtree is fully consumed before the right one begins.
 
 #### Time and Space Complexity Analysis
 

@@ -195,6 +195,11 @@ dp[i-1][j] + dp[i][j-1], & i, j \ge 1
 \end{cases}
 $$
 
+```text
+dp[i][j] = 1                            for i == 0 or j == 0
+dp[i][j] = dp[i - 1][j] + dp[i][j - 1]  for i >= 1 and j >= 1
+```
+
 The first row and first column are `1` because there is a single monotone path
 along an edge. The answer is \(dp[m-1][n-1]\).
 
@@ -287,15 +292,26 @@ $$
 = \frac{(m+n-2)!}{(m-1)!\,(n-1)!}
 $$
 
+```text
+paths(m, n) = (m + n - 2) choose (m - 1)
+            = (m + n - 2) choose (n - 1)
+            = (m + n - 2)! / ((m - 1)! * (n - 1)!)
+```
+
 The two binomials are equal by the symmetry \(\binom{a}{b} = \binom{a}{a-b}\),
 which is what lets the loop iterate over the smaller of \(m-1\) and \(n-1\).
-Building the coefficient one factor at a time as
+The coefficient can be built one factor at a time:
 
 $$
 \binom{a}{k} = \prod_{i=0}^{k-1} \frac{a - i}{i + 1}
 $$
 
-keeps every partial result an exact integer, because the product of any \(i+1\)
+```text
+(a choose k) = product over i = 0 .. k - 1 of (a - i) / (i + 1)
+               (empty product is 1, so (a choose 0) = 1)
+```
+
+Building it that way keeps every partial result an exact integer, because the product of any \(i+1\)
 consecutive integers is divisible by \((i+1)!\). That is why the code can use
 floor division inside the loop without ever losing a remainder.
 

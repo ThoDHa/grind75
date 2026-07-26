@@ -156,7 +156,7 @@ class Solution:
         return trapped
 ```
 
-#### Recurrence
+#### Formula
 
 Water above a single bar is decided locally, by the tallest wall on each side:
 
@@ -166,21 +166,47 @@ L[i] = \max_{0 \le k \le i} \text{height}[k],
 R[i] = \max_{i \le k < n} \text{height}[k]
 $$
 
+```text
+left_max[i]  = max(height[0 .. i])
+right_max[i] = max(height[i .. n - 1])
+```
+
 $$
 \text{water}[i] = \max\bigl(0,\ \min(L[i], R[i]) - \text{height}[i]\bigr),
 \qquad
 \text{total} = \sum_{i=0}^{n-1} \text{water}[i]
 $$
 
+```text
+water[i] = max(0, min(left_max[i], right_max[i]) - height[i])
+trapped  = sum over i = 0 .. n - 1 of water[i]
+```
+
 The \(\min\) is the water level: a column can only hold up to its shorter wall,
 since anything above that spills over the lower side. Both prefix maxima satisfy
 one-step recurrences, which is what makes the precomputation linear:
 
 $$
-L[i] = \max\bigl(L[i-1],\ \text{height}[i]\bigr),
+L[0] = \text{height}[0],
 \qquad
-R[i] = \max\bigl(R[i+1],\ \text{height}[i]\bigr)
+L[i] = \max\bigl(L[i-1],\ \text{height}[i]\bigr) \quad (1 \le i < n)
 $$
+
+```text
+left_max[0] = height[0]
+left_max[i] = max(left_max[i - 1], height[i])   for 1 <= i < n
+```
+
+$$
+R[n-1] = \text{height}[n-1],
+\qquad
+R[i] = \max\bigl(R[i+1],\ \text{height}[i]\bigr) \quad (0 \le i \le n-2)
+$$
+
+```text
+right_max[n - 1] = height[n - 1]
+right_max[i] = max(right_max[i + 1], height[i])   for 0 <= i <= n - 2
+```
 
 The outer \(\max(0, \cdot)\) is redundant here — \(\min(L[i], R[i]) \ge
 \text{height}[i]\) always holds, because `height[i]` is itself a candidate in

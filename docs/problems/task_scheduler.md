@@ -217,6 +217,11 @@ $$
 \text{answer} = \max\Bigl(\ \underbrace{|\text{tasks}|}_{\text{no idling}},\ \ \underbrace{(f_{\max} - 1)(n + 1) + c}_{\text{cooldown frame}}\ \Bigr)
 $$
 
+```text
+frame  = (max_freq - 1) * (n + 1) + max_count
+answer = max(len(tasks), frame)
+```
+
 Both terms are lower bounds, and the larger one is always achievable, which is
 what makes taking their maximum exact rather than merely a bound. The frame term
 counts the schedule forced by the busiest task: its \(f_{\max}\) copies create

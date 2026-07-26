@@ -205,6 +205,47 @@ class Solution:
         return left if left else right
 ```
 
+#### Invariant
+
+The recursion has no separate "not found" signal: every call returns a node (or
+`None`), and what that node means is fixed by a contract each call honors. For
+the subtree rooted at `root`:
+
+$$
+f(\textit{root}) =
+\begin{cases}
+\mathrm{LCA}(p, q), & \text{both } p \text{ and } q \text{ lie in the subtree} \\[4pt]
+p \text{ or } q, & \text{exactly one of them lies in the subtree} \\[4pt]
+\texttt{None}, & \text{neither lies in the subtree}
+\end{cases}
+$$
+
+```text
+lowestCommonAncestor(root, p, q) =
+    LCA(p, q)   if both p and q lie in the subtree rooted at root
+    p or q      if exactly one of them lies in the subtree rooted at root
+    None        if neither lies in the subtree rooted at root
+```
+
+Every branch honors it. An empty subtree contains neither target, so `None` is
+correct. When `root is p` (or `q`), the subtree holds at least that target and
+`root` is the highest node in it, which satisfies both of the first two cases at
+once: if the other target lies below, `root` is their LCA, and if it does not,
+`root` is the single target contained. Either way the answer is `root`, which is
+why the early return is sound without ever looking below it.
+
+The composition step reads straight off the contract on the children. If `left`
+and `right` are both non-`None`, each side holds exactly one target, so `root` is
+the deepest node with both beneath it. If exactly one is non-`None`, whatever
+that side reported is already the correct answer for the larger subtree, hence
+`return left if left else right` rather than any further inspection.
+
+Soundness also leans on the problem's guarantee that both targets exist in the
+tree. Without it a lone returned node is ambiguous: `p` bubbling all the way to
+the root would be reported as the LCA of a pair that has none. Given the
+guarantee, the middle case is only ever a waypoint, and the top-level call falls
+in the first case, so it returns the LCA.
+
 #### Approach
 
 The lowest common ancestor is the deepest node from which `p` and `q` are
@@ -225,7 +266,9 @@ reports back the relevant node it found, and the first node that hears back from
 
 Correctness follows from the post-order order: a node only declares itself the
 LCA once both descendants have reported, guaranteeing we return the deepest such
-node.
+node. The Invariant above states the call contract this rests on: each call
+returns the LCA when both targets lie in its subtree, otherwise whichever single
+target it contains, otherwise `None`.
 
 #### Time and Space Complexity Analysis
 

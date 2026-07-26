@@ -81,11 +81,21 @@ $$
 = \prod_{i=1}^{n} L(d_i)
 $$
 
+```text
+answer = digit_to_letters[digits[0]] x digit_to_letters[digits[1]]
+         x ... x digit_to_letters[digits[n - 1]]
+       = cartesian product over i in 0..n-1 of digit_to_letters[digits[i]]
+```
+
 where \(L(d)\) is the letter set for digit `d`. Its size multiplies:
 
 $$
 \bigl|\text{answer}\bigr| = \prod_{i=1}^{n} \bigl|L(d_i)\bigr|
 $$
+
+```text
+len(answer) = product over i in 0..n-1 of len(digit_to_letters[digits[i]])
+```
 
 Since each digit maps to 3 or 4 letters, the count sits between \(3^n\) and
 \(4^n\) — exponential, which is why \(O(4^n \cdot n)\) is the honest bound: one
@@ -97,6 +107,12 @@ Cartesian product can be built one factor at a time:
 $$
 \prod_{i=1}^{k} L(d_i) = \left( \prod_{i=1}^{k-1} L(d_i) \right) \times L(d_k)
 $$
+
+```text
+combinations(k) = combinations(k - 1) x digit_to_letters[digits[k - 1]]
+combinations(0) = [""]
+                  (combinations(k) is the value of combinations after k passes)
+```
 
 The seed `[""]` is the identity for that operation — the product of zero sets is
 the single empty tuple, not the empty set. Starting from `[]` instead would

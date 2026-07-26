@@ -220,27 +220,60 @@ $$
 \text{nums}[i] = \text{sorted}\bigl[(i + r) \bmod n\bigr]
 $$
 
+```text
+nums[i] = sorted[(i + r) mod n]   for 0 <= i < n
+          where r is the rotation amount and n = len(nums)
+```
+
 so the array is two ascending runs laid end to end, with a single descending
 step at the pivot. Any split point `mid` therefore leaves the pivot in at most
-one of the two halves — which gives the property the search rests on:
+one of the two halves. That gives the property the search rests on:
 
 $$
 \text{at least one of } [\textit{left},\ \textit{mid}] \text{ and } [\textit{mid},\ \textit{right}] \text{ is fully sorted}
 $$
 
+```text
+at least one of nums[left .. mid] and nums[mid .. right] is fully sorted
+```
+
 The test `nums[left] <= nums[mid]` identifies which. It holds exactly when the
 left half contains no pivot, so that half is ascending and its contents are
-bounded by its endpoints. Membership in a sorted range is then a two-sided
-comparison:
+bounded by its endpoints. For a target known to sit somewhere in the current
+window, membership in that sorted range is then a two-sided comparison:
 
 $$
-\textit{target} \in [\textit{left},\ \textit{mid}) \iff \text{nums}[\textit{left}] \le \textit{target} < \text{nums}[\textit{mid}]
+\text{if } \text{nums}[\textit{left}] \le \text{nums}[\textit{mid}]
+\text{ and } \textit{target} \in \text{nums}[\,\textit{left} .. \textit{right}\,], \text{ then }
+\bigl(\text{its index lies in } [\,\textit{left},\ \textit{mid}\,)
+\iff \text{nums}[\textit{left}] \le \textit{target} < \text{nums}[\textit{mid}]\bigr)
 $$
 
-Each iteration discards a half only after proving the target cannot be in it —
-by exact bounds when that half is sorted, and by elimination otherwise. The
-loop invariant from plain binary search is preserved unchanged, so the
-\(O(\log n)\) bound carries over.
+```text
+if nums[left] <= nums[mid]                  (the left half is sorted)
+   and target is present in nums[left .. right], then
+       target lies in nums[left .. mid - 1]  <=>  nums[left] <= target < nums[mid]
+```
+
+Both hypotheses are load-bearing. Without presence, the right-hand side can be
+satisfied by a value that is absent from the array: in `[1, 3, 5]` with
+`left = 0` and `mid = 2`, the comparison `1 <= 2 < 5` passes, yet `2` occurs
+nowhere in `nums[0 .. 1]`. Without sortedness the failure runs the other way, since
+the endpoints no longer bound the half: in `[4, 5, 1, 2, 3]` with `left = 0`,
+`mid = 2` and `right = 4`, the target `5` does sit in `nums[0 .. 1]`, yet
+`4 <= 5 < 1` is false. Two facts license the equivalence once both hold. The loop
+invariant carried over from plain binary search guarantees that a target present
+in `nums` is present in the current window, and the values are distinct, so a
+target inside the sorted half's value range cannot also lie in the other half
+(every element of the unsorted half is either above `nums[mid]` or below
+`nums[left]`).
+
+Each iteration discards a half only after proving the target cannot be in it: by
+exact bounds when that half is sorted, and by elimination otherwise. Both
+directions do work. The forward direction discards the sorted half when the
+comparison fails, and the reverse direction, the one needing presence,
+discards the other half when it holds. The loop invariant is preserved
+unchanged, so the \(O(\log n)\) bound carries over.
 
 The non-strict `<=` in the sortedness test matters at `left == mid`, which
 happens whenever the window narrows to one or two elements. Using `<` there

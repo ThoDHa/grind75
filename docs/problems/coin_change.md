@@ -239,6 +239,12 @@ dp[i] =
 \end{cases}
 $$
 
+```text
+dp[0] = 0
+dp[i] = min(dp[i - c] + 1) over coins c <= i,  for i > 0
+        (min over an empty set is infinity: no coin fits)
+```
+
 The minimum over an empty set is \(\infty\): when no coin fits, amount `i` is
 unreachable. The code stands in the sentinel `amount + 1` for that infinity,
 which is larger than any achievable answer but small enough not to overflow.

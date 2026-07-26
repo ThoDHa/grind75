@@ -227,11 +227,20 @@ $$
 (x \wedge y) \ll 1 \quad=\quad \text{the carries, shifted into their next position}
 $$
 
+```text
+sum_without_carry = x ^ y            the sum at each bit, carries ignored
+carry             = (x & y) << 1     the carries, shifted into their next position
+```
+
 Together they preserve the total, which is what makes iterating valid:
 
 $$
 x + y \;=\; (x \oplus y) \;+\; \bigl((x \wedge y) \ll 1\bigr)
 $$
+
+```text
+x + y == (x ^ y) + ((x & y) << 1)
+```
 
 Each pass replaces \((x, y)\) with that right-hand pair, leaving the sum
 unchanged while pushing carries leftward. The process terminates because the

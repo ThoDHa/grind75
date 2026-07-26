@@ -157,6 +157,54 @@ class Solution:
         return validate(root, float("-inf"), float("inf"))
 ```
 
+#### Invariant
+
+Each call carries an open interval and guarantees it for the whole subtree, not
+just for the node at hand:
+
+$$
+\forall\, v \in \text{subtree}(\textit{node}):\quad
+\textit{low} < v < \textit{high}
+$$
+
+```text
+for all v in subtree(node):  low < v < high
+    root call: low = -infinity, high = +infinity
+```
+
+Here `low` is the largest ancestor value the subtree must stay above and `high`
+the smallest it must stay below, so the interval is the intersection of every
+constraint the ancestors impose. The root starts at \((-\infty,\ +\infty)\),
+which constrains nothing.
+
+Both recursive calls preserve it. Descending left, every value below `node` must
+also be smaller than `node.val`, so the upper bound tightens while `low` is
+inherited unchanged; descending right is the mirror image:
+
+$$
+(\textit{low},\ \textit{node.val})
+\quad\text{left},\qquad
+(\textit{node.val},\ \textit{high})
+\quad\text{right}
+$$
+
+```text
+left  child inherits (low,      node.val)
+right child inherits (node.val, high)
+```
+
+Passing the node's own value as the *other* side's bound is what carries a
+constraint past the immediate child: a bound is never dropped on the way down,
+only intersected with tighter ones. The comparison `low < node.val < high` is
+strict, so equal values fail as the definition requires.
+
+This is precisely what defeats the common wrong answer of comparing a node only
+against its two children, which asserts one edge at a time and says nothing about
+a grandchild. Take `[5,1,6,null,null,3,7]`: node `3` is the left child of `6` and
+`3 < 6` passes the child-only test, yet `3` sits in the root's right subtree and
+must exceed `5`. The bounds version reaches that call with `low = 5` inherited
+from the root, so `5 < 3` fails and the tree is correctly rejected.
+
 #### Approach
 
 The naive check, comparing a node only against its immediate children, is wrong: a value can satisfy its parent yet still violate an ancestor higher up. The correct invariant is that every node must fall within a `(low, high)` range determined by all of its ancestors.
@@ -167,7 +215,7 @@ The naive check, comparing a node only against its immediate children, is wrong:
 4. Recurse right, tightening the lower bound to the current node's value: everything in the right subtree must be larger.
 5. An empty subtree is trivially valid.
 
-Passing the bounds downward propagates every ancestor's constraint to the deepest descendants, which is exactly what the BST definition demands.
+Passing the bounds downward propagates every ancestor's constraint to the deepest descendants, which is exactly what the BST definition demands. The Invariant above states that property formally: `low < v < high` holds for every value `v` in the subtree, not merely for the node being checked.
 
 #### Time and Space Complexity Analysis
 

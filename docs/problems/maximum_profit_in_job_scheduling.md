@@ -211,6 +211,11 @@ p(i) = \max\bigl\{\, j < i \ :\ \text{end}_j \le \text{start}_i \,\bigr\},
 \qquad p(i) = 0 \ \text{ if no such job exists}
 $$
 
+```text
+p(i) = max { j < i : ends[j - 1] <= start of job i }   (jobs 1-indexed)
+p(i) = 0   if no such j exists
+```
+
 Let `best[i]` be the maximum profit obtainable from the first `i` jobs. Each job
 is either skipped or taken:
 
@@ -221,6 +226,12 @@ $$
 \max\bigl(\underbrace{\text{best}[i-1]}_{\text{skip}},\ \underbrace{\text{best}[p(i)] + \text{profit}_i}_{\text{take}}\bigr), & i \ge 1
 \end{cases}
 $$
+
+```text
+best[0] = 0
+best[i] = max(best[i - 1], best[p(i)] + gain)   for i >= 1
+              skip         take
+```
 
 Taking job `i` jumps the state all the way back to \(p(i)\), discarding every
 job in between — those overlap job `i` and cannot be combined with it. Sorting

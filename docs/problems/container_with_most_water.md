@@ -77,11 +77,21 @@ $$
 \text{answer} = \max_{0 \le i < j < n} \text{area}(i, j)
 $$
 
-The brute force evaluates this maximum literally, over all
+```text
+area(i, j) = (j - i) * min(height[i], height[j])
+answer     = max area(i, j) over all 0 <= i < j < n
+```
+
+The brute force evaluates this maximum literally, over every pair. The number of
+pairs is
 
 $$
 \binom{n}{2} = \frac{n(n-1)}{2}
 $$
+
+```text
+number of pairs = C(n, 2) = n * (n - 1) / 2
+```
 
 pairs — the source of the \(O(n^2)\) bound. The two-pointer solution below
 discards pairs in bulk instead: moving the taller wall inward can only shrink

@@ -167,14 +167,18 @@ class Solution:
 
 #### Recurrence
 
-Balance is a condition that must hold at *every* node, not just the root:
+Balance is a condition that must hold at *every* node, not just the root, with
+\(h\) the usual height function:
 
 $$
 \text{balanced}(T) = \bigwedge_{v \in T} \Bigl(\ \bigl|\,h(v.\text{left}) - h(v.\text{right})\,\bigr| \le 1 \ \Bigr)
 $$
 
-with the usual height recurrence \(h(v) = 1 + \max(h(v.\text{left}),
-h(v.\text{right}))\) and \(h(\text{null}) = 0\).
+```text
+balanced(T) == abs(h(v.left) - h(v.right)) <= 1  for all nodes v in T
+        where h(null) = 0
+              h(v)    = 1 + max(h(v.left), h(v.right))
+```
 
 Evaluating the \(\bigwedge\) and the \(h\) separately is what makes the top-down
 version \(O(n^2)\): every node recomputes the heights beneath it. This solution
@@ -190,6 +194,13 @@ $$
 1 + \max\bigl(\text{check}(v.\text{left}),\ \text{check}(v.\text{right})\bigr), & \text{otherwise}
 \end{cases}
 $$
+
+```text
+check(null) = 0
+check(v)    = -1, if check(v.left) == -1 or check(v.right) == -1
+check(v)    = -1, if abs(check(v.left) - check(v.right)) > 1
+check(v)    = 1 + max(check(v.left), check(v.right)), otherwise
+```
 
 The sentinel is safe because a genuine height is never negative, so `-1` cannot
 collide with a real answer. Once it appears it propagates straight to the root,

@@ -247,14 +247,23 @@ L(i) = \max\bigl\{\, j < i \ :\ \text{heights}[j] < \text{heights}[i] \,\bigr\},
 R(i) = \min\bigl\{\, j > i \ :\ \text{heights}[j] < \text{heights}[i] \,\bigr\}
 $$
 
-taking \(L(i) = -1\) and \(R(i) = n\) when no such bar exists. The rectangle
-anchored at `i` spans the open interval between them:
+```text
+L(i) = greatest index j < i with heights[j] < heights[i],  or -1 if none
+R(i) = least index j > i with heights[j] < heights[i],     or n if none
+```
+
+The rectangle anchored at `i` spans the open interval between them:
 
 $$
 \text{area}(i) = \text{heights}[i] \cdot \bigl(R(i) - L(i) - 1\bigr),
 \qquad
 \text{answer} = \max_{0 \le i < n} \text{area}(i)
 $$
+
+```text
+area(i)  = heights[i] * (R(i) - L(i) - 1)
+max_area = max area(i) over all 0 <= i < n
+```
 
 The \(-1\) excludes both boundary bars, which are strictly shorter and therefore
 not part of the rectangle. \(L\) and \(R\) are the previous and next *smaller*
