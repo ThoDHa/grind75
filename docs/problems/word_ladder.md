@@ -4,7 +4,7 @@
 
 **Pattern:** [Shortest Path](../patterns/shortest_path/intuition.md)
 
-**Algorithm:** [Breadth-first search](https://en.wikipedia.org/wiki/Breadth-first_search) · [Depth-first search](https://en.wikipedia.org/wiki/Depth-first_search)
+**Algorithm:** [Breadth-first search](https://en.wikipedia.org/wiki/Breadth-first_search) · [Depth-first search](https://en.wikipedia.org/wiki/Depth-first_search) · [Bidirectional search](https://en.wikipedia.org/wiki/Bidirectional_search)
 
 **Practice:** [`practice/word_ladder/solution.py`](../../practice/word_ladder/solution.py)
 
@@ -405,7 +405,7 @@ class Solution:
 
 #### Approach
 
-[Bidirectional BFS](https://en.wikipedia.org/wiki/Breadth-first_search) searches inward from both ends at once:
+[Bidirectional BFS](https://en.wikipedia.org/wiki/Bidirectional_search) searches inward from both ends at once:
 
 1. Maintain a `front` set starting at `beginWord` and a `back` set starting at `endWord`, plus a shared `visited` set.
 2. On each iteration, expand whichever frontier is smaller so the branching factor stays low.

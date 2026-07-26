@@ -236,6 +236,32 @@ class Solution:
         return max_area
 ```
 
+#### Formula
+
+Every maximal rectangle is capped by some bar's full height, so it is enough to
+ask, for each bar, how far it can extend before hitting something shorter:
+
+$$
+L(i) = \max\bigl\{\, j < i \ :\ \text{heights}[j] < \text{heights}[i] \,\bigr\},
+\qquad
+R(i) = \min\bigl\{\, j > i \ :\ \text{heights}[j] < \text{heights}[i] \,\bigr\}
+$$
+
+taking \(L(i) = -1\) and \(R(i) = n\) when no such bar exists. The rectangle
+anchored at `i` spans the open interval between them:
+
+$$
+\text{area}(i) = \text{heights}[i] \cdot \bigl(R(i) - L(i) - 1\bigr),
+\qquad
+\text{answer} = \max_{0 \le i < n} \text{area}(i)
+$$
+
+The \(-1\) excludes both boundary bars, which are strictly shorter and therefore
+not part of the rectangle. \(L\) and \(R\) are the previous and next *smaller*
+elements — the canonical monotonic-stack query. The stack resolves both at once:
+a bar is popped exactly when the current index becomes its \(R\), and whatever
+sits beneath it on the stack is its \(L\).
+
 #### Approach
 
 This solution uses a **[monotonic stack](https://www.geeksforgeeks.org/introduction-to-monotonic-stack-data-structure-and-algorithm/)** of indices kept in increasing height order. For each bar we need the first shorter bar to its left and right; those define how wide a rectangle of that bar's height can be. The stack resolves both boundaries in a single pass.

@@ -74,6 +74,39 @@ class Solution:
         return merged
 ```
 
+#### Overlap Condition
+
+Interval \(i\) overlaps the new interval \([s, e]\) exactly when:
+
+$$
+\max(a_i, s) \le \min(b_i, e)
+$$
+
+Because the input is sorted by start and never overlaps itself, that single
+condition partitions the list into three contiguous runs — which is precisely
+the three `while` loops:
+
+$$
+\underbrace{b_i < s}_{\text{strictly before}}
+\qquad
+\underbrace{a_i \le e \ \wedge \ b_i \ge s}_{\text{overlapping}}
+\qquad
+\underbrace{a_i > e}_{\text{strictly after}}
+$$
+
+Each loop tests only the one side that can still change, since the previous loop
+has already established the other. The middle run absorbs into a single
+interval:
+
+$$
+\Bigl[\ \min\bigl(s,\ \min_i a_i\bigr),\ \ \max\bigl(e,\ \max_i b_i\bigr)\ \Bigr]
+$$
+
+The runs are contiguous only because the input is disjoint and sorted; that is
+what makes one pass sufficient and why no sort is needed here, unlike in Merge
+Intervals. Both boundary tests use non-strict comparison, so touching intervals
+merge rather than staying separate.
+
 #### Approach
 
 The intervals arrive already sorted by start, so the most direct idea is to walk the list once and handle `newInterval` by hand, splitting the work into the three regions it creates: the intervals before it, the intervals it overlaps, and the intervals after it. Each region gets its own `while` loop.

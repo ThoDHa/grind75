@@ -172,6 +172,37 @@ class Solution:
         return self.diameter
 ```
 
+#### Recurrence
+
+As in Binary Tree Maximum Path Sum, two quantities travel together. The height
+of a subtree, in edges:
+
+$$
+h(v) =
+\begin{cases}
+0, & v = \text{null} \\[4pt]
+1 + \max\bigl(h(v.\text{left}),\ h(v.\text{right})\bigr), & \text{otherwise}
+\end{cases}
+$$
+
+The longest path that *bends* at `v` joins the deepest reach on each side:
+
+$$
+\text{bend}(v) = h(v.\text{left}) + h(v.\text{right})
+$$
+
+Every path has exactly one highest node, so maximizing over all of them gives
+the diameter:
+
+$$
+\text{answer} = \max_{v \in T} \text{bend}(v)
+$$
+
+Only \(h\) is returned upward — \(\text{bend}(v)\) already spends both children
+and cannot be extended through `v`'s parent. Computing the two in one pass is
+what separates this from the brute force, which recomputes \(h\) at every node
+and pays \(O(n^2)\) for it.
+
 #### Approach
 
 The diameter is the number of edges on the longest path between any two nodes,

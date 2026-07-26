@@ -195,6 +195,34 @@ class Solution:
         return dist
 ```
 
+#### Recurrence
+
+The quantity being computed is a distance transform under the
+[taxicab metric](https://en.wikipedia.org/wiki/Taxicab_geometry):
+
+$$
+\text{dist}[i][j] = \min_{\substack{(a,b) \\ \text{mat}[a][b] = 0}}
+\bigl(|i - a| + |j - b|\bigr)
+$$
+
+Stated that way it looks quadratic, but the shortest route to a `0` steps
+through a neighbor whose own distance is one smaller, which gives a local rule:
+
+$$
+\text{dist}[i][j] =
+\begin{cases}
+0, & \text{mat}[i][j] = 0 \\[4pt]
+1 + \displaystyle\min_{(a,b)\,\in\,N(i,j)} \text{dist}[a][b], & \text{otherwise}
+\end{cases}
+$$
+
+where \(N(i,j)\) is the four-neighborhood. This is circular as written — each
+cell depends on all four neighbors, including ones not yet computed — so it
+cannot be evaluated in a single sweep. Splitting the neighborhood by direction
+breaks the cycle: the forward pass resolves the up and left dependencies, and
+the backward pass the down and right ones. Every shortest path is monotone in
+each axis, so one pass in each direction suffices.
+
 #### Approach
 
 The nearest `0` reaches a cell from one of four directions, so its distance can be

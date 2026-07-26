@@ -64,6 +64,29 @@ class Solution:
         return max_area
 ```
 
+#### Formula
+
+A container is chosen by picking two lines \(i < j\). Its water is bounded by
+the shorter wall, so the objective is:
+
+$$
+\text{area}(i, j) = (j - i) \cdot \min\bigl(\text{height}[i],\ \text{height}[j]\bigr)
+$$
+
+$$
+\text{answer} = \max_{0 \le i < j < n} \text{area}(i, j)
+$$
+
+The brute force evaluates this maximum literally, over all
+
+$$
+\binom{n}{2} = \frac{n(n-1)}{2}
+$$
+
+pairs — the source of the \(O(n^2)\) bound. The two-pointer solution below
+discards pairs in bulk instead: moving the taller wall inward can only shrink
+both factors at once, so no pair it skips can beat the one just measured.
+
 #### Approach
 
 The most direct way to solve this is to consider every possible pair of lines as

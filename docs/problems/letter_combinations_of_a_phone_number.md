@@ -71,6 +71,37 @@ class Solution:
         return combinations
 ```
 
+#### Formula
+
+The answer is the [Cartesian product](https://en.wikipedia.org/wiki/Cartesian_product)
+of the letter sets, one factor per digit:
+
+$$
+\text{answer} = L(d_1) \times L(d_2) \times \dots \times L(d_n)
+= \prod_{i=1}^{n} L(d_i)
+$$
+
+where \(L(d)\) is the letter set for digit `d`. Its size multiplies:
+
+$$
+\bigl|\text{answer}\bigr| = \prod_{i=1}^{n} \bigl|L(d_i)\bigr|
+$$
+
+Since each digit maps to 3 or 4 letters, the count sits between \(3^n\) and
+\(4^n\) — exponential, which is why \(O(4^n \cdot n)\) is the honest bound: one
+factor for the number of combinations, and \(n\) for assembling each string.
+
+This solution computes the product left to right, using the fact that a
+Cartesian product can be built one factor at a time:
+
+$$
+\prod_{i=1}^{k} L(d_i) = \left( \prod_{i=1}^{k-1} L(d_i) \right) \times L(d_k)
+$$
+
+The seed `[""]` is the identity for that operation — the product of zero sets is
+the single empty tuple, not the empty set. Starting from `[]` instead would
+annihilate everything, since anything crossed with the empty set stays empty.
+
 #### Approach
 
 Build the combinations one digit at a time. Start with a single empty

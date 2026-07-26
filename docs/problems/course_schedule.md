@@ -4,7 +4,7 @@
 
 **Pattern:** [Graph Traversal](../patterns/graph/intuition.md), [Topological Sort](../patterns/topological_sort/intuition.md)
 
-**Algorithm:** [Depth-first search](https://en.wikipedia.org/wiki/Depth-first_search) · [Breadth-first search](https://en.wikipedia.org/wiki/Breadth-first_search) · [Topological sorting](https://en.wikipedia.org/wiki/Topological_sorting)
+**Algorithm:** [Depth-first search](https://en.wikipedia.org/wiki/Depth-first_search) · [Breadth-first search](https://en.wikipedia.org/wiki/Breadth-first_search) · [Topological sorting](https://en.wikipedia.org/wiki/Topological_sorting) · [Kahn's algorithm](https://en.wikipedia.org/wiki/Topological_sorting#Kahn%27s_algorithm)
 
 **Practice:** [`practice/course_schedule/solution.py`](../../practice/course_schedule/solution.py)
 
@@ -335,9 +335,43 @@ class Solution:
         return completed == numCourses
 ```
 
+#### Termination Condition
+
+The in-degree of a course counts its outstanding prerequisites:
+
+$$
+\deg^{-}(v) = \bigl|\{\, u : (u \to v) \in E \,\}\bigr|
+$$
+
+A course is takeable once that reaches zero. The queue holds exactly the
+currently takeable set, and removing a course decrements the in-degree of
+everything depending on it — peeling the graph one layer at a time.
+
+The correctness rests on a property of finite directed graphs:
+
+$$
+G \text{ is acyclic} \iff \text{every non-empty subgraph of } G \text{ has a vertex with } \deg^{-} = 0
+$$
+
+Forward: a DAG has a topological order, whose first vertex has no incoming
+edges. Backward: if some subgraph had no such vertex, every vertex would have a
+predecessor, and walking backwards through a finite graph must eventually
+revisit a vertex — a cycle.
+
+So the queue empties early precisely when a non-empty set of courses remains in
+which every course still waits on another, which is a cycle. That makes the
+final check a cycle test rather than mere bookkeeping:
+
+$$
+\text{all courses finishable} \iff \textit{completed} = \textit{numCourses}
+$$
+
+Each vertex enters the queue at most once (only on the decrement that brings it
+to zero) and each edge is relaxed exactly once, giving \(O(V + E)\).
+
 #### Approach
 
-Kahn's algorithm performs a [topological sort](https://en.wikipedia.org/wiki/Topological_sorting) with BFS. The key observation is
+[Kahn's algorithm](https://en.wikipedia.org/wiki/Topological_sorting#Kahn%27s_algorithm) performs a [topological sort](https://en.wikipedia.org/wiki/Topological_sorting) with BFS. The key observation is
 that in an acyclic dependency graph there is always at least one course with no
 remaining prerequisites, so we can finish courses one in-degree-zero layer at a
 time.

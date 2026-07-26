@@ -200,6 +200,35 @@ class Solution:
         return best[n]
 ```
 
+#### Recurrence
+
+Sort the jobs so that \(\text{end}_1 \le \text{end}_2 \le \dots \le
+\text{end}_n\), and let \(p(i)\) be the latest job that finishes no later than
+job `i` starts:
+
+$$
+p(i) = \max\bigl\{\, j < i \ :\ \text{end}_j \le \text{start}_i \,\bigr\},
+\qquad p(i) = 0 \ \text{ if no such job exists}
+$$
+
+Let `best[i]` be the maximum profit obtainable from the first `i` jobs. Each job
+is either skipped or taken:
+
+$$
+\text{best}[i] =
+\begin{cases}
+0, & i = 0 \\[4pt]
+\max\bigl(\underbrace{\text{best}[i-1]}_{\text{skip}},\ \underbrace{\text{best}[p(i)] + \text{profit}_i}_{\text{take}}\bigr), & i \ge 1
+\end{cases}
+$$
+
+Taking job `i` jumps the state all the way back to \(p(i)\), discarding every
+job in between — those overlap job `i` and cannot be combined with it. Sorting
+by *end* time is what makes \(p(i)\) well defined and monotone; sorting by start
+time would leave a job's legal predecessors scattered on both sides of it. The
+three solutions differ only in how they evaluate \(p(i)\): a backward scan here
+(\(O(n)\) per job), binary search in the two that follow (\(O(\log n)\)).
+
 #### Approach
 
 This is the weighted [interval scheduling](https://en.wikipedia.org/wiki/Interval_scheduling) problem. Sorting jobs by end time gives a

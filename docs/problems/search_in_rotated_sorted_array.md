@@ -212,6 +212,41 @@ class Solution:
         return -1
 ```
 
+#### Invariant
+
+A rotation by \(r\) of a sorted array means:
+
+$$
+\text{nums}[i] = \text{sorted}\bigl[(i + r) \bmod n\bigr]
+$$
+
+so the array is two ascending runs laid end to end, with a single descending
+step at the pivot. Any split point `mid` therefore leaves the pivot in at most
+one of the two halves — which gives the property the search rests on:
+
+$$
+\text{at least one of } [\textit{left},\ \textit{mid}] \text{ and } [\textit{mid},\ \textit{right}] \text{ is fully sorted}
+$$
+
+The test `nums[left] <= nums[mid]` identifies which. It holds exactly when the
+left half contains no pivot, so that half is ascending and its contents are
+bounded by its endpoints. Membership in a sorted range is then a two-sided
+comparison:
+
+$$
+\textit{target} \in [\textit{left},\ \textit{mid}) \iff \text{nums}[\textit{left}] \le \textit{target} < \text{nums}[\textit{mid}]
+$$
+
+Each iteration discards a half only after proving the target cannot be in it —
+by exact bounds when that half is sorted, and by elimination otherwise. The
+loop invariant from plain binary search is preserved unchanged, so the
+\(O(\log n)\) bound carries over.
+
+The non-strict `<=` in the sortedness test matters at `left == mid`, which
+happens whenever the window narrows to one or two elements. Using `<` there
+would misclassify a single-element half as unsorted and send the search down the
+wrong branch.
+
 #### Approach
 
 This solution handles the rotation inside a single [binary search](https://en.wikipedia.org/wiki/Binary_search_algorithm). The key observation is that for any `mid`, at least one of the two halves `[left, mid]` and `[mid, right]` is fully sorted:

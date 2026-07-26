@@ -156,6 +156,36 @@ class Solution:
         return trapped
 ```
 
+#### Recurrence
+
+Water above a single bar is decided locally, by the tallest wall on each side:
+
+$$
+L[i] = \max_{0 \le k \le i} \text{height}[k],
+\qquad
+R[i] = \max_{i \le k < n} \text{height}[k]
+$$
+
+$$
+\text{water}[i] = \max\bigl(0,\ \min(L[i], R[i]) - \text{height}[i]\bigr),
+\qquad
+\text{total} = \sum_{i=0}^{n-1} \text{water}[i]
+$$
+
+The \(\min\) is the water level: a column can only hold up to its shorter wall,
+since anything above that spills over the lower side. Both prefix maxima satisfy
+one-step recurrences, which is what makes the precomputation linear:
+
+$$
+L[i] = \max\bigl(L[i-1],\ \text{height}[i]\bigr),
+\qquad
+R[i] = \max\bigl(R[i+1],\ \text{height}[i]\bigr)
+$$
+
+The outer \(\max(0, \cdot)\) is redundant here — \(\min(L[i], R[i]) \ge
+\text{height}[i]\) always holds, because `height[i]` is itself a candidate in
+both maxima — which is why the code adds the difference unguarded.
+
 #### Approach
 
 This is the [dynamic programming](https://en.wikipedia.org/wiki/Dynamic_programming) formulation: `left_max` and `right_max` are DP tables

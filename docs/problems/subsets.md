@@ -235,6 +235,36 @@ class Solution:
         return result
 ```
 
+#### Formula
+
+The [power set](https://en.wikipedia.org/wiki/Power_set) of an `n`-element set
+has
+
+$$
+|\mathcal{P}(S)| = 2^{n}
+$$
+
+members, since each element is independently in or out — \(n\) binary choices,
+multiplying to \(2^n\). This solution makes that counting argument literal by
+building a bijection between subsets and the integers below \(2^n\):
+
+$$
+\text{mask} \ \longleftrightarrow \ \bigl\{\, \text{nums}[i] \ :\ \text{bit } i \text{ of mask is } 1 \,\bigr\}
+$$
+
+Iterating `mask` from \(0\) to \(2^n - 1\) therefore enumerates every subset
+exactly once, with no recursion and no bookkeeping to avoid duplicates.
+
+The total output size is also worth stating, because it bounds every solution on
+this page — each element appears in exactly half of the subsets:
+
+$$
+\sum_{k=0}^{n} k\binom{n}{k} = n \cdot 2^{\,n-1}
+$$
+
+So even writing the answer down costs \(\Theta(n 2^n)\), and no approach can be
+asymptotically faster.
+
 #### Approach
 
 This elegant approach uses bit manipulation to represent all possible subset combinations. Each number from 0 to 2^n - 1 represents a unique subset when interpreted as a bitmask:

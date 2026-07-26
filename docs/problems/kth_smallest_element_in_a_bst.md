@@ -4,7 +4,7 @@
 
 **Pattern:** [Tree Traversal](../patterns/tree/intuition.md)
 
-**Algorithm:** [Tree traversal](https://en.wikipedia.org/wiki/Tree_traversal) · [Binary search tree](https://en.wikipedia.org/wiki/Binary_search_tree)
+**Algorithm:** [Tree traversal](https://en.wikipedia.org/wiki/Tree_traversal) · [Binary search tree](https://en.wikipedia.org/wiki/Binary_search_tree) · [Morris traversal](https://en.wikipedia.org/wiki/Tree_traversal#Morris_in-order_traversal_using_threading) · [Threaded binary tree](https://en.wikipedia.org/wiki/Threaded_binary_tree)
 
 **Practice:** [`practice/kth_smallest_element_in_a_bst/solution.py`](../../practice/kth_smallest_element_in_a_bst/solution.py)
 
@@ -236,7 +236,7 @@ class Solution:
 
 #### Approach
 
-This solution uses Morris traversal to perform an [in-order walk](https://en.wikipedia.org/wiki/Tree_traversal) with `O(1)` auxiliary space.
+This solution uses [Morris traversal](https://en.wikipedia.org/wiki/Tree_traversal#Morris_in-order_traversal_using_threading) to perform an [in-order walk](https://en.wikipedia.org/wiki/Tree_traversal) with `O(1)` auxiliary space.
 
 1. For a node with no left child, visit it (increment the counter) and move right.
 2. For a node with a left child, find its in-order predecessor: the rightmost node of the left subtree.

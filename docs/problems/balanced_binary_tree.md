@@ -165,6 +165,36 @@ class Solution:
         return check(root) != -1
 ```
 
+#### Recurrence
+
+Balance is a condition that must hold at *every* node, not just the root:
+
+$$
+\text{balanced}(T) = \bigwedge_{v \in T} \Bigl(\ \bigl|\,h(v.\text{left}) - h(v.\text{right})\,\bigr| \le 1 \ \Bigr)
+$$
+
+with the usual height recurrence \(h(v) = 1 + \max(h(v.\text{left}),
+h(v.\text{right}))\) and \(h(\text{null}) = 0\).
+
+Evaluating the \(\bigwedge\) and the \(h\) separately is what makes the top-down
+version \(O(n^2)\): every node recomputes the heights beneath it. This solution
+fuses them by overloading the return value — `check` yields a real height when
+the subtree is balanced and the sentinel `-1` when it is not:
+
+$$
+\text{check}(v) =
+\begin{cases}
+0, & v = \text{null} \\[4pt]
+-1, & \text{check}(v.\text{left}) = -1 \ \vee \ \text{check}(v.\text{right}) = -1 \\[4pt]
+-1, & \bigl|\,\text{check}(v.\text{left}) - \text{check}(v.\text{right})\,\bigr| > 1 \\[4pt]
+1 + \max\bigl(\text{check}(v.\text{left}),\ \text{check}(v.\text{right})\bigr), & \text{otherwise}
+\end{cases}
+$$
+
+The sentinel is safe because a genuine height is never negative, so `-1` cannot
+collide with a real answer. Once it appears it propagates straight to the root,
+which is the short-circuit that makes \(\bigwedge\) cost a single pass.
+
 #### Approach
 
 The top-down version is slow because it recomputes heights. The fix is to fold

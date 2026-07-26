@@ -191,6 +191,37 @@ class Solution:
         return self.max_sum
 ```
 
+#### Recurrence
+
+Two different quantities are in play, and separating them is the whole trick.
+Let \(g(v)\) be the best sum of a path that starts at `v` and only descends —
+the value `max_gain` returns:
+
+$$
+g(v) = v.\text{val} + \max\bigl(0,\ g(v.\text{left}),\ g(v.\text{right})\bigr),
+\qquad g(\text{null}) = 0
+$$
+
+Let \(b(v)\) be the best path whose highest point is `v`, which may bend into
+both subtrees:
+
+$$
+b(v) = v.\text{val} + \max\bigl(0, g(v.\text{left})\bigr) + \max\bigl(0, g(v.\text{right})\bigr)
+$$
+
+The answer maximizes \(b\) over every node, since any path has exactly one
+highest point:
+
+$$
+\text{answer} = \max_{v \in T} b(v)
+$$
+
+The clamp at \(0\) encodes "a negative branch is better skipped than taken."
+\(b(v)\) cannot be returned upward — a bent path already uses both children, so
+extending it through the parent would revisit `v` and no longer be a path. That
+asymmetry is why the recursion returns \(g\) while \(b\) accumulates into a
+separate running maximum.
+
 #### Approach
 
 A maximum path can take two shapes at any node: it can **bend** through the node,

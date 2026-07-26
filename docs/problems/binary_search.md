@@ -125,6 +125,44 @@ class Solution:
         return -1
 ```
 
+#### Invariant and Bound
+
+The loop keeps one property true at all times:
+
+$$
+\text{if } \textit{target} \in \textit{nums}, \text{ then its index lies in } [\,\textit{left},\ \textit{right}\,]
+$$
+
+Every branch preserves it. Sortedness means `nums[mid] < target` rules out
+everything at or left of `mid`, so `left = mid + 1` discards only indices that
+provably cannot hold the answer — and symmetrically on the other side. When
+`left > right` the interval is empty, so the invariant says the target was never
+present, which is what justifies returning `-1` rather than searching further.
+
+The interval halves each pass, so after \(k\) iterations at most \(n/2^{k}\)
+candidates remain. The loop ends once that drops below one:
+
+$$
+\frac{n}{2^{k}} < 1
+\qquad\Longleftrightarrow\qquad
+k > \log_2 n
+$$
+
+giving \(O(\log n)\) — roughly 20 steps for a million elements, and 30 for a
+billion.
+
+Computing the midpoint as `left + (right - left) // 2` rather than
+`(left + right) // 2` is deliberate. The two are equal in exact arithmetic:
+
+$$
+\textit{left} + \frac{\textit{right} - \textit{left}}{2} = \frac{\textit{left} + \textit{right}}{2}
+$$
+
+but in a fixed-width integer type the second form can overflow when `left` and
+`right` are both large, while the first never exceeds `right`. Python's integers
+are arbitrary-precision so it cannot overflow here, but the habit carries to
+languages where it can.
+
 #### Approach
 
 The array is sorted, so [binary search](https://en.wikipedia.org/wiki/Binary_search_algorithm) applies: a single comparison against the middle element reveals which half of the remaining range can still contain the target. Maintaining an inclusive search interval `[left, right]` and repeatedly halving it is the most direct way to express this:

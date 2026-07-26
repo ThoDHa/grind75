@@ -62,6 +62,28 @@ class Solution:
         return result
 ```
 
+#### Formula
+
+Each position consumes one unused number, so the branching factor shrinks by one
+at every depth. The leaf count is the [factorial](https://en.wikipedia.org/wiki/Factorial):
+
+$$
+n \times (n-1) \times \dots \times 1 = n!
+$$
+
+The recursion tree is wider than its leaf count suggests. At depth `k` there is
+one node per ordered arrangement of `k` distinct elements, so the total node
+count is:
+
+$$
+\sum_{k=0}^{n} \frac{n!}{(n-k)!} \ = \ n! \sum_{j=0}^{n} \frac{1}{j!} \ \approx \ e \cdot n!
+$$
+
+The interior nodes only add a constant factor of about \(e \approx 2.718\) over
+the \(n!\) leaves, which is why the bound is quoted as \(O(n! \times n)\): the
+tree's shape contributes nothing asymptotically, and the \(n\) comes from copying
+each finished permutation.
+
 #### Approach
 
 This is the classic [backtracking](https://en.wikipedia.org/wiki/Backtracking) template applied directly: build one permutation element by element, and at each position try every number that has not been placed yet. The recursion follows the choose, explore, unchoose pattern.

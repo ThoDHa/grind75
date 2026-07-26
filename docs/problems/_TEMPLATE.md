@@ -81,6 +81,40 @@ CODE
   - LeetCode style: `class Solution`, type hints, no Python 2 `(object)`. Keep
     code correct and verified against the examples.
 
+FORMULAS
+  - LaTeX renders site-wide (pymdownx.arithmatex + MathJax). Use `$$...$$` for
+    display math and `\(...\)` inline.
+  - Give a formula its own subsection between the code block and `#### Approach`
+    when the solution rests on a stated relation. Name the block for what it
+    holds: `#### Recurrence` for a DP transition, `#### Closed Form` for a
+    direct expression (Binet, a binomial coefficient, the Task Scheduler
+    frame), `#### Formula` for a defining equation the code evaluates, and
+    `#### Invariant` when correctness rests on a property the loop preserves
+    rather than on a formula. A more specific name is fine when it is more
+    honest about the content: `#### Overlap Condition`, `#### Termination
+    Condition`, `#### Invariant and Bound`.
+  - An invariant block should say what the property is, why each branch
+    preserves it, and what it implies at loop exit. The payoff is explaining a
+    line of code that otherwise looks arbitrary — why Dutch National Flag does
+    not advance `current` after a right swap, why the majority vote may adopt
+    any value at `count == 0`, why sorting by start collapses a two-sided
+    overlap test into a one-sided one.
+  - One such block per file, on the solution where the relation is clearest
+    (usually the bottom-up DP). Do NOT repeat it on every solution that shares
+    the recurrence; later solutions refer back to it in prose. A genuinely
+    different formulation of the same problem (a matrix power, a closed form)
+    earns its own block on its own solution.
+  - Keep the plain-text `inline code` version in the Approach prose. The
+    typeset block is the formal statement; the prose stays readable in the raw
+    file on GitHub, where LaTeX does not render.
+  - State what the symbols mean and what the base case is. A formula with no
+    reading of it is decoration.
+  - Skip it when the relation is a single obvious assignment. Not every
+    solution needs one.
+  - Literal dollar signs in prose must be escaped as `\$`, or arithmatex will
+    parse the text between two of them as inline math. Inside backticks or
+    fenced code they are already safe.
+
 ==============================================================================
 CHOOSE ONE LAYOUT:
 
@@ -104,6 +138,27 @@ class Solution:
         # implementation
         ...
 ```
+
+#### Recurrence
+
+<!--
+Optional. See the FORMULAS conventions above. Name the block `#### Recurrence`,
+`#### Closed Form`, or `#### Formula` to match what it states, and delete it
+when the solution has no relation worth writing down.
+-->
+
+Let `dp[i]` be <what the state means>:
+
+$$
+dp[i] =
+\begin{cases}
+<base case>, & i = 0 \\[4pt]
+<transition>, & i > 0
+\end{cases}
+$$
+
+One or two sentences reading the formula back: what the base case encodes, why
+the bounds are what they are, and where the answer is read from.
 
 #### Approach
 

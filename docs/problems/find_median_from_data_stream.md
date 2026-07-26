@@ -198,6 +198,45 @@ class MedianFinder:
 # param_2 = obj.findMedian()
 ```
 
+#### Formula
+
+For a sorted sequence \(x_1 \le x_2 \le \dots \le x_n\), the
+[median](https://en.wikipedia.org/wiki/Median) is defined by cases on parity:
+
+$$
+\text{median} =
+\begin{cases}
+x_{\frac{n+1}{2}}, & n \text{ odd} \\[6pt]
+\dfrac{x_{\frac{n}{2}} + x_{\frac{n}{2}+1}}{2}, & n \text{ even}
+\end{cases}
+$$
+
+Only the one or two middle values matter — the rest of the order is irrelevant.
+That is what the two heaps exploit. They maintain the partition
+
+$$
+\max(\textit{lower}) \ \le \ \min(\textit{upper}),
+\qquad
+0 \ \le \ |\textit{lower}| - |\textit{upper}| \ \le \ 1
+$$
+
+so `lower` holds \(\lceil n/2 \rceil\) elements and `upper` the rest. Under that
+invariant the two definitions above read directly off the heap tops, with no
+sorting and no indexing:
+
+$$
+\text{median} =
+\begin{cases}
+\max(\textit{lower}), & |\textit{lower}| > |\textit{upper}| \\[6pt]
+\dfrac{\max(\textit{lower}) + \min(\textit{upper})}{2}, & |\textit{lower}| = |\textit{upper}|
+\end{cases}
+$$
+
+The push-then-funnel in `addNum` is what enforces the ordering half of the
+invariant: routing every new number through `lower` before moving its top to
+`upper` guarantees the element that crosses over is the correct boundary value,
+whatever its magnitude.
+
 #### Approach
 
 The median sits at the boundary between the smaller and larger halves of the

@@ -4,7 +4,7 @@
 
 **Pattern:** [DP 1D Linear](../patterns/dp_1d_linear/intuition.md)
 
-**Algorithm:** [Dynamic programming](https://en.wikipedia.org/wiki/Dynamic_programming) · [Memoization](https://en.wikipedia.org/wiki/Memoization)
+**Algorithm:** [Dynamic programming](https://en.wikipedia.org/wiki/Dynamic_programming) · [Memoization](https://en.wikipedia.org/wiki/Memoization) · [Fibonacci sequence](https://en.wikipedia.org/wiki/Fibonacci_sequence) · [Exponentiation by squaring](https://en.wikipedia.org/wiki/Exponentiation_by_squaring) · [Binet's formula](https://en.wikipedia.org/wiki/Fibonacci_sequence#Closed-form_expression)
 
 **Practice:** [`practice/climbing_stairs/solution.py`](../../practice/climbing_stairs/solution.py)
 
@@ -178,6 +178,23 @@ class Solution:
         return dp[n]
 ```
 
+#### Recurrence
+
+Let `dp[i]` be the number of distinct ways to reach step `i`:
+
+$$
+dp[i] =
+\begin{cases}
+1, & i \le 1 \\[4pt]
+dp[i-1] + dp[i-2], & i \ge 2
+\end{cases}
+$$
+
+This is the Fibonacci recurrence with the index shifted by one, so
+\(dp[n] = F(n+1)\) under the usual convention \(F(0)=0,\ F(1)=1\). That shift is
+why the two solutions further down, which compute Fibonacci numbers directly,
+read the answer off `F(n+1)` rather than `F(n)`.
+
 #### Approach
 
 This solution uses bottom-up [dynamic programming](https://en.wikipedia.org/wiki/Dynamic_programming) with tabulation to solve the climbing stairs problem:
@@ -286,6 +303,26 @@ class Solution:
         return result[0][0]
 ```
 
+#### Recurrence
+
+One step of the recurrence is a single matrix-vector product, which stacks into
+a matrix power:
+
+$$
+\begin{pmatrix} F(n+1) \\ F(n) \end{pmatrix}
+=
+\begin{pmatrix} 1 & 1 \\ 1 & 0 \end{pmatrix}
+\begin{pmatrix} F(n) \\ F(n-1) \end{pmatrix}
+\qquad\Longrightarrow\qquad
+\begin{pmatrix} 1 & 1 \\ 1 & 0 \end{pmatrix}^{n}
+=
+\begin{pmatrix} F(n+1) & F(n) \\ F(n) & F(n-1) \end{pmatrix}
+$$
+
+The answer `ways(n)` is \(F(n+1)\), the top-left entry. Binary exponentiation
+then evaluates the power in \(O(\log n)\) multiplications by squaring rather
+than multiplying the matrix in one copy at a time.
+
 #### Approach
 
 This solution rewrites the Fibonacci recurrence as a matrix power and computes that power with [repeated squaring](https://en.wikipedia.org/wiki/Exponentiation_by_squaring), dropping the time below linear:
@@ -342,13 +379,32 @@ class Solution:
         return int(fibn / sqrt5)
 ```
 
+#### Closed Form
+
+[Binet's formula](https://en.wikipedia.org/wiki/Fibonacci_sequence#Closed-form_expression)
+gives the nth Fibonacci number with no iteration at all:
+
+$$
+F(n) = \frac{\varphi^{\,n} - \psi^{\,n}}{\sqrt{5}},
+\qquad
+\varphi = \frac{1 + \sqrt{5}}{2},
+\qquad
+\psi = \frac{1 - \sqrt{5}}{2}
+$$
+
+Since \(dp[n] = F(n+1)\), the code evaluates the expression at `n + 1`. The two
+roots \(\varphi\) and \(\psi\) are exactly the solutions of \(x^2 = x + 1\), the
+characteristic equation of the recurrence — which is why a sum of their powers
+satisfies it. Because \(|\psi| < 1\), the second term shrinks toward zero and
+\(F(n)\) is simply \(\varphi^{\,n}/\sqrt{5}\) rounded to the nearest integer.
+
 #### Approach
 
 This solution uses the closed-form expression for the Fibonacci sequence ([Binet's formula](https://en.wikipedia.org/wiki/Fibonacci_sequence#Closed-form_expression)):
 
 1. Since the climbing stairs problem follows the Fibonacci sequence where F(n) = ways to climb n stairs
-2. We can use the mathematical closed-form solution: F(n) = (φⁿ - (1-φ)ⁿ)/√5
-3. Where φ is the golden ratio (1 + √5)/2
+2. We can use the mathematical closed-form solution: `F(n) = (φ^n - ψ^n)/√5`
+3. Where φ is the golden ratio `(1 + √5)/2` and ψ is its conjugate `(1 - √5)/2`
 
 #### Time and Space Complexity Analysis
 

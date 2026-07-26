@@ -67,6 +67,27 @@ class Solution:
         return closest
 ```
 
+#### Formula
+
+The ranking key is the [Euclidean distance](https://en.wikipedia.org/wiki/Euclidean_distance)
+from the origin:
+
+$$
+d(x, y) = \sqrt{(x - 0)^2 + (y - 0)^2} = \sqrt{x^2 + y^2}
+$$
+
+Every solution on this page compares \(d^2 = x^2 + y^2\) and never calls
+`sqrt`. That is safe because \(t \mapsto \sqrt{t}\) is strictly increasing on
+\(t \ge 0\), so for non-negative \(a, b\):
+
+$$
+\sqrt{a} < \sqrt{b} \iff a < b
+$$
+
+Ordering by \(d^2\) therefore produces exactly the same ordering as \(d\).
+Dropping the square root also keeps the arithmetic in exact integers rather than
+floats, so ties between equidistant points are decided without rounding error.
+
 #### Approach
 
 The most direct idea, with no sort or heap: to find the `k` closest points,

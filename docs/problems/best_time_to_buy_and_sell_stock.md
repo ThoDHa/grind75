@@ -140,6 +140,32 @@ class Solution:
         return max_profit
 ```
 
+#### Recurrence
+
+Stated directly, the problem maximizes over ordered pairs of days:
+
+$$
+\text{answer} = \max\Bigl(0,\ \max_{0 \le i < j < n}\bigl(\text{prices}[j] - \text{prices}[i]\bigr)\Bigr)
+$$
+
+Fixing the sell day `j` and pushing the inner maximum onto the buy day turns
+that into one pass, because \(\text{prices}[j]\) is constant with respect to `i`:
+
+$$
+\max_{i < j}\bigl(\text{prices}[j] - \text{prices}[i]\bigr)
+= \text{prices}[j] - \min_{i < j} \text{prices}[i]
+$$
+
+So with \(m[j] = \min_{0 \le i \le j} \text{prices}[i]\), which satisfies the
+one-step recurrence \(m[j] = \min(m[j-1], \text{prices}[j])\):
+
+$$
+\text{answer} = \max_{0 \le j < n} \bigl(\text{prices}[j] - m[j]\bigr)
+$$
+
+The outer \(\max\) with `0` is the "do nothing" option, which is why
+`max_profit` starts at `0` rather than at negative infinity.
+
 #### Approach
 
 The best sell day only ever pairs with the cheapest day seen up to that point, so a

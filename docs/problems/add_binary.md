@@ -214,6 +214,34 @@ class Solution:
         return bin(x)[2:]
 ```
 
+#### Formula
+
+Addition splits into a carry-free part and a carry part, each of which is a
+single bitwise operation:
+
+$$
+x \oplus y \quad=\quad \text{sum at each bit, carries ignored}
+$$
+
+$$
+(x \wedge y) \ll 1 \quad=\quad \text{the carries, shifted into their next position}
+$$
+
+Together they preserve the total, which is what makes iterating valid:
+
+$$
+x + y \;=\; (x \oplus y) \;+\; \bigl((x \wedge y) \ll 1\bigr)
+$$
+
+Each pass replaces \((x, y)\) with that right-hand pair, leaving the sum
+unchanged while pushing carries leftward. The process terminates because the
+carry term gains at least one trailing zero every round, so after at most
+\(\max(n, m) + 1\) passes it reaches \(y = 0\) and \(x\) holds the answer.
+
+This is a [ripple-carry adder](https://en.wikipedia.org/wiki/Adder_(electronics)#Ripple-carry_adder)
+written in software: \(\oplus\) is the half-adder's sum bit and \(\wedge\) its
+carry bit.
+
 #### Approach
 
 This solution performs the addition using the classic carry-propagation loop

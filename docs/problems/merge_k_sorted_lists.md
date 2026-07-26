@@ -251,6 +251,34 @@ class Solution:
         return lists[0] if lists else None
 ```
 
+#### Recurrence
+
+Merging two sorted lists is linear in their combined length. Pairing the `k`
+lists halves their count each round, giving the classic divide-and-conquer
+recurrence over the total node count \(N\):
+
+$$
+T(k) = 2\,T\!\left(\frac{k}{2}\right) + O(N),
+\qquad T(1) = O(1)
+$$
+
+Every round touches all \(N\) nodes exactly once, and there are \(\log_2 k\)
+rounds, so the total is:
+
+$$
+T(k) = \sum_{r=1}^{\lceil \log_2 k \rceil} O(N) = O(N \log k)
+$$
+
+The contrast with Sequential Merge is worth reading off the sum. Folding one
+list in at a time re-walks the accumulated result on every step, so its cost is
+
+$$
+\sum_{i=1}^{k} O\!\left(\frac{iN}{k}\right) = O(Nk)
+$$
+
+— the growing prefix is what makes it quadratic in `k`. Pairwise merging keeps
+each node in exactly \(\log k\) merges instead of up to \(k\).
+
 #### Approach
 
 This solution uses **[divide and conquer](https://en.wikipedia.org/wiki/Divide-and-conquer_algorithm)** by repeatedly merging pairs of lists until only one remains. The key insight is that merging k lists can be reduced to log(k) levels of pairwise merges, which is more efficient than sequential merging.

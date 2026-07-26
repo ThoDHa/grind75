@@ -4,7 +4,7 @@
 
 **Pattern:** [Interval](../patterns/interval/intuition.md)
 
-**Algorithm:** [Sorting algorithm](https://en.wikipedia.org/wiki/Sorting_algorithm) · [Depth-first search](https://en.wikipedia.org/wiki/Depth-first_search)
+**Algorithm:** [Sorting algorithm](https://en.wikipedia.org/wiki/Sorting_algorithm) · [Sweep line algorithm](https://en.wikipedia.org/wiki/Sweep_line_algorithm) · [Depth-first search](https://en.wikipedia.org/wiki/Depth-first_search)
 
 **Practice:** [`practice/merge_intervals/solution.py`](../../practice/merge_intervals/solution.py)
 
@@ -161,6 +161,34 @@ class Solution:
 
         return merged
 ```
+
+#### Overlap Condition
+
+Two closed intervals intersect exactly when each starts no later than the other
+ends:
+
+$$
+[a_1, b_1] \cap [a_2, b_2] \ne \emptyset
+\iff
+\max(a_1, a_2) \le \min(b_1, b_2)
+$$
+
+and their union, when they do intersect, is:
+
+$$
+[a_1, b_1] \cup [a_2, b_2] = \bigl[\min(a_1, a_2),\ \max(b_1, b_2)\bigr]
+$$
+
+Sorting by start collapses the symmetric test into a one-sided one. With
+\(a_1 \le a_2\) guaranteed, \(\max(a_1, a_2) = a_2\), so the condition reduces to
+`start <= last[1]` — a single comparison against the running end. That is the
+entire payoff of the sort.
+
+The `<=` treats touching intervals such as \([1,5]\) and \([5,8]\) as
+overlapping, merging them to \([1,8]\); using `<` would emit them separately.
+The `max` in the merge is not redundant either: sorted starts do **not** imply
+sorted ends, so a fully nested interval like \([1,10]\) followed by \([2,3]\)
+must not shrink the running end.
 
 #### Approach
 

@@ -60,6 +60,26 @@ class Solution:
         return 1 + max(self.maxDepth(root.left), self.maxDepth(root.right))
 ```
 
+#### Recurrence
+
+Depth is defined on a node in terms of its children, which is exactly a
+recurrence:
+
+$$
+\text{depth}(v) =
+\begin{cases}
+0, & v = \text{null} \\[4pt]
+1 + \max\bigl(\text{depth}(v.\text{left}),\ \text{depth}(v.\text{right})\bigr), & \text{otherwise}
+\end{cases}
+$$
+
+The empty tree contributing `0` is the base case, and the `+1` charges one level
+for the node itself. This is the smallest complete example of tree DP: the
+answer at a node needs nothing but the answers at its children, so a single
+post-order pass computes it. Swapping \(\max\) for \(\min\) gives minimum depth,
+and swapping it for \(+\) gives the node count — same traversal, different
+combiner.
+
 #### Approach
 
 This recursive solution uses [depth-first search](https://en.wikipedia.org/wiki/Depth-first_search) to traverse the binary tree. The depth of a node is defined in terms of its children, which makes recursion a natural fit:

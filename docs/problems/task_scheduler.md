@@ -208,6 +208,26 @@ class Solution:
         return max(len(tasks), frame)
 ```
 
+#### Closed Form
+
+Let \(f_{\max}\) be the highest task frequency and \(c\) the number of distinct
+tasks tied at it. The answer is a maximum of two independent lower bounds:
+
+$$
+\text{answer} = \max\Bigl(\ \underbrace{|\text{tasks}|}_{\text{no idling}},\ \ \underbrace{(f_{\max} - 1)(n + 1) + c}_{\text{cooldown frame}}\ \Bigr)
+$$
+
+Both terms are lower bounds, and the larger one is always achievable, which is
+what makes taking their maximum exact rather than merely a bound. The frame term
+counts the schedule forced by the busiest task: its \(f_{\max}\) copies create
+\(f_{\max} - 1\) gaps, each occupying \(n + 1\) slots, plus a final block wide
+enough for the \(c\) tasks tied at the peak. The other term applies when there
+are enough distinct tasks to fill every idle slot, at which point no idling
+happens and the schedule is just its own length.
+
+Note that \(n\) does not appear in the second term at all — once the task mix is
+diverse enough, the cooldown stops binding entirely.
+
 #### Approach
 
 The simulation can be collapsed into a closed-form formula because the schedule

@@ -16,7 +16,7 @@ Your job: maximize the total wealth the family keeps.
 Son ($1) Daughter ($3) Cousin ($1)
 ```
 
-You can't just be greedy and pick the richest. If you pick Dad ($4), you lose access to Grandpa ($3) and both kids ($1 + $3). Sometimes skipping a node unlocks better options.
+You can't just be greedy and pick the richest. If you pick Dad (\$4), you lose access to Grandpa (\$3) and both kids (\$1 + \$3). Sometimes skipping a node unlocks better options.
 
 This is **Tree DP**: making optimal decisions at each node based on subtree outcomes.
 

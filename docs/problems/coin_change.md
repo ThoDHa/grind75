@@ -227,6 +227,23 @@ class Solution:
         return dp[amount] if dp[amount] != amount + 1 else -1
 ```
 
+#### Recurrence
+
+Let `dp[i]` be the fewest coins that sum to exactly `i`:
+
+$$
+dp[i] =
+\begin{cases}
+0, & i = 0 \\[4pt]
+\displaystyle\min_{\substack{c \in \text{coins} \\ c \le i}} \bigl(dp[i - c] + 1\bigr), & i > 0
+\end{cases}
+$$
+
+The minimum over an empty set is \(\infty\): when no coin fits, amount `i` is
+unreachable. The code stands in the sentinel `amount + 1` for that infinity,
+which is larger than any achievable answer but small enough not to overflow.
+The result is `dp[amount]`, or `-1` if it never fell below the sentinel.
+
 #### Approach
 
 This bottom-up [dynamic programming](https://en.wikipedia.org/wiki/Dynamic_programming) solution builds the answer for all amounts from 0 to the target amount. For each amount, we try using each coin denomination and choose the combination that requires the fewest total coins.

@@ -145,6 +145,33 @@ class Solution:
         return max_sum
 ```
 
+#### Recurrence
+
+Let \(\text{end}[i]\) be the largest sum of any subarray that *ends* at index
+`i`. Such a subarray either starts at `i` or extends the best one ending at
+`i-1`:
+
+$$
+\text{end}[i] =
+\begin{cases}
+\text{nums}[0], & i = 0 \\[4pt]
+\max\bigl(\text{nums}[i],\ \text{end}[i-1] + \text{nums}[i]\bigr), & i \ge 1
+\end{cases}
+$$
+
+The answer maximizes over every possible endpoint:
+
+$$
+\text{answer} = \max_{0 \le i < n} \text{end}[i]
+$$
+
+Anchoring the state to "ends at `i`" is what makes the problem one-dimensional.
+The obvious state — "best subarray within the first `i` elements" — cannot be
+extended, because it does not record whether the winning subarray touches the
+right edge. `current_sum` carries \(\text{end}[i]\) and `max_sum` carries the
+running outer maximum, so Kadane's is this pair of formulas with the array
+collapsed to two scalars.
+
 #### Approach
 
 [Kadane's algorithm](https://en.wikipedia.org/wiki/Maximum_subarray_problem) scans the array once while tracking two quantities: `current_sum`, the largest sum of any subarray that ends at the current index, and `max_sum`, the largest sum seen anywhere so far.

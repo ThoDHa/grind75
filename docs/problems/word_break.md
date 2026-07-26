@@ -280,6 +280,22 @@ class Solution:
         return dp[n]
 ```
 
+#### Recurrence
+
+Let `dp[i]` be true when the prefix `s[0:i]` splits cleanly into dictionary
+words. Splitting on where the *last* word starts gives a disjunction over every
+candidate boundary `j`:
+
+$$
+dp[i] = \bigvee_{j=0}^{i-1} \Bigl( dp[j] \ \wedge \ s[j{:}i] \in \text{wordDict} \Bigr),
+\qquad dp[0] = \text{true}
+$$
+
+\(\bigvee\) is the "or" counterpart of \(\sum\): it runs over the same index
+range, but combines with logical **or** instead of addition, so `dp[i]` is true
+as soon as one boundary works. That is exactly what the inner loop's `break`
+exploits. The empty prefix is vacuously segmentable, which seeds `dp[0]`.
+
 #### Approach
 
 This [bottom-up DP](https://en.wikipedia.org/wiki/Dynamic_programming) solution builds up the answer for all prefixes of the string. For each position `i`, we check if there's any valid split where the prefix before position `j` can be segmented (`dp[j] = True`) and the substring from `j` to `i` is in the dictionary.

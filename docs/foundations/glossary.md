@@ -69,7 +69,7 @@ lead to a global optimum. See the
 
 **In-degree**: the number of edges pointing *into* a node in a directed graph.
 Counting in-degrees is the heart of [topological sort](../patterns/topological_sort/intuition.md) by
-Kahn's algorithm.
+[Kahn's algorithm](https://en.wikipedia.org/wiki/Topological_sorting#Kahn%27s_algorithm).
 
 **In-place**: an algorithm that transforms its input using only a constant
 amount of extra memory, rather than building a separate copy. Uses `O(1)` extra

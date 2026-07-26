@@ -181,6 +181,35 @@ class Solution:
                 # Don't advance current! We need to process the swapped element
 ```
 
+#### Invariant
+
+Three pointers cut the array into four regions, and the loop preserves this at
+every step:
+
+$$
+\underbrace{[\,0,\ \textit{left}\,)}_{\text{all } 0}
+\quad
+\underbrace{[\,\textit{left},\ \textit{current}\,)}_{\text{all } 1}
+\quad
+\underbrace{[\,\textit{current},\ \textit{right}\,]}_{\text{unexamined}}
+\quad
+\underbrace{(\,\textit{right},\ n\,)}_{\text{all } 2}
+$$
+
+The loop runs while the unexamined region is non-empty
+(\(\textit{current} \le \textit{right}\)) and shrinks it by one each pass, which
+is what guarantees termination and the single-pass bound.
+
+The asymmetry in the code follows directly. Swapping a `0` leftward exchanges it
+with a position in the all-`1` region, whose value is already known to be `1`,
+so `current` may advance immediately. Swapping a `2` rightward brings back a
+value from the **unexamined** region, which has not been classified yet — so
+`current` must hold still and re-examine it. Advancing there would step over an
+unclassified element and break the invariant.
+
+At exit \(\textit{current} > \textit{right}\), the unexamined region is empty and
+the three colour regions tile the array in order.
+
 #### Approach
 
 This is the [classic algorithm](https://en.wikipedia.org/wiki/Dutch_national_flag_problem) designed by Edsger Dijkstra using three pointers to partition the array into three regions in a single pass. We maintain `left` (boundary between 0s and 1s), `right` (boundary between 1s and 2s), and `current` (element being examined). The key insight is that when swapping a 2 to the right, we must re-examine the swapped element without advancing `current`.

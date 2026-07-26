@@ -200,6 +200,39 @@ class Solution:
             return len(s)
 ```
 
+#### Closed Form
+
+A palindrome uses each character in mirrored pairs, with at most one unpaired
+character allowed in the exact middle. So with \(c_x\) the frequency of
+character `x`, the answer is a direct formula rather than a search:
+
+$$
+\text{answer} = \sum_{x} 2\left\lfloor \frac{c_x}{2} \right\rfloor
+\ + \ \bigl[\, \exists\, x : c_x \text{ is odd} \,\bigr]
+$$
+
+The floor-halve-and-double term keeps the largest even portion of each
+frequency; the bracket adds `1` if any character has a leftover, since exactly
+one leftover may occupy the center.
+
+This solution evaluates the same quantity from the other direction. Writing
+\(k\) for the number of characters with odd frequency:
+
+$$
+\sum_{x} 2\left\lfloor \frac{c_x}{2} \right\rfloor = |s| - k
+\qquad\Longrightarrow\qquad
+\text{answer} =
+\begin{cases}
+|s|, & k = 0 \\[4pt]
+|s| - k + 1, & k \ge 1
+\end{cases}
+$$
+
+because each odd-frequency character contributes exactly one discarded unit.
+That is why the code initializes its counter at `-1` — pre-crediting the one
+character allowed in the center folds the `+1` into the subtraction, collapsing
+both cases into `len(s) - odd`.
+
 #### Approach
 
 This refinement of the brute force avoids the explicit pair arithmetic by working backward from `len(s)`. Every odd-frequency character forces one unpaired character to be discarded, except that one of them may sit in the center:

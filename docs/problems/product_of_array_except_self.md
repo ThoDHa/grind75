@@ -142,6 +142,35 @@ class Solution:
         return result
 ```
 
+#### Formula
+
+The target is a product that skips one index:
+
+$$
+\text{result}[i] = \prod_{\substack{0 \le j < n \\ j \ne i}} \text{nums}[j]
+$$
+
+Splitting that product at `i` factors it into a left half and a right half —
+this is the multiplicative analogue of a [prefix sum](https://en.wikipedia.org/wiki/Prefix_sum),
+with \(\prod\) in place of \(\sum\) and `1` in place of `0` as the identity:
+
+$$
+\text{result}[i] = \underbrace{\prod_{j<i} \text{nums}[j]}_{\text{prefix}[i]} \ \cdot \ \underbrace{\prod_{j>i} \text{nums}[j]}_{\text{suffix}[i]}
+$$
+
+Each side is a one-step recurrence, so both tables fill in linear time:
+
+$$
+\text{prefix}[i] = \text{prefix}[i-1] \cdot \text{nums}[i-1],
+\qquad
+\text{suffix}[i] = \text{suffix}[i+1] \cdot \text{nums}[i+1]
+$$
+
+An empty product is `1`, which is why `prefix[0]` and `suffix[n-1]` are seeded
+there. Because the index `i` is never a factor on either side, this stays
+correct when `nums[i]` is zero — the reason it beats the division approach
+further down, which needs a special case for zeros.
+
 #### Approach
 
 The product of all elements except `nums[i]` equals the product of everything to its left times the product of everything to its right. Build those two pieces explicitly:

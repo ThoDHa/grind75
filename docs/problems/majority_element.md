@@ -175,6 +175,39 @@ class Solution:
         return candidate
 ```
 
+#### Invariant
+
+The problem guarantees a value occurring more than \(\lfloor n/2 \rfloor\)
+times:
+
+$$
+\exists\, m \ :\ \bigl|\{\, i : \text{nums}[i] = m \,\}\bigr| > \frac{n}{2}
+$$
+
+The algorithm never counts occurrences. It maintains, over the prefix processed
+so far, the invariant that `count` is the surplus of `candidate` over everything
+else in the *suffix of that prefix* not yet cancelled away:
+
+$$
+\textit{count} = \bigl|\{\, j \in S : \text{nums}[j] = \textit{candidate} \,\}\bigr|
+              - \bigl|\{\, j \in S : \text{nums}[j] \ne \textit{candidate} \,\}\bigr|
+              \ \ge 0
+$$
+
+where \(S\) is the un-cancelled tail. Each mismatch pairs off one candidate
+occurrence against one non-candidate occurrence and discards both; `count == 0`
+means the prefix has cancelled out completely and carries no information, so any
+value may be adopted fresh.
+
+Correctness follows from counting: pairing deletes one majority element at most
+once per deletion, and since \(m\) occupies strictly more than half the array,
+no sequence of such pairings can exhaust it. Every pairing removes one \(m\) and
+one non-\(m\), so the strict majority survives to the end.
+
+The strictness matters. With exactly \(n/2\) occurrences the guarantee fails —
+`[1,1,2,2]` cancels to `count == 0` and returns whichever value came last — which
+is why the problem states *more than* \(\lfloor n/2 \rfloor\).
+
 #### Approach
 
 Maintain a single `candidate` and a running `count`. The steps:

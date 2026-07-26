@@ -4,7 +4,7 @@
 
 **Pattern:** [String DP](../patterns/string_dp/intuition.md)
 
-**Algorithm:** [Longest palindromic substring](https://en.wikipedia.org/wiki/Longest_palindromic_substring) · [Dynamic programming](https://en.wikipedia.org/wiki/Dynamic_programming)
+**Algorithm:** [Longest palindromic substring](https://en.wikipedia.org/wiki/Longest_palindromic_substring) · [Manacher's algorithm](https://en.wikipedia.org/wiki/Longest_palindromic_substring#Manacher%27s_algorithm) · [Dynamic programming](https://en.wikipedia.org/wiki/Dynamic_programming)
 
 **Practice:** [`practice/longest_palindromic_substring/solution.py`](../../practice/longest_palindromic_substring/solution.py)
 
@@ -157,6 +157,25 @@ class Solution:
 
         return s[start:start + max_len]
 ```
+
+#### Recurrence
+
+Let `dp[i][j]` be true when `s[i..j]` (inclusive) is a palindrome. Peeling one
+character off each end reduces the question to a shorter span:
+
+$$
+dp[i][j] =
+\begin{cases}
+\text{true}, & j - i < 2 \ \text{ and } \ s[i] = s[j] \\[4pt]
+\bigl(s[i] = s[j]\bigr) \wedge dp[i+1][j-1], & j - i \ge 2
+\end{cases}
+$$
+
+The answer is the longest span with \(dp[i][j]\) true. Because the state at
+\((i, j)\) depends on \((i+1, j-1)\) — a span two characters shorter — the table
+must be filled in increasing order of length rather than row by row, otherwise
+the dependency is not yet computed. Spans of length 1 and 2 have no inner
+substring, so they terminate the recursion on the character comparison alone.
 
 #### Approach
 
@@ -314,7 +333,7 @@ class Solution:
 
 #### Approach
 
-[Manacher's algorithm](https://en.wikipedia.org/wiki/Longest_palindromic_substring) achieves linear time by never re-examining characters it
+[Manacher's algorithm](https://en.wikipedia.org/wiki/Longest_palindromic_substring#Manacher%27s_algorithm) achieves linear time by never re-examining characters it
 already knows to match. It first transforms the string so that odd- and
 even-length palindromes are handled uniformly, then reuses palindrome symmetry
 to give each new center a head start.

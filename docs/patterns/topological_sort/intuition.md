@@ -1,6 +1,6 @@
 # Topological Sort Patterns: Mental Models & Intuition
 
-**Reference:** [Topological sorting](https://en.wikipedia.org/wiki/Topological_sorting)
+**Reference:** [Topological sorting](https://en.wikipedia.org/wiki/Topological_sorting) · [Kahn's algorithm](https://en.wikipedia.org/wiki/Topological_sorting#Kahn%27s_algorithm)
 
 > Build deep understanding of when and why Topological Sort works.
 
