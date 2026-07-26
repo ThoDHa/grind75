@@ -9,8 +9,8 @@ import pytest
 
 from harness import (
     NotSolved,
-    TreeNode,
     build_tree,
+    find_tree_node,
     load_cases,
     load_solution,
 )
@@ -25,19 +25,11 @@ def _ids(cases):
     return [case["id"] for case in cases]
 
 
-def _find_node(root, val):
-    if root is None:
-        return None
-    if root.val == val:
-        return root
-    return _find_node(root.left, val) or _find_node(root.right, val)
-
-
 def _check(method, case):
     tree_array, p_val, q_val = case["args"]
     root = build_tree(tree_array)
-    p_node = _find_node(root, p_val)
-    q_node = _find_node(root, q_val)
+    p_node = find_tree_node(root, p_val)
+    q_node = find_tree_node(root, q_val)
     result = method(root, p_node, q_node)
     assert result.val == case["expected"]
 
