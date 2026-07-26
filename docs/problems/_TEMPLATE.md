@@ -99,6 +99,12 @@ FORMULAS
     not advance `current` after a right swap, why the majority vote may adopt
     any value at `count == 0`, why sorting by start collapses a two-sided
     overlap test into a one-sided one.
+  - When a DP's states hold collections rather than a scalar optimum (a list of
+    combinations per sub-target, a set of strings per index) and uniqueness
+    comes from the iteration order rather than from the transition, the honest
+    block is `#### Invariant`, not `#### Recurrence`: the naive set-union
+    relation over-counts permutations of the same collection and would be wrong
+    written down. Combination Sum states what the loop order preserves instead.
   - One such block per file, on the solution where the relation is clearest
     (usually the bottom-up DP). Do NOT repeat it on every solution that shares
     the recurrence; later solutions refer back to it in prose. A genuinely
@@ -107,6 +113,13 @@ FORMULAS
   - Keep the plain-text `inline code` version in the Approach prose. The
     typeset block is the formal statement; the prose stays readable in the raw
     file on GitHub, where LaTeX does not render.
+  - Every display equation inside the block must be followed by a fenced `text`
+    block restating the same relation in plain ASCII, so the statement is
+    legible in the raw file where the LaTeX is not rendered. Include the base
+    case or side condition, and use the identifier names the code uses, not the
+    typeset symbols. Where two display equations state one relation together,
+    one fence covering both is enough. Keep it to the relation: the prose
+    reading stays in prose.
   - State what the symbols mean and what the base case is. A formula with no
     reading of it is decoration.
   - Skip it when the relation is a single obvious assignment. Not every
@@ -156,6 +169,11 @@ dp[i] =
 <transition>, & i > 0
 \end{cases}
 $$
+
+```text
+dp[0] = <base case>
+dp[i] = <transition>   for i > 0
+```
 
 One or two sentences reading the formula back: what the base case encodes, why
 the bounds are what they are, and where the answer is read from.
