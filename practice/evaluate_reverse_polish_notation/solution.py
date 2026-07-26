@@ -21,7 +21,25 @@ class Solution:
         Time:  O(?):
         Space: O(?):
         """
-        raise NotSolved
+        stack = []
+        operators = ["+", "-", "*", "/"]
+        for token in tokens:
+            if token in operators:
+                # do something
+                right = stack.pop()
+                left = stack.pop()
+                if token == "+":
+                    stack.append(left + right)
+                if token == "-":
+                    stack.append(left - right)
+                if token == "*":
+                    stack.append(left * right)
+                if token == "/":
+                    stack.append(int(left / right))
+
+            else:
+                stack.append(int(token))
+        return stack[-1]
 
 
 if __name__ == "__main__":
