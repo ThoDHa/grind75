@@ -52,9 +52,89 @@ trie.search("app");     // return True
 - `word` and `prefix` consist only of lowercase English letters.
 - At most `3 * 10^4` calls in total will be made to `insert`, `search`, and `startsWith`.
 
+## Deriving the Solution
+
+Every operation here is a prefix question: `search` asks whether a whole word was
+stored, `startsWith` whether some stored word begins a certain way. The design
+question is how to organize the inserted words so that answering costs work
+proportional to the *query's* length, not to how many words are stored.
+
+1. **Start literal.** Keep every inserted word in a list and scan it on demand,
+   comparing strings character by character. Correct, but each query touches all
+   `N` stored words for up to `L` characters each: `O(N × L)` per query: see
+   [Brute Force](#brute-force).
+2. **Spot the waste.** The scan re-reads shared prefixes endlessly: checking
+   `startsWith("app")` against `"apple"`, `"apply"`, and `"appeal"` compares the
+   same three leading characters three times, and every future query repeats it
+   all again. The words share structure that the flat list ignores.
+3. **Share the prefixes.** Store characters along the paths of a tree, so words
+   with a common prefix walk the same nodes. A query then follows exactly one node
+   per character of its own input, `O(L)` regardless of `N`, and word ends are
+   flagged on their final node to keep `search` and `startsWith` distinct. The
+   natural node is a dictionary mapping each character to its child: see
+   [Dictionary Children](#dictionary-children).
+4. **Fix the alphabet.** The constraints promise lowercase English letters only,
+   so each node's dictionary can become a 26-slot array indexed by
+   `ord(ch) - ord("a")`: the same `O(L)` walk with the cheapest possible child
+   lookup, at the price of empty slots: see
+   [Fixed Array Children](#fixed-array-children).
+
 ## Solutions
 
 ### Brute Force
+
+#### Derivation
+
+Before reaching for any tree structure, ask the simplest question that could
+possibly work: what if we just remember what was inserted? Store every word in a
+list and answer each query by [scanning that list](https://en.wikipedia.org/wiki/Linear_search).
+No shared prefixes, no nodes, just a literal record of the inserts.
+
+One corner needs thought: the empty prefix. In a node-based trie the root node
+always exists, so `startsWith("")` is `True` even before any word is inserted. The
+list scan would report `False` on an empty trie, so an explicit early return keeps
+this baseline consistent with the tree implementations, whose `_find("")` reaches
+the root and succeeds. The steps:
+
+1. `insert` appends the word to the running `self.words` list.
+2. `search` scans `self.words` for an entry equal to `word`, returning `True` on an
+   exact match.
+3. `startsWith` returns `True` immediately for an empty `prefix`, and otherwise
+   scans for any entry whose first `len(prefix)` characters equal `prefix`.
+
+This is correct but slow: every query rescans the entire collection and compares
+full strings, ignoring the prefix-sharing that makes a trie efficient.
+
+#### Walkthrough
+
+Let us watch the Brute Force solution run on Example 1, replaying its call
+sequence and tracking the one piece of state it keeps: the `self.words` list.
+Each query scans that list and compares strings, so the table shows what the
+scan finds for each call.
+
+| Call | What it does | `self.words` after | Returns |
+|------|--------------|--------------------|---------|
+| `Trie()` | start with an empty list | `[]` | `null` |
+| `insert("apple")` | append `"apple"` | `["apple"]` | `null` |
+| `search("apple")` | scan: `"apple" == "apple"`, exact match | `["apple"]` | `true` |
+| `search("app")` | scan: `"apple" != "app"`, no exact match | `["apple"]` | `false` |
+| `startsWith("app")` | scan: `"apple"[:3] == "app"`, prefix match | `["apple"]` | `true` |
+| `insert("app")` | append `"app"` | `["apple", "app"]` | `null` |
+| `search("app")` | scan: `"apple" != "app"`, then `"app" == "app"`, exact match | `["apple", "app"]` | `true` |
+
+The crucial pair is the two `search("app")` calls. The first returns `false`
+because only `"apple"` is stored, and `"apple"` is not equal to `"app"`. The
+second returns `true` only after `"app"` itself is inserted: a stored word must
+match exactly for `search`, while `startsWith` is satisfied by any stored word
+that begins with the prefix, which is why `startsWith("app")` was already `true`
+when only `"apple"` was present.
+
+Collecting the returned values in order gives
+`[null, null, true, false, true, null, true]`, which matches the expected Output.
+
+#### Solution
+
+The code is the walkthrough's table written down: one list, two scans.
 
 ```python
 class Trie:
@@ -91,27 +171,6 @@ class Trie:
 # param_3 = obj.startsWith(prefix)
 ```
 
-#### Approach
-
-Before reaching for any tree structure, the most direct idea is to store every
-inserted word in a list and answer each query by [scanning that list](https://en.wikipedia.org/wiki/Linear_search). No shared
-prefixes, no nodes, just a literal record of what was inserted.
-
-1. `insert` appends the word to a running list.
-2. `search` scans the list for an entry equal to `word`, returning `True` on an
-   exact match.
-3. `startsWith` scans the list for any entry whose first `len(prefix)` characters
-   equal `prefix`.
-
-The empty prefix needs an explicit case: in a node-based trie the root node
-always exists, so `startsWith("")` is `True` even before any word is inserted.
-The list scan would report `False` on an empty trie without the early return,
-diverging from the tree implementations, whose `_find("")` reaches the root and
-succeeds.
-
-This is correct but slow: every query rescans the entire collection and compares
-full strings, ignoring the prefix-sharing that makes a trie efficient.
-
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(N × L)` per query
@@ -134,34 +193,63 @@ of all word lengths.
 - The linear scan per query is exactly what a trie removes by walking one node per
   character regardless of how many words are stored.
 
+### Dictionary Children
+
+#### Derivation
+
+The Brute Force flaw is that every query pays for every stored word, re-comparing
+shared prefixes each time. The repair is to store those prefixes once: a
+[trie](https://en.wikipedia.org/wiki/Trie) lays strings out character by character
+along tree paths, so words with a common prefix walk the same nodes and a query
+follows one node per character of its own input, never touching the rest of the
+collection.
+
+Two representation choices remain. For the node, a dictionary mapping a character
+to its child node is compact and gives constant-time child access. And because a
+path can be a prefix of a longer word (as `"app"` is of `"apple"`), reaching a node
+cannot by itself mean "a word ends here": a sentinel key `"$"` on the final node
+records that. Without it, inserting `"apple"` would make `search("app")` true. The
+steps:
+
+1. Each node is a `dict`. A child entry maps a character to the next node; a
+   special sentinel key `"$"` flags that a complete word ends at this node.
+2. `insert` walks the characters of `word`, creating missing child dicts via
+   `setdefault`, then sets the sentinel on the final node.
+3. `search` walks the word with the `_find` helper; it returns `True` only when
+   the path exists and the terminal node carries the `"$"` sentinel.
+4. `startsWith` reuses `_find`; reaching any node along the prefix path is enough,
+   regardless of whether a word ends there.
+
 #### Walkthrough
 
-Let us watch the Brute Force solution run on Example 1, replaying its call
-sequence and tracking the one piece of state it keeps: the `self.words` list.
-Each query scans that list and compares strings, so the table shows what the
-scan finds for each call.
+Let us run the Dictionary Children solution on Example 1, watching `self.root`
+grow. Nested braces below are the child dictionaries; `$` marks the sentinel.
 
-| Call | What it does | `self.words` after | Returns |
-|------|--------------|--------------------|---------|
-| `Trie()` | start with an empty list | `[]` | `null` |
-| `insert("apple")` | append `"apple"` | `["apple"]` | `null` |
-| `search("apple")` | scan: `"apple" == "apple"`, exact match | `["apple"]` | `true` |
-| `search("app")` | scan: `"apple" != "app"`, no exact match | `["apple"]` | `false` |
-| `startsWith("app")` | scan: `"apple"[:3] == "app"`, prefix match | `["apple"]` | `true` |
-| `insert("app")` | append `"app"` | `["apple", "app"]` | `null` |
-| `search("app")` | scan: `"apple" != "app"`, then `"app" == "app"`, exact match | `["apple", "app"]` | `true` |
+```text
+Trie()               root = {}
+insert("apple")      walk a -> p -> p -> l -> e, setdefault creates each child
+                     root = {a: {p: {p: {l: {e: {$}}}}}}
+search("apple")      _find follows a,p,p,l,e to node {$}; "$" present -> true
+search("app")        _find follows a,p,p to node {l: ...}; no "$" -> false
+startsWith("app")    _find follows a,p,p; node reached, that is enough -> true
+insert("app")        walk a,p,p; every child already exists, nothing is created;
+                     set the sentinel on the node reached
+                     root = {a: {p: {p: {$, l: {e: {$}}}}}}
+search("app")        _find follows a,p,p to node {$, l: ...}; "$" present -> true
+```
 
-The crucial pair is the two `search("app")` calls. The first returns `false`
-because only `"apple"` is stored, and `"apple"` is not equal to `"app"`. The
-second returns `true` only after `"app"` itself is inserted: a stored word must
-match exactly for `search`, while `startsWith` is satisfied by any stored word
-that begins with the prefix, which is why `startsWith("app")` was already `true`
-when only `"apple"` was present.
+The second insert is the trie's whole point in miniature: `insert("app")`
+allocates no nodes, because the path `a -> p -> p` already exists inside
+`"apple"`'s path; it only plants the `"$"` sentinel on the shared node. That
+sentinel is also what separates the two `search("app")` calls: the node existed
+all along (hence `startsWith("app")` was already `true`), but `search` demanded
+the sentinel. Collecting the returns gives
+`[null, null, true, false, true, null, true]`, matching the expected Output.
 
-Collecting the returned values in order gives
-`[null, null, true, false, true, null, true]`, which matches the expected Output.
+#### Solution
 
-### Dictionary Children
+The code is the walkthrough's descent written down, with the shared walk factored
+into `_find`.
 
 ```python
 class Trie:
@@ -201,25 +289,6 @@ class Trie:
 # param_3 = obj.startsWith(prefix)
 ```
 
-#### Approach
-
-A [trie](https://en.wikipedia.org/wiki/Trie) stores strings character by character along tree paths, so shared
-prefixes share nodes. Representing each node as a dictionary mapping a character
-to its child node keeps the implementation compact while giving constant-time
-child access.
-
-1. Each node is a `dict`. A child entry maps a character to the next node; a
-   special sentinel key `"$"` flags that a complete word ends at this node.
-2. `insert` walks the characters of `word`, creating missing child dicts via
-   `setdefault`, then sets the sentinel on the final node.
-3. `search` walks the word with the `_find` helper; it returns `True` only when
-   the path exists and the terminal node carries the `"$"` sentinel.
-4. `startsWith` reuses `_find`; reaching any node along the prefix path is enough,
-   regardless of whether a word ends there.
-
-The sentinel distinguishes a full word from a mere prefix, which is what makes
-`search("app")` return `False` until `"app"` is explicitly inserted.
-
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(L)` per operation
@@ -246,6 +315,64 @@ prefixes reduce this in practice.
   and `startsWith`.
 
 ### Fixed Array Children
+
+#### Derivation
+
+The dictionary node pays a hash lookup per character, and each dict carries
+per-object overhead. The constraints hand us a repair: inputs are lowercase
+English letters only, so a node can never have more than 26 distinct children, and
+the letter itself can *be* the index. Replace each node's dictionary with a
+fixed-size list of 26 slots, mapping `ch` to slot `ord(ch) - ord("a")`, where
+`None` means no child along that edge. With a class-based `TrieNode` there is no
+room for a sentinel key, so a dedicated `is_end` boolean carries the word-end flag
+instead. Indexing into a contiguous array is the fastest possible child lookup,
+which is why this layout is common in performance-sensitive
+[trie implementations](https://en.wikipedia.org/wiki/Trie). The steps:
+
+1. Each `TrieNode` holds a 26-element `children` list initialized to `None` and an
+   `is_end` flag that is `False` until a word terminates there.
+2. `insert` converts each character to `index = ord(ch) - ord("a")`, creating a
+   child node when `children[index]` is `None`, then marks the final node's
+   `is_end`.
+3. `search` walks the word via the `_find` helper and checks that the reached node
+   has `is_end` set.
+4. `startsWith` reuses `_find`; any reachable node along the prefix path suffices.
+
+#### Walkthrough
+
+Let us run the Fixed Array Children solution on Example 1. The structure is the
+same tree as in the Dictionary Children walkthrough; what changes is how a child
+is found. The letters involved map to slots `a = 0`, `p = 15`, `l = 11`, `e = 4`
+(each computed as `ord(ch) - ord("a")`). Nodes are named by the prefix they
+represent.
+
+```text
+Trie()               root: children all None, is_end False
+insert("apple")      root.children[0]         is None -> new node (a)
+                     (a).children[15]         is None -> new node (ap)
+                     (ap).children[15]        is None -> new node (app)
+                     (app).children[11]       is None -> new node (appl)
+                     (appl).children[4]       is None -> new node (apple)
+                     (apple).is_end = True
+search("apple")      _find follows slots 0,15,15,11,4 to (apple); is_end -> true
+search("app")        _find follows slots 0,15,15 to (app); is_end False -> false
+startsWith("app")    _find follows slots 0,15,15; node reached -> true
+insert("app")        slots 0,15,15 all occupied, no nodes created;
+                     (app).is_end = True
+search("app")        _find follows slots 0,15,15 to (app); is_end True -> true
+```
+
+As before, the second insert creates nothing: the path for `"app"` already lives
+inside `"apple"`'s path, and only the `is_end` flag on node `(app)` flips. The
+flag plays exactly the role the `"$"` sentinel played in the dictionary layout,
+turning `search("app")` from `false` to `true` while `startsWith("app")` was true
+throughout. The returns collect to `[null, null, true, false, true, null, true]`,
+matching the expected Output.
+
+#### Solution
+
+The code is the slot walk from the walkthrough, with the descent again factored
+into `_find`.
 
 ```python
 class TrieNode:
@@ -295,24 +422,6 @@ class Trie:
 # param_2 = obj.search(word)
 # param_3 = obj.startsWith(prefix)
 ```
-
-#### Approach
-
-This variant stores each node's children in a fixed-size list of 26 slots, one
-per lowercase letter, instead of a dictionary. The letter `ch` maps to index
-`ord(ch) - ord("a")`, and a dedicated `is_end` boolean replaces the sentinel
-key.
-
-1. Each `TrieNode` holds a 26-element list initialized to `None` and an `is_end`
-   flag that is `False` until a word terminates there.
-2. `insert` converts each character to its slot index, creating a child node when
-   the slot is empty, then marks the final node as a word end.
-3. `search` walks the word via the `_find` helper and checks that the reached
-   node has `is_end` set.
-4. `startsWith` reuses `_find`; any reachable node along the prefix path suffices.
-
-Indexing into a contiguous array is the fastest possible child lookup, which is
-why this layout is common in performance-sensitive [trie implementations](https://en.wikipedia.org/wiki/Trie).
 
 #### Time and Space Complexity Analysis
 

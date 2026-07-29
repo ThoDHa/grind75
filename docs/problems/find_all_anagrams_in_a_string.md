@@ -35,44 +35,38 @@ An **anagram** is a word or phrase formed by rearranging the letters of a differ
 - `1 <= s.length, p.length <= 3 * 10^4`
 - `s` and `p` consist of lowercase English letters only.
 
+## Deriving the Solution
+
+A substring of `s` is an anagram of `p` exactly when it has length `k = len(p)`
+and the same letter counts: order never matters, only the frequency of each of
+the 26 lowercase letters. Both solutions compare fixed 26-slot count arrays;
+they differ in how much counting work each window position costs.
+
+1. **Start literal.** Try every width-`k` window of `s`: for each start index,
+   count its letters from scratch and compare against `p`'s counts. Correct,
+   but each of the `n - k + 1` windows pays a full `O(k)` recount, quadratic
+   when `k` is a large fraction of `n`: see [Brute Force](#brute-force).
+2. **Spot the waste.** Adjacent windows overlap in all but two positions: one
+   character leaves on the left and one enters on the right. Rebuilding the
+   whole count throws away `k - 2` letters of work that did not change.
+3. **Slide the count.** Keep one running `window` count and update only the
+   entering and leaving slots, plus a `matches` counter recording how many of
+   the 26 slots already agree with `need`, so the per-window comparison
+   collapses to the single test `matches == 26`. Every character enters and
+   leaves once, making the scan `O(n)`: see
+   [Sliding Window with Fixed-Size Count Array](#sliding-window-with-fixed-size-count-array).
+
 ## Solutions
 
 ### Brute Force
 
-```python
-from typing import List
+#### Derivation
 
-
-class Solution:
-    def findAnagrams(self, s: str, p: str) -> List[int]:
-        n, k = len(s), len(p)
-        if k > n:
-            return []
-
-        # Target frequency of p as a fixed 26-slot array (one per letter).
-        need = [0] * 26
-        for c in p:
-            need[ord(c) - ord("a")] += 1
-
-        result = []
-        # Try every possible window start; the last valid start is n - k.
-        for i in range(n - k + 1):
-            window = [0] * 26
-            # Count the characters of the window s[i:i+k] from scratch.
-            for j in range(i, i + k):
-                window[ord(s[j]) - ord("a")] += 1
-            # A window is an anagram of p iff the two count arrays match.
-            if window == need:
-                result.append(i)
-
-        return result
-```
-
-#### Approach
-
-A substring of `s` is an anagram of `p` exactly when it has length `k = len(p)`
-and the same multiset of characters. The most direct strategy tries every
-possible window of width `k` and rebuilds its frequency count independently.
+The first question is what "anagram" means operationally: a substring of `s` is
+an anagram of `p` exactly when it has length `k = len(p)` and the same multiset
+of characters, which two frequency counts can verify. The most direct strategy
+tries every possible window of width `k` and rebuilds its frequency count
+independently.
 
 1. If `p` is longer than `s`, no anagram can exist, so return an empty list.
 2. Build `need`, a fixed 26-slot array holding the frequency of each lowercase
@@ -85,30 +79,6 @@ possible window of width `k` and rebuilds its frequency count independently.
 
 This rebuilds the entire count for every window, doing no work-sharing between
 overlapping windows, which makes it simple but redundant.
-
-#### Time and Space Complexity Analysis
-
-##### Time Complexity: `O((n - k + 1) * k)`
-
-There are `n - k + 1` window positions, and each one fully recounts `k`
-characters before a constant 26-slot comparison. In the worst case (`k ≈ n / 2`)
-this is quadratic in `n`. Treating the per-window comparison as the dominant
-fixed cost, the bound can also be written as `O(n * 26)` when `k` is small.
-
-##### Space Complexity: `O(1)`
-
-Both `need` and the per-window `window` array are fixed at 26 slots regardless
-of input size. The `result` list is output, not auxiliary working space.
-
-#### Key Insights
-
-- Anagram detection reduces to comparing character frequency counts, since order
-  does not matter.
-- A fixed 26-slot array indexed by `ord(c) - ord('a')` replaces any imported
-  counter and compares in constant time.
-- The inefficiency comes from discarding each window's count and rebuilding the
-  next from scratch, ignoring that adjacent windows differ by only two
-  characters.
 
 #### Walkthrough
 
@@ -140,7 +110,10 @@ each needed letter and `6` is appended.
 The loop ends and we return `result = [0, 6]`, which matches the expected
 Output `[0,6]`.
 
-### Sliding Window with Fixed-Size Count Array
+#### Solution
+
+The code is the walkthrough's table: rebuild `window` for each start index and
+compare it to `need`.
 
 ```python
 from typing import List
@@ -152,40 +125,78 @@ class Solution:
         if k > n:
             return []
 
+        # Target frequency of p as a fixed 26-slot array (one per letter).
         need = [0] * 26
-        window = [0] * 26
         for c in p:
             need[ord(c) - ord("a")] += 1
 
-        # matches = how many of the 26 letters currently agree between
-        # window and need. When matches == 26 the window is an anagram.
-        matches = sum(1 for i in range(26) if need[i] == window[i])
-
         result = []
-        for i in range(n):
-            entering = ord(s[i]) - ord("a")
-            # Add the incoming character, updating its match status in O(1).
-            if window[entering] == need[entering]:
-                matches -= 1
-            window[entering] += 1
-            if window[entering] == need[entering]:
-                matches += 1
-
-            # Once the window exceeds width k, drop the leftmost character.
-            if i >= k:
-                leaving = ord(s[i - k]) - ord("a")
-                if window[leaving] == need[leaving]:
-                    matches -= 1
-                window[leaving] -= 1
-                if window[leaving] == need[leaving]:
-                    matches += 1
-
-            # A full-width window with all 26 letters matching is an anagram.
-            if i >= k - 1 and matches == 26:
-                result.append(i - k + 1)
+        # Try every possible window start; the last valid start is n - k.
+        for i in range(n - k + 1):
+            window = [0] * 26
+            # Count the characters of the window s[i:i+k] from scratch.
+            for j in range(i, i + k):
+                window[ord(s[j]) - ord("a")] += 1
+            # A window is an anagram of p iff the two count arrays match.
+            if window == need:
+                result.append(i)
 
         return result
 ```
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O((n - k + 1) * k)`
+
+There are `n - k + 1` window positions, and each one fully recounts `k`
+characters before a constant 26-slot comparison. In the worst case (`k ≈ n / 2`)
+this is quadratic in `n`. Treating the per-window comparison as the dominant
+fixed cost, the bound can also be written as `O(n * 26)` when `k` is small.
+
+##### Space Complexity: `O(1)`
+
+Both `need` and the per-window `window` array are fixed at 26 slots regardless
+of input size. The `result` list is output, not auxiliary working space.
+
+#### Key Insights
+
+- Anagram detection reduces to comparing character frequency counts, since order
+  does not matter.
+- A fixed 26-slot array indexed by `ord(c) - ord('a')` replaces any imported
+  counter and compares in constant time.
+- The inefficiency comes from discarding each window's count and rebuilding the
+  next from scratch, ignoring that adjacent windows differ by only two
+  characters.
+
+### Sliding Window with Fixed-Size Count Array
+
+#### Derivation
+
+The brute force discards each window's count and rebuilds the next from
+scratch, even though adjacent windows overlap heavily:
+[sliding one step](https://www.geeksforgeeks.org/dsa/window-sliding-technique/)
+removes a single character on the left and adds a single character on the
+right. Rather than recounting, we maintain the window's 26-slot count
+incrementally and track a running `matches` value, the number of letters whose
+window count already equals the needed count. In plain text the invariant below
+is `matches == number of letters c with window[c] == need[c]`, which is what
+makes the test `matches == 26` equivalent to comparing the two arrays outright.
+
+1. If `p` is longer than `s`, return an empty list.
+2. Build `need` and a zeroed `window`, both fixed 26-slot arrays, then initialize
+   `matches` by comparing the two arrays slot by slot (initially the 26 zeros of
+   `window` match every zero slot of `need`).
+3. Walk `i` across `s`. For the entering character, adjust `matches` before and
+   after incrementing its slot: a slot only counts as a match when the two values
+   are equal, so we decrement `matches` if it was matching, bump the count, then
+   increment `matches` if it now matches.
+4. Once `i >= k`, the window has grown past width `k`, so apply the mirror update
+   for the leaving character `s[i - k]`, keeping the window exactly `k` wide.
+5. When the window is full width (`i >= k - 1`) and `matches == 26`, every letter
+   agrees, so the window is an anagram; record its start index `i - k + 1`.
+
+Each character's entry and exit touches a single slot and adjusts `matches` in
+constant time, so the whole scan is linear.
 
 #### Invariant
 
@@ -234,31 +245,83 @@ exactly `k` characters wide once `i >= k - 1`. Reading the invariant there,
 `matches == 26` says the window's letter counts equal `p`'s, so the window is an
 anagram of `p` and its start index `i - k + 1` is recorded.
 
-#### Approach
+#### Walkthrough
 
-Adjacent windows overlap heavily: [sliding one step](https://www.geeksforgeeks.org/dsa/window-sliding-technique/) removes a single character on
-the left and adds a single character on the right. Rather than recounting, we
-maintain the window's 26-slot count incrementally and track a running `matches`
-value, the number of letters whose window count already equals the needed count.
-In plain text the invariant above is `matches == number of letters c with
-window[c] == need[c]`, which is what makes the test `matches == 26` equivalent to
-comparing the two arrays outright.
+Let us run the scan on Example 2: `s = "abab"`, `p = "ab"`, so `n = 4` and
+`k = 2`. `need` holds `a: 1, b: 1`, and `window` starts all zeros, so the
+initial slot-by-slot comparison finds the 24 letters absent from both arrays
+agreeing while the `a` and `b` slots disagree: `matches = 24`.
 
-1. If `p` is longer than `s`, return an empty list.
-2. Build `need` and a zeroed `window`, both fixed 26-slot arrays, then initialize
-   `matches` by comparing the two arrays slot by slot (initially the 26 zeros of
-   `window` match every zero slot of `need`).
-3. Walk `i` across `s`. For the entering character, adjust `matches` before and
-   after incrementing its slot: a slot only counts as a match when the two values
-   are equal, so we decrement `matches` if it was matching, bump the count, then
-   increment `matches` if it now matches.
-4. Once `i >= k`, the window has grown past width `k`, so apply the mirror update
-   for the leaving character `s[i - k]`, keeping the window exactly `k` wide.
-5. When the window is full width (`i >= k - 1`) and `matches == 26`, every letter
-   agrees, so the window is an anagram; record its start index `i - k + 1`.
+Each line below shows one loop iteration after its updates: the entering
+character, the leaving character once `i >= k`, the nonzero slots of `window`,
+and `matches`:
 
-Each character's entry and exit touches a single slot and adjusts `matches` in
-constant time, so the whole scan is linear.
+```text
+i=0  enter 'a'             window a:1        matches 25    window not yet k wide
+i=1  enter 'b'             window a:1, b:1   matches 26    append 0
+i=2  enter 'a', leave 'a'  window a:1, b:1   matches 26    append 1
+i=3  enter 'b', leave 'b'  window a:1, b:1   matches 26    append 2
+```
+
+At `i = 0` the `a` slot reaches its needed count, lifting `matches` to `25`,
+but the window is not yet `k` wide, so nothing is recorded. At `i = 1` the `b`
+slot agrees too, `matches` saturates at `26`, and start index `0` is appended.
+At `i = 2` the entering `a` first pushes its slot to `2` (dropping `matches` to
+`25` mid-update), then the leaving `a` at `s[0]` restores the slot to `1` and
+`matches` to `26`: the window `"ba"` is an anagram, so `1` is appended. `i = 3`
+mirrors it with `b`, appending `2`. The final `result = [0, 1, 2]` matches the
+expected Output `[0,1,2]`.
+
+#### Solution
+
+The code is the walkthrough's per-character update: the decrement-bump-increment
+triple for the entering slot, its mirror for the leaving slot, and the
+`matches == 26` test.
+
+```python
+from typing import List
+
+
+class Solution:
+    def findAnagrams(self, s: str, p: str) -> List[int]:
+        n, k = len(s), len(p)
+        if k > n:
+            return []
+
+        need = [0] * 26
+        window = [0] * 26
+        for c in p:
+            need[ord(c) - ord("a")] += 1
+
+        # matches = how many of the 26 letters currently agree between
+        # window and need. When matches == 26 the window is an anagram.
+        matches = sum(1 for i in range(26) if need[i] == window[i])
+
+        result = []
+        for i in range(n):
+            entering = ord(s[i]) - ord("a")
+            # Add the incoming character, updating its match status in O(1).
+            if window[entering] == need[entering]:
+                matches -= 1
+            window[entering] += 1
+            if window[entering] == need[entering]:
+                matches += 1
+
+            # Once the window exceeds width k, drop the leftmost character.
+            if i >= k:
+                leaving = ord(s[i - k]) - ord("a")
+                if window[leaving] == need[leaving]:
+                    matches -= 1
+                window[leaving] -= 1
+                if window[leaving] == need[leaving]:
+                    matches += 1
+
+            # A full-width window with all 26 letters matching is an anagram.
+            if i >= k - 1 and matches == 26:
+                result.append(i - k + 1)
+
+        return result
+```
 
 #### Time and Space Complexity Analysis
 

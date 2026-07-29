@@ -36,46 +36,47 @@ Given two integer arrays `preorder` and `inorder` where `preorder` is the preord
 - `preorder` is guaranteed to be the preorder traversal of the tree.
 - `inorder` is guaranteed to be the inorder traversal of the tree.
 
+## Deriving the Solution
+
+The two traversals describe the same tree from complementary angles: preorder
+puts every subtree's root before that subtree's other values, and inorder puts
+everything left of a root before it and everything right of it after. Every
+solution below rests on the same observation: the head of preorder names the
+current root, that root's position in inorder splits the remaining values into
+the left and right subtrees, and each half is the same problem again on smaller
+arrays.
+
+1. **Start literal.** Take `preorder[0]` as the root, search for it in
+   `inorder`, physically cut both lists in two, and recurse on the halves.
+   Correct, but every node pays a linear `index` scan plus slice copies, which
+   is `O(n^2)` on a skewed tree: see [Recursive Slicing](#recursive-slicing).
+2. **Spot the waste.** The per-node linear work has two sources: re-scanning
+   `inorder` for each root, and copying sub-lists that are only ever read.
+   Neither is necessary, since positions can be precomputed once and a
+   sub-array can be described by its bounds.
+3. **Fix both.** A hash map from value to inorder index makes every root lookup
+   `O(1)`, and passing `[start, end)` index ranges instead of slices removes
+   all copying. The build drops to `O(n)`: see
+   [Hash Map with Index Bounds](#hash-map-with-index-bounds).
+4. **Refine.** The four range indices are more state than needed. When the left
+   subtree is always built before the right, preorder is consumed strictly
+   left to right, so a single shared cursor into `preorder` can replace both
+   preorder bounds: see
+   [Hash Map with Shared Preorder Pointer](#hash-map-with-shared-preorder-pointer).
+
 ## Solutions
 
 ### Recursive Slicing
 
-```python
-# Definition for a binary tree node.
-# class TreeNode:
-#     def __init__(self, val=0, left=None, right=None):
-#         self.val = val
-#         self.left = left
-#         self.right = right
-from typing import List, Optional
+#### Derivation
 
-
-class Solution:
-    def buildTree(self, preorder: List[int], inorder: List[int]) -> Optional[TreeNode]:
-        if not preorder:
-            return None
-
-        # The first preorder value is the root of the current subtree
-        root_val = preorder[0]
-        root = TreeNode(root_val)
-
-        # The root's position in inorder splits the left and right subtrees
-        mid = inorder.index(root_val)
-
-        # Left subtree: inorder[:mid] with the matching preorder[1 : mid + 1]
-        root.left = self.buildTree(preorder[1 : mid + 1], inorder[:mid])
-        # Right subtree: inorder[mid + 1:] with the remaining preorder
-        root.right = self.buildTree(preorder[mid + 1 :], inorder[mid + 1 :])
-        return root
-```
-
-#### Approach
-
-The two traversals encode the tree in complementary ways. [Preorder](https://en.wikipedia.org/wiki/Tree_traversal) visits the
+The starting question is what each traversal, on its own, pins down. The two
+traversals encode the tree in complementary ways. [Preorder](https://en.wikipedia.org/wiki/Tree_traversal) visits the
 root before its subtrees, so the first preorder value is always the root of the
 current subtree. Inorder visits the left subtree, then the root, then the right
 subtree, so once we know the root we can split inorder into its left and right
-halves by locating the root's position.
+halves by locating the root's position. Each half is a smaller instance of the
+same problem, which dictates a recursion:
 
 1. If `preorder` is empty, the subtree is empty, so return `None`.
 2. Take `root_val = preorder[0]` and create the root node.
@@ -89,30 +90,6 @@ halves by locating the root's position.
 
 This is the most direct reading of the definitions, and it stays library-free by
 using nothing more than list slicing and `index`.
-
-#### Time and Space Complexity Analysis
-
-##### Time Complexity: `O(n^2)`
-
-Each call does an `O(n)` `inorder.index` search and builds `O(n)`-sized slices.
-For a balanced tree the recurrence is `T(n) = 2T(n/2) + O(n)`, giving `O(n log n)`,
-but a skewed tree degrades the search and slicing to `O(n)` work at every level
-over `n` levels, producing the `O(n^2)` worst case.
-
-##### Space Complexity: `O(n^2)`
-
-The slices created at each level copy `O(n)` elements, and a skewed tree creates
-`O(n)` levels of live slices, so the slice copies dominate at `O(n^2)` in the
-worst case. The recursion stack alone is `O(n)`.
-
-#### Key Insights
-
-- The head of preorder is the root; the position of that root in inorder splits
-  the remaining values into the two subtrees.
-- The left subtree's node count equals `mid`, which is exactly how many preorder
-  values to peel off for the left recursion.
-- It is the cleanest expression of the idea but pays for repeated `index` scans
-  and slice copies.
 
 #### Walkthrough
 
@@ -150,7 +127,119 @@ Assembling the returned nodes top down gives the tree with `3` at the root, `9` 
 its left child, and `20` as its right child with children `15` and `7`. Read in
 level order that is `[3,9,20,null,null,15,7]`, which matches the expected Output.
 
+#### Solution
+
+The code is the walkthrough's split written down: take the head of `preorder`,
+cut both lists at `mid`, and recurse on the halves.
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+from typing import List, Optional
+
+
+class Solution:
+    def buildTree(self, preorder: List[int], inorder: List[int]) -> Optional[TreeNode]:
+        if not preorder:
+            return None
+
+        # The first preorder value is the root of the current subtree
+        root_val = preorder[0]
+        root = TreeNode(root_val)
+
+        # The root's position in inorder splits the left and right subtrees
+        mid = inorder.index(root_val)
+
+        # Left subtree: inorder[:mid] with the matching preorder[1 : mid + 1]
+        root.left = self.buildTree(preorder[1 : mid + 1], inorder[:mid])
+        # Right subtree: inorder[mid + 1:] with the remaining preorder
+        root.right = self.buildTree(preorder[mid + 1 :], inorder[mid + 1 :])
+        return root
+```
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n^2)`
+
+Each call does an `O(n)` `inorder.index` search and builds `O(n)`-sized slices.
+For a balanced tree the recurrence is `T(n) = 2T(n/2) + O(n)`, giving `O(n log n)`,
+but a skewed tree degrades the search and slicing to `O(n)` work at every level
+over `n` levels, producing the `O(n^2)` worst case.
+
+##### Space Complexity: `O(n^2)`
+
+The slices created at each level copy `O(n)` elements, and a skewed tree creates
+`O(n)` levels of live slices, so the slice copies dominate at `O(n^2)` in the
+worst case. The recursion stack alone is `O(n)`.
+
+#### Key Insights
+
+- The head of preorder is the root; the position of that root in inorder splits
+  the remaining values into the two subtrees.
+- The left subtree's node count equals `mid`, which is exactly how many preorder
+  values to peel off for the left recursion.
+- It is the cleanest expression of the idea but pays for repeated `index` scans
+  and slice copies.
+
 ### Hash Map with Index Bounds
+
+#### Derivation
+
+The slicing approach repeats two expensive operations: scanning inorder for the
+root and copying slices. Both disappear once we precompute root positions and pass
+array bounds instead of physical slices.
+
+1. Build a [hash map](https://en.wikipedia.org/wiki/Hash_table) `inorder_index` from each value to its index in `inorder`.
+   Because all values are unique, this gives `O(1)` root-position lookups.
+2. Describe each subtree by two half-open ranges: `[pre_start, pre_end)` into
+   `preorder` and `[in_start, in_end)` into `inorder`. A range with
+   `pre_start >= pre_end` is empty and returns `None`.
+3. The root is `preorder[pre_start]`. Look up `mid = inorder_index[root_val]` and
+   compute `left_size = mid - in_start`, the number of nodes in the left subtree.
+4. The left subtree occupies preorder `[pre_start + 1, pre_start + 1 + left_size)`
+   and inorder `[in_start, mid)`. The right subtree occupies the rest of preorder
+   `[pre_start + 1 + left_size, pre_end)` and inorder `[mid + 1, in_end)`.
+5. Recurse on both ranges and attach the children.
+
+#### Walkthrough
+
+Let us rebuild Example 1 with ranges instead of slices: `preorder = [3,9,20,15,7]`,
+`inorder = [9,3,15,20,7]`. The map built up front is
+`inorder_index = {9: 0, 3: 1, 15: 2, 20: 3, 7: 4}`. Each call receives the
+half-open ranges `[pre_start, pre_end)` and `[in_start, in_end)`, reads its root
+from `preorder[pre_start]`, looks up `mid`, and computes
+`left_size = mid - in_start`. The arrays are never touched beyond those two reads.
+The indentation shows recursion depth:
+
+```text
+build(0, 5, 0, 5)      root = preorder[0] = 3,  mid = 1, left_size = 1 - 0 = 1
+  build(1, 2, 0, 1)    root = preorder[1] = 9,  mid = 0, left_size = 0 - 0 = 0
+    build(2, 2, 0, 0)  pre_start >= pre_end -> None
+    build(2, 2, 1, 1)  pre_start >= pre_end -> None
+                       returns node(9)
+  build(2, 5, 2, 5)    root = preorder[2] = 20, mid = 3, left_size = 3 - 2 = 1
+    build(3, 4, 2, 3)  root = preorder[3] = 15, both child ranges empty -> node(15)
+    build(4, 5, 4, 5)  root = preorder[4] = 7,  both child ranges empty -> node(7)
+                       returns node(20)
+returns node(3)
+```
+
+The splits are the same as in the slicing walkthrough, only expressed as index
+arithmetic: the top call's `left_size = 1` sends preorder range `[1, 2)` and
+inorder range `[0, 1)` to the left child, and the remainder, `[2, 5)` and
+`[3, 5)`, to the right. No list is ever copied and no scan is ever repeated.
+The assembled tree is again `3` with left child `9` and right child `20` over
+`15` and `7`, which reads in level order as `[3,9,20,null,null,15,7]`, the
+expected Output.
+
+#### Solution
+
+The code is the walkthrough's range bookkeeping: the same splits, expressed as
+four indices instead of new lists.
 
 ```python
 # Definition for a binary tree node.
@@ -187,24 +276,6 @@ class Solution:
         return build(0, len(preorder), 0, len(inorder))
 ```
 
-#### Approach
-
-The slicing approach repeats two expensive operations: scanning inorder for the
-root and copying slices. Both disappear once we precompute root positions and pass
-array bounds instead of physical slices.
-
-1. Build a [hash map](https://en.wikipedia.org/wiki/Hash_table) `inorder_index` from each value to its index in `inorder`.
-   Because all values are unique, this gives `O(1)` root-position lookups.
-2. Describe each subtree by two half-open ranges: `[pre_start, pre_end)` into
-   `preorder` and `[in_start, in_end)` into `inorder`. A range with
-   `pre_start >= pre_end` is empty and returns `None`.
-3. The root is `preorder[pre_start]`. Look up `mid = inorder_index[root_val]` and
-   compute `left_size = mid - in_start`, the number of nodes in the left subtree.
-4. The left subtree occupies preorder `[pre_start + 1, pre_start + 1 + left_size)`
-   and inorder `[in_start, mid)`. The right subtree occupies the rest of preorder
-   `[pre_start + 1 + left_size, pre_end)` and inorder `[mid + 1, in_end)`.
-5. Recurse on both ranges and attach the children.
-
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(n)`
@@ -230,40 +301,27 @@ dominated by the map.
 
 ### Hash Map with Shared Preorder Pointer
 
-```python
-# Definition for a binary tree node.
-# class TreeNode:
-#     def __init__(self, val=0, left=None, right=None):
-#         self.val = val
-#         self.left = left
-#         self.right = right
-from typing import List, Optional
+#### Derivation
 
+The bounds approach still threads four indices through every call. We can shrink
+that to a single inorder range plus one shared preorder pointer by exploiting the
+order in which preorder lays nodes out: the entire left subtree appears before any
+right-subtree node.
 
-class Solution:
-    def buildTree(self, preorder: List[int], inorder: List[int]) -> Optional[TreeNode]:
-        # Map each value to its index in inorder for O(1) root lookups
-        inorder_index = {val: i for i, val in enumerate(inorder)}
-        self.pre_pos = 0
+1. Build the same `inorder_index` map for `O(1)` lookups.
+2. Keep one moving pointer `pre_pos` into `preorder`, starting at `0`. Each node
+   we create consumes exactly one preorder value and advances the pointer.
+3. [Recurse](https://en.wikipedia.org/wiki/Recursion_(computer_science)) with the inclusive inorder bounds `[left, right]` for the current
+   subtree. When `left > right` the subtree is empty, so return `None`.
+4. Take the root from `preorder[pre_pos]`, advance the pointer, find its index
+   `mid` in inorder, then build the left child from `[left, mid - 1]` and the
+   right child from `[mid + 1, right]`.
 
-        def build(left: int, right: int) -> Optional[TreeNode]:
-            # No values remain for this subtree
-            if left > right:
-                return None
-
-            # The next unconsumed preorder value is always this subtree's root
-            root_val = preorder[self.pre_pos]
-            self.pre_pos += 1
-            root = TreeNode(root_val)
-
-            # Inorder splits into left and right subtrees around the root
-            mid = inorder_index[root_val]
-            root.left = build(left, mid - 1)
-            root.right = build(mid + 1, right)
-            return root
-
-        return build(0, len(inorder) - 1)
-```
+Building the left subtree fully before the right subtree is essential: it keeps
+the preorder pointer synchronized, since preorder lays out the entire left subtree
+before any right-subtree node. The Invariant below states that formally: on entry
+to every call, `preorder[pre_pos]` is that subtree's root, which only stays true
+if the left subtree is fully consumed before the right one begins.
 
 #### Invariant
 
@@ -317,27 +375,75 @@ matter. The inorder bounds constrain only the *shape* of
 each subtree; the cursor order is the sole thing pinning *which value* lands at
 each position.
 
-#### Approach
+#### Walkthrough
 
-The bounds approach still threads four indices through every call. We can shrink
-that to a single inorder range plus one shared preorder pointer by exploiting the
-order in which preorder lays nodes out: the entire left subtree appears before any
-right-subtree node.
+Let us rebuild Example 1 once more, watching the cursor: `preorder = [3,9,20,15,7]`,
+`inorder = [9,3,15,20,7]`, with the same
+`inorder_index = {9: 0, 3: 1, 15: 2, 20: 3, 7: 4}`. Each call now carries only the
+inclusive inorder bounds `[left, right]`; the shared `pre_pos` starts at `0` and
+advances once per created node. Each line notes where `pre_pos` stands on entry,
+so the Invariant can be checked at every step:
 
-1. Build the same `inorder_index` map for `O(1)` lookups.
-2. Keep one moving pointer `pre_pos` into `preorder`, starting at `0`. Each node
-   we create consumes exactly one preorder value and advances the pointer.
-3. [Recurse](https://en.wikipedia.org/wiki/Recursion_(computer_science)) with the inclusive inorder bounds `[left, right]` for the current
-   subtree. When `left > right` the subtree is empty, so return `None`.
-4. Take the root from `preorder[pre_pos]`, advance the pointer, find its index
-   `mid` in inorder, then build the left child from `[left, mid - 1]` and the
-   right child from `[mid + 1, right]`.
+```text
+build(0, 4)      pre_pos=0: root = preorder[0] = 3, pre_pos -> 1, mid = 1
+  build(0, 0)    pre_pos=1: root = preorder[1] = 9, pre_pos -> 2, mid = 0
+    build(0, -1) left > right -> None
+    build(1, 0)  left > right -> None
+                 returns node(9); cursor now rests on preorder[2] = 20
+  build(2, 4)    pre_pos=2: root = preorder[2] = 20, pre_pos -> 3, mid = 3
+    build(2, 2)  pre_pos=3: root = preorder[3] = 15, pre_pos -> 4 -> node(15)
+    build(4, 4)  pre_pos=4: root = preorder[4] = 7,  pre_pos -> 5 -> node(7)
+                 returns node(20)
+returns node(3)
+```
 
-Building the left subtree fully before the right subtree is essential: it keeps
-the preorder pointer synchronized, since preorder lays out the entire left subtree
-before any right-subtree node. The Invariant above states that formally: on entry
-to every call, `preorder[pre_pos]` is that subtree's root, which only stays true
-if the left subtree is fully consumed before the right one begins.
+The Invariant is visible in the middle of the trace: when the left call
+`build(0, 0)` finishes building node `9`, the cursor has advanced to `2`, and
+`preorder[2] = 20` is exactly the root of the right subtree that `build(2, 4)`
+is about to construct. No preorder bounds were ever passed; the left-before-right
+call order alone kept the cursor aligned. The finished tree is the same `3`, `9`,
+`20`, `15`, `7` structure, read in level order as `[3,9,20,null,null,15,7]`, the
+expected Output.
+
+#### Solution
+
+The code is the walkthrough's cursor discipline written down: one `pre_pos`
+advance per node, left subtree finished before the right begins.
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+from typing import List, Optional
+
+
+class Solution:
+    def buildTree(self, preorder: List[int], inorder: List[int]) -> Optional[TreeNode]:
+        # Map each value to its index in inorder for O(1) root lookups
+        inorder_index = {val: i for i, val in enumerate(inorder)}
+        self.pre_pos = 0
+
+        def build(left: int, right: int) -> Optional[TreeNode]:
+            # No values remain for this subtree
+            if left > right:
+                return None
+
+            # The next unconsumed preorder value is always this subtree's root
+            root_val = preorder[self.pre_pos]
+            self.pre_pos += 1
+            root = TreeNode(root_val)
+
+            # Inorder splits into left and right subtrees around the root
+            mid = inorder_index[root_val]
+            root.left = build(left, mid - 1)
+            root.right = build(mid + 1, right)
+            return root
+
+        return build(0, len(inorder) - 1)
+```
 
 #### Time and Space Complexity Analysis
 

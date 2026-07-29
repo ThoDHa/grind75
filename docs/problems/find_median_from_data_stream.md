@@ -54,9 +54,85 @@ medianFinder.findMedian(); // return 2.0
 - If all integer numbers from the stream are in the range `[0, 100]`, how would you optimize your solution?
 - If `99%` of all integer numbers from the stream are in the range `[0, 100]`, how would you optimize your solution?
 
+## Deriving the Solution
+
+The median reads only the one or two middle values of the sorted stream, so
+every solution is a different answer to one question: how much order must be
+maintained on every `addNum` for `findMedian` to reach the middle instantly?
+
+1. **Start literal.** Keep every number in one list that stays fully sorted: a
+   hand-written binary search finds each value's slot, and `findMedian` indexes
+   the middle. The search is `O(log n)`, but `list.insert` shifts the tail, so
+   every `addNum` costs `O(n)`: see
+   [Sorted List with Insertion](#sorted-list-with-insertion).
+2. **Spot the waste.** Full sorted order is more than the median ever reads:
+   only the boundary between the smaller half and the larger half matters. The
+   linear shift pays to keep an ordering nobody asks about.
+3. **Keep only the halves.** Store the smaller half in a max-heap and the
+   larger half in a min-heap; the two heap tops straddle the median, and a heap
+   restores itself in `O(log n)` per insert instead of shifting: see
+   [Two Heaps](#two-heaps).
+4. **Or lean on the library.** The sorted-list idea also comes prepackaged:
+   `bisect.insort` performs the same search and shift in one call, shorter to
+   write but with the same `O(n)` insertion cost: see
+   [Sorted List with `bisect.insort`](#sorted-list-with-bisectinsort).
+
 ## Solutions
 
 ### Sorted List with Insertion
+
+#### Derivation
+
+The literal reading of `findMedian` is "index the middle of the sorted data",
+so the first question is how to keep the data sorted as numbers stream in. This
+brute-force baseline uses no imports at all: the whole stream lives in one
+Python list that is always kept in sorted order, so the median is just a matter
+of reading the middle of that list.
+
+1. Maintain a single list `nums` that is invariantly sorted ascending.
+2. On `addNum`, run a hand-written [binary search](https://en.wikipedia.org/wiki/Binary_search_algorithm) to find the leftmost index
+   where the new value belongs, then call `list.insert` to place it there. The
+   binary search locates the slot in `O(log n)` comparisons, but the insert
+   itself must shift every element after that slot, making the operation `O(n)`.
+3. On `findMedian`, compute the middle index. For an odd count the single middle
+   element is the median; for an even count average the two central elements.
+
+The binary search guarantees the list stays sorted without re-sorting the whole
+collection on every insert, but the physical shift on insertion is what
+dominates the cost.
+
+#### Walkthrough
+
+Let us trace the first solution (Sorted List with Insertion) on Example 1: the
+call sequence `addNum(1)`, `addNum(2)`, `findMedian()`, `addNum(3)`,
+`findMedian()`. We follow `nums` (the sorted backing list) as each call mutates
+it.
+
+For each `addNum`, the binary search scans with `low` and `high` to find the
+leftmost slot where `num` belongs, then `list.insert` drops it there:
+
+| Step | Call | Binary search result | `nums` after |
+|------|------|----------------------|--------------|
+| 1 | `addNum(1)` | list empty, slot `0` | `[1]` |
+| 2 | `addNum(2)` | `2` belongs after `1`, slot `1` | `[1, 2]` |
+| 3 | `addNum(3)` | `3` belongs after `2`, slot `2` | `[1, 2, 3]` |
+
+Now the two `findMedian` calls read the middle of the sorted list:
+
+- After step 2, `findMedian()` sees `n = 2` (even). `mid = n // 2 = 1`, so it
+  averages the two central elements: `(nums[0] + nums[1]) / 2 = (1 + 2) / 2 =
+  1.5`.
+- After step 3, `findMedian()` sees `n = 3` (odd). `mid = n // 2 = 1`, so it
+  returns the single middle element: `nums[1] = 2.0`.
+
+The returned values across the call sequence are `1.5` then `2.0`, which matches
+the example's expected Output `[null, null, null, 1.5, null, 2.0]` (the `null`
+entries are the constructor and `addNum` calls, which return nothing).
+
+#### Solution
+
+The code is the walkthrough's table: a binary search for the slot in `addNum`,
+and middle indexing in `findMedian`.
 
 ```python
 class MedianFinder:
@@ -92,24 +168,6 @@ class MedianFinder:
 # param_2 = obj.findMedian()
 ```
 
-#### Approach
-
-This is the brute-force baseline that uses no imports at all. The whole stream
-lives in one Python list that is always kept in sorted order, so the median is
-just a matter of reading the middle of that list.
-
-1. Maintain a single list `nums` that is invariantly sorted ascending.
-2. On `addNum`, run a hand-written [binary search](https://en.wikipedia.org/wiki/Binary_search_algorithm) to find the leftmost index
-   where the new value belongs, then call `list.insert` to place it there. The
-   binary search locates the slot in `O(log n)` comparisons, but the insert
-   itself must shift every element after that slot, making the operation `O(n)`.
-3. On `findMedian`, compute the middle index. For an odd count the single middle
-   element is the median; for an even count average the two central elements.
-
-The binary search guarantees the list stays sorted without re-sorting the whole
-collection on every insert, but the physical shift on insertion is what
-dominates the cost.
-
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity
@@ -135,68 +193,31 @@ grows linearly with the size of the stream.
 - This approach is simple to reason about and correct, but the per-insert linear
   shift makes it slow for large streams.
 
-#### Walkthrough
-
-Let us trace the first solution (Sorted List with Insertion) on Example 1: the
-call sequence `addNum(1)`, `addNum(2)`, `findMedian()`, `addNum(3)`,
-`findMedian()`. We follow `nums` (the sorted backing list) as each call mutates
-it.
-
-For each `addNum`, the binary search scans with `low` and `high` to find the
-leftmost slot where `num` belongs, then `list.insert` drops it there:
-
-| Step | Call | Binary search result | `nums` after |
-|------|------|----------------------|--------------|
-| 1 | `addNum(1)` | list empty, slot `0` | `[1]` |
-| 2 | `addNum(2)` | `2` belongs after `1`, slot `1` | `[1, 2]` |
-| 3 | `addNum(3)` | `3` belongs after `2`, slot `2` | `[1, 2, 3]` |
-
-Now the two `findMedian` calls read the middle of the sorted list:
-
-- After step 2, `findMedian()` sees `n = 2` (even). `mid = n // 2 = 1`, so it
-  averages the two central elements: `(nums[0] + nums[1]) / 2 = (1 + 2) / 2 =
-  1.5`.
-- After step 3, `findMedian()` sees `n = 3` (odd). `mid = n // 2 = 1`, so it
-  returns the single middle element: `nums[1] = 2.0`.
-
-The returned values across the call sequence are `1.5` then `2.0`, which matches
-the example's expected Output `[null, null, null, 1.5, null, 2.0]` (the `null`
-entries are the constructor and `addNum` calls, which return nothing).
-
 ### Two Heaps
 
-```python
-import heapq
+#### Derivation
 
+The sorted list pays `O(n)` per insert to maintain far more order than the
+median ever reads: only the boundary between the smaller and larger halves of
+the data matters. The repair is to keep each half in its own
+[heap](https://en.wikipedia.org/wiki/Heap_(data_structure)), so the two values
+straddling the median stay at the heap tops, available in constant time, while
+each insert costs only the heaps' logarithmic sift.
 
-class MedianFinder:
+1. Maintain a max-heap `lower` for the smaller half (stored as negated values so
+   Python's min-heap behaves as a max-heap) and a min-heap `upper` for the larger
+   half.
+2. On `addNum`, push the new value onto `lower`, then immediately pop `lower`'s
+   maximum and push it onto `upper`. This guarantees every element in `lower` is
+   `<=` every element in `upper`.
+3. Rebalance: if `upper` has grown larger than `lower`, move its minimum back to
+   `lower`. The invariant is that `lower` holds either the same count as `upper`
+   or exactly one more.
+4. On `findMedian`, if `lower` has the extra element its top is the median;
+   otherwise average the two heap tops.
 
-    def __init__(self):
-        # Max-heap (negated) holds the smaller half of the numbers.
-        self.lower: list[int] = []
-        # Min-heap holds the larger half of the numbers.
-        self.upper: list[int] = []
-
-    def addNum(self, num: int) -> None:
-        # Push onto the lower (max) heap, then funnel its top into upper.
-        heapq.heappush(self.lower, -num)
-        heapq.heappush(self.upper, -heapq.heappop(self.lower))
-
-        # Rebalance so lower holds at most one extra element.
-        if len(self.upper) > len(self.lower):
-            heapq.heappush(self.lower, -heapq.heappop(self.upper))
-
-    def findMedian(self) -> float:
-        if len(self.lower) > len(self.upper):
-            return float(-self.lower[0])
-        return (-self.lower[0] + self.upper[0]) / 2.0
-
-
-# Your MedianFinder object will be instantiated and used as follows:
-# obj = MedianFinder()
-# obj.addNum(num)
-# param_2 = obj.findMedian()
-```
+Routing each insert through `lower` before handing the top to `upper` keeps the
+two halves correctly partitioned without any sorting.
 
 #### Formula
 
@@ -253,26 +274,72 @@ invariant: routing every new number through `lower` before moving its top to
 `upper` guarantees the element that crosses over is the correct boundary value,
 whatever its magnitude.
 
-#### Approach
+#### Walkthrough
 
-The median sits at the boundary between the smaller and larger halves of the
-data. By keeping each half in its own [heap](https://en.wikipedia.org/wiki/Heap_(data_structure)), the two values straddling the median
-stay at the heap tops, available in constant time.
+Let us run Example 1's call sequence through the two heaps: `addNum(1)`,
+`addNum(2)`, `findMedian()`, `addNum(3)`, `findMedian()`. Each snapshot shows
+the internal heap lists after the call: `lower` stores negated values (so
+`-lower[0]` is the max of the smaller half) and `upper` stores values as they
+are (so `upper[0]` is the min of the larger half).
 
-1. Maintain a max-heap `lower` for the smaller half (stored as negated values so
-   Python's min-heap behaves as a max-heap) and a min-heap `upper` for the larger
-   half.
-2. On `addNum`, push the new value onto `lower`, then immediately pop `lower`'s
-   maximum and push it onto `upper`. This guarantees every element in `lower` is
-   `<=` every element in `upper`.
-3. Rebalance: if `upper` has grown larger than `lower`, move its minimum back to
-   `lower`. The invariant is that `lower` holds either the same count as `upper`
-   or exactly one more.
-4. On `findMedian`, if `lower` has the extra element its top is the median;
-   otherwise average the two heap tops.
+```text
+start        lower = []        upper = []
+addNum(1)    lower = [-1]      upper = []    1 funnels through upper, rebalances back
+addNum(2)    lower = [-1]      upper = [2]   max 2 crosses over; sizes level, no rebalance
+findMedian() -> (-lower[0] + upper[0]) / 2 = (1 + 2) / 2 = 1.5
+addNum(3)    lower = [-2, -1]  upper = [3]   3 crosses over; upper too big, 2 moves back
+findMedian() -> -lower[0] = 2.0              lower holds the extra element
+```
 
-Routing each insert through `lower` before handing the top to `upper` keeps the
-two halves correctly partitioned without any sorting.
+`addNum(1)` shows the funnel in full: `-1` is pushed onto `lower`, its top is
+immediately popped and pushed onto `upper` as `1`, and the rebalance moves it
+straight back because `upper` outgrew `lower`. `addNum(2)` pushes `-2` onto
+`lower`, pops the maximum `2` over to `upper`, and the sizes are level, so no
+rebalance fires. `addNum(3)` funnels the maximum `3` into `upper`, leaving
+`upper` with two elements against one, so the rebalance returns `upper`'s
+minimum `2` to `lower` as `-2`, where it sifts to the top.
+
+The two `findMedian` calls read `1.5` (equal sizes, so the average of the tops
+`1` and `2`) and `2.0` (`lower` one larger, so its top `2`), matching the
+expected Output `[null, null, null, 1.5, null, 2.0]`.
+
+#### Solution
+
+The code is the walkthrough's funnel and rebalance, with `findMedian` reading
+the heap tops.
+
+```python
+import heapq
+
+
+class MedianFinder:
+
+    def __init__(self):
+        # Max-heap (negated) holds the smaller half of the numbers.
+        self.lower: list[int] = []
+        # Min-heap holds the larger half of the numbers.
+        self.upper: list[int] = []
+
+    def addNum(self, num: int) -> None:
+        # Push onto the lower (max) heap, then funnel its top into upper.
+        heapq.heappush(self.lower, -num)
+        heapq.heappush(self.upper, -heapq.heappop(self.lower))
+
+        # Rebalance so lower holds at most one extra element.
+        if len(self.upper) > len(self.lower):
+            heapq.heappush(self.lower, -heapq.heappop(self.upper))
+
+    def findMedian(self) -> float:
+        if len(self.lower) > len(self.upper):
+            return float(-self.lower[0])
+        return (-self.lower[0] + self.upper[0]) / 2.0
+
+
+# Your MedianFinder object will be instantiated and used as follows:
+# obj = MedianFinder()
+# obj.addNum(num)
+# param_2 = obj.findMedian()
+```
 
 #### Time and Space Complexity Analysis
 
@@ -300,6 +367,50 @@ grows linearly with the size of the stream.
   ordered structures.
 
 ### Sorted List with `bisect.insort`
+
+#### Derivation
+
+This is the same sorted-list strategy as the first solution, but it asks what
+the standard library can take over: [`bisect.insort`](https://docs.python.org/3/library/bisect.html) finds
+the leftmost slot where `num` belongs and inserts it there, keeping the list
+sorted at all times. The `O(n)` shift remains; only the code shrinks.
+
+1. Maintain a single list `nums` that is invariantly sorted ascending.
+2. On `addNum`, call `bisect.insort(self.nums, num)`. It performs an `O(log n)`
+   binary search for the insertion point and then an `O(n)` element shift to
+   place the value.
+3. On `findMedian`, index the middle of the sorted list exactly as before: the
+   single middle element for an odd count, or the average of the two central
+   elements for an even count.
+
+The behavior is identical to the hand-written version; only the search and
+insert are delegated to `bisect`.
+
+#### Walkthrough
+
+Let us run Example 1's call sequence once more: `addNum(1)`, `addNum(2)`,
+`findMedian()`, `addNum(3)`, `findMedian()`. The state is the same sorted list
+as the hand-written version; here each `addNum` is a single `bisect.insort`
+call, which lands each value in exactly the slot the hand-written binary search
+found:
+
+```text
+start        nums = []
+addNum(1)    insort into slot 0    nums = [1]
+addNum(2)    insort into slot 1    nums = [1, 2]
+findMedian() -> n = 2 even, (nums[0] + nums[1]) / 2 = 1.5
+addNum(3)    insort into slot 2    nums = [1, 2, 3]
+findMedian() -> n = 3 odd, nums[1] = 2.0
+```
+
+The list after every insert is identical to the hand-written walkthrough, and
+the two `findMedian` reads return `1.5` then `2.0`, matching the expected
+Output `[null, null, null, 1.5, null, 2.0]`.
+
+#### Solution
+
+The code is the first solution with its search and insert collapsed into the
+single `bisect.insort` call.
 
 ```python
 import bisect
@@ -329,24 +440,6 @@ class MedianFinder:
 # obj.addNum(num)
 # param_2 = obj.findMedian()
 ```
-
-#### Approach
-
-This is the same sorted-list strategy as the first solution, but it lets the
-standard library do the binary search and the insertion. [`bisect.insort`](https://docs.python.org/3/library/bisect.html) finds
-the leftmost slot where `num` belongs and inserts it there, keeping the list
-sorted at all times.
-
-1. Maintain a single list `nums` that is invariantly sorted ascending.
-2. On `addNum`, call `bisect.insort(self.nums, num)`. It performs an `O(log n)`
-   binary search for the insertion point and then an `O(n)` element shift to
-   place the value.
-3. On `findMedian`, index the middle of the sorted list exactly as before: the
-   single middle element for an odd count, or the average of the two central
-   elements for an even count.
-
-The behavior is identical to the hand-written version; only the search and
-insert are delegated to `bisect`.
 
 #### Time and Space Complexity Analysis
 

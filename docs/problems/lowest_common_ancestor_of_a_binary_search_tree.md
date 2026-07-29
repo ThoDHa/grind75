@@ -48,49 +48,38 @@ According to the definition of LCA on Wikipedia: "The lowest common ancestor is 
 - `p != q`
 - `p` and `q` will exist in the BST.
 
+## Deriving the Solution
+
+The lowest common ancestor is the node where the root-to-`p` path and the
+root-to-`q` path part ways: the two paths share a prefix from the root down,
+and the last node of that shared prefix is the LCA. Every solution below finds
+that divergence point; they differ in how much of the tree they must inspect
+to locate it.
+
+1. **Start literal.** Build both root-to-target paths explicitly with a DFS,
+   then walk them in lockstep until they disagree. Two full searches and two
+   stored paths cost `O(n)` time and space: see
+   [Brute Force DFS](#brute-force-dfs).
+2. **Spot the waste.** The paths are only ever compared, never kept. One
+   post-order traversal can detect the split directly: a node whose left and
+   right subtrees each report one target is the divergence point. Still `O(n)`
+   time, but no path storage: see
+   [Generic Post-Order DFS](#generic-post-order-dfs).
+3. **Use the ordering.** Both previous approaches ignore that this tree is a
+   BST. Comparing `p.val` and `q.val` against a node's value tells us which
+   side both targets lie on, so the divergence point can be found by walking a
+   single root-to-LCA path in `O(h)`: see
+   [Recursive Using BST Properties](#recursive-using-bst-properties).
+4. **Drop the stack.** That descent is tail-recursive: each call makes at most
+   one further call and returns its result unchanged, so a simple loop
+   replaces the recursion and the `O(h)` call stack becomes `O(1)`: see
+   [Iterative Using BST Properties](#iterative-using-bst-properties).
+
 ## Solutions
 
 ### Brute Force DFS
 
-```python
-# Definition for a binary tree node.
-# class TreeNode:
-#     def __init__(self, val=0, left=None, right=None):
-#         self.val = val
-#         self.left = left
-#         self.right = right
-class Solution:
-    def lowestCommonAncestor(
-        self, root: TreeNode, p: TreeNode, q: TreeNode
-    ) -> TreeNode:
-        # Collect the root-to-target path for each node, ignoring BST ordering.
-        def find_path(node: TreeNode, target: TreeNode) -> list:
-            if node is None:
-                return []
-            if node.val == target.val:
-                return [node]
-            left = find_path(node.left, target)
-            if left:
-                return [node] + left
-            right = find_path(node.right, target)
-            if right:
-                return [node] + right
-            return []
-
-        path_p = find_path(root, p)
-        path_q = find_path(root, q)
-
-        # Walk both paths in lockstep; the last shared node is the LCA.
-        lca = root
-        for node_p, node_q in zip(path_p, path_q):
-            if node_p.val == node_q.val:
-                lca = node_p
-            else:
-                break
-        return lca
-```
-
-#### Approach
+#### Derivation
 
 The most direct idea, without relying on any tree property, is to find the full path from the root down to each target, then compare the two paths. The [lowest common ancestor](https://en.wikipedia.org/wiki/Lowest_common_ancestor) is simply the last node the two paths share before they diverge. This works on any binary tree because it only uses parent-to-child links, not value ordering.
 
@@ -100,22 +89,6 @@ The most direct idea, without relying on any tree property, is to find the full 
 4. Return that last shared node as the LCA.
 
 Because the problem guarantees both nodes exist, each DFS finds a non-empty path, and the two paths share at least the root.
-
-#### Time and Space Complexity Analysis
-
-##### Time Complexity: `O(n)`
-
-Where `n` is the number of nodes. Each `find_path` call may visit every node in the worst case, and comparing the paths is bounded by the tree height, so the total is linear.
-
-##### Space Complexity: `O(n)`
-
-Both paths together store up to `O(h)` nodes, and the recursion stack reaches depth `O(h)`; in the worst case of a skewed tree this is `O(n)`.
-
-#### Key Insights
-
-- Works for any binary tree, not only BSTs, because it relies on paths rather than value ordering.
-- The LCA is exactly the divergence point of the two root-to-target paths.
-- Building explicit paths is wasteful, but it makes the definition of LCA concrete and easy to verify.
 
 #### Walkthrough
 
@@ -158,7 +131,115 @@ So `path_q = [6, 8]`.
 
 The paths agree on `6`, then diverge at `2` versus `8`, so the loop breaks. The function returns `lca = 6`, which matches the expected Output `6`.
 
+#### Solution
+
+The code is the walkthrough's three steps written down: two path searches,
+then the lockstep comparison.
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def lowestCommonAncestor(
+        self, root: TreeNode, p: TreeNode, q: TreeNode
+    ) -> TreeNode:
+        # Collect the root-to-target path for each node, ignoring BST ordering.
+        def find_path(node: TreeNode, target: TreeNode) -> list:
+            if node is None:
+                return []
+            if node.val == target.val:
+                return [node]
+            left = find_path(node.left, target)
+            if left:
+                return [node] + left
+            right = find_path(node.right, target)
+            if right:
+                return [node] + right
+            return []
+
+        path_p = find_path(root, p)
+        path_q = find_path(root, q)
+
+        # Walk both paths in lockstep; the last shared node is the LCA.
+        lca = root
+        for node_p, node_q in zip(path_p, path_q):
+            if node_p.val == node_q.val:
+                lca = node_p
+            else:
+                break
+        return lca
+```
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n)`
+
+Where `n` is the number of nodes. Each `find_path` call may visit every node in the worst case, and comparing the paths is bounded by the tree height, so the total is linear.
+
+##### Space Complexity: `O(n)`
+
+Both paths together store up to `O(h)` nodes, and the recursion stack reaches depth `O(h)`; in the worst case of a skewed tree this is `O(n)`.
+
+#### Key Insights
+
+- Works for any binary tree, not only BSTs, because it relies on paths rather than value ordering.
+- The LCA is exactly the divergence point of the two root-to-target paths.
+- Building explicit paths is wasteful, but it makes the definition of LCA concrete and easy to verify.
+
 ### Generic Post-Order DFS
+
+#### Derivation
+
+This refines the brute force by collapsing the two separate path searches into a single traversal that never builds explicit path lists. It still ignores the BST ordering and works for any binary tree, searching both subtrees with a [post-order traversal](https://en.wikipedia.org/wiki/Tree_traversal). If each subtree reports back one target, the current node is the split point and therefore the LCA. If only one subtree reports a target, the LCA lies entirely within that subtree.
+
+1. Return `None` for an empty subtree.
+2. If the current node matches `p` or `q`, return it as a candidate.
+3. Recurse into both children.
+4. If both children return non-`None`, the targets diverge here, so return the current node.
+5. Otherwise propagate whichever child found a target upward.
+
+Because a matching node short-circuits its subtree, a node that is itself an ancestor of the other target is returned correctly without descending further.
+
+#### Walkthrough
+
+Let us run the single traversal on Example 1: `root = [6,2,8,0,4,7,9,null,null,3,5]`,
+`p = 2`, `q = 8`, the tree
+
+```text
+          6
+        /   \
+       2     8
+      / \   / \
+     0   4 7   9
+        / \
+       3   5
+```
+
+The indentation below shows the recursion; each call either matches a target
+and returns immediately, or waits for both children to report:
+
+```text
+lowestCommonAncestor(6)    6 is neither 2 nor 8; recurse into both sides
+  lowestCommonAncestor(2)  2 == p.val -> return node 2   (0 and 4 never visited)
+  lowestCommonAncestor(8)  8 == q.val -> return node 8   (7 and 9 never visited)
+back at 6: left = 2, right = 8, both non-None -> return 6
+```
+
+The left recursion stops the instant it lands on `2`: a matching node
+short-circuits its whole subtree, so `0`, `4`, `3`, `5` are never examined.
+Likewise the right recursion returns `8` without touching `7` or `9`. Back at
+the root, `left` and `right` are both non-`None`, meaning one target was found
+on each side, so `6` is the split point and is returned. That matches the
+expected Output `6`, with no path list ever built.
+
+#### Solution
+
+The code is the walkthrough's report-and-combine step: match, recurse both
+sides, and return the node where both sides answer.
 
 ```python
 # Definition for a binary tree node.
@@ -187,18 +268,6 @@ class Solution:
         return left or right
 ```
 
-#### Approach
-
-This refines the brute force by collapsing the two separate path searches into a single traversal that never builds explicit path lists. It still ignores the BST ordering and works for any binary tree, searching both subtrees with a [post-order traversal](https://en.wikipedia.org/wiki/Tree_traversal). If each subtree reports back one target, the current node is the split point and therefore the LCA. If only one subtree reports a target, the LCA lies entirely within that subtree.
-
-1. Return `None` for an empty subtree.
-2. If the current node matches `p` or `q`, return it as a candidate.
-3. Recurse into both children.
-4. If both children return non-`None`, the targets diverge here, so return the current node.
-5. Otherwise propagate whichever child found a target upward.
-
-Because a matching node short-circuits its subtree, a node that is itself an ancestor of the other target is returned correctly without descending further.
-
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(n)`
@@ -217,6 +286,54 @@ The recursion stack can grow as deep as the height of the tree, but no separate 
 - Trims the brute force's two passes and explicit path storage into a single recursion.
 
 ### Recursive Using BST Properties
+
+#### Derivation
+
+Both previous approaches treat the tree as an arbitrary binary tree and may scan all of it. This solution leverages the [Binary Search Tree](https://en.wikipedia.org/wiki/Binary_search_tree) property: values smaller than a node sit in its left subtree, and values greater sit in its right subtree. We navigate down the tree, recursing into one side only when both targets fall on that side. The first node where the targets diverge (one on each side, or one equal to the node itself) is the lowest common ancestor.
+
+1. Compare both `p.val` and `q.val` against `root.val`.
+2. If both are smaller, recurse into `root.left`.
+3. If both are larger, recurse into `root.right`.
+4. Otherwise the targets split here, so `root` is the LCA. Return it.
+
+Because the problem guarantees both nodes exist in the BST, the recursion always reaches a valid split point and never falls off the tree.
+
+#### Walkthrough
+
+Let us descend through Example 2, which needs more than one step and exercises
+the ancestor-of-itself case: `root = [6,2,8,0,4,7,9,null,null,3,5]`, `p = 2`,
+`q = 4`, the tree
+
+```text
+          6
+        /   \
+       2     8
+      / \   / \
+     0   4 7   9
+        / \
+       3   5
+```
+
+Each call compares both target values against `root.val` and picks exactly one
+direction, or stops:
+
+```text
+lowestCommonAncestor(6)    p.val=2 < 6 and q.val=4 < 6   both smaller -> recurse left
+  lowestCommonAncestor(2)  p.val=2 < 2? no.  p.val=2 > 2? no.  -> split: return node 2
+```
+
+At the root, both `2` and `4` are smaller than `6`, so the entire right half
+of the tree is dismissed without a glance and the search moves to `2`. There,
+neither comparison holds: `p.val` equals the node's value, so the targets no
+longer lie strictly on one side. That is the split condition, and `2` is
+returned: `p` is its own ancestor and `q = 4` sits in its right subtree. The
+result matches the expected Output `2`, reached after inspecting just two
+nodes.
+
+#### Solution
+
+The code is the walkthrough's three-way comparison, applied once per level of
+the descent.
 
 ```python
 # Definition for a binary tree node.
@@ -239,17 +356,6 @@ class Solution:
         return root
 ```
 
-#### Approach
-
-This solution leverages the [Binary Search Tree](https://en.wikipedia.org/wiki/Binary_search_tree) property: values smaller than a node sit in its left subtree, and values greater sit in its right subtree. We navigate down the tree, recursing into one side only when both targets fall on that side. The first node where the targets diverge (one on each side, or one equal to the node itself) is the lowest common ancestor.
-
-1. Compare both `p.val` and `q.val` against `root.val`.
-2. If both are smaller, recurse into `root.left`.
-3. If both are larger, recurse into `root.right`.
-4. Otherwise the targets split here, so `root` is the LCA. Return it.
-
-Because the problem guarantees both nodes exist in the BST, the recursion always reaches a valid split point and never falls off the tree.
-
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(h)`
@@ -267,6 +373,40 @@ The recursion stack can grow as deep as the height of the tree.
 - We only walk the path from the root to the divergence point, never the whole tree.
 
 ### Iterative Using BST Properties
+
+#### Derivation
+
+The recursive descent has a telling shape: every call either returns immediately or returns whatever its single recursive call returns. Nothing happens after the recursion, so the call stack is dead weight. This solution uses the same [BST](https://en.wikipedia.org/wiki/Binary_search_tree) logic as the recursive approach but replaces the call stack with a single loop. We start at the root and descend, moving left when both targets are smaller than the current node and right when both are larger. The first node where the targets diverge (or where one of them equals the current node) is the LCA.
+
+1. Set `current` to `root`.
+2. While `current` is not `None`, compare both target values against `current.val`.
+3. Move `current` left or right while both targets fall on the same side.
+4. Return `current` as soon as the targets split.
+
+The loop is guaranteed to terminate at a real node because both targets exist in the tree, so a split point always appears before we run off the end.
+
+#### Walkthrough
+
+Let us re-run Example 2 as a loop: `root = [6,2,8,0,4,7,9,null,null,3,5]`,
+`p = 2`, `q = 4`, the same tree drawn in the recursive walkthrough above. The
+single pointer `current` starts at the root, and each line is one loop
+iteration:
+
+```text
+current = 6   p.val=2 < 6 and q.val=4 < 6      -> current = current.left = 2
+current = 2   2 < 2? no.  2 > 2? no.           -> split: return current = 2
+```
+
+The comparisons are identical to the recursive version; the only difference is
+that instead of a recursive call carrying the answer back up, `current` is
+reassigned in place. The loop stops at node `2`, where the targets no longer
+fall on one side, and returns it: the expected Output `2`, computed with one
+pointer and no stack.
+
+#### Solution
+
+The code is the walkthrough's loop: reassign `current` while both targets sit
+on one side, return it at the split.
 
 ```python
 # Definition for a binary tree node.
@@ -292,17 +432,6 @@ class Solution:
                 return current
         return None
 ```
-
-#### Approach
-
-This solution uses the same [BST](https://en.wikipedia.org/wiki/Binary_search_tree) logic as the recursive approach but replaces the call stack with a single loop. We start at the root and descend, moving left when both targets are smaller than the current node and right when both are larger. The first node where the targets diverge (or where one of them equals the current node) is the LCA.
-
-1. Set `current` to `root`.
-2. While `current` is not `None`, compare both target values against `current.val`.
-3. Move `current` left or right while both targets fall on the same side.
-4. Return `current` as soon as the targets split.
-
-The loop is guaranteed to terminate at a real node because both targets exist in the tree, so a split point always appears before we run off the end.
 
 #### Time and Space Complexity Analysis
 

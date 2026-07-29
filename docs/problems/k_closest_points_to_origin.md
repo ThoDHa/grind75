@@ -41,31 +41,49 @@ We only want the closest `k = 1` points from the origin, so the answer is just `
 - `1 <= k <= points.length <= 10^4`
 - `-10^4 <= xi, yi <= 10^4`
 
+## Deriving the Solution
+
+Every approach ranks points by the same key: the squared distance `x*x + y*y`,
+which orders points exactly as the true Euclidean distance does (the
+[Formula](#formula) below makes that precise). The approaches differ only in how
+much ordering work they spend to isolate the `k` smallest keys.
+
+1. **Start literal.** "The `k` closest points" invites finding the single
+   closest point, removing it, and repeating `k` times. Correct, but every round
+   rescans the whole remaining list, costing `O(n * k)`: see
+   [Brute Force](#brute-force).
+2. **Sort once instead.** The repeated scans keep re-deriving order information
+   that one pass could settle. Sorting the whole array by the key makes the `k`
+   closest the first `k` slots in `O(n log n)`, but fully orders all `n` points
+   when only `k` of them matter: see [Sort by Distance](#sort-by-distance).
+3. **Keep only `k` candidates.** The far points never need any order among
+   themselves. A max-heap capped at `k` entries holds the best candidates seen
+   so far and evicts the farthest in `O(log k)` whenever something closer
+   arrives, for `O(n log k)` total: see
+   [Max-Heap of Size K](#max-heap-of-size-k).
+4. **Order nothing but the boundary.** Even the `k` kept points need no internal
+   order; only the boundary between the `k` closest and everything else matters.
+   Quicksort's partition step fixes exactly that boundary in `O(n)` average
+   time: see [Quickselect](#quickselect).
+
 ## Solutions
 
 ### Brute Force
 
-```python
-from typing import List
+#### Derivation
 
+The most direct reading, with no sort or heap: to collect the `k` closest
+points, find the single nearest point, remove it, and repeat `k` times. The only
+subtlety is the ranking key: comparing squared distances `x*x + y*y` is enough,
+because taking the square root never changes which of two distances is smaller
+(the [Formula](#formula) below states this precisely), so `sqrt` would add cost
+without changing any comparison.
 
-class Solution:
-    def kClosest(self, points: List[List[int]], k: int) -> List[List[int]]:
-        def dist(p: List[int]) -> int:
-            # Squared distance preserves ordering and avoids a costly sqrt.
-            return p[0] * p[0] + p[1] * p[1]
-
-        remaining = list(points)
-        closest = []
-        # Pick the single closest remaining point k times by hand.
-        for _ in range(k):
-            best = 0
-            for i in range(1, len(remaining)):
-                if dist(remaining[i]) < dist(remaining[best]):
-                    best = i
-            closest.append(remaining.pop(best))
-        return closest
-```
+1. Copy `points` into a working list `remaining` so the input is left intact.
+2. Repeat `k` times: scan every remaining point, track in `best` the index of
+   the smallest squared distance `dist`, then pop that point and append it to
+   `closest`.
+3. After `k` rounds `closest` holds exactly the `k` closest points.
 
 #### Formula
 
@@ -96,40 +114,6 @@ Ordering by \(d^2\) therefore produces exactly the same ordering as \(d\).
 Dropping the square root also keeps the arithmetic in exact integers rather than
 floats, so ties between equidistant points are decided without rounding error.
 
-#### Approach
-
-The most direct idea, with no sort or heap: to find the `k` closest points,
-repeatedly scan the remaining points for the single nearest one and remove it,
-doing this `k` times. Comparing squared distances `x*x + y*y` is sufficient
-because `√a < √b` iff `a < b` for non-negative values, so the square root adds
-cost without changing the order.
-
-1. Copy `points` into a working list so the input is left intact.
-2. Repeat `k` times: scan every remaining point, track the index of the smallest
-   squared distance, then pop that point and append it to the result.
-3. After `k` rounds the result holds exactly the `k` closest points.
-
-#### Time and Space Complexity Analysis
-
-##### Time Complexity: `O(n * k)`
-
-Each of the `k` selection rounds scans up to `n` remaining points, so the total
-work is `O(n * k)`. When `k` approaches `n` this degrades toward `O(n^2)`.
-
-##### Space Complexity: `O(n)`
-
-The working copy of the points holds up to `n` entries; the result aside, no
-other storage grows with the input.
-
-#### Key Insights
-
-- This is the most self-evident correct solution: find the nearest, remove it,
-  repeat. It selects by hand rather than delegating to a sort or heap.
-- It wastes work by rescanning the entire remaining list on every round, which
-  motivates the heap and selection approaches that follow.
-- Always key on squared distance; computing `sqrt` adds floating-point cost and
-  rounding risk for no benefit to the ordering.
-
 #### Walkthrough
 
 Trace the Brute Force on Example 1: `points = [[1,3],[-2,2]]`, `k = 1`.
@@ -154,7 +138,101 @@ the loop is done.
 The function returns `closest = [[-2,2]]`, which matches the example's expected
 Output `[[-2,2]]`.
 
+#### Solution
+
+The code is the walkthrough's selection round repeated `k` times: an inner scan
+for `best`, then a pop into `closest`.
+
+```python
+from typing import List
+
+
+class Solution:
+    def kClosest(self, points: List[List[int]], k: int) -> List[List[int]]:
+        def dist(p: List[int]) -> int:
+            # Squared distance preserves ordering and avoids a costly sqrt.
+            return p[0] * p[0] + p[1] * p[1]
+
+        remaining = list(points)
+        closest = []
+        # Pick the single closest remaining point k times by hand.
+        for _ in range(k):
+            best = 0
+            for i in range(1, len(remaining)):
+                if dist(remaining[i]) < dist(remaining[best]):
+                    best = i
+            closest.append(remaining.pop(best))
+        return closest
+```
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n * k)`
+
+Each of the `k` selection rounds scans up to `n` remaining points, so the total
+work is `O(n * k)`. When `k` approaches `n` this degrades toward `O(n^2)`.
+
+##### Space Complexity: `O(n)`
+
+The working copy of the points holds up to `n` entries; the result aside, no
+other storage grows with the input.
+
+#### Key Insights
+
+- This is the most self-evident correct solution: find the nearest, remove it,
+  repeat. It selects by hand rather than delegating to a sort or heap.
+- It wastes work by rescanning the entire remaining list on every round, which
+  motivates the heap and selection approaches that follow.
+- Always key on squared distance; computing `sqrt` adds floating-point cost and
+  rounding risk for no benefit to the ordering.
+
 ### Max-Heap of Size K
+
+#### Derivation
+
+The Brute Force pays for its rounds: each of the `k` selections rescans every
+remaining point, including the far ones that will never be part of the answer.
+What the scan really maintains is a running set of "best candidates so far",
+and a [max-heap](https://en.wikipedia.org/wiki/Heap_(data_structure)) maintains
+exactly that without rescanning: keep at most `k` points, arranged so the
+farthest current candidate sits on top and can be evicted the moment something
+closer arrives. Python's `heapq` is a min-heap, so storing the negated squared
+distance `-dist` puts the largest distance at `heap[0]`.
+
+1. Iterate over the points, computing each squared distance `dist = x*x + y*y`.
+2. While the heap holds fewer than `k` points, push the point with key
+   `-dist` (negation turns Python's min-heap into a max-heap).
+3. Once the heap is full, if a new point is closer than the heap's farthest
+   (`-dist > heap[0][0]`), replace the top with `heapreplace`.
+4. After processing all points, the heap holds exactly the `k` closest; return
+   their coordinates.
+
+#### Walkthrough
+
+Trace the heap on Example 2: `points = [[3,3],[5,-1],[-2,4]]`, `k = 2`. The
+squared distances are `18`, `26`, and `20`. Each line shows the decision for one
+point and the heap contents (as the list `heapq` maintains) afterward:
+
+```text
+[3,3]   dist=18   heap not full -> push (-18, [3,3])     heap = [(-18, [3,3])]
+[5,-1]  dist=26   heap not full -> push (-26, [5,-1])    heap = [(-26, [5,-1]), (-18, [3,3])]
+[-2,4]  dist=20   -20 > heap[0][0] = -26 -> heapreplace  heap = [(-20, [-2,4]), (-18, [3,3])]
+```
+
+The first two points fill the heap to its cap of `k = 2`. Because the keys are
+negated, the smallest tuple sits at `heap[0]`, and the smallest negated key
+belongs to the largest distance: after two pushes the top is `(-26, [5,-1])`,
+the farthest candidate. The third point has `-dist = -20 > -26`, which says
+`20 < 26`: it is closer than the current farthest, so `heapreplace` evicts
+`[5,-1]` and inserts `[-2,4]` in one balanced operation.
+
+The final comprehension strips the keys and returns `[[-2,4], [3,3]]`.
+Example 2 accepts any order, and this matches its explicitly accepted answer
+`[[-2,4],[3,3]]`.
+
+#### Solution
+
+The code is the walkthrough's push-or-replace decision applied to every point.
 
 ```python
 import heapq
@@ -174,21 +252,6 @@ class Solution:
                 heapq.heapreplace(heap, (-dist, [x, y]))
         return [point for _, point in heap]
 ```
-
-#### Approach
-
-Comparing squared distances avoids the square root entirely, since `√a < √b`
-iff `a < b` for non-negative values. To keep only the `k` closest points we hold
-a [max-heap](https://en.wikipedia.org/wiki/Heap_(data_structure)) of size `k` keyed by negated squared distance, so the heap's top is
-the farthest of the current candidates.
-
-1. Iterate over the points, computing each squared distance `x*x + y*y`.
-2. While the heap holds fewer than `k` points, push the point with key
-   `-dist` (negation turns Python's min-heap into a max-heap).
-3. Once the heap is full, if a new point is closer than the heap's farthest
-   (`-dist > heap[0][0]`), replace the top with `heapreplace`.
-4. After processing all points, the heap holds exactly the `k` closest; return
-   their coordinates.
 
 #### Time and Space Complexity Analysis
 
@@ -212,6 +275,58 @@ the input.
   two.
 
 ### Quickselect
+
+#### Derivation
+
+The heap still spends `O(log k)` per point maintaining order inside the
+candidate set, order the problem never asks for: the output may come back in any
+order. All that actually matters is a boundary: after rearranging, the first `k`
+slots must hold smaller keys than everything after them, with no order required
+on either side. [Quickselect](https://en.wikipedia.org/wiki/Quickselect) fixes
+exactly that boundary. It reuses the partition step of quicksort: pick a pivot,
+move every point with a smaller squared distance to its left, and the pivot
+lands at its final sorted index `mid`. Then, instead of recursing into both
+sides as quicksort would, it narrows toward the one side containing index `k`.
+
+1. Pick a random pivot and `partition` the points so everything with a smaller
+   squared distance sits to its left.
+2. Let `mid` be the pivot's final index. If `mid == k`, the first `k` elements
+   are exactly the answer.
+3. If `mid < k`, the boundary lies to the right, so continue with `left = mid+1`;
+   if `mid > k`, continue with `right = mid-1`.
+4. When the loop ends, the first `k` points are the closest (in arbitrary order),
+   which the problem permits.
+
+#### Walkthrough
+
+Trace Quickselect on Example 2: `points = [[3,3],[5,-1],[-2,4]]`, `k = 2`, with
+squared distances `18`, `26`, `20`. The pivot index is drawn at random, so a
+hand-trace must fix the draws: suppose the first draw is `pivot_idx = 2`, which
+resolves the search in a single partition (any other draw reaches the same
+first-two-points set after more rounds).
+
+```text
+setup      left=0, right=2      points = [[3,3], [5,-1], [-2,4]]   dists 18, 26, 20
+partition  pivot_idx=2, pivot_dist = dist([-2,4]) = 20
+           swap points[2], points[2]: pivot already at the end; store = 0
+  i=0      dist([3,3]) = 18 < 20      -> swap points[0], points[0]; store = 1
+  i=1      dist([5,-1]) = 26 < 20 fails -> store stays 1
+           swap points[2], points[1]  -> points = [[3,3], [-2,4], [5,-1]]
+           return store = 1
+select     mid = 1, and mid < k = 2   -> left = mid + 1 = 2
+loop       left == right              -> loop exits
+```
+
+The partition placed `[-2,4]` (key `20`) at its final sorted index `1`, with the
+smaller key `18` on its left and the larger key `26` on its right. Since
+`mid = 1 < k`, the boundary at index `k = 2` lies further right, and narrowing
+to `left = 2` ends the loop immediately. The function returns
+`points[:2] = [[3,3],[-2,4]]`, which is Example 2's expected Output.
+
+#### Solution
+
+The code is the walkthrough's partition-and-narrow loop; only the random pivot
+draws vary from run to run.
 
 ```python
 import random
@@ -249,21 +364,6 @@ class Solution:
         return points[:k]
 ```
 
-#### Approach
-
-[Quickselect](https://en.wikipedia.org/wiki/Quickselect) rearranges the array so the `k` smallest-distance points occupy the
-first `k` slots, without fully sorting the rest. It reuses the partition step of
-quicksort but recurses into only one side.
-
-1. Pick a random pivot and partition the points so everything with a smaller
-   squared distance sits to its left.
-2. Let `mid` be the pivot's final index. If `mid == k`, the first `k` elements
-   are exactly the answer.
-3. If `mid < k`, the boundary lies to the right, so continue with `left = mid+1`;
-   if `mid > k`, continue with `right = mid-1`.
-4. When the loop ends, the first `k` points are the closest (in arbitrary order),
-   which the problem permits.
-
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(n)` average, `O(n^2)` worst case
@@ -288,6 +388,42 @@ no extra storage scales with the input.
 
 ### Sort by Distance
 
+#### Derivation
+
+Every approach so far works to avoid ordering all `n` points. When `n` is
+modest, the shortest correct program accepts that cost and lets the language do
+the work: [sort](https://en.wikipedia.org/wiki/Sorting_algorithm) every point by
+its squared distance from the origin, then slice off the first `k`. The full
+sort does more than the problem asks, ordering the far points too, which is
+exactly the waste the heap and Quickselect exist to remove; the trade is that
+the code shrinks to two lines. The key is the same squared distance
+`x*x + y*y` used everywhere on this page, which sorts identically to the true
+distance.
+
+1. Sort `points` in place using the squared distance as the key.
+2. Slice off the first `k` entries, which are now the closest.
+
+#### Walkthrough
+
+Sorting is the entire technique here, so the trace shows what the sort receives
+and what it must produce. On Example 2: `points = [[3,3],[5,-1],[-2,4]]`,
+`k = 2`:
+
+```text
+keys     [3,3] -> 9 + 9 = 18    [5,-1] -> 25 + 1 = 26    [-2,4] -> 4 + 16 = 20
+before   points = [[3,3], [5,-1], [-2,4]]    keys 18, 26, 20
+after    points = [[3,3], [-2,4], [5,-1]]    keys 18, 20, 26
+slice    points[:2] = [[3,3], [-2,4]]
+```
+
+The sort rearranges the points into ascending key order `18, 20, 26`, and the
+slice keeps the first `k = 2` of them. The function returns `[[3,3],[-2,4]]`,
+Example 2's expected Output.
+
+#### Solution
+
+The code is the two steps of the walkthrough: sort by key, then slice.
+
 ```python
 from typing import List
 
@@ -298,16 +434,6 @@ class Solution:
         points.sort(key=lambda p: p[0] * p[0] + p[1] * p[1])
         return points[:k]
 ```
-
-#### Approach
-
-Let the language do the work: [sort](https://en.wikipedia.org/wiki/Sorting_algorithm) every point by its squared distance from the
-origin, then slice off the first `k`. Comparing squared distances `x*x + y*y` is
-sufficient because `√a < √b` iff `a < b` for non-negative values, so the square
-root adds cost without changing the order.
-
-1. Sort `points` in place using the squared distance as the key.
-2. Slice off the first `k` entries, which are now the closest.
 
 #### Time and Space Complexity Analysis
 

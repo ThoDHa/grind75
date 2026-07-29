@@ -57,9 +57,86 @@ lRUCache.get(4);    // return 4
 - `0 <= value <= 10^5`
 - At most `2 * 10^5` calls will be made to `get` and `put`.
 
+## Deriving the Solution
+
+An LRU cache must do two things on every operation: look a key up, and know at
+all times which key was used least recently. A hash map makes the lookup `O(1)`;
+the entire difficulty is maintaining the recency ordering just as cheaply.
+
+1. **Start literal.** Keep the ordering by hand: a dict for values plus a list
+   of keys in access order, front = least recently used. Correct, but every
+   touch calls `order.remove(key)` and every eviction `order.pop(0)`, both of
+   which scan or shift the list, so each operation costs `O(n)`: see
+   [Brute Force](#brute-force).
+2. **Make the reorder a splice.** The list is slow for two reasons: finding a
+   key means scanning, and moving a key means shifting everything after it. A
+   doubly linked list removes a node by rewiring two pointers, and storing each
+   key's node in the hash map removes the scan, so every touch and eviction
+   becomes `O(1)` pointer surgery: see
+   [Hash Map + Doubly Linked List](#hash-map-doubly-linked-list).
+3. **Recognize the library structure.** A hash map fused with a doubly linked
+   list kept in insertion order is exactly what Python's `OrderedDict` is; with
+   `move_to_end` and `popitem(last=False)` the same design collapses to a few
+   lines: see [OrderedDict](#ordereddict).
+
 ## Solutions
 
 ### Brute Force
+
+#### Derivation
+
+The most direct idea is to store values in a [dict](https://en.wikipedia.org/wiki/Hash_table) and track recency by hand in a
+separate list of keys, kept in access order. This mirrors what an LRU cache must
+do without reaching for any specialized structure: it just pays a linear cost to
+maintain the ordering.
+
+1. Keep a dict mapping key to value, plus a list `order` whose front is the least
+   recently used key and whose back is the most recently used.
+2. To mark a key as recently used, remove it from wherever it sits in `order` and
+   append it to the back: the `_touch` helper.
+3. On `get`, return `-1` if the key is absent; otherwise touch the key and return
+   its value.
+4. On `put`, update and touch an existing key. For a new key, first evict the
+   front of `order` (and its dict entry) if the cache is full, then store the
+   value and append the key to the back.
+
+The design is correct but the `order.remove` and `order.pop(0)` calls scan and
+shift the list, so each operation is `O(n)` rather than the required `O(1)`.
+
+#### Walkthrough
+
+Let us watch the Brute Force run on Example 1, with `capacity = 2`. The two
+pieces of state are `cache` (the key-to-value dict) and `order` (the recency
+list, where the front is least recently used and the back is most recently
+used). Each row shows both pieces of state and what the call returns after it
+finishes:
+
+| Call | What happens | `cache` after | `order` after | Returns |
+|------|--------------|---------------|---------------|---------|
+| `LRUCache(2)` | start empty | `{}` | `[]` | `null` |
+| `put(1, 1)` | new key, cache not full: store and append | `{1: 1}` | `[1]` | `null` |
+| `put(2, 2)` | new key, cache not full: store and append | `{1: 1, 2: 2}` | `[1, 2]` | `null` |
+| `get(1)` | key present: touch `1` (remove, append), return value | `{1: 1, 2: 2}` | `[2, 1]` | `1` |
+| `put(3, 3)` | new key, cache full: evict front `2`, store `3` | `{1: 1, 3: 3}` | `[1, 3]` | `null` |
+| `get(2)` | key absent | `{1: 1, 3: 3}` | `[1, 3]` | `-1` |
+| `put(4, 4)` | new key, cache full: evict front `1`, store `4` | `{3: 3, 4: 4}` | `[3, 4]` | `null` |
+| `get(1)` | key absent | `{3: 3, 4: 4}` | `[3, 4]` | `-1` |
+| `get(3)` | key present: touch `3` (remove, append), return value | `{3: 3, 4: 4}` | `[4, 3]` | `3` |
+| `get(4)` | key present: touch `4` (remove, append), return value | `{3: 3, 4: 4}` | `[3, 4]` | `4` |
+
+The key moment is `put(3, 3)`: the cache holds `1` and `2`, but the earlier
+`get(1)` moved `1` to the back of `order`, leaving `2` at the front as the least
+recently used. So `order.pop(0)` evicts `2`, exactly as the problem requires.
+Later, `put(4, 4)` finds `1` at the front (untouched since its store) and evicts
+it.
+
+Collecting the `Returns` column gives `[null, null, null, 1, null, -1, null, -1,
+3, 4]`, which matches the expected Output.
+
+#### Solution
+
+The code is the walkthrough's bookkeeping in method form: `_touch` is the
+remove-and-append move every access performs.
 
 ```python
 class LRUCache:
@@ -101,26 +178,6 @@ class LRUCache:
 # obj.put(key,value)
 ```
 
-#### Approach
-
-The most direct idea is to store values in a [dict](https://en.wikipedia.org/wiki/Hash_table) and track recency by hand in a
-separate list of keys, kept in access order. This mirrors what an LRU cache must
-do without reaching for any specialized structure: it just pays a linear cost to
-maintain the ordering.
-
-1. Keep a dict mapping key to value, plus a list `order` whose front is the least
-   recently used key and whose back is the most recently used.
-2. To mark a key as recently used, remove it from wherever it sits in `order` and
-   append it to the back.
-3. On `get`, return `-1` if the key is absent; otherwise touch the key and return
-   its value.
-4. On `put`, update and touch an existing key. For a new key, first evict the
-   front of `order` (and its dict entry) if the cache is full, then store the
-   value and append the key to the back.
-
-The design is correct but the `order.remove` and `order.pop(0)` calls scan and
-shift the list, so each operation is `O(n)` rather than the required `O(1)`.
-
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity
@@ -146,37 +203,70 @@ scales linearly with the configured capacity.
 - This is the natural first attempt, and seeing its linear bottleneck motivates
   the doubly linked list, where every reorder and eviction becomes `O(1)`.
 
+### Hash Map + Doubly Linked List
+
+#### Derivation
+
+The Brute Force is correct; its only failure is the list. `order.remove(key)`
+must scan to find the key, and `order.pop(0)` must shift every remaining
+element. What removes both costs? A [doubly linked list](https://en.wikipedia.org/wiki/Linked_list): unlinking a node
+rewires two pointers regardless of position, and the hash map can store each
+key's *node* rather than its value, so no scan is ever needed to find it. This
+is the from-scratch implementation using no imports, pairing a hash map for
+`O(1)` lookup with a linked list that tracks recency order.
+
+1. Each entry is a `Node` holding its key, value, and `prev`/`next` pointers. A
+   dict maps key to node for constant-time access.
+2. Two sentinel nodes, `head` and `tail`, bracket the list. The least recently
+   used node sits just after `head`; the most recently used sits just before
+   `tail`. Sentinels remove all special-casing for the list endpoints.
+3. Two helpers do the pointer surgery: `_remove` unlinks a node, and
+   `_add_to_back` splices a node in just before `tail`.
+4. On `get`, return `-1` if the key is absent; otherwise move the touched node to
+   the back (most recently used) and return its value.
+5. On `put`, update and promote an existing key, or create a new node and add it
+   to the back. When the size exceeds `capacity`, evict the node right after
+   `head` (the least recently used) and drop it from the dict.
+
+Storing the key inside each node is what lets eviction delete the correct dict
+entry in `O(1)`.
+
 #### Walkthrough
 
-Let us watch the Brute Force run on Example 1, with `capacity = 2`. The two
-pieces of state are `cache` (the key-to-value dict) and `order` (the recency
-list, where the front is least recently used and the back is most recently
-used). Each row shows both pieces of state and what the call returns after it
-finishes:
+Let us run Example 1 through the linked-list design, with `capacity = 2`. The
+recency order is read off the list from `head` (least recently used end) to
+`tail` (most recently used end); `cache` maps each key to its node. Each line
+shows one call, the pointer surgery it performs, and the state afterward:
 
-| Call | What happens | `cache` after | `order` after | Returns |
-|------|--------------|---------------|---------------|---------|
-| `LRUCache(2)` | start empty | `{}` | `[]` | `null` |
-| `put(1, 1)` | new key, cache not full: store and append | `{1: 1}` | `[1]` | `null` |
-| `put(2, 2)` | new key, cache not full: store and append | `{1: 1, 2: 2}` | `[1, 2]` | `null` |
-| `get(1)` | key present: touch `1` (remove, append), return value | `{1: 1, 2: 2}` | `[2, 1]` | `1` |
-| `put(3, 3)` | new key, cache full: evict front `2`, store `3` | `{1: 1, 3: 3}` | `[1, 3]` | `null` |
-| `get(2)` | key absent | `{1: 1, 3: 3}` | `[1, 3]` | `-1` |
-| `put(4, 4)` | new key, cache full: evict front `1`, store `4` | `{3: 3, 4: 4}` | `[3, 4]` | `null` |
-| `get(1)` | key absent | `{3: 3, 4: 4}` | `[3, 4]` | `-1` |
-| `get(3)` | key present: touch `3` (remove, append), return value | `{3: 3, 4: 4}` | `[4, 3]` | `3` |
-| `get(4)` | key present: touch `4` (remove, append), return value | `{3: 3, 4: 4}` | `[3, 4]` | `4` |
+```text
+LRUCache(2)   link sentinels                 head <-> tail                keys {}
+put(1, 1)     _add_to_back(node 1)           head <-> 1 <-> tail          keys {1}
+put(2, 2)     _add_to_back(node 2)           head <-> 1 <-> 2 <-> tail    keys {1, 2}
+get(1) -> 1   _remove(1), _add_to_back(1)    head <-> 2 <-> 1 <-> tail    keys {1, 2}
+put(3, 3)     _add_to_back(node 3), size 3 > 2:
+              _remove(head.next = 2), del cache[2]
+                                             head <-> 1 <-> 3 <-> tail    keys {1, 3}
+get(2) -> -1  key absent, no surgery         head <-> 1 <-> 3 <-> tail    keys {1, 3}
+put(4, 4)     _add_to_back(node 4), size 3 > 2:
+              _remove(head.next = 1), del cache[1]
+                                             head <-> 3 <-> 4 <-> tail    keys {3, 4}
+get(1) -> -1  key absent, no surgery         head <-> 3 <-> 4 <-> tail    keys {3, 4}
+get(3) -> 3   _remove(3), _add_to_back(3)    head <-> 4 <-> 3 <-> tail    keys {3, 4}
+get(4) -> 4   _remove(4), _add_to_back(4)    head <-> 3 <-> 4 <-> tail    keys {3, 4}
+```
 
-The key moment is `put(3, 3)`: the cache holds `1` and `2`, but the earlier
-`get(1)` moved `1` to the back of `order`, leaving `2` at the front as the least
-recently used. So `order.pop(0)` evicts `2`, exactly as the problem requires.
-Later, `put(4, 4)` finds `1` at the front (untouched since its store) and evicts
-it.
+The decisive call is again `put(3, 3)`: the earlier `get(1)` spliced node `1`
+to the back, so `head.next` is node `2`, and the eviction unlinks it and
+deletes `cache[2]` using the key stored on the node itself. Every line's
+surgery is a constant number of pointer reassignments: no scan, no shift.
+Collecting the returns, with `null` for the constructor and each `put`, gives
+`[null, null, null, 1, null, -1, null, -1, 3, 4]`, matching the expected
+Output.
 
-Collecting the `Returns` column gives `[null, null, null, 1, null, -1, null, -1,
-3, 4]`, which matches the expected Output.
+#### Solution
 
-### Hash Map + Doubly Linked List
+The code is the walkthrough's pointer surgery: `_remove` and `_add_to_back` are
+the two splices every access performs.
 
 ```python
 class Node:
@@ -250,28 +340,6 @@ class LRUCache:
 # obj.put(key,value)
 ```
 
-#### Approach
-
-This is the from-scratch implementation using no imports. It builds the same
-machinery `OrderedDict` provides internally: a hash map for `O(1)` lookup paired
-with a [doubly linked list](https://en.wikipedia.org/wiki/Linked_list) that tracks recency order.
-
-1. Each entry is a `Node` holding its key, value, and `prev`/`next` pointers. A
-   dict maps key to node for constant-time access.
-2. Two sentinel nodes, `head` and `tail`, bracket the list. The least recently
-   used node sits just after `head`; the most recently used sits just before
-   `tail`. Sentinels remove all special-casing for the list endpoints.
-3. Two helpers do the pointer surgery: `_remove` unlinks a node, and
-   `_add_to_back` splices a node in just before `tail`.
-4. On `get`, return `-1` if the key is absent; otherwise move the touched node to
-   the back (most recently used) and return its value.
-5. On `put`, update and promote an existing key, or create a new node and add it
-   to the back. When the size exceeds `capacity`, evict the node right after
-   `head` (the least recently used) and drop it from the dict.
-
-Storing the key inside each node is what lets eviction delete the correct dict
-entry in `O(1)`.
-
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity
@@ -298,6 +366,61 @@ scales linearly with the configured capacity.
   prevents the wrong key from being evicted later.
 
 ### OrderedDict
+
+#### Derivation
+
+The previous solution hand-builds a hash map fused with a doubly linked list,
+and that exact fusion already ships in the standard library. An LRU cache needs
+`O(1)` lookup by key plus `O(1)` identification and removal of the least
+recently used entry, and Python's [`OrderedDict`](https://docs.python.org/3/library/collections.html#collections.OrderedDict) provides exactly this:
+hash-table access combined with a doubly linked list that preserves insertion
+and re-insertion order. All that remains is mapping the cache operations onto
+its methods.
+
+1. Maintain an `OrderedDict` whose front holds the least recently used key and
+   whose back holds the most recently used key.
+2. On `get`, return `-1` if the key is absent; otherwise call `move_to_end` to
+   mark it most recently used and return its value.
+3. On `put`, if the key already exists move it to the end before overwriting so
+   updates also count as recent use.
+4. After inserting, if the size exceeds `capacity`, call `popitem(last=False)`
+   to evict the front entry, the least recently used key.
+
+`move_to_end`, `popitem`, and dictionary indexing are all `O(1)` on
+`OrderedDict`, satisfying the required average time bound.
+
+#### Walkthrough
+
+Let us run Example 1 on the `OrderedDict`, with `capacity = 2`. The dict is
+shown front to back, so the leftmost pair is the least recently used and the
+rightmost the most recently used:
+
+```text
+LRUCache(2)   start empty                          cache = {}
+put(1, 1)     new key: cache[1] = 1                cache = {1: 1}
+put(2, 2)     new key: cache[2] = 2                cache = {1: 1, 2: 2}
+get(1) -> 1   move_to_end(1)                       cache = {2: 2, 1: 1}
+put(3, 3)     cache[3] = 3, len 3 > 2:
+              popitem(last=False) evicts (2, 2)    cache = {1: 1, 3: 3}
+get(2) -> -1  key absent                           cache = {1: 1, 3: 3}
+put(4, 4)     cache[4] = 4, len 3 > 2:
+              popitem(last=False) evicts (1, 1)    cache = {3: 3, 4: 4}
+get(1) -> -1  key absent                           cache = {3: 3, 4: 4}
+get(3) -> 3   move_to_end(3)                       cache = {4: 4, 3: 3}
+get(4) -> 4   move_to_end(4)                       cache = {3: 3, 4: 4}
+```
+
+The eviction inside `put(3, 3)` removes key `2` rather than key `1` because the
+earlier `get(1)` had already moved `1` to the back: `popitem(last=False)`
+always pops the front, the least recently used entry. Collecting the returns,
+with `null` for the constructor and each `put`, gives
+`[null, null, null, 1, null, -1, null, -1, 3, 4]`, matching the expected
+Output.
+
+#### Solution
+
+The code is the walkthrough's trace with `OrderedDict` supplying the order
+maintenance.
 
 ```python
 from collections import OrderedDict
@@ -331,25 +454,6 @@ class LRUCache:
 # param_1 = obj.get(key)
 # obj.put(key,value)
 ```
-
-#### Approach
-
-An LRU cache needs `O(1)` lookup by key plus `O(1)` identification and removal
-of the least recently used entry. Python's [`OrderedDict`](https://docs.python.org/3/library/collections.html#collections.OrderedDict) provides exactly this:
-hash-table access combined with a doubly linked list that preserves insertion
-and re-insertion order.
-
-1. Maintain an `OrderedDict` whose front holds the least recently used key and
-   whose back holds the most recently used key.
-2. On `get`, return `-1` if the key is absent; otherwise call `move_to_end` to
-   mark it most recently used and return its value.
-3. On `put`, if the key already exists move it to the end before overwriting so
-   updates also count as recent use.
-4. After inserting, if the size exceeds `capacity`, call `popitem(last=False)`
-   to evict the front entry, the least recently used key.
-
-`move_to_end`, `popitem`, and dictionary indexing are all `O(1)` on
-`OrderedDict`, satisfying the required average time bound.
 
 #### Time and Space Complexity Analysis
 

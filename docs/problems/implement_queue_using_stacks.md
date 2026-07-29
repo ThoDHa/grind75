@@ -60,9 +60,78 @@ myQueue.empty(); // return false
 
 Can you implement the queue such that each operation is amortized `O(1)` time complexity? In other words, performing n operations will take overall `O(n)` time even if one of those operations may take longer.
 
+## Deriving the Solution
+
+A stack hands elements back newest-first; a queue must hand them back oldest-first.
+Draining one stack into another reverses its order, and two reversals cancel, so
+both solutions move elements between two stacks until the queue's front sits on top
+of the stack that `pop` and `peek` read. They differ only in *when* they pay for
+that reversal.
+
+1. **Start literal.** Keep the whole queue in one stack, front on top, at all
+   times. Then `pop`, `peek`, and `empty` are single stack operations, but every
+   `push` must place the new element at the *bottom*, which costs a full drain into
+   a helper stack and back: `O(n)` per push: see [Eager Push](#eager-push).
+2. **Spot the waste.** Eager Push re-shuffles every element on every push, even
+   when no pop is coming. A burst of pushes pays the full reversal each time, and
+   each reversal undoes the previous one's work.
+3. **Pay lazily.** Let pushes pile up untouched in an input stack, and reverse them
+   into an output stack only when a `pop` or `peek` finds that output stack empty.
+   Each element then crosses over at most once in its lifetime, which makes every
+   operation amortized `O(1)` and answers the Follow-up: see [Lazy Pop](#lazy-pop).
+
 ## Solutions
 
 ### Eager Push
+
+#### Derivation
+
+Start from the operations that must be fast to feel like a queue: `pop` and `peek`
+read the front. If the main stack `queue` always holds the elements in queue order
+with the oldest on top, both are single
+[stack](https://en.wikipedia.org/wiki/Stack_(abstract_data_type)) operations. The
+question becomes: how does `push` insert a new element at the *bottom* of that
+stack using only stack operations? By clearing the way: drain everything into a
+helper stack, drop the new element into the empty main stack, and pour the helper
+back on top. The two transfers reverse the order twice, so the old elements come
+back in their original order, now sitting above the newcomer. The steps:
+
+1. `push(x)`: pop every element off `queue` onto `stack`, append `x` to the
+   now-empty `queue`, then pop everything off `stack` back onto `queue`. The new
+   element ends at the bottom; the older elements return above it, oldest on top.
+2. `pop()`: return `self.queue.pop()`, the top of the stack, which is the front of
+   the queue.
+3. `peek()`: return `self.queue[-1]` without removing it.
+4. `empty()`: report `len(self.queue) == 0`; the helper `stack` is always empty
+   between operations.
+
+#### Walkthrough
+
+Let us watch the Eager Push solution run on Example 1, the call sequence `push(1)`, `push(2)`, `peek()`, `pop()`, `empty()`. The key idea to hold in mind: `queue` is a list used as a stack, so its last element (rightmost, written here as the top) is what `pop()` and `peek()` see. The whole trick keeps the front of the queue sitting at that top.
+
+`push(1)`: `queue` starts empty, so the first `while self.queue` loop does nothing. We append `1`, giving `queue = [1]`. The second loop finds `stack` empty, so nothing moves back.
+
+`push(2)`: now `queue = [1]` is not empty. The first loop pops `1` off `queue` and pushes it onto `stack`: `queue = []`, `stack = [1]`. We append the new element: `queue = [2]`. The second loop pops `1` off `stack` and pushes it onto `queue`: `queue = [2, 1]`, `stack = []`. Notice `1` (the older element, the front of the queue) is now at the top (rightmost), exactly where `pop` and `peek` look.
+
+Tracking the state after each push:
+
+| Call | `queue` (top is rightmost) | `stack` |
+| --- | --- | --- |
+| `push(1)` | `[1]` | `[]` |
+| `push(2)` | `[2, 1]` | `[]` |
+
+`peek()`: returns `self.queue[-1]`, which is `1`. The queue is unchanged: `queue = [2, 1]`.
+
+`pop()`: returns `self.queue.pop()`, removing and returning the top, `1`. Now `queue = [2]`, leaving `2` ready as the next front.
+
+`empty()`: checks `len(self.queue) == 0`. Since `queue = [2]` has one element, it returns `false`.
+
+The three non-`null` calls return `1`, `1`, and `false`, so the full output sequence is `[null, null, null, 1, 1, false]`, matching the expected Output.
+
+#### Solution
+
+The code is the drain-drop-restore cycle from the walkthrough, run inside `push`;
+the other three methods read the top of `queue` directly.
 
 ```python
 class MyQueue:
@@ -95,17 +164,6 @@ class MyQueue:
         return len(self.queue) == 0
 ```
 
-#### Approach
-
-This solution implements a [queue](https://en.wikipedia.org/wiki/Queue_(abstract_data_type)) using two stacks with an "eager" approach where elements are rearranged immediately during the push operation:
-
-1. We maintain a primary stack (`queue`) where elements are stored in queue order
-2. When pushing a new element:
-    - We transfer all existing elements to a temporary stack, reversing their order
-    - Place the new element at the bottom of the queue
-    - Transfer all elements back to maintain queue order
-3. This arrangement ensures the oldest elements (front of queue) are always at the top of our main stack
-
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity
@@ -126,63 +184,33 @@ We need space proportional to the number of elements in the queue.
 - This approach provides consistent (non-amortized) `O(1)` time for pop and peek operations
 - The rearrangement during push operations ensures proper queue ordering
 
-#### Walkthrough
-
-Let us watch the Eager Push solution run on Example 1, the call sequence `push(1)`, `push(2)`, `peek()`, `pop()`, `empty()`. The key idea to hold in mind: `queue` is a list used as a stack, so its last element (rightmost, written here as the top) is what `pop()` and `peek()` see. The whole trick keeps the front of the queue sitting at that top.
-
-`push(1)`: `queue` starts empty, so the first `while self.queue` loop does nothing. We append `1`, giving `queue = [1]`. The second loop finds `stack` empty, so nothing moves back.
-
-`push(2)`: now `queue = [1]` is not empty. The first loop pops `1` off `queue` and pushes it onto `stack`: `queue = []`, `stack = [1]`. We append the new element: `queue = [2]`. The second loop pops `1` off `stack` and pushes it onto `queue`: `queue = [2, 1]`, `stack = []`. Notice `1` (the older element, the front of the queue) is now at the top (rightmost), exactly where `pop` and `peek` look.
-
-Tracking the state after each push:
-
-| Call | `queue` (top is rightmost) | `stack` |
-| --- | --- | --- |
-| `push(1)` | `[1]` | `[]` |
-| `push(2)` | `[2, 1]` | `[]` |
-
-`peek()`: returns `self.queue[-1]`, which is `1`. The queue is unchanged: `queue = [2, 1]`.
-
-`pop()`: returns `self.queue.pop()`, removing and returning the top, `1`. Now `queue = [2]`, leaving `2` ready as the next front.
-
-`empty()`: checks `len(self.queue) == 0`. Since `queue = [2]` has one element, it returns `false`.
-
-The three non-`null` calls return `1`, `1`, and `false`, so the full output sequence is `[null, null, null, 1, 1, false]`, matching the expected Output.
-
 ### Lazy Pop
 
-```python
-class MyQueue:
-    def __init__(self):
-        self.stack_input = []  # For push operations
-        self.stack_output = []  # For pop/peek operations
+#### Derivation
 
-    def push(self, x: int) -> None:
-        # Simply push element to input stack
-        self.stack_input.append(x)
+The Eager Push pays its `O(n)` reversal on every single push, even when no pop ever
+looks at the result, and each push's reversal undoes the previous one's. The repair
+is to defer the work until it is actually needed. Give the
+[two stacks](https://en.wikipedia.org/wiki/Stack_(abstract_data_type)) different
+jobs: `stack_input` receives every `push` untouched, and `stack_output` serves
+every `pop` and `peek`. When the output stack runs dry, one transfer drains
+`stack_input` into it, and that single reversal puts the oldest element on top,
+exactly where the front belongs.
 
-    def pop(self) -> int:
-        # Ensure output stack has elements
-        self._ensure_output_has_values()
-        # Return and remove the front element
-        return self.stack_output.pop()
+The condition on the transfer is the heart of the approach: refill *only when
+`stack_output` is empty*. Refilling any earlier would drop newer elements on top of
+older ones still waiting in the output stack, letting them jump the line. The
+[Invariant](#invariant) below states this precisely and derives the amortized bound
+from it. The steps:
 
-    def peek(self) -> int:
-        # Ensure output stack has elements
-        self._ensure_output_has_values()
-        # Return the front element without removing it
-        return self.stack_output[-1]
-
-    def empty(self) -> bool:
-        # Queue is empty if both stacks are empty
-        return len(self.stack_input) == 0 and len(self.stack_output) == 0
-
-    def _ensure_output_has_values(self) -> None:
-        # If output stack is empty, transfer all elements from input stack
-        if not self.stack_output:
-            while self.stack_input:
-                self.stack_output.append(self.stack_input.pop())
-```
+1. `push(x)`: append `x` to `stack_input`. Nothing else moves.
+2. `_ensure_output_has_values()`: when `stack_output` is empty, pop every element
+   off `stack_input` and append it to `stack_output`, reversing the order so the
+   oldest element lands on top.
+3. `pop()` and `peek()`: call `_ensure_output_has_values()`, then pop or read the
+   top of `stack_output`.
+4. `empty()`: the queue is empty only when *both* stacks are empty, since elements
+   may be waiting on either side.
 
 #### Invariant
 
@@ -226,22 +254,67 @@ pop-and-append across, and one pop from `stack_output`. Across \(n\) operations
 the total work is \(O(n)\), which is amortized \(O(1)\) each even though a single
 refill can cost \(O(n)\) on its own.
 
-#### Approach
+#### Walkthrough
 
-This solution uses a "lazy" approach with [two stacks](https://en.wikipedia.org/wiki/Stack_(abstract_data_type)) serving different purposes:
+Let us run the Lazy Pop solution on Example 1, the call sequence `push(1)`,
+`push(2)`, `peek()`, `pop()`, `empty()`. Both stacks are written bottom to top, so
+the rightmost element is the top. Watch where the reversal happens: not during the
+pushes, but inside the first `peek()`.
 
-1. `stack_input`: Used exclusively for push operations - new elements are simply added here
-2. `stack_output`: Used exclusively for pop/peek operations - elements are consumed from here
+```text
+push(1)   stack_input = [1]      stack_output = []      queue front to back: 1
+push(2)   stack_input = [1, 2]   stack_output = []      queue front to back: 1, 2
+peek()    stack_output is empty -> refill: pop 2 across, then pop 1 across
+          stack_input = []       stack_output = [2, 1]  top is 1, the front
+          returns stack_output[-1] = 1
+pop()     stack_output is not empty -> no refill
+          stack_input = []       stack_output = [2]     returns 1
+empty()   stack_input = [] but stack_output = [2] -> returns false
+```
 
-The key insight is that we only transfer elements from input to output when necessary:
+The refill inside `peek()` reverses `[1, 2]` into `[2, 1]`, landing the oldest
+element `1` on top; the subsequent `pop()` finds `stack_output` already populated
+and touches nothing else, which is the laziness paying off. The three non-`null`
+calls return `1`, `1`, and `false`, so the full output sequence is
+`[null, null, null, 1, 1, false]`, matching the expected Output.
 
-- When pushing, we simply add to the input stack (fast operation)
-- When popping/peeking, we check if the output stack is empty:
-    - If empty, we transfer all elements from input to output (which reverses their order)
-    - If not empty, we directly use the output stack
-- This transfer naturally reverses the elements, converting LIFO to FIFO behavior
+#### Solution
 
-The property that makes this correct is that the queue always equals `reversed(stack_output) + stack_input`, so transferring only when `stack_output` is empty is what stops newly pushed elements from jumping ahead of ones already waiting. The Invariant above states that formally and derives the amortized `O(1)` bound from it.
+The code is the walkthrough's two stacks written down, with the refill guard
+isolated in `_ensure_output_has_values`.
+
+```python
+class MyQueue:
+    def __init__(self):
+        self.stack_input = []  # For push operations
+        self.stack_output = []  # For pop/peek operations
+
+    def push(self, x: int) -> None:
+        # Simply push element to input stack
+        self.stack_input.append(x)
+
+    def pop(self) -> int:
+        # Ensure output stack has elements
+        self._ensure_output_has_values()
+        # Return and remove the front element
+        return self.stack_output.pop()
+
+    def peek(self) -> int:
+        # Ensure output stack has elements
+        self._ensure_output_has_values()
+        # Return the front element without removing it
+        return self.stack_output[-1]
+
+    def empty(self) -> bool:
+        # Queue is empty if both stacks are empty
+        return len(self.stack_input) == 0 and len(self.stack_output) == 0
+
+    def _ensure_output_has_values(self) -> None:
+        # If output stack is empty, transfer all elements from input stack
+        if not self.stack_output:
+            while self.stack_input:
+                self.stack_output.append(self.stack_input.pop())
+```
 
 #### Time and Space Complexity Analysis
 

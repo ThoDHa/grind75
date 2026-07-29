@@ -31,35 +31,38 @@ Given a string `s`, return the longest palindromic substring in `s`.
 - `1 <= s.length <= 1000`
 - `s` consist of only digits and English letters.
 
+## Deriving the Solution
+
+A substring is a palindrome exactly when its mirrored characters all match.
+Every solution below verifies that mirror property; they differ in how much
+already-verified matching they reuse instead of re-checking characters from
+scratch.
+
+1. **Start literal.** Enumerate every substring and check each one by walking
+   two pointers inward. `O(n^2)` substrings at `O(n)` per check costs `O(n^3)`:
+   see [Brute Force](#brute-force).
+2. **Reuse the inner verdict.** Checking `s[i..j]` re-walks `s[i+1..j-1]`, a
+   span some earlier check already verified. Record every verdict in a table:
+   `s[i..j]` is a palindrome exactly when its ends match and `s[i+1..j-1]` is,
+   so each cell costs `O(1)` and the whole table `O(n^2)` time, at `O(n^2)`
+   space: see [Bottom-Up DP](#bottom-up-dp).
+3. **Grow from centers instead.** Rather than asking "is this substring a
+   palindrome?" for every span, ask "how far does the palindrome around this
+   center reach?". Only `2n - 1` centers exist, and expanding each until its
+   first mismatch visits none of the doomed substrings, keeping `O(n^2)` time
+   while dropping the table to `O(1)` space: see
+   [Expand Around Center](#expand-around-center).
+4. **Reuse across centers.** Expansion still re-compares characters that lie
+   inside an already-discovered palindrome, where symmetry has predetermined
+   them. Seeding each new center with its mirror's radius means no character is
+   ever matched twice, reaching `O(n)`: see
+   [Manacher's Algorithm](#manachers-algorithm).
+
 ## Solutions
 
 ### Brute Force
 
-```python
-class Solution:
-    def longestPalindrome(self, s: str) -> str:
-        n = len(s)
-
-        def is_palindrome(left: int, right: int) -> bool:
-            # Walk inward from both ends, comparing mirrored characters.
-            while left < right:
-                if s[left] != s[right]:
-                    return False
-                left += 1
-                right -= 1
-            return True
-
-        start, max_len = 0, 0
-        # Try every substring s[i..j] and keep the longest palindrome.
-        for i in range(n):
-            for j in range(i, n):
-                if j - i + 1 > max_len and is_palindrome(i, j):
-                    start, max_len = i, j - i + 1
-
-        return s[start:start + max_len]
-```
-
-#### Approach
+#### Derivation
 
 The most direct idea is to look at every possible substring and check whether it
 reads the same forwards and backwards, remembering the longest one that does. A
@@ -74,28 +77,6 @@ simple inward two-pointer walk verifies by hand.
    while walking the two pointers toward the middle.
 4. When a longer palindrome is found, record its start and length, and finally
    return the recorded slice `s[start:start + max_len]`.
-
-#### Time and Space Complexity Analysis
-
-##### Time Complexity: `O(n^3)`
-
-There are `O(n^2)` substrings, and each palindrome check walks up to `O(n)`
-characters, giving `O(n^3)` in the worst case (for example, a string of identical
-characters where every check runs to completion).
-
-##### Space Complexity: `O(1)`
-
-Only a handful of integer indices are tracked. The returned substring is output,
-not auxiliary working space.
-
-#### Key Insights
-
-- Enumerating all substrings and verifying each one by hand needs no insight
-  about palindrome structure, making it the most self-derivable approach.
-- The length guard (`j - i + 1 > max_len`) prunes substrings that cannot beat the
-  current best, a cheap optimization that does not change the asymptotic bound.
-- The cubic cost comes from re-checking overlapping substrings from scratch; every
-  later approach removes this redundancy by reusing already-verified work.
 
 #### Walkthrough
 
@@ -126,7 +107,133 @@ rather than beating it, so the guard skips it and the earlier `"bab"` is kept.
 The loop ends with `start = 0`, `max_len = 3`, so the return value is
 `s[0:3] = "bab"`, which matches the expected Output `"bab"`.
 
+#### Solution
+
+The code is the walkthrough's double loop, with the length guard placed before
+each palindrome check.
+
+```python
+class Solution:
+    def longestPalindrome(self, s: str) -> str:
+        n = len(s)
+
+        def is_palindrome(left: int, right: int) -> bool:
+            # Walk inward from both ends, comparing mirrored characters.
+            while left < right:
+                if s[left] != s[right]:
+                    return False
+                left += 1
+                right -= 1
+            return True
+
+        start, max_len = 0, 0
+        # Try every substring s[i..j] and keep the longest palindrome.
+        for i in range(n):
+            for j in range(i, n):
+                if j - i + 1 > max_len and is_palindrome(i, j):
+                    start, max_len = i, j - i + 1
+
+        return s[start:start + max_len]
+```
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n^3)`
+
+There are `O(n^2)` substrings, and each palindrome check walks up to `O(n)`
+characters, giving `O(n^3)` in the worst case (for example, a string of identical
+characters where every check runs to completion).
+
+##### Space Complexity: `O(1)`
+
+Only a handful of integer indices are tracked. The returned substring is output,
+not auxiliary working space.
+
+#### Key Insights
+
+- Enumerating all substrings and verifying each one by hand needs no insight
+  about palindrome structure, making it the most self-derivable approach.
+- The length guard (`j - i + 1 > max_len`) prunes substrings that cannot beat the
+  current best, a cheap optimization that does not change the asymptotic bound.
+- The cubic cost comes from re-checking overlapping substrings from scratch; every
+  later approach removes this redundancy by reusing already-verified work.
+
 ### Bottom-Up DP
+
+#### Derivation
+
+The Brute Force's cubic cost comes from a specific redundancy: verifying
+`s[i..j]` re-walks its interior `s[i+1..j-1]`, a span whose verdict an earlier,
+shorter check already established. Instead of discarding those verdicts, record
+them. Define `dp[i][j]` to be `True` when the substring `s[i..j]` (inclusive) is a
+palindrome. A substring is a palindrome exactly when its two ends match and the
+inside is already known to be a palindrome, which gives the [recurrence](https://en.wikipedia.org/wiki/Dynamic_programming):
+
+`dp[i][j] = (s[i] == s[j]) and (j - i < 2 or dp[i + 1][j - 1])`
+
+Because `dp[i][j]` depends on the shorter substring `dp[i + 1][j - 1]`, we fill the
+table in increasing order of substring length so every dependency is ready first.
+
+1. Seed every single character as a palindrome (`dp[i][i] = True`).
+2. For each `length` from 2 to `n`, scan all start indices `i` and set `j = i + length - 1`.
+3. When `s[i] == s[j]` and either the span is length 2 or the inner substring is a
+   palindrome, mark `dp[i][j]` and update the best `(start, max_len)` seen so far.
+4. Return the recorded slice `s[start:start + max_len]`.
+
+#### Recurrence
+
+Let `dp[i][j]` be true when `s[i..j]` (inclusive) is a palindrome. Peeling one
+character off each end reduces the question to a shorter span:
+
+$$
+dp[i][j] =
+\begin{cases}
+\text{true}, & j - i < 2 \ \text{ and } \ s[i] = s[j] \\[4pt]
+\bigl(s[i] = s[j]\bigr) \wedge dp[i+1][j-1], & j - i \ge 2
+\end{cases}
+$$
+
+```text
+dp[i][j] = True                                  for j - i < 2 and s[i] == s[j]
+dp[i][j] = (s[i] == s[j]) and dp[i + 1][j - 1]   for j - i >= 2
+```
+
+The answer is the longest span with \(dp[i][j]\) true. Because the state at
+\((i, j)\) depends on \((i+1, j-1)\), a span two characters shorter, the table
+must be filled in increasing order of length rather than row by row, otherwise
+the dependency is not yet computed. Spans of length 1 and 2 have no inner
+substring, so they terminate the recursion on the character comparison alone.
+
+#### Walkthrough
+
+Let us fill the table on Example 1: `s = "babad"` (indices `0:b 1:a 2:b 3:a
+4:d`). Seeding the diagonal marks every single character a palindrome and sets
+the starting best to `start = 0`, `max_len = 1`. The loops then try each
+`length` in increasing order, testing `s[i] == s[j]` first and consulting the
+inner cell only for spans of length 3 or more:
+
+```text
+length=2   (0,1) "ba"   b != a         (1,2) "ab"   a != b
+           (2,3) "ba"   b != a         (3,4) "ad"   a != d
+length=3   (0,2) "bab"  b == b, dp[1][1] True -> dp[0][2] = True, best = (0, 3)
+           (1,3) "aba"  a == a, dp[2][2] True -> dp[1][3] = True, 3 not > 3
+           (2,4) "bad"  b != d
+length=4   (0,3) "baba" b != a         (1,4) "abad" a != d
+length=5   (0,4) "babad" b != d
+```
+
+No length-2 span has matching ends, so every even-length palindrome is ruled
+out. At length 3, `dp[0][2]` becomes `True` because its ends match and the inner
+cell `dp[1][1]` is already `True`, updating the best to `(start, max_len) =
+(0, 3)`. The cell `dp[1][3]` (`"aba"`) also becomes `True` but only ties
+`max_len`, so the earlier find is kept. Every longer span fails its end
+comparison, leaving `s[0:3] = "bab"` as the returned slice, which matches the
+expected Output.
+
+#### Solution
+
+The code fills the table exactly as the walkthrough does: diagonal first, then
+increasing lengths.
 
 ```python
 class Solution:
@@ -158,47 +265,6 @@ class Solution:
         return s[start:start + max_len]
 ```
 
-#### Recurrence
-
-Let `dp[i][j]` be true when `s[i..j]` (inclusive) is a palindrome. Peeling one
-character off each end reduces the question to a shorter span:
-
-$$
-dp[i][j] =
-\begin{cases}
-\text{true}, & j - i < 2 \ \text{ and } \ s[i] = s[j] \\[4pt]
-\bigl(s[i] = s[j]\bigr) \wedge dp[i+1][j-1], & j - i \ge 2
-\end{cases}
-$$
-
-```text
-dp[i][j] = True                                  for j - i < 2 and s[i] == s[j]
-dp[i][j] = (s[i] == s[j]) and dp[i + 1][j - 1]   for j - i >= 2
-```
-
-The answer is the longest span with \(dp[i][j]\) true. Because the state at
-\((i, j)\) depends on \((i+1, j-1)\), a span two characters shorter, the table
-must be filled in increasing order of length rather than row by row, otherwise
-the dependency is not yet computed. Spans of length 1 and 2 have no inner
-substring, so they terminate the recursion on the character comparison alone.
-
-#### Approach
-
-Define `dp[i][j]` to be `True` when the substring `s[i..j]` (inclusive) is a
-palindrome. A substring is a palindrome exactly when its two ends match and the
-inside is already known to be a palindrome, which gives the [recurrence](https://en.wikipedia.org/wiki/Dynamic_programming):
-
-`dp[i][j] = (s[i] == s[j]) and (j - i < 2 or dp[i + 1][j - 1])`
-
-Because `dp[i][j]` depends on the shorter substring `dp[i + 1][j - 1]`, we fill the
-table in increasing order of substring length so every dependency is ready first.
-
-1. Seed every single character as a palindrome (`dp[i][i] = True`).
-2. For each `length` from 2 to `n`, scan all start indices `i` and set `j = i + length - 1`.
-3. When `s[i] == s[j]` and either the span is length 2 or the inner substring is a
-   palindrome, mark `dp[i][j]` and update the best `(start, max_len)` seen so far.
-4. Return the recorded slice `s[start:start + max_len]`.
-
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(n^2)`
@@ -221,6 +287,64 @@ The `dp` table stores `n × n` boolean entries.
   palindromes, useful when the full palindrome table is itself the goal.
 
 ### Expand Around Center
+
+#### Derivation
+
+The DP table spends `O(n^2)` memory recording a verdict for every substring,
+yet most of those verdicts are `False` and never help. Flip the question: instead
+of asking "is this substring a palindrome?", ask "how far does the palindrome
+around this center reach?". A palindrome mirrors around its center, and every
+palindromic substring has one, but that center is either a single character (odd
+length, like `"aba"`) or the gap between two characters (even length, like
+`"bb"`). There are `n` single-character centers and `n - 1` gap centers, so
+`2n - 1` centers in total.
+
+The idea is to try every possible center and expand outward as long as the
+characters on both sides match, recording the longest palindrome seen.
+
+1. Define a helper `expand(left, right)` that walks the [two pointers](https://www.geeksforgeeks.org/dsa/two-pointers-technique/) outward
+   while they stay in bounds and `s[left] == s[right]`.
+2. When the loop stops, the pointers have overshot by one, so return
+   `(left + 1, right - 1)` as the inclusive bounds of the matched palindrome.
+3. For each index `i`, expand once with `(i, i)` for the odd case and once with
+   `(i, i + 1)` for the even case.
+4. Track the widest `(start, end)` window across all expansions using
+   `r - l > end - start` as the comparison.
+5. Return the slice `s[start:end + 1]`.
+
+Comparing widths with `r - l` avoids recomputing lengths and naturally keeps the
+first-found palindrome when ties occur, which is acceptable since any longest
+palindromic substring is a valid answer.
+
+#### Walkthrough
+
+Let us expand every center on Example 1: `s = "babad"` (indices `0:b 1:a 2:b
+3:a 4:d`). For each `i`, the odd expansion starts from `(i, i)` and the even
+expansion from `(i, i + 1)`; each grows while the flanking characters match and
+returns the inclusive bounds it reached. The best `(start, end)` updates
+whenever a wider window appears:
+
+```text
+i=0  expand(0, 0) -> (0, 0) "b"        expand(0, 1): b != a -> empty
+                                       best (start, end) = (0, 0)
+i=1  expand(1, 1): grows, b == b, then falls off the left edge -> (0, 2) "bab"
+     expand(1, 2): a != b -> empty     best (start, end) = (0, 2)
+i=2  expand(2, 2): grows, a == a, then b != d -> (1, 3) "aba"  ties, no update
+     expand(2, 3): b != a -> empty     best (start, end) = (0, 2)
+i=3  expand(3, 3) -> (3, 3) "a"        expand(3, 4): a != d -> empty
+i=4  expand(4, 4) -> (4, 4) "d"        expand(4, 5): right out of bounds -> empty
+```
+
+The decisive expansion is the odd one at `i = 1`: it grows from `"a"` to
+`"bab"` and stops only when `left` falls off the string, returning bounds
+`(0, 2)`. The center at `i = 2` finds `"aba"`, but its width `r - l = 2` does
+not beat `end - start = 2`, so the first palindrome is kept. The final slice
+`s[0:3]` is `"bab"`, matching the expected Output.
+
+#### Solution
+
+The code is the walkthrough's two expansions per index, sharing one `expand`
+helper.
 
 ```python
 class Solution:
@@ -249,30 +373,6 @@ class Solution:
         return s[start:end + 1]
 ```
 
-#### Approach
-
-A palindrome mirrors around its center. Every palindromic substring has a
-center, but that center is either a single character (odd length, like `"aba"`)
-or the gap between two characters (even length, like `"bb"`). There are `n`
-single-character centers and `n - 1` gap centers, so `2n - 1` centers in total.
-
-The idea is to try every possible center and expand outward as long as the
-characters on both sides match, recording the longest palindrome seen.
-
-1. Define a helper `expand(left, right)` that walks the [two pointers](https://www.geeksforgeeks.org/dsa/two-pointers-technique/) outward
-   while they stay in bounds and `s[left] == s[right]`.
-2. When the loop stops, the pointers have overshot by one, so return
-   `(left + 1, right - 1)` as the inclusive bounds of the matched palindrome.
-3. For each index `i`, expand once with `(i, i)` for the odd case and once with
-   `(i, i + 1)` for the even case.
-4. Track the widest `(start, end)` window across all expansions using
-   `r - l > end - start` as the comparison.
-5. Return the slice `s[start:end + 1]`.
-
-Comparing widths with `r - l` avoids recomputing lengths and naturally keeps the
-first-found palindrome when ties occur, which is acceptable since any longest
-palindromic substring is a valid answer.
-
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(n^2)`
@@ -298,6 +398,74 @@ output, not auxiliary working space, so the extra space is constant.
   and defers the single slice to the very end.
 
 ### Manacher's Algorithm
+
+#### Derivation
+
+Expand Around Center still wastes comparisons: when a center lies inside a long
+palindrome that has already been discovered, symmetry has predetermined part of
+its expansion, yet the expansion re-verifies those characters anyway.
+[Manacher's algorithm](https://en.wikipedia.org/wiki/Longest_palindromic_substring#Manacher%27s_algorithm) achieves linear time by never re-examining characters it
+already knows to match. It first transforms the string so that odd- and
+even-length palindromes are handled uniformly, then reuses palindrome symmetry
+to give each new center a head start.
+
+1. Transform `s` into `t` by inserting `#` between every character and wrapping
+   it in `^` and `$` sentinels (for example `"aba"` becomes `"^#a#b#a#$"`). Now
+   every palindrome in `t` is odd-length, and the distinct sentinels stop any
+   expansion at the boundaries.
+2. Keep `p[i]`, the radius of the palindrome centered at `i` in `t`, along with
+   the `center`/`right` of the rightmost-reaching palindrome found so far.
+3. For each `i`, find its `mirror = 2 * center - i`. If `i` lies inside the
+   current palindrome (`i < right`), seed `p[i]` with `min(right - i, p[mirror])`,
+   borrowing the mirror's work without overstepping the known right edge.
+4. Expand from this seed while the characters straddling `i` still match. The
+   sentinels guarantee the inner `while` halts without explicit bounds checks.
+5. If the new palindrome extends past `right`, update `center` and `right`.
+6. The largest radius is the answer's length; convert its center back to the
+   original index with `start = (center_idx - max_radius) // 2`.
+
+The radius in the transformed string equals the palindrome length in the
+original string, which is why `max_radius` doubles as both the length and the
+slice width.
+
+#### Walkthrough
+
+Let us run the scan on Example 1: `s = "babad"`, which transforms to
+`t = "^#b#a#b#a#d#$"` (indices 0 through 12). Each line below shows one center
+`i`: the seed borrowed from its mirror when `i < right`, the radius `p[i]` after
+expansion, and the `center`/`right` of the rightmost palindrome afterward:
+
+```text
+i=1  (#)  no seed    expansion fails at once      p[1]=0   center=1,  right=1
+i=2  (b)  no seed    # == #, then ^ stops it      p[2]=1   center=2,  right=3
+i=3  (#)  no seed    a != b                       p[3]=0
+i=4  (a)  no seed    grows to #b#a#b#             p[4]=3   center=4,  right=7
+i=5  (#)  mirror=3   seed min(7-5, p[3]=0) = 0    b != a   p[5]=0
+i=6  (b)  mirror=2   seed min(7-6, p[2]=1) = 1    grows: a == a, # == #,
+                     then d != b                  p[6]=3   center=6,  right=9
+i=7  (#)  mirror=5   seed min(9-7, p[5]=0) = 0    a != b   p[7]=0
+i=8  (a)  mirror=4   seed min(9-8, p[4]=3) = 1    d != b   p[8]=1
+i=9  (#)  no seed    d != a                       p[9]=0
+i=10 (d)  no seed    # == #, then $ stops it      p[10]=1  center=10, right=11
+i=11 (#)  no seed    $ != d                       p[11]=0
+```
+
+The interesting move is `i = 6`: it lies inside the palindrome around
+`center = 4` (whose `right` edge is `7`), so its mirror `2 * 4 - 6 = 2`
+contributes `p[2] = 1` for free, and expansion resumes from radius 1 instead of
+0. The seed at `i = 8` shows the other clamp: its mirror's radius 3 exceeds
+`right - i = 1`, so only 1 may be borrowed, since nothing beyond `right` has
+been examined yet.
+
+The final radius array is `p = [0, 0, 1, 0, 3, 0, 3, 0, 1, 0, 1, 0, 0]`, so
+`max_radius = 3`, first reached at `center_idx = 4`. Converting back to the
+original string, `start = (4 - 3) // 2 = 0`, and the radius doubles as the
+length, giving `s[0:3] = "bab"`: the expected Output.
+
+#### Solution
+
+The code is the walkthrough's scan: seed from the mirror, expand, and advance
+`center`/`right` when the new palindrome reaches further.
 
 ```python
 class Solution:
@@ -335,32 +503,6 @@ class Solution:
         start = (center_idx - max_radius) // 2
         return s[start:start + max_radius]
 ```
-
-#### Approach
-
-[Manacher's algorithm](https://en.wikipedia.org/wiki/Longest_palindromic_substring#Manacher%27s_algorithm) achieves linear time by never re-examining characters it
-already knows to match. It first transforms the string so that odd- and
-even-length palindromes are handled uniformly, then reuses palindrome symmetry
-to give each new center a head start.
-
-1. Transform `s` into `t` by inserting `#` between every character and wrapping
-   it in `^` and `$` sentinels (for example `"aba"` becomes `"^#a#b#a#$"`). Now
-   every palindrome in `t` is odd-length, and the distinct sentinels stop any
-   expansion at the boundaries.
-2. Keep `p[i]`, the radius of the palindrome centered at `i` in `t`, along with
-   the `center`/`right` of the rightmost-reaching palindrome found so far.
-3. For each `i`, find its `mirror = 2 * center - i`. If `i` lies inside the
-   current palindrome (`i < right`), seed `p[i]` with `min(right - i, p[mirror])`,
-   borrowing the mirror's work without overstepping the known right edge.
-4. Expand from this seed while the characters straddling `i` still match. The
-   sentinels guarantee the inner `while` halts without explicit bounds checks.
-5. If the new palindrome extends past `right`, update `center` and `right`.
-6. The largest radius is the answer's length; convert its center back to the
-   original index with `start = (center_idx - max_radius) // 2`.
-
-The radius in the transformed string equals the palindrome length in the
-original string, which is why `max_radius` doubles as both the length and the
-slice width.
 
 #### Time and Space Complexity Analysis
 

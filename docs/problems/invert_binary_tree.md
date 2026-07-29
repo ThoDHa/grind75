@@ -39,31 +39,21 @@ Given the `root` of a binary tree, invert the tree, and return its root.
 - The number of nodes in the tree is in the range `[0, 100]`
 - `-100 <= Node.val <= 100`
 
+## Deriving the Solution
+
+The mirror image of a tree is the tree in which every node's two children have traded places. That makes inversion a purely local operation: swap the children at each node, and the whole tree is inverted once every node has been swapped. Since the swaps are independent of one another, any traversal that reaches every node exactly once solves the problem; the solutions differ only in how they enumerate the nodes.
+
+1. **Start with the definition.** The inverted tree is the tree whose root has its children swapped and whose subtrees are themselves inverted. That self-similar statement is already an algorithm: swap, then recurse into both children. See [Recursive DFS](#recursive-dfs).
+2. **Name the limit.** The recursion borrows the call stack, one frame per level, so a deep tree can hit the recursion limit. The fix is to manage the pending nodes ourselves: an explicit stack visits the same nodes in the same depth-first order without any recursion. See [Iterative DFS](#iterative-dfs).
+3. **Vary the order.** Because the swap is local, the worklist does not have to be a stack at all. Replacing it with a queue turns the walk into a level-order traversal, trading the height-bounded `O(h)` stack for a width-bounded `O(n)` frontier. See [Iterative BFS](#iterative-bfs).
+
 ## Solutions
 
 ### Recursive DFS
 
-```python
-# Definition for a binary tree node.
-# class TreeNode:
-#     def __init__(self, val=0, left=None, right=None):
-#         self.val = val
-#         self.left = left
-#         self.right = right
-class Solution:
-    def invertTree(self, root: Optional[TreeNode]) -> Optional[TreeNode]:
-        if not root:
-            return None
+#### Derivation
 
-        root.left, root.right = root.right, root.left
-        self.invertTree(root.left)
-        self.invertTree(root.right)
-        return root
-```
-
-#### Approach
-
-Inverting a binary tree is self-similar: the inverted tree is the one whose root children are swapped and whose two subtrees are themselves inverted. That [recursive](https://en.wikipedia.org/wiki/Recursion_(computer_science)) definition translates directly into code:
+The question to ask is what "inverted" means for a single node. Inverting a binary tree is self-similar: the inverted tree is the one whose root children are swapped and whose two subtrees are themselves inverted. That [recursive](https://en.wikipedia.org/wiki/Recursion_(computer_science)) definition translates directly into code:
 
 1. Base case: when `root` is `None`, there is nothing to invert, so return `None`.
 2. Swap the current node's `left` and `right` children with a single tuple assignment.
@@ -71,23 +61,6 @@ Inverting a binary tree is self-similar: the inverted tree is the one whose root
 4. Return `root`, which is the root of the fully inverted tree.
 
 The swap can happen before or after the recursive calls because each node's swap is independent of its descendants; this version swaps first (a pre-order shape), but a post-order swap produces the identical result.
-
-#### Time and Space Complexity Analysis
-
-##### Time Complexity: `O(n)`
-
-Every node is visited exactly once, and each visit does a constant-time swap, so the total work is linear in the number of nodes `n`.
-
-##### Space Complexity: `O(h)`, where `h` is the height of the tree
-
-The only extra space is the recursion stack, whose depth equals the height of the tree. A balanced tree gives `O(log n)`; a skewed tree degrades to `O(n)`.
-
-#### Key Insights
-
-- The inversion is defined recursively in terms of itself: swap the children, then invert both subtrees.
-- Tuple assignment swaps the two children without an explicit temporary variable.
-- Because each swap is local and independent, the relative order of the swap and the recursive calls does not change the outcome.
-- Inverting an already inverted tree restores the original, so the operation is its own inverse.
 
 #### Walkthrough
 
@@ -113,7 +86,88 @@ Tracing the swaps in order:
 
 After every node's children have been swapped, the original call `invertTree(4)` returns the same `root` node. Reading the inverted tree in level order gives `[4,7,2,9,6,3,1]`, which matches the example's expected Output.
 
+#### Solution
+
+The code is the recursive definition written down: swap, then invert each subtree.
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def invertTree(self, root: Optional[TreeNode]) -> Optional[TreeNode]:
+        if not root:
+            return None
+
+        root.left, root.right = root.right, root.left
+        self.invertTree(root.left)
+        self.invertTree(root.right)
+        return root
+```
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n)`
+
+Every node is visited exactly once, and each visit does a constant-time swap, so the total work is linear in the number of nodes `n`.
+
+##### Space Complexity: `O(h)`, where `h` is the height of the tree
+
+The only extra space is the recursion stack, whose depth equals the height of the tree. A balanced tree gives `O(log n)`; a skewed tree degrades to `O(n)`.
+
+#### Key Insights
+
+- The inversion is defined recursively in terms of itself: swap the children, then invert both subtrees.
+- Tuple assignment swaps the two children without an explicit temporary variable.
+- Because each swap is local and independent, the relative order of the swap and the recursive calls does not change the outcome.
+- Inverting an already inverted tree restores the original, so the operation is its own inverse.
+
 ### Iterative DFS
+
+#### Derivation
+
+The recursive version leans on the call stack, which caps how deep a tree it can handle. Because each node's swap is independent, the recursion can be made explicit by managing the pending nodes with a stack instead of the call stack. This keeps the same [depth-first](https://en.wikipedia.org/wiki/Depth-first_search) visit order:
+
+1. Return `None` when the tree is empty.
+2. Seed a stack with `root`.
+3. While the stack is non-empty, pop a node and swap its `left` and `right` references.
+4. Push both children so their subtrees are inverted in turn.
+5. Return the original `root`.
+
+This is the explicit-stack equivalent of the recursive version, useful when recursion depth is a concern but a depth-first order is still preferred over the wide frontier a queue can build.
+
+#### Walkthrough
+
+Let us run the explicit stack on Example 1: `root = [4,2,7,1,3,6,9]`, the tree
+
+```text
+    4
+   / \
+  2   7
+ / \ / \
+1  3 6  9
+```
+
+The `stack` starts as `[4]`. Each line pops one `node`, swaps its children, and pushes the (post-swap) left child then the right child:
+
+```text
+pop 4   swap -> 4.left=7, 4.right=2   push 7, push 2   stack = [7, 2]
+pop 2   swap -> 2.left=3, 2.right=1   push 3, push 1   stack = [7, 3, 1]
+pop 1   leaf, swap does nothing                        stack = [7, 3]
+pop 3   leaf, swap does nothing                        stack = [7]
+pop 7   swap -> 7.left=9, 7.right=6   push 9, push 6   stack = [9, 6]
+pop 6   leaf, swap does nothing                        stack = [9]
+pop 9   leaf, swap does nothing                        stack = []
+```
+
+Popping from the end of the list means the most recently pushed node is processed next, so the walk dives through `4`'s new right subtree (`2`, then its leaves) before returning to `7`: a depth-first order, just like the recursion, only driven by an explicit list. When the stack empties, every node has been swapped exactly once, and reading the tree in level order gives `[4,7,2,9,6,3,1]`, the expected Output.
+
+#### Solution
+
+The code is the walkthrough's loop: pop, swap, push both children until the stack is empty.
 
 ```python
 # Definition for a binary tree node.
@@ -138,18 +192,6 @@ class Solution:
         return root
 ```
 
-#### Approach
-
-Because each node's swap is independent, the recursion can be made explicit by managing the pending nodes with a stack instead of the call stack. This keeps the same [depth-first](https://en.wikipedia.org/wiki/Depth-first_search) visit order:
-
-1. Return `None` when the tree is empty.
-2. Seed a stack with `root`.
-3. While the stack is non-empty, pop a node and swap its `left` and `right` references.
-4. Push both children so their subtrees are inverted in turn.
-5. Return the original `root`.
-
-This is the explicit-stack equivalent of the recursive version, useful when recursion depth is a concern but a depth-first order is still preferred over the wide frontier a queue can build.
-
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(n)`
@@ -167,6 +209,38 @@ A depth-first stack holds at most one root-to-leaf path plus pending siblings, s
 - Tuple assignment swaps the two children without an explicit temporary variable.
 
 ### Iterative BFS
+
+#### Derivation
+
+The iterative DFS made the worklist explicit, which raises the question of whether it must be a stack at all. Swapping the stack for a queue turns the depth-first walk into a level-order ([breadth-first](https://en.wikipedia.org/wiki/Breadth-first_search)) one while keeping the logic identical:
+
+1. Return `None` immediately when the tree is empty.
+2. Seed a queue with `root`.
+3. While the queue is non-empty, dequeue a node and swap its `left` and `right` references.
+4. Enqueue both children (after the swap, either order is fine) so their subtrees are inverted in turn.
+5. Return the original `root`, now the root of the fully inverted tree.
+
+The only change from the iterative DFS version is which end of the pending collection is consumed next, which trades the height-bounded stack for a width-bounded frontier.
+
+#### Walkthrough
+
+Let us run the queue on the same Example 1 tree drawn in the Iterative DFS walkthrough: `root = [4,2,7,1,3,6,9]`. The `queue` starts as `[4]`. Each line takes `node` from the front with `popleft`, swaps its children, and appends the (post-swap) left child then the right child at the back:
+
+```text
+popleft 4   swap -> 4.left=7, 4.right=2   enqueue 7, 2   queue = [7, 2]
+popleft 7   swap -> 7.left=9, 7.right=6   enqueue 9, 6   queue = [2, 9, 6]
+popleft 2   swap -> 2.left=3, 2.right=1   enqueue 3, 1   queue = [9, 6, 3, 1]
+popleft 9   leaf, swap does nothing                      queue = [6, 3, 1]
+popleft 6   leaf, swap does nothing                      queue = [3, 1]
+popleft 3   leaf, swap does nothing                      queue = [1]
+popleft 1   leaf, swap does nothing                      queue = []
+```
+
+Consuming from the front means nodes are processed in the order they were discovered: the root, then the whole second level (`7`, `2`), then the whole third level (`9`, `6`, `3`, `1`). After the root's swap the queue momentarily holds one full level, `[7, 2]` and later `[9, 6, 3, 1]`, which is the width-bounded frontier the complexity analysis charges for. Every node is swapped exactly once, and the finished tree reads in level order as `[4,7,2,9,6,3,1]`, the expected Output.
+
+#### Solution
+
+The code is the walkthrough's loop with `deque` as the queue: dequeue from the front, swap, enqueue both children.
 
 ```python
 # Definition for a binary tree node.
@@ -192,18 +266,6 @@ class Solution:
                 queue.append(node.right)
         return root
 ```
-
-#### Approach
-
-Swapping the stack for a queue turns the depth-first walk into a level-order ([breadth-first](https://en.wikipedia.org/wiki/Breadth-first_search)) one while keeping the logic identical:
-
-1. Return `None` immediately when the tree is empty.
-2. Seed a queue with `root`.
-3. While the queue is non-empty, dequeue a node and swap its `left` and `right` references.
-4. Enqueue both children (after the swap, either order is fine) so their subtrees are inverted in turn.
-5. Return the original `root`, now the root of the fully inverted tree.
-
-The only change from the iterative DFS version is which end of the pending collection is consumed next, which trades the height-bounded stack for a width-bounded frontier.
 
 #### Time and Space Complexity Analysis
 

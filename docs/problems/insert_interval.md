@@ -45,34 +45,65 @@ Return `intervals` after the insertion.
 - `newInterval.length == 2`
 - `0 <= start <= end <= 10^5`
 
+## Deriving the Solution
+
+The problem's gift is stated in the constraints: `intervals` is already sorted by
+start and non-overlapping. That guarantees the intervals touching `newInterval`
+form one contiguous block, splitting the list into three contiguous regions:
+strictly before, overlapping, and strictly after. Every solution below locates that
+block and collapses it to `[min start, max end]`. None of them sorts: appending
+`newInterval` and re-sorting would throw away exactly the structure the problem
+hands us.
+
+1. **Start literal.** Walk the sorted list once with one loop per region: copy the
+   intervals ending before `newInterval`, absorb the overlapping block via `min`
+   and `max`, copy the rest. A single `O(n)` pass, which is already optimal for
+   rebuilding the list: see [Linear Scan and Merge](#linear-scan-and-merge).
+2. **Reduce to a known problem.** Alternatively, splice `newInterval` into its
+   sorted slot (a linear scan, since the list is sorted) and run the standard
+   Merge Intervals sweep over the combined list. Same `O(n)`, familiar shape, but
+   it re-examines intervals the direct walk would copy untouched: see
+   [Insert and Merge](#insert-and-merge).
+3. **Trade time for space.** Both passes build a new output list. Mutating the
+   input in place drops the auxiliary space to `O(1)`, but every `pop(i)` shifts
+   the tail of the list, degrading the worst case to `O(n²)`: see
+   [In-Place Modification](#in-place-modification).
+4. **Cut the comparisons.** Sortedness plus disjointness make the starts *and* the
+   ends monotone, so two boundary binary searches can locate the overlap window in
+   `O(log n)` comparisons; rebuilding the answer still costs `O(n)` of copying:
+   see [Binary Search for the Overlap Window](#binary-search-for-the-overlap-window).
+5. **Fold it recursively.** The same three cases (before, after, overlap) can be
+   applied one interval at a time, peeling the head of the list per recursive
+   call: elegant, but slicing makes it quadratic: see
+   [Recursive Merge](#recursive-merge).
+
 ## Solutions
 
 ### Linear Scan and Merge
 
-```python
-from typing import List
+#### Derivation
 
+Take the sortedness seriously and ask what `newInterval` does to the list: it
+splits the intervals into the ones entirely before it, the ones it overlaps, and
+the ones entirely after it. Because the input is sorted and disjoint, those three
+groups are contiguous runs, in that order, so a single left-to-right walk with one
+`while` loop per region handles everything. The before and after runs are copied
+unchanged; the overlapping run collapses into `newInterval` by widening it with
+`min` of the starts and `max` of the ends. The
+[Overlap Condition](#overlap-condition) below justifies why one boundary test per
+loop is enough. The steps:
 
-class Solution:
-    def insert(self, intervals: List[List[int]], newInterval: List[int]) -> List[List[int]]:
-        merged = []
-        i, n = 0, len(intervals)
-        # Add all intervals that end before newInterval starts
-        while i < n and intervals[i][1] < newInterval[0]:
-            merged.append(intervals[i])
-            i += 1
-        # Absorb every interval that overlaps newInterval
-        while i < n and intervals[i][0] <= newInterval[1]:
-            newInterval[0] = min(newInterval[0], intervals[i][0])
-            newInterval[1] = max(newInterval[1], intervals[i][1])
-            i += 1
-        merged.append(newInterval)
-        # Add all intervals that start after newInterval ends
-        while i < n:
-            merged.append(intervals[i])
-            i += 1
-        return merged
-```
+1. Copy every interval that ends strictly before `newInterval` starts
+   (`intervals[i][1] < newInterval[0]`) into `merged`; these are untouched.
+2. Absorb every interval that overlaps `newInterval`
+   (`intervals[i][0] <= newInterval[1]`), growing `newInterval` via `min` of
+   starts and `max` of ends, then append the grown interval once.
+3. Copy every remaining interval; all of them start strictly after `newInterval`
+   ends.
+
+The touching condition uses `<=` so intervals that share an endpoint, such as
+`[1,5]` and `[5,8]`, merge into `[1,8]`. No sort is needed because the input is
+already ordered.
 
 #### Overlap Condition
 
@@ -125,15 +156,50 @@ what makes one pass sufficient and why no sort is needed here, unlike in Merge
 Intervals. Both boundary tests use non-strict comparison, so touching intervals
 merge rather than staying separate.
 
-#### Approach
+#### Walkthrough
 
-The intervals arrive already sorted by start, so the most direct idea is to walk the list once and handle `newInterval` by hand, splitting the work into the three regions it creates: the intervals before it, the intervals it overlaps, and the intervals after it. Each region gets its own `while` loop.
+Let us watch the Linear Scan and Merge run on Example 1: `intervals = [[1,3],[6,9]]`, `newInterval = [2,5]`. The expected output is `[[1,5],[6,9]]`.
 
-1. Copy every interval that ends strictly before `newInterval` starts (`intervals[i][1] < newInterval[0]`); these are untouched.
-2. Absorb every interval that overlaps `newInterval` (`intervals[i][0] <= newInterval[1]`), growing `newInterval` via `min` of starts and `max` of ends, then append the grown interval once.
-3. Copy every remaining interval; all of them start strictly after `newInterval` ends.
+We start with `merged = []`, `i = 0`, and `n = 2`. The trace below shows which of the three loops fires at each step and what changes.
 
-The touching condition uses `<=` so intervals that share an endpoint, such as `[1,5]` and `[5,8]`, merge into `[1,8]`. No sort is needed because the input is already ordered.
+| Step | Loop | Interval at `i` | Condition checked | Action | `newInterval` | `i` | `merged` |
+|------|------|-----------------|-------------------|--------|---------------|-----|----------|
+| 1 | loop 1 (before) | `[1,3]` | `intervals[0][1] < newInterval[0]`: `3 < 2`? No | loop 1 stops, no append | `[2,5]` | `0` | `[]` |
+| 2 | loop 2 (overlap) | `[1,3]` | `intervals[0][0] <= newInterval[1]`: `1 <= 5`? Yes | absorb: start `min(2,1)=1`, end `max(5,3)=5` | `[1,5]` | `1` | `[]` |
+| 3 | loop 2 (overlap) | `[6,9]` | `intervals[1][0] <= newInterval[1]`: `6 <= 5`? No | loop 2 stops | `[1,5]` | `1` | `[]` |
+| 4 | append | : | : | append grown `newInterval` | `[1,5]` | `1` | `[[1,5]]` |
+| 5 | loop 3 (after) | `[6,9]` | `i < n`: `1 < 2`? Yes | append `[6,9]`, advance `i` | `[1,5]` | `2` | `[[1,5],[6,9]]` |
+
+Loop 3's condition `i < n` is now `2 < 2`, which is false, so the loop ends. The function returns `merged = [[1,5],[6,9]]`, which matches the expected Output `[[1,5],[6,9]]`.
+
+#### Solution
+
+The code is the three loops from the walkthrough: copy, absorb, copy.
+
+```python
+from typing import List
+
+
+class Solution:
+    def insert(self, intervals: List[List[int]], newInterval: List[int]) -> List[List[int]]:
+        merged = []
+        i, n = 0, len(intervals)
+        # Add all intervals that end before newInterval starts
+        while i < n and intervals[i][1] < newInterval[0]:
+            merged.append(intervals[i])
+            i += 1
+        # Absorb every interval that overlaps newInterval
+        while i < n and intervals[i][0] <= newInterval[1]:
+            newInterval[0] = min(newInterval[0], intervals[i][0])
+            newInterval[1] = max(newInterval[1], intervals[i][1])
+            i += 1
+        merged.append(newInterval)
+        # Add all intervals that start after newInterval ends
+        while i < n:
+            merged.append(intervals[i])
+            i += 1
+        return merged
+```
 
 #### Time and Space Complexity Analysis
 
@@ -151,23 +217,56 @@ The `merged` output list holds up to `n + 1` intervals; no other auxiliary stora
 - Exploiting the guaranteed sorted order means one linear walk suffices, with no sort.
 - Handles every edge case cleanly: empty input, insertion before all or after all intervals, and full overlap.
 
+### Insert and Merge
+
+#### Derivation
+
+The Linear Scan asks you to derive the three-region logic from scratch. If you
+already know Merge Intervals, there is a reduction instead: a sorted,
+non-overlapping list with one extra interval spliced into its sorted position is
+exactly a Merge Intervals input, so the familiar sweep finishes the job. The one
+trap to avoid is reaching for a sort to place `newInterval`: the input is already
+ordered, so a linear scan for the first start not less than `newInterval`'s start
+finds the slot, and sorting would discard the very structure the problem grants.
+The steps:
+
+1. Scan `i` forward to the first interval whose start is not less than
+   `newInterval[0]`, and build `combined = intervals[:i] + [newInterval] +
+   intervals[i:]`, which stays sorted by start.
+2. Sweep `combined` once: append each interval to `merged`, or, when it overlaps
+   the last kept interval (`merged[-1][1] < interval[0]` fails), extend that
+   interval's end via `max`.
+
+The overlap test `merged[-1][1] < interval[0]` treats a shared endpoint as an
+overlap, so touching intervals such as `[1,5]` and `[5,8]` merge into `[1,8]`.
+
 #### Walkthrough
 
-Let us watch the Linear Scan and Merge run on Example 1: `intervals = [[1,3],[6,9]]`, `newInterval = [2,5]`. The expected output is `[[1,5],[6,9]]`.
+Let us run the reduction on Example 2: `intervals = [[1,2],[3,5],[6,7],[8,10],[12,16]]`,
+`newInterval = [4,8]`. First the splice: the starts `1` and `3` are less than `4`,
+and `6` is not, so `i = 2` and `newInterval` slots in between `[3,5]` and `[6,7]`.
+Then the merge sweep walks `combined`, one interval per line:
 
-We start with `merged = []`, `i = 0`, and `n = 2`. The trace below shows which of the three loops fires at each step and what changes.
+```text
+splice        i = 2
+combined      [[1,2],[3,5],[4,8],[6,7],[8,10],[12,16]]
 
-| Step | Loop | Interval at `i` | Condition checked | Action | `newInterval` | `i` | `merged` |
-|------|------|-----------------|-------------------|--------|---------------|-----|----------|
-| 1 | loop 1 (before) | `[1,3]` | `intervals[0][1] < newInterval[0]`: `3 < 2`? No | loop 1 stops, no append | `[2,5]` | `0` | `[]` |
-| 2 | loop 2 (overlap) | `[1,3]` | `intervals[0][0] <= newInterval[1]`: `1 <= 5`? Yes | absorb: start `min(2,1)=1`, end `max(5,3)=5` | `[1,5]` | `1` | `[]` |
-| 3 | loop 2 (overlap) | `[6,9]` | `intervals[1][0] <= newInterval[1]`: `6 <= 5`? No | loop 2 stops | `[1,5]` | `1` | `[]` |
-| 4 | append | : | : | append grown `newInterval` | `[1,5]` | `1` | `[[1,5]]` |
-| 5 | loop 3 (after) | `[6,9]` | `i < n`: `1 < 2`? Yes | append `[6,9]`, advance `i` | `[1,5]` | `2` | `[[1,5],[6,9]]` |
+[1,2]     merged is empty -> append              merged = [[1,2]]
+[3,5]     2 < 3, no overlap -> append            merged = [[1,2],[3,5]]
+[4,8]     5 < 4 fails, overlap -> end = max(5,8) merged = [[1,2],[3,8]]
+[6,7]     8 < 6 fails, overlap -> end = max(8,7) merged = [[1,2],[3,8]]
+[8,10]    8 < 8 fails, overlap -> end = max(8,10) merged = [[1,2],[3,10]]
+[12,16]   10 < 12, no overlap -> append          merged = [[1,2],[3,10],[12,16]]
+```
 
-Loop 3's condition `i < n` is now `2 < 2`, which is false, so the loop ends. The function returns `merged = [[1,5],[6,9]]`, which matches the expected Output `[[1,5],[6,9]]`.
+The sweep chains the merges: `[4,8]` folds into `[3,5]`, and the widened `[3,8]`
+then swallows `[6,7]` and `[8,10]` (the `8 < 8` failure is the shared-endpoint
+case merging). The function returns `[[1,2],[3,10],[12,16]]`, matching the
+expected Output of Example 2.
 
-### Insert and Merge
+#### Solution
+
+The code is the splice and the sweep from the walkthrough.
 
 ```python
 from typing import List
@@ -192,15 +291,6 @@ class Solution:
         return merged
 ```
 
-#### Approach
-
-Instead of reasoning about three regions, notice that inserting an interval into a sorted, non-overlapping list and re-merging is exactly the Merge Intervals problem with one extra interval. Drop `newInterval` into its sorted position, then run the standard merge sweep over the combined list. The input is already sorted, so finding the slot is a linear scan and no sort is needed.
-
-1. Scan to the first interval whose start is not less than `newInterval`'s start, and splice `newInterval` in there so the combined list stays sorted by start.
-2. Sweep the combined list once: append each interval, or, when it overlaps the last kept interval, extend that interval's end via `max`.
-
-The overlap test `merged[-1][1] < interval[0]` treats a shared endpoint as an overlap, so touching intervals such as `[1,5]` and `[5,8]` merge into `[1,8]`.
-
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(n)`
@@ -218,6 +308,51 @@ The `combined` list and the `merged` output each hold up to `n + 1` intervals.
 - It does redundant work next to the direct walk: it rebuilds the list and re-checks intervals that never touch `newInterval`.
 
 ### In-Place Modification
+
+#### Derivation
+
+Both previous approaches build a fresh output list, `O(n)` auxiliary space. If
+mutating the caller's list is acceptable, the same three-region structure can be
+executed in place: skip past the before region, absorb the overlapping block by
+folding each interval into `newInterval` and removing it with `pop`, then `insert`
+the merged interval into the gap. The space saving has a hidden time cost, since
+`pop(i)` shifts the entire tail of the list one slot left on every call. The
+steps:
+
+1. Advance `i` past every interval ending before `newInterval` starts
+   (`intervals[i][1] < newInterval[0]`).
+2. While the interval at `i` overlaps `newInterval`
+   (`intervals[i][0] <= newInterval[1]`), fold it in via `min`/`max` and
+   `intervals.pop(i)`; the next overlapping interval slides down to index `i`.
+3. Call `intervals.insert(i, newInterval)` to place the merged interval, and
+   return the mutated `intervals`.
+
+#### Walkthrough
+
+Let us run the in-place version on Example 2: `intervals = [[1,2],[3,5],[6,7],[8,10],[12,16]]`,
+`newInterval = [4,8]`. Watch the list shrink as each overlapping interval is
+absorbed and popped, always at the same index `i = 1`:
+
+```text
+skip     [1,2] ends 2 < 4 -> i = 1;  [3,5] ends 5 >= 4 -> stop     i = 1
+absorb   [3,5]:   3 <= 8 -> newInterval = [3,8],  pop(1)
+                  intervals = [[1,2],[6,7],[8,10],[12,16]]
+absorb   [6,7]:   6 <= 8 -> newInterval = [3,8],  pop(1)
+                  intervals = [[1,2],[8,10],[12,16]]
+absorb   [8,10]:  8 <= 8 -> newInterval = [3,10], pop(1)
+                  intervals = [[1,2],[12,16]]
+stop     [12,16]: 12 <= 10 fails -> absorb loop ends
+insert   intervals.insert(1, [3,10])
+                  intervals = [[1,2],[3,10],[12,16]]
+```
+
+Each `pop(1)` slides the tail left, which is where the quadratic worst case
+lives: here three pops each shift the remaining intervals. The mutated list
+`[[1,2],[3,10],[12,16]]` is returned, matching the expected Output of Example 2.
+
+#### Solution
+
+The code is the skip, absorb-and-pop, and insert steps from the walkthrough.
 
 ```python
 from typing import List
@@ -238,14 +373,6 @@ class Solution:
         return intervals
 ```
 
-#### Approach
-
-This variant mutates the input list directly. It advances past the intervals that precede the overlap, then repeatedly absorbs and `pop`s each overlapping interval into `newInterval`, and finally inserts the merged interval at the gap that remains.
-
-1. Advance `i` past every interval ending before `newInterval` starts.
-2. While the interval at `i` overlaps `newInterval`, fold it into `newInterval` and `pop` it from the list.
-3. Insert the merged `newInterval` at index `i`.
-
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(n^2)`
@@ -264,6 +391,78 @@ No new list is allocated; the result reuses the input list, ignoring the input a
 - Appropriate only when destroying the caller's input is acceptable.
 
 ### Binary Search for the Overlap Window
+
+#### Derivation
+
+The linear approaches spend `O(n)` comparisons just to find the edges of the
+overlapping block. The sortedness offers more than a single pass: because the
+intervals are sorted by start *and* disjoint, each interval ends before the next
+begins, so the end values are ascending too. Both edges of the block are therefore
+boundaries of monotone predicates, and each can be found by a
+[binary search](https://en.wikipedia.org/wiki/Binary_search_algorithm) in
+`O(log n)` comparisons.
+
+An interval overlaps `newInterval` exactly when both `intervals[i][1] >=
+newInterval[0]` (it does not end before the new one starts) and `intervals[i][0]
+<= newInterval[1]` (it does not start after the new one ends). Each condition gets
+its own search:
+
+1. The first search runs over the ascending end values and finds `first`, the
+   leftmost index with `intervals[i][1] >= newInterval[0]`. Ends before `first`
+   are too small to overlap; ends from `first` onward all satisfy the predicate,
+   so the predicate flips exactly once and the search is valid.
+2. The second search runs over the ascending start values and finds `last`, the
+   rightmost index with `intervals[i][0] <= newInterval[1]`. Starts after `last`
+   are too large to overlap. The midpoint uses `(lo + hi + 1) // 2` because this
+   search rounds toward the right boundary; rounding down would loop forever when
+   `lo` and `hi` are adjacent.
+3. Since both predicates flip once over the sorted list, the overlapping intervals
+   are exactly the contiguous window `[first, last]`. If `first > last`, the
+   window is empty and `newInterval` overlaps nothing: it slots in unchanged at
+   index `first`. Otherwise one `merged` interval spans `min` of the starts at the
+   window's left edge and `max` of the ends at its right edge, and the result is
+   the untouched prefix, the merged interval, and the untouched suffix.
+
+Both comparisons use `>=` and `<=` so intervals that merely touch `newInterval` at
+an endpoint, such as `[1,5]` against a new `[5,8]`, land inside the window and
+merge.
+
+#### Walkthrough
+
+Let us run both searches by hand on Example 2:
+`intervals = [[1,2],[3,5],[6,7],[8,10],[12,16]]`, `newInterval = [4,8]`, `n = 5`.
+The end values are `2, 5, 7, 10, 16` and the start values are `1, 3, 6, 8, 12`,
+both ascending, as the derivation promised.
+
+```text
+first: leftmost i with intervals[i][1] >= 4
+lo=0  hi=5   mid=2   intervals[2][1] = 7   >= 4 -> hi = 2
+lo=0  hi=2   mid=1   intervals[1][1] = 5   >= 4 -> hi = 1
+lo=0  hi=1   mid=0   intervals[0][1] = 2   <  4 -> lo = 1
+lo=1  hi=1   loop ends -> first = 1
+
+last: rightmost i with intervals[i][0] <= 8
+lo=-1 hi=4   mid=2   intervals[2][0] = 6   <= 8 -> lo = 2
+lo=2  hi=4   mid=3   intervals[3][0] = 8   <= 8 -> lo = 3
+lo=3  hi=4   mid=4   intervals[4][0] = 12  >  8 -> hi = 3
+lo=3  hi=3   loop ends -> last = 3
+
+first = 1 <= last = 3 -> window [1, 3] holds the overlapping intervals
+merged = [min(4, intervals[1][0] = 3), max(8, intervals[3][1] = 10)] = [3, 10]
+result = intervals[:1] + [[3,10]] + intervals[4:] = [[1,2],[3,10],[12,16]]
+```
+
+Note the upward-rounding midpoint at work in the second search: with `lo = 3` and
+`hi = 4`, `mid = (3 + 4 + 1) // 2 = 4` probes the right candidate, and the failed
+test pulls `hi` down to `3`; rounding down would have probed index `3` forever.
+The window `[1, 3]` covers `[3,5]`, `[6,7]`, `[8,10]`, exactly the intervals the
+Explanation lists, and the assembled result `[[1,2],[3,10],[12,16]]` matches the
+expected Output of Example 2.
+
+#### Solution
+
+The code is the two boundary searches from the walkthrough, followed by the
+window test and the three-piece reassembly.
 
 ```python
 from typing import List
@@ -304,18 +503,6 @@ class Solution:
         return intervals[:first] + [merged] + intervals[last + 1:]
 ```
 
-#### Approach
-
-Because the intervals are sorted by start and do not overlap, their end values are also in ascending order: each interval ends before the next one begins. That means two boundary [binary searches](https://en.wikipedia.org/wiki/Binary_search_algorithm) can locate the block of intervals that touch `newInterval`, replacing the linear scans of the earlier approaches with `O(log n)` lookups.
-
-An interval overlaps `newInterval` exactly when both `intervals[i][1] >= newInterval[0]` (it does not end before the new one starts) and `intervals[i][0] <= newInterval[1]` (it does not start after the new one ends). Each condition gets its own search:
-
-1. The first search runs over the ascending end values and finds `first`, the leftmost index with `intervals[i][1] >= newInterval[0]`. Ends before `first` are too small to overlap; ends from `first` onward all satisfy the predicate, so the predicate flips exactly once and the search is valid.
-2. The second search runs over the ascending start values and finds `last`, the rightmost index with `intervals[i][0] <= newInterval[1]`. Starts after `last` are too large to overlap. The midpoint uses `(lo + hi + 1) // 2` because this search rounds toward the right boundary; rounding down would loop forever when `lo` and `hi` are adjacent.
-3. Since both predicates flip once over the sorted list, the overlapping intervals are exactly the contiguous window `[first, last]`. If `first > last`, the window is empty and `newInterval` overlaps nothing: it slots in unchanged at index `first`. Otherwise one merged interval spans `min` of the starts at the window's left edge and `max` of the ends at its right edge, and the result is the untouched prefix, the merged interval, and the untouched suffix.
-
-Both comparisons use `>=` and `<=` so intervals that merely touch `newInterval` at an endpoint, such as `[1,5]` against a new `[5,8]`, land inside the window and merge.
-
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(n)`
@@ -335,6 +522,54 @@ The result list built from the prefix slice, the merged interval, and the suffix
 
 ### Recursive Merge
 
+#### Derivation
+
+The three regions can also be discovered one interval at a time. Compare
+`newInterval` against just the head of the list, `intervals[0]`: either the new
+interval ends before the head starts (it belongs in front, and everything after is
+untouched), or it starts after the head ends (the head is safe to emit, and the
+problem [recurses](https://en.wikipedia.org/wiki/Recursion_(computer_science)) on
+the tail), or the two overlap (fold them together and recurse with the widened
+interval). This expresses the merge as a fold over the list, at the cost of an
+`intervals[1:]` slice copy per call. The steps:
+
+1. If `intervals` is empty, the answer is `[newInterval]`.
+2. If `newInterval[1] < intervals[0][0]`, the new interval lies entirely before
+   the head: prepend it and return.
+3. If `newInterval[0] > intervals[0][1]`, the head lies entirely before the new
+   interval: keep `intervals[0]` and recurse on `intervals[1:]`.
+4. Otherwise they overlap: build `merged` via `min` start and `max` end, and
+   recurse on `intervals[1:]` with `merged` in place of `newInterval`.
+
+#### Walkthrough
+
+Let us unwind the recursion on Example 2: `intervals = [[1,2],[3,5],[6,7],[8,10],[12,16]]`,
+`newInterval = [4,8]`. Each line is one call, indented by depth, showing which of
+the three cases fires:
+
+```text
+insert([[1,2],[3,5],[6,7],[8,10],[12,16]], [4,8])
+  [1,2]: 8 < 1? no; 4 > 2? yes  -> after: [[1,2]] + insert(tail, [4,8])
+  insert([[3,5],[6,7],[8,10],[12,16]], [4,8])
+    [3,5]: overlap -> merged = [min(4,3), max(8,5)] = [3,8]
+    insert([[6,7],[8,10],[12,16]], [3,8])
+      [6,7]: overlap -> merged = [3, max(8,7)] = [3,8]
+      insert([[8,10],[12,16]], [3,8])
+        [8,10]: overlap -> merged = [3, max(8,10)] = [3,10]
+        insert([[12,16]], [3,10])
+          [12,16]: 10 < 12? yes -> before: return [[3,10],[12,16]]
+```
+
+The innermost call hits the "entirely before" case and returns
+`[[3,10],[12,16]]`; the overlap calls pass that result up unchanged, and the
+outermost call prepends its kept head `[1,2]`. The final answer is
+`[[1,2],[3,10],[12,16]]`, matching the expected Output of Example 2.
+
+#### Solution
+
+The code is the three-case comparison from the walkthrough, applied to the head
+of the list on every call.
+
 ```python
 from typing import List
 
@@ -351,14 +586,6 @@ class Solution:
             merged = [min(newInterval[0], intervals[0][0]), max(newInterval[1], intervals[0][1])]
             return self.insert(intervals[1:], merged)
 ```
-
-#### Approach
-
-This [recursive](https://en.wikipedia.org/wiki/Recursion_(computer_science)) approach compares `newInterval` with the first interval and recurses on the rest, peeling one interval per call. There are three cases:
-
-1. The new interval lies entirely before the first interval: prepend it and return.
-2. The new interval lies entirely after the first interval: keep the first interval and recurse on the remainder.
-3. They overlap: merge them via `min` start and `max` end, then recurse with the merged interval against the remainder.
 
 #### Time and Space Complexity Analysis
 

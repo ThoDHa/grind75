@@ -41,35 +41,57 @@ A mapping of digits to letters (just like on the telephone buttons) is given bel
 - `0 <= digits.length <= 4`
 - `digits[i]` is a digit in the range `['2', '9']`.
 
+## Deriving the Solution
+
+Every combination picks exactly one letter for each digit, in digit order, so
+the answer is the [Cartesian product](https://en.wikipedia.org/wiki/Cartesian_product)
+of the per-digit letter sets (the [Formula](#formula) below states it). The
+output itself is exponential in the number of digits, so every approach shares
+the same complexity; what separates them is the order in which they visit the
+product and the intermediate state they carry.
+
+1. **Start literal.** Build the product one digit at a time: keep the list of
+   all combinations of the digits processed so far, and extend every entry by
+   every letter of the next digit: see
+   [Iterative Build-up](#iterative-build-up). It holds an entire generation of
+   partial combinations at every step.
+2. **Write the product as an equation.** The same product can be stated
+   recursively: the combinations for `digits[index:]` are each letter of
+   `digits[index]` prepended to every combination of `digits[index + 1:]`. The
+   code becomes a transcription of the math, at the cost of recursion and a
+   suffix list per level: see
+   [Recursive Suffix Expansion](#recursive-suffix-expansion).
+3. **Make the tree explicit.** The build-up is really a level-order walk of a
+   choice tree, one level per digit; a queue makes the levels concrete, at the
+   cost of queue management: see [Queue-based BFS](#queue-based-bfs).
+4. **Carry one path instead of a generation.** All of the above keep every
+   partial combination of the current length alive at once. Walking the same
+   tree depth-first with a single shared `path` buffer keeps only one partial
+   alive beside the finished results, and is the canonical interview form: see
+   [Backtracking](#backtracking).
+5. **Let the library do it.** The Cartesian product is a standard-library
+   primitive, so the entire enumeration collapses to one call, at the cost of
+   demonstrating no algorithm at all: see
+   [Built-in itertools.product](#built-in-itertoolsproduct).
+
 ## Solutions
 
 ### Iterative Build-up
 
-```python
-from typing import List
+#### Derivation
 
+Build the combinations one digit at a time. Start with a single empty
+combination, then for each digit replace the current list with an expanded list
+that [appends every letter of that digit to every existing combination](https://en.wikipedia.org/wiki/Cartesian_product).
+The invariant is that after processing a prefix of the digits, the working list
+holds exactly the combinations of that prefix.
 
-class Solution:
-    def letterCombinations(self, digits: str) -> List[str]:
-        if not digits:
-            return []
-
-        digit_to_letters = {
-            '2': 'abc', '3': 'def', '4': 'ghi', '5': 'jkl',
-            '6': 'mno', '7': 'pqrs', '8': 'tuv', '9': 'wxyz',
-        }
-
-        combinations = [""]
-        for digit in digits:
-            letters = digit_to_letters[digit]
-            new_combinations = []
-            for combination in combinations:
-                for letter in letters:
-                    new_combinations.append(combination + letter)
-            combinations = new_combinations
-
-        return combinations
-```
+1. Return `[]` immediately for empty input, since no combinations exist.
+2. Seed `combinations` with one empty string.
+3. For each digit, look up its `letters` and build `new_combinations` by
+   appending each letter to each current combination.
+4. Replace `combinations` with the expanded list and continue; after the last
+   digit it holds the answer.
 
 #### Formula
 
@@ -118,42 +140,6 @@ The seed `[""]` is the identity for that operation: the product of zero sets is
 the single empty tuple, not the empty set. Starting from `[]` instead would
 annihilate everything, since anything crossed with the empty set stays empty.
 
-#### Approach
-
-Build the combinations one digit at a time. Start with a single empty
-combination, then for each digit replace the current list with an expanded list
-that [appends every letter of that digit to every existing combination](https://en.wikipedia.org/wiki/Cartesian_product).
-
-1. Return `[]` immediately for empty input, since no combinations exist.
-2. Seed the working list with one empty string.
-3. For each digit, look up its letters and build a new list by appending each
-   letter to each current combination.
-4. Replace the working list with the expanded list and continue.
-
-For `digits = "23"` the list evolves as `[""]` then `["a", "b", "c"]` then
-`["ad", "ae", "af", "bd", "be", "bf", "cd", "ce", "cf"]`.
-
-#### Time and Space Complexity Analysis
-
-##### Time Complexity: `O(3^n * 4^m)`
-
-Where `n` is the count of digits mapping to three letters and `m` the count
-mapping to four letters. The expansion produces exactly this many combinations,
-and each is built incrementally.
-
-##### Space Complexity: `O(3^n * 4^m)`
-
-The working list holds every intermediate and final combination during the
-build-up, which is dominated by the final result size.
-
-#### Key Insights
-
-- The result is the Cartesian product of the per-digit letter sets, built one
-  factor at a time.
-- No recursion is required, which avoids recursion-stack overhead.
-- Replacing the list each iteration keeps the state to exactly one generation of
-  combinations at a time, aside from the new list being constructed.
-
 #### Walkthrough
 
 Trace the **Iterative Build-up** solution on Example 1: `digits = "23"`. The key
@@ -195,7 +181,98 @@ No digits remain, so we return `combinations`, which is
 `["ad","ae","af","bd","be","bf","cd","ce","cf"]`. This matches the expected
 Output for Example 1.
 
+#### Solution
+
+The code is the walkthrough's two nested loops, one generation per digit.
+
+```python
+from typing import List
+
+
+class Solution:
+    def letterCombinations(self, digits: str) -> List[str]:
+        if not digits:
+            return []
+
+        digit_to_letters = {
+            '2': 'abc', '3': 'def', '4': 'ghi', '5': 'jkl',
+            '6': 'mno', '7': 'pqrs', '8': 'tuv', '9': 'wxyz',
+        }
+
+        combinations = [""]
+        for digit in digits:
+            letters = digit_to_letters[digit]
+            new_combinations = []
+            for combination in combinations:
+                for letter in letters:
+                    new_combinations.append(combination + letter)
+            combinations = new_combinations
+
+        return combinations
+```
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(3^n * 4^m)`
+
+Where `n` is the count of digits mapping to three letters and `m` the count
+mapping to four letters. The expansion produces exactly this many combinations,
+and each is built incrementally.
+
+##### Space Complexity: `O(3^n * 4^m)`
+
+The working list holds every intermediate and final combination during the
+build-up, which is dominated by the final result size.
+
+#### Key Insights
+
+- The result is the Cartesian product of the per-digit letter sets, built one
+  factor at a time.
+- No recursion is required, which avoids recursion-stack overhead.
+- Replacing the list each iteration keeps the state to exactly one generation of
+  combinations at a time, aside from the new list being constructed.
+
 ### Recursive Suffix Expansion
+
+#### Derivation
+
+The iterative build assembles the product front to back with explicit loops.
+The same product can instead be written as the equation it satisfies, in
+[divide and conquer](https://en.wikipedia.org/wiki/Divide-and-conquer_algorithm)
+style: the combinations for `digits[index:]` equal each letter of
+`digits[index]` prepended to every combination of `digits[index + 1:]`. The
+code becomes a direct transcription of that equation, at the cost of recursion
+and a suffix list per level.
+
+1. The base case at `index == len(digits)` returns `[""]`, a single empty suffix.
+2. Recurse on the remaining digits to obtain all `suffixes`.
+3. Combine each letter of the current digit with each suffix.
+4. The top-level call `generate(0)` returns the full set for `digits[0:]`.
+
+#### Walkthrough
+
+Trace `generate` on Example 1: `digits = "23"`. The recursion dives to the base
+case first, then builds combinations on the way back up:
+
+```text
+generate(0)   digit '2': needs suffixes from generate(1)
+  generate(1)   digit '3': needs suffixes from generate(2)
+    generate(2)   index == len(digits) -> return [""]
+  generate(1)   letters = "def", prepend each to [""]
+                -> ["d", "e", "f"]
+generate(0)   letters = "abc", prepend each to ["d", "e", "f"]
+              -> ["ad","ae","af","bd","be","bf","cd","ce","cf"]
+```
+
+The base case returns `[""]` rather than `[]`: prepending `"d"` to the single
+empty suffix yields `"d"`, while an empty list would leave nothing to prepend
+to and collapse every level to empty. The top-level call returns the nine
+combinations, matching the expected Output for Example 1.
+
+#### Solution
+
+The code is the equation from the walkthrough: one recursive call for the
+suffixes, one comprehension to prepend the letters.
 
 ```python
 from typing import List
@@ -221,17 +298,6 @@ class Solution:
         return generate(0)
 ```
 
-#### Approach
-
-Frame the problem with [divide and conquer](https://en.wikipedia.org/wiki/Divide-and-conquer_algorithm): the combinations for `digits[index:]`
-equal each letter of `digits[index]` prepended to every combination of
-`digits[index + 1:]`.
-
-1. The base case at `index == len(digits)` returns `[""]`, a single empty suffix.
-2. Recurse on the remaining digits to obtain all suffix combinations.
-3. Combine each letter of the current digit with each suffix.
-4. The top-level call returns the full set for `digits[0:]`.
-
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(3^n * 4^m)`
@@ -254,6 +320,50 @@ The combined lists hold every combination, plus `O(k)` recursion-stack depth for
   collapse every product to empty.
 
 ### Queue-based BFS
+
+#### Derivation
+
+The recursion builds the product from the last digit back toward the first. The
+same choice tree can be walked from the top instead, level by level, in
+[breadth-first](https://en.wikipedia.org/wiki/Breadth-first_search) order: the
+queue holds all combinations of the current length, and processing one digit
+advances every entry to the next length. The one subtlety is keeping levels
+separate: snapshotting `len(queue)` before the inner loop guarantees each entry
+of the current level is dequeued exactly once and never re-extended within the
+same digit's pass.
+
+1. Return `[]` for empty input.
+2. Seed the queue with one empty string.
+3. For each digit, snapshot the current queue length and dequeue exactly that
+   many entries, enqueuing each extended by every letter of the digit.
+4. After all digits are processed, the queue holds the full-length combinations.
+
+#### Walkthrough
+
+Trace the queue on Example 1: `digits = "23"`:
+
+```text
+start        queue = [""]
+digit '2'    snapshot len = 1
+             pop ""  -> push "a", "b", "c"
+             queue = ["a", "b", "c"]
+digit '3'    snapshot len = 3
+             pop "a" -> push "ad", "ae", "af"
+             pop "b" -> push "bd", "be", "bf"
+             pop "c" -> push "cd", "ce", "cf"
+             queue = ["ad", "ae", "af", "bd", "be", "bf", "cd", "ce", "cf"]
+```
+
+Mid-pass the queue mixes lengths: after `"a"` is processed it holds
+`["b", "c", "ad", "ae", "af"]`. The snapshot of `3` is what stops the loop from
+dequeuing `"ad"` in the same pass and extending it twice. When the loop ends,
+`list(queue)` is the nine combinations, matching the expected Output for
+Example 1.
+
+#### Solution
+
+The code is the walkthrough's level advance, one snapshot-bounded pass per
+digit.
 
 ```python
 from collections import deque
@@ -281,21 +391,6 @@ class Solution:
         return list(queue)
 ```
 
-#### Approach
-
-Treat each digit as a level in an implicit tree and explore [breadth-first](https://en.wikipedia.org/wiki/Breadth-first_search). The
-queue holds all combinations of the current length; processing one digit advances
-every entry to the next length.
-
-1. Return `[]` for empty input.
-2. Seed the queue with one empty string.
-3. For each digit, snapshot the current queue length and dequeue exactly that
-   many entries, enqueuing each extended by every letter of the digit.
-4. After all digits are processed, the queue holds the full-length combinations.
-
-Snapshotting the length before the inner loop keeps each level isolated, so a
-combination is never extended twice within one digit's pass.
-
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(3^n * 4^m)`
@@ -317,6 +412,53 @@ result size.
   `list.pop(0)`.
 
 ### Backtracking
+
+#### Derivation
+
+Every approach so far keeps a whole generation of partial combinations alive at
+once, up to the full result size. Walking the same choice tree
+[depth-first](https://en.wikipedia.org/wiki/Depth-first_search) needs only one
+partial at a time: a single shared `path` list accumulates the current choice
+for each digit, and finished combinations are copied out at the leaves. The
+choose / explore / unchoose discipline (push a letter, recurse, pop it)
+restores `path` before the next branch, so one buffer serves the entire tree.
+Each digit position has its own independent set of choices, so no
+visited-tracking is needed, unlike permutation problems.
+
+1. Return `[]` for empty input.
+2. At `index == n`, join the accumulated `path` and append it to `result`.
+3. Otherwise, for each letter of the current digit, push it onto `path`, recurse,
+   then pop it to restore state for the next letter.
+
+#### Walkthrough
+
+Trace the push and pop events on Example 1: `digits = "23"`, `n = 2`. The `'a'`
+branch is shown in full; the `'b'` and `'c'` branches repeat the identical
+pattern:
+
+```text
+push 'a'        path = ['a']
+  push 'd'      path = ['a', 'd']   index == 2 -> record "ad"
+  pop  'd'      path = ['a']
+  push 'e'      path = ['a', 'e']   index == 2 -> record "ae"
+  pop  'e'      path = ['a']
+  push 'f'      path = ['a', 'f']   index == 2 -> record "af"
+  pop  'f'      path = ['a']
+pop  'a'        path = []
+push 'b'        ... records "bd", "be", "bf" the same way
+push 'c'        ... records "cd", "ce", "cf" the same way
+```
+
+Every recursive call is bracketed by a push and a pop, so `path` returns to its
+previous state before the next letter is tried; that is why one list can serve
+all nine leaves. `result` accumulates the combinations in the order
+`["ad","ae","af","bd","be","bf","cd","ce","cf"]`, matching the expected Output
+for Example 1.
+
+#### Solution
+
+The code is the walkthrough's choose / explore / unchoose loop around one
+shared `path`.
 
 ```python
 from typing import List
@@ -348,21 +490,6 @@ class Solution:
         return result
 ```
 
-#### Approach
-
-Walk a decision tree [depth-first](https://en.wikipedia.org/wiki/Depth-first_search), where each level chooses one letter for the
-current digit. A shared `path` accumulates the current choices; on reaching the
-end it is joined and recorded, then the last choice is undone before trying the
-next branch.
-
-1. Return `[]` for empty input.
-2. At `index == n`, join the accumulated `path` and append it to `result`.
-3. Otherwise, for each letter of the current digit, push it onto `path`, recurse,
-   then pop it to restore state for the next letter.
-
-Each digit position has its own independent set of choices, so no
-visited-tracking is needed, unlike permutation problems.
-
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(3^n * 4^m)`
@@ -386,6 +513,41 @@ shared `path` of length `k = len(digits)`.
 
 ### Built-in itertools.product
 
+#### Derivation
+
+The Formula in the Iterative Build-up section names the answer outright: the
+Cartesian product of the per-digit letter sets. The standard library computes
+exactly that, so the whole enumeration collapses to a single
+[`itertools.product`](https://docs.python.org/3/library/itertools.html) call.
+
+1. Return `[]` for empty input.
+2. Map each digit to its letter group.
+3. Spread the groups into `product`, which yields one tuple per combination, and
+   join each tuple into a string.
+
+#### Walkthrough
+
+Here the library call is the technique, so the trace shows what `product`
+receives and the order in which it yields tuples: rightmost factor fastest,
+like an odometer. On Example 1, `digits = "23"`:
+
+```text
+letter_groups = ["abc", "def"]
+product(*letter_groups) yields:
+    ('a','d')  ('a','e')  ('a','f')
+    ('b','d')  ('b','e')  ('b','f')
+    ('c','d')  ('c','e')  ('c','f')
+join each tuple -> ["ad","ae","af","bd","be","bf","cd","ce","cf"]
+```
+
+Each row is one first-digit letter crossed with all three second-digit letters.
+Joining the tuples gives the nine combinations, matching the expected Output
+for Example 1.
+
+#### Solution
+
+The code is the walkthrough's single `product` call plus the join.
+
 ```python
 from itertools import product
 from typing import List
@@ -404,16 +566,6 @@ class Solution:
         letter_groups = [digit_to_letters[digit] for digit in digits]
         return ["".join(combo) for combo in product(*letter_groups)]
 ```
-
-#### Approach
-
-The problem is exactly the Cartesian product of the per-digit letter sets, which
-[`itertools.product`](https://docs.python.org/3/library/itertools.html) computes directly.
-
-1. Return `[]` for empty input.
-2. Map each digit to its letter group.
-3. Spread the groups into `product`, which yields one tuple per combination, and
-   join each tuple into a string.
 
 #### Time and Space Complexity Analysis
 

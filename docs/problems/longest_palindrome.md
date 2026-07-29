@@ -39,61 +39,43 @@ Letters are case sensitive, for example, "Aa" is not considered a palindrome her
 - `1 <= s.length <= 2000`
 - `s` consists of lowercase and/or uppercase English letters only.
 
+## Deriving the Solution
+
+A palindrome mirrors around its center, so its characters occur in pairs, with at
+most one unpaired character sitting in the exact middle. Every solution below
+computes the same quantity, the number of characters that can pair up plus one
+center character when any letter is left over, and they differ only in how the
+pairing is counted.
+
+1. **Count, then pair.** Tally each character's frequency in a dictionary, keep
+   the largest even part of every count, and add `1` if any count is odd. Two
+   simple passes answer the question in `O(n)`: see [Brute Force](#brute-force).
+2. **Pair as you read.** The counts are only ever used to extract pairs, so the
+   pairs can be collected on the fly instead: a set holds characters still
+   waiting for a partner, and each arrival either completes a pair or joins the
+   waiting set. One pass, no per-count arithmetic: see
+   [Set-based Pair Matching](#set-based-pair-matching).
+3. **Subtract instead of add.** Summing even parts count by count is more work
+   than needed: every discarded character comes from an odd count, and exactly
+   one leftover may stay as the center. Start from `len(s)`, subtract one per odd
+   count, and credit one back: see
+   [Character Frequency Counting with Odd Character Tracking](#character-frequency-counting-with-odd-character-tracking).
+4. **Let the library count.** The counting pass in step 1 is exactly what
+   `collections.Counter` provides, so delegating it leaves only the pair
+   arithmetic: see [Counter Frequency Tally](#counter-frequency-tally).
+
 ## Solutions
 
 ### Brute Force
 
-```python
-class Solution:
-    def longestPalindrome(self, s: str) -> int:
-        # Count each character by hand with a plain dictionary
-        counts = {}
-        for c in s:
-            counts[c] = counts.get(c, 0) + 1
+#### Derivation
 
-        length = 0
-        has_odd = False
-        for count in counts.values():
-            # Every full pair contributes two characters to the palindrome
-            length += (count // 2) * 2
-            # A leftover single character means this count is odd
-            if count % 2 == 1:
-                has_odd = True
+The most direct idea follows straight from how a palindrome is built: characters mirror around the center, so each character can contribute only in pairs, except for a single character allowed in the middle. That observation turns the question into pure counting, how many of each character are available and how many complete pairs they yield, without ever constructing a palindrome.
 
-        # One leftover character can sit in the center
-        if has_odd:
-            length += 1
-        return length
-```
-
-#### Approach
-
-The most direct idea follows straight from how a palindrome is built: characters mirror around the center, so each character can contribute only in pairs, except for a single character allowed in the middle. Counting how many of each character we have and then taking as many pairs as possible answers the question without ever constructing a palindrome.
-
-1. Count the frequency of every character with a plain [dictionary](https://en.wikipedia.org/wiki/Hash_table).
-2. For each frequency, add its largest even part `(count // 2) * 2` to the running length, because only complete pairs can mirror across the palindrome.
-3. Record whether any frequency is odd, since an odd frequency leaves one unpaired character.
+1. Count the frequency of every character with a plain [dictionary](https://en.wikipedia.org/wiki/Hash_table) `counts`.
+2. For each frequency, add its largest even part `(count // 2) * 2` to the running `length`, because only complete pairs can mirror across the palindrome.
+3. Record in `has_odd` whether any frequency is odd, since an odd frequency leaves one unpaired character.
 4. If any odd frequency was seen, add `1` for a single center character.
-
-#### Time and Space Complexity Analysis
-
-##### Time Complexity: `O(n)`
-
-- Counting every character is one `O(n)` pass over the string of length `n`.
-- Iterating the frequency values is `O(k)` where `k` is the number of distinct characters, bounded by the constant alphabet size.
-- The total work is therefore linear in the input.
-
-##### Space Complexity: `O(1)`
-
-- The dictionary holds at most `52` entries (`26` lowercase + `26` uppercase English letters).
-- This bound is constant regardless of input size, so the auxiliary space is constant.
-
-#### Key Insights
-
-- A palindrome mirrors around its center, so each character contributes only in pairs.
-- Exactly one odd-frequency character can be placed in the center, which is why a single `+1` covers all the leftovers.
-- Computing the answer from counts alone avoids ever building the palindrome string.
-- Taking `(count // 2) * 2` cleanly drops any single unpaired character from each group.
 
 #### Walkthrough
 
@@ -127,7 +109,95 @@ After the loop `length` is `6` and `has_odd` is `True`. Because `has_odd` is `Tr
 
 The function returns `7`, which matches the example's expected Output.
 
+#### Solution
+
+The code is the walkthrough's two passes written down: count every character,
+then take the even part of each count.
+
+```python
+class Solution:
+    def longestPalindrome(self, s: str) -> int:
+        # Count each character by hand with a plain dictionary
+        counts = {}
+        for c in s:
+            counts[c] = counts.get(c, 0) + 1
+
+        length = 0
+        has_odd = False
+        for count in counts.values():
+            # Every full pair contributes two characters to the palindrome
+            length += (count // 2) * 2
+            # A leftover single character means this count is odd
+            if count % 2 == 1:
+                has_odd = True
+
+        # One leftover character can sit in the center
+        if has_odd:
+            length += 1
+        return length
+```
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n)`
+
+- Counting every character is one `O(n)` pass over the string of length `n`.
+- Iterating the frequency values is `O(k)` where `k` is the number of distinct characters, bounded by the constant alphabet size.
+- The total work is therefore linear in the input.
+
+##### Space Complexity: `O(1)`
+
+- The dictionary holds at most `52` entries (`26` lowercase + `26` uppercase English letters).
+- This bound is constant regardless of input size, so the auxiliary space is constant.
+
+#### Key Insights
+
+- A palindrome mirrors around its center, so each character contributes only in pairs.
+- Exactly one odd-frequency character can be placed in the center, which is why a single `+1` covers all the leftovers.
+- Computing the answer from counts alone avoids ever building the palindrome string.
+- Taking `(count // 2) * 2` cleanly drops any single unpaired character from each group.
+
 ### Set-based Pair Matching
+
+#### Derivation
+
+The Brute Force spends one pass counting and a second pass pairing, yet the
+counts themselves are never needed: only the pairs are. Can the pairs be
+collected while reading the string? A [set](https://en.wikipedia.org/wiki/Hash_table) `chars` of characters still waiting
+for a partner does exactly that: each incoming character either completes a pair
+with its waiting twin or becomes a waiter itself.
+
+1. For each character in the string:
+    - If it's already in the set, we've found a pair. Remove it from the set and increase `count` by 2.
+    - If it's not in the set, add it to the set as a potential future pair.
+2. After processing all characters, if the set is not empty (meaning we have unpaired characters), we can use one character as the center of the palindrome and add `1` to `count`.
+
+#### Walkthrough
+
+Let us run the pairing set on Example 1: `s = "abccccdd"`. Each line shows the
+character read, whether it found its partner waiting in `chars`, and the state
+afterward:
+
+```text
+c = a   not in chars -> add     chars = {a}          count = 0
+c = b   not in chars -> add     chars = {a, b}       count = 0
+c = c   not in chars -> add     chars = {a, b, c}    count = 0
+c = c   in chars -> pair        chars = {a, b}       count = 2
+c = c   not in chars -> add     chars = {a, b, c}    count = 2
+c = c   in chars -> pair        chars = {a, b}       count = 4
+c = d   not in chars -> add     chars = {a, b, d}    count = 4
+c = d   in chars -> pair        chars = {a, b}       count = 6
+```
+
+Three pairs formed (`cc`, `cc`, `dd`), contributing `6`. The set still holds
+`{a, b}`: two characters never found a partner, and one of them may sit in the
+center, so `count` becomes `7`. The function returns `7`, matching the expected
+Output for Example 1.
+
+#### Solution
+
+The code is the walkthrough's pairing loop, followed by the center check on the
+leftover set.
 
 ```python
 class Solution:
@@ -148,15 +218,6 @@ class Solution:
 
         return count
 ```
-
-#### Approach
-
-This solution uses a [set](https://en.wikipedia.org/wiki/Hash_table) to track unpaired characters as it processes the string:
-
-1. For each character in the string:
-    - If it's already in the set, we've found a pair. Remove it from the set and increase count by 2.
-    - If it's not in the set, add it to the set as a potential future pair.
-2. After processing all characters, if the set is not empty (meaning we have unpaired characters), we can use one character as the center of the palindrome.
 
 #### Time and Space Complexity Analysis
 
@@ -179,26 +240,21 @@ This solution uses a [set](https://en.wikipedia.org/wiki/Hash_table) to track un
 
 ### Character Frequency Counting with Odd Character Tracking
 
-```python
-class Solution:
-    def longestPalindrome(self, s: str) -> int:
-        counter = {}
-        odd = -1
-        # Count frequency of each character
-        for c in s:
-            counter[c] = counter.get(c, 0) + 1
+#### Derivation
 
-        # Count characters with odd frequencies
-        for values in counter.values():
-            if values % 2 != 0:
-               odd += 1
+Both approaches so far build the answer upward by adding pairs, doing a little
+arithmetic for every distinct count. Work backward from `len(s)` instead: every
+character would be usable if nothing were unpaired, and only odd frequencies
+leave an unpaired character behind. Each odd frequency forces exactly one
+discard, except that one leftover may stay as the center, so counting the odd
+frequencies is all the arithmetic needed:
 
-        # Calculate palindrome length
-        if odd > 0:
-            return len(s) - odd
-        else:
-            return len(s)
-```
+1. Create a [hash map](https://en.wikipedia.org/wiki/Hash_table) (dictionary) `counter` to store the count of each character.
+2. Initialize an odd counter at `-1`, which pre-credits one odd character as the allowed center.
+3. After counting characters, iterate through the values to count how many have an odd frequency.
+4. Calculate the palindrome length:
+    - If `odd > 0`: subtract that many characters from the total length, having already kept one odd character for the center.
+    - If `odd = 0`: all characters pair up and the whole string is usable.
 
 #### Closed Form
 
@@ -246,16 +302,50 @@ That is why the code initializes its counter at `-1`: pre-crediting the one
 character allowed in the center folds the `+1` into the subtraction, collapsing
 both cases into `len(s) - odd`.
 
-#### Approach
+#### Walkthrough
 
-This refinement of the brute force avoids the explicit pair arithmetic by working backward from `len(s)`. Every odd-frequency character forces one unpaired character to be discarded, except that one of them may sit in the center:
+Let us trace on Example 1: `s = "abccccdd"`, so `len(s) = 8`. The counting pass
+fills `counter` exactly as in the Brute Force walkthrough, one increment per
+character, ending at `{a: 1, b: 1, c: 4, d: 2}`. The second pass tallies odd
+frequencies, starting from the pre-credit `odd = -1`:
 
-1. Create a [hash map](https://en.wikipedia.org/wiki/Hash_table) (dictionary) to store the count of each character.
-2. Initialize an odd counter at `-1`, which pre-credits one odd character as the allowed center.
-3. After counting characters, iterate through the values to count how many have an odd frequency.
-4. Calculate the palindrome length:
-    - If `odd > 0`: subtract that many characters from the total length, having already kept one odd character for the center.
-    - If `odd = 0`: all characters pair up and the whole string is usable.
+```text
+start          odd = -1    pre-credit: one odd character may be the center
+a: 1   odd     odd = 0
+b: 1   odd     odd = 1
+c: 4   even    odd = 1
+d: 2   even    odd = 1
+```
+
+Two characters (`a` and `b`) have odd counts; the pre-credit absorbs the first,
+leaving `odd = 1` genuine discard. Since `odd > 0`, the answer is
+`len(s) - odd = 8 - 1 = 7`, matching the expected Output for Example 1.
+
+#### Solution
+
+The code is the count-then-subtract pass from the walkthrough, with the center
+credit folded into the `-1` initialization.
+
+```python
+class Solution:
+    def longestPalindrome(self, s: str) -> int:
+        counter = {}
+        odd = -1
+        # Count frequency of each character
+        for c in s:
+            counter[c] = counter.get(c, 0) + 1
+
+        # Count characters with odd frequencies
+        for values in counter.values():
+            if values % 2 != 0:
+               odd += 1
+
+        # Calculate palindrome length
+        if odd > 0:
+            return len(s) - odd
+        else:
+            return len(s)
+```
 
 #### Time and Space Complexity Analysis
 
@@ -279,6 +369,43 @@ This refinement of the brute force avoids the explicit pair arithmetic by workin
 
 ### Counter Frequency Tally
 
+#### Derivation
+
+The manual counting loop that opens every approach above is boilerplate the
+standard library already provides:
+[`collections.Counter`](https://docs.python.org/3/library/collections.html#collections.Counter)
+performs the same frequency tally in one call. What remains is the pair
+arithmetic, tightened with a bitwise touch: `freq & 1` is `1` when `freq` is odd
+and `0` when even, so it both detects odd counts and trims the unpaired
+character off each odd group in a single expression.
+
+1. Build a `Counter` over `s`, mapping each character to its frequency.
+2. For each frequency, add its largest even part (`freq - (freq & 1)`) to the running `length`, since pairs of characters always contribute to a palindrome.
+3. Track whether any character has an odd frequency with `has_odd`.
+4. If at least one odd frequency exists, a single leftover character can sit at the center, so add `1` to the result.
+
+#### Walkthrough
+
+Let us trace on Example 1: `s = "abccccdd"`. `Counter(s)` is the library's
+version of the counting pass and yields `counts = {a: 1, b: 1, c: 4, d: 2}`. The
+loop then processes each frequency, starting from `length = 0` and
+`has_odd = False`:
+
+```text
+freq = 1  (a)   freq & 1 = 1   length += 1 - 1 = 0 -> 0    has_odd = True
+freq = 1  (b)   freq & 1 = 1   length += 1 - 1 = 0 -> 0    has_odd = True
+freq = 4  (c)   freq & 1 = 0   length += 4 - 0 = 4 -> 4    has_odd stays True
+freq = 2  (d)   freq & 1 = 0   length += 2 - 0 = 2 -> 6    has_odd stays True
+```
+
+The even parts contribute `6`, and because `has_odd` is `True` one leftover
+character may occupy the center: the function returns `6 + 1 = 7`, matching the
+expected Output for Example 1.
+
+#### Solution
+
+The code is the walkthrough's loop with `Counter` supplying the counts.
+
 ```python
 from collections import Counter
 
@@ -294,17 +421,6 @@ class Solution:
                 has_odd = True
         return length + 1 if has_odd else length
 ```
-
-#### Approach
-
-This solution leans on [`collections.Counter`](https://docs.python.org/3/library/collections.html#collections.Counter) to tally character frequencies, then derives the answer directly from those counts:
-
-1. Build a `Counter` over `s`, mapping each character to its frequency.
-2. For each frequency, add its largest even part (`freq - (freq & 1)`) to the running length, since pairs of characters always contribute to a palindrome.
-3. Track whether any character has an odd frequency with `has_odd`.
-4. If at least one odd frequency exists, a single leftover character can sit at the center, so add `1` to the result.
-
-The bitwise `freq & 1` is `1` when `freq` is odd and `0` when even, which both detects odd counts and trims the unpaired character off each odd group in a single expression.
 
 #### Time and Space Complexity Analysis
 

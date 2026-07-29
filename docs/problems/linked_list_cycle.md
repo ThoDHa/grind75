@@ -52,9 +52,70 @@ Return `true` if there is a cycle in the linked list. Otherwise, return `false`.
 - `-10^5 <= Node.val <= 10^5`
 - `pos` is `-1` or a valid index in the linked-list.
 
+## Deriving the Solution
+
+A cycle shows itself in exactly one way: following `next` pointers revisits a
+node instead of reaching null. Every solution below is a different way of
+noticing that revisit.
+
+1. **Start literal.** Do not detect the revisit at all: just walk, and if the
+   walk outlives the largest list the constraints allow (`10^4` nodes), the
+   pointers must be looping. Constant space, but the argument leans on a known
+   size cap rather than on the list itself: see [Brute Force](#brute-force).
+2. **Remember where you have been.** Detect the revisit directly: store every
+   visited node in a set and stop the moment one repeats. Works for any list,
+   but spends `O(n)` memory remembering the past: see [Hash Set](#hash-set).
+3. **Store the memory in the list.** The set only records one bit per node,
+   "visited"; write that bit into the nodes themselves as a sentinel value.
+   Space drops to `O(1)`, but the caller's list is destroyed in the process:
+   see [Marking Visited Nodes](#marking-visited-nodes).
+4. **Race two pointers.** Replace memory with relative motion: a fast pointer
+   gains one node per step on a slow one, so inside any cycle it must catch it,
+   and on an acyclic list it simply runs off the end. Constant space, no
+   mutation, no size cap: see [Floyd's Cycle Detection](#floyds-cycle-detection).
+
 ## Solutions
 
 ### Brute Force
+
+#### Derivation
+
+The most direct idea uses no extra data structure at all: just walk the list
+and count steps. A list without a cycle has at most `n` nodes, so following
+`next` pointers must reach a null terminator within `n` steps. If we keep
+walking past the largest list the constraints allow, the only explanation is
+that the pointers loop back on themselves.
+
+1. Read the upper bound on the node count from the constraints (`10^4`) and use
+   it as the step budget `MAX_NODES`.
+2. Traverse the list one node at a time, incrementing the counter `steps`.
+3. If `steps` ever exceeds the budget, declare a cycle; if traversal reaches
+   null first, declare no cycle.
+
+This is correct because the budget is the maximum possible chain length: any
+walk longer than that cannot be a simple acyclic chain.
+
+#### Walkthrough
+
+Tracing this brute force on Example 1 (`head = [3,2,0,-4]`, `pos = 1`) would take more than `10^4` steps before the `steps > MAX_NODES` budget triggers, far too many to follow by hand. So we trace the easier-to-watch acyclic case instead: the same four values `[3,2,0,-4]` but with `pos = -1`, meaning the tail's `next` is null and there is no cycle. This shows how the loop terminates normally and returns `false`.
+
+We start with `steps = 0` and `head` pointing at the first node (value `3`). Each iteration checks the budget, then advances `head` to `head.next` and increments `steps`:
+
+| `steps` (at loop top) | `head.val` | budget exceeded? | action |
+| --- | --- | --- | --- |
+| `0` | `3` | no (`0 > 10000` is false) | `head = head.next` (to `2`), `steps` becomes `1` |
+| `1` | `2` | no | `head = head.next` (to `0`), `steps` becomes `2` |
+| `2` | `0` | no | `head = head.next` (to `-4`), `steps` becomes `3` |
+| `3` | `-4` | no | `head = head.next` (to `null`), `steps` becomes `4` |
+
+Now `head` is `null`, so the `while head:` condition is false and the loop ends. The budget was never exceeded, so the method reaches the final line and returns `false`.
+
+For this acyclic list the result is `false`. Example 1 itself has a cycle (`pos = 1`), so its `head` pointer would never reach `null`: the walk would keep looping back, the step counter would climb past `10000`, and the `steps > MAX_NODES` guard would return `true`, matching Example 1's expected Output of `true`.
+
+#### Solution
+
+The code is the walkthrough's counted walk, with the budget check at the top of
+each step.
 
 ```python
 # Definition for singly-linked list.
@@ -77,16 +138,6 @@ class Solution:
         return False
 ```
 
-#### Approach
-
-The most direct idea uses no extra data structure at all: just walk the list and count steps. A list without a cycle has at most `n` nodes, so following `next` pointers must reach a null terminator within `n` steps. If we keep walking past the largest list the constraints allow, the only explanation is that the pointers loop back on themselves.
-
-1. Read the upper bound on the node count from the constraints (`10^4`) and use it as a step budget.
-2. Traverse the list one node at a time, incrementing a step counter.
-3. If the counter ever exceeds the budget, declare a cycle; if traversal reaches null first, declare no cycle.
-
-This is correct because the budget is the maximum possible chain length: any walk longer than that cannot be a simple acyclic chain.
-
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(n)`
@@ -103,24 +154,44 @@ Only a counter and the traversal pointer are kept, regardless of input size.
 - Needs no auxiliary structure and never mutates the list.
 - The weakness is that it hard-codes a step bound from the constraints rather than reasoning about the list itself, so it does not generalize to inputs without a known size cap.
 
+### Hash Set
+
+#### Derivation
+
+The Brute Force never actually observes a revisit; it infers a cycle from a
+size cap that only the constraints happen to provide, so it fails to generalize
+to lists of unknown size. Detect the revisit itself instead: a cycle exists
+exactly when the walk reaches some node a second time, so remember every node
+visited so far in a [hash set](https://en.wikipedia.org/wiki/Hash_table) and
+stop when one repeats. The set stores node objects, not values, so duplicate
+values in distinct nodes cannot cause a false positive.
+
+1. Start with an empty set `seen`.
+2. Walk the list; at each node, if `head` is already in `seen`, return `True`.
+3. Otherwise add `head` to `seen` and advance to `head.next`.
+4. Reaching null means the chain terminates, so return `False`.
+
 #### Walkthrough
 
-Tracing this brute force on Example 1 (`head = [3,2,0,-4]`, `pos = 1`) would take more than `10^4` steps before the `steps > MAX_NODES` budget triggers, far too many to follow by hand. So we trace the easier-to-watch acyclic case instead: the same four values `[3,2,0,-4]` but with `pos = -1`, meaning the tail's `next` is null and there is no cycle. This shows how the loop terminates normally and returns `false`.
+Trace the set on Example 1: `head = [3,2,0,-4]`, `pos = 1`. Label the four
+nodes `n0` through `n3` by position, since the set keys on node identity, not
+value; `pos = 1` means the tail `n3` points back to `n1`:
 
-We start with `steps = 0` and `head` pointing at the first node (value `3`). Each iteration checks the budget, then advances `head` to `head.next` and increments `steps`:
+```text
+visit n0 (val 3)     n0 not in seen -> seen = {n0}
+visit n1 (val 2)     n1 not in seen -> seen = {n0, n1}
+visit n2 (val 0)     n2 not in seen -> seen = {n0, n1, n2}
+visit n3 (val -4)    n3 not in seen -> seen = {n0, n1, n2, n3}
+visit n1 (val 2)     n1 in seen -> return True
+```
 
-| `steps` (at loop top) | `head.val` | budget exceeded? | action |
-| --- | --- | --- | --- |
-| `0` | `3` | no (`0 > 10000` is false) | `head = head.next` (to `2`), `steps` becomes `1` |
-| `1` | `2` | no | `head = head.next` (to `0`), `steps` becomes `2` |
-| `2` | `0` | no | `head = head.next` (to `-4`), `steps` becomes `3` |
-| `3` | `-4` | no | `head = head.next` (to `null`), `steps` becomes `4` |
+Following `n3.next` lands back on `n1`, the node the tail connects to. The
+membership test recognizes the same object it added on the second step, and
+the function returns `True`, matching Example 1's expected Output.
 
-Now `head` is `null`, so the `while head:` condition is false and the loop ends. The budget was never exceeded, so the method reaches the final line and returns `false`.
+#### Solution
 
-For this acyclic list the result is `false`. Example 1 itself has a cycle (`pos = 1`), so its `head` pointer would never reach `null`: the walk would keep looping back, the step counter would climb past `10000`, and the `steps > MAX_NODES` guard would return `true`, matching Example 1's expected Output of `true`.
-
-### Hash Set
+The code is the walkthrough's check-then-add walk.
 
 ```python
 # Definition for singly-linked list.
@@ -138,10 +209,6 @@ class Solution:
             head = head.next
         return False
 ```
-
-#### Approach
-
-This solution uses a [hash set](https://en.wikipedia.org/wiki/Hash_table) to keep track of nodes we've already visited. As we traverse the linked list, we check if we've seen the current node before. If we have, there must be a cycle. If we reach the end of the list (a null pointer), then there's no cycle.
 
 #### Time and Space Complexity Analysis
 
@@ -161,6 +228,44 @@ We store each node in the hash set, which in the worst case would contain all `n
 
 ### Marking Visited Nodes
 
+#### Derivation
+
+The hash set spends `O(n)` memory to remember a single bit per node: "visited".
+The list itself can carry that bit. Overwrite each visited node's value with a
+sentinel that no real node holds (`float('inf')` is safe here because the
+constraints bound values by `10^5`); encountering the sentinel again means the
+walk has come back around. The price is mutating the caller's list, which is
+not always permitted.
+
+1. Walk the list from `head`.
+2. If `head.val` equals the sentinel, this node was visited before, so return
+   `True`.
+3. Otherwise overwrite `head.val` with `float('inf')` and advance to
+   `head.next`.
+4. Reaching null means no node repeated, so return `False`.
+
+#### Walkthrough
+
+Trace the marking on Example 1: `head = [3,2,0,-4]`, `pos = 1`, with the nodes
+labeled `n0` through `n3` and the tail `n3` pointing back to `n1`:
+
+```text
+visit n0 (val 3)      not inf -> n0.val = inf, advance to n1
+visit n1 (val 2)      not inf -> n1.val = inf, advance to n2
+visit n2 (val 0)      not inf -> n2.val = inf, advance to n3
+visit n3 (val -4)     not inf -> n3.val = inf, advance to n3.next = n1
+visit n1 (val inf)    head.val == inf -> return True
+```
+
+When the walk wraps back to `n1`, the sentinel written on the second step is
+still there, so the check fires and the function returns `True`, matching
+Example 1's expected Output. Note that all four original values have been
+destroyed along the way.
+
+#### Solution
+
+The code is the walkthrough's check-then-mark walk.
+
 ```python
 # Definition for singly-linked list.
 # class ListNode:
@@ -176,10 +281,6 @@ class Solution:
             head = head.next
         return False
 ```
-
-#### Approach
-
-This solution marks nodes as visited by changing their values to a special sentinel value (like `float('inf')`). As we traverse the list, if we encounter a node that's already been marked, we know there's a cycle. This approach assumes we're allowed to modify the original list structure.
 
 #### Time and Space Complexity Analysis
 
@@ -199,23 +300,25 @@ We don't use any extra data structures that scale with input size.
 
 ### Floyd's Cycle Detection
 
-```python
-# Definition for singly-linked list.
-# class ListNode:
-#     def __init__(self, val=0, next=None):
-#         self.val = val
-#         self.next = next
-class Solution:
-    def hasCycle(self, head: Optional[ListNode]) -> bool:
-        slow = head
-        fast = head
-        while slow and fast and fast.next:
-            slow = slow.next          # advance slow by one step
-            fast = fast.next.next     # advance fast by two steps
-            if slow == fast:
-                return True
-        return False
-```
+#### Derivation
+
+Marking reaches `O(1)` space only by damaging the list.
+[Floyd's Cycle-Finding Algorithm](https://en.wikipedia.org/wiki/Cycle_detection),
+the "tortoise and hare", achieves `O(1)` space with the list untouched by
+replacing memory with relative motion: run two pointers from the head, `slow`
+advancing one step per iteration and `fast` advancing two. On an acyclic list
+`fast` simply reaches the end. Inside a cycle, `fast` gains on `slow` by
+exactly one node per iteration (`gap = (gap - 1) mod L`, where `L` is the cycle
+length), so the gap cannot skip past zero: the pointers must meet, and meeting
+is the proof of a cycle. The Invariant below states that argument formally,
+along with why `fast.next` reaching null is the correct no-cycle exit.
+
+1. Start `slow = head` and `fast = head`.
+2. Each iteration, advance `slow = slow.next` and `fast = fast.next.next`,
+   guarded by `while slow and fast and fast.next` so both dereferences are safe.
+3. If `slow == fast` after a step, return `True`.
+4. If the guard fails, `fast` ran off the end of an acyclic chain: return
+   `False`.
 
 #### Invariant
 
@@ -264,11 +367,48 @@ out of track ahead of it. A null `next` anywhere means the chain terminates,
 which means no node is reachable twice: `return False` is not a fallback but the
 correct reading of the invariant.
 
-#### Approach
+#### Walkthrough
 
-This solution implements [Floyd's Cycle-Finding Algorithm](https://en.wikipedia.org/wiki/Cycle_detection), also known as the "tortoise and hare" algorithm. We use two pointers that move at different speeds: a slow pointer that moves one step at a time and a fast pointer that moves two steps at a time. If there's a cycle, the fast pointer will eventually catch up to the slow pointer. If there's no cycle, the fast pointer will reach the end of the list.
+Trace both pointers on Example 1: `head = [3,2,0,-4]`, `pos = 1`. Label the
+nodes `n0` through `n3`; the tail `n3` points back to `n1`, so the cycle is
+`n1 -> n2 -> n3 -> n1` with length `L = 3`:
 
-The meeting is forced rather than merely likely. Once both pointers are in the cycle, the gap between them shrinks by exactly one node per iteration (`gap = (gap - 1) mod L`, where `L` is the cycle length), so it cannot skip past zero. The Invariant above states that formally, along with why `fast.next` reaching null is the correct no-cycle exit.
+```text
+start    slow = n0 (val 3)     fast = n0 (val 3)
+iter 1   slow = n1 (val 2)     fast = n2 (val 0)     slow != fast
+iter 2   slow = n2 (val 0)     fast = n1 (val 2)     slow != fast   (fast wrapped: n3.next = n1)
+iter 3   slow = n3 (val -4)    fast = n3 (val -4)    slow == fast -> return True
+```
+
+In iteration 2 the hare crosses the tail: from `n2` its two steps pass through
+`n3` and wrap along `n3.next` to `n1`. Both pointers are now inside the cycle,
+with the forward distance from `fast` (at `n1`) to `slow` (at `n2`) equal to
+`d = 1`. Iteration 3 closes that gap by exactly one, to `d = 0`: `slow` steps
+to `n3` while `fast` takes two steps `n1 -> n2 -> n3`, and the pointers
+coincide. The meeting at `n3` returns `True`, matching Example 1's expected
+Output.
+
+#### Solution
+
+The code is the walkthrough's two-pointer chase with the null guard.
+
+```python
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
+class Solution:
+    def hasCycle(self, head: Optional[ListNode]) -> bool:
+        slow = head
+        fast = head
+        while slow and fast and fast.next:
+            slow = slow.next          # advance slow by one step
+            fast = fast.next.next     # advance fast by two steps
+            if slow == fast:
+                return True
+        return False
+```
 
 #### Time and Space Complexity Analysis
 

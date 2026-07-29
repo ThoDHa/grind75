@@ -48,37 +48,59 @@ Return the modified image after performing the flood fill.
 - `0 <= sr < m`
 - `0 <= sc < n`
 
+## Deriving the Solution
+
+The pixels to recolor are exactly the connected component of `initial_color` pixels
+that contains `(sr, sc)`, so every solution is a graph traversal of that component,
+recoloring as it goes. All four share one structural trick: the recolor itself is
+the visited mark, which is why the `initial_color == color` early return is
+load-bearing in each of them.
+
+1. **Start literal.** The statement already describes a repeatable process: recolor
+   a pixel, then "perform the same process" on each same-colored neighbor. A
+   function that calls itself on its four neighbors is that process verbatim, a
+   recursive depth-first search: see [Recursive DFS](#recursive-dfs). Its cost: the
+   call stack grows as deep as the component, risking `RecursionError` on large,
+   snake-shaped regions.
+2. **Own the stack.** The call stack is doing nothing but remembering which pixels
+   still await a visit, so replace it with an explicit list of coordinates. The
+   traversal is unchanged and the recursion limit disappears: see
+   [Iterative DFS](#iterative-dfs).
+3. **Change the order.** Nothing in the problem requires depth-first order.
+   Processing pixels in waves of increasing distance from the start covers the same
+   component breadth-first, either by recursing on whole levels at a time, in
+   [Recursive BFS](#recursive-bfs), or with a first-in-first-out queue, in
+   [Iterative BFS](#iterative-bfs). The queue variant hides a pitfall: `list.pop(0)`
+   shifts every remaining element, degrading the pass to `O(n²)`.
+
 ## Solutions
 
 ### Recursive DFS
 
-```python
-from typing import List
+#### Derivation
 
+Read the problem statement as pseudocode: change the starting pixel, then perform
+"the same process" on each adjacent pixel of the original color. A process that
+invokes itself on its neighbors is a recursive
+[depth-first search (DFS)](https://en.wikipedia.org/wiki/Depth-first_search), so the
+most direct translation is a helper `fill` that recolors its pixel and recurses into
+the four neighbors.
 
-class Solution:
-    def floodFill(self, image: List[List[int]], sr: int, sc: int, color: int) -> List[List[int]]:
-        initial_color = image[sr][sc]
-        # If the starting color is already the target color, return the image as is
-        if initial_color == color:
-            return image
-        self.fill(image, sr, sc, initial_color, color)
-        return image
+Two details need care. First, every traversal needs a visited mark, and this one has
+no set and no auxiliary grid: the write `image[sr][sc] = color` is itself the mark,
+and the guard `image[sr][sc] != initial_color` is what reads it back. Second, that
+choice makes the early check `initial_color == color` a termination requirement
+rather than an optimization: when the two colors are equal the recolor is a no-op,
+no pixel is ever marked, and the recursion never reaches its base case. The
+[Termination Condition](#termination-condition) below makes this precise. The steps:
 
-    def fill(self, image: List[List[int]], sr: int, sc: int, initial_color: int, color: int):
-        # Check if coordinates are out of bounds or pixel is not the initial color
-        if sr < 0 or sr >= len(image) or sc < 0 or sc >= len(image[0]) or image[sr][sc] != initial_color:
-            return
-
-        # Change the color of the current pixel
-        image[sr][sc] = color
-
-        # Recursively fill the adjacent pixels
-        self.fill(image, sr-1, sc, initial_color, color)  # Up
-        self.fill(image, sr+1, sc, initial_color, color)  # Down
-        self.fill(image, sr, sc-1, initial_color, color)  # Left
-        self.fill(image, sr, sc+1, initial_color, color)  # Right
-```
+1. Record `initial_color = image[sr][sc]`. If it already equals `color`, return
+   `image` unchanged.
+2. Call `fill(sr, sc)`. A call returns immediately when its coordinates leave the
+   grid or its pixel no longer equals `initial_color`.
+3. Otherwise set `image[sr][sc] = color` and recurse into the four neighbors, in
+   the order up, down, left, right.
+4. Once every recursive call has unwound, return `image`.
 
 #### Termination Condition
 
@@ -120,33 +142,6 @@ Example 2 shows. But answering correctly is the smaller half of its job.
 Every other solution on this page marks visited pixels the same way, so the same
 guard is load-bearing in each of them for the same reason.
 
-#### Approach
-
-This solution uses a recursive [depth-first search (DFS)](https://en.wikipedia.org/wiki/Depth-first_search) approach to implement the flood fill algorithm:
-
-- We first check whether the starting pixel already has the target color. This check is required for termination, not an optimization: the recolor `image[sr][sc] = color` is the only visited marker in this solution, so when `color == initial_color` no pixel is ever marked and the recursion never reaches its base case `image[sr][sc] != initial_color`
-- For each pixel, we check if it's valid (within bounds and has the initial color)
-- If valid, we change its color and recursively apply the algorithm to its four adjacent neighbors
-- The recursion naturally stops when there are no more pixels matching the initial color
-
-#### Time and Space Complexity Analysis
-
-##### Time Complexity: `O(n)`
-
-- In the worst case, we might need to visit all pixels in the image
-- Each pixel is visited at most once, where `n` is the total number of pixels (`m × n` for an `m×n` image)
-
-##### Space Complexity: `O(n)`
-
-- The recursion stack can go as deep as the number of pixels in the worst case
-- This occurs in scenarios where the image consists of a snake-like path of connected pixels
-
-#### Key Insights
-
-- The early check for `initial_color == color` is a termination requirement rather than an optimization: recoloring a pixel is the only visited marker here, so without the guard nothing is ever marked and the recursion runs until `RecursionError`
-- Using recursion provides an elegant solution for traversing connected components
-- The algorithm only modifies pixels that match the initial color, precisely implementing the flood fill behavior
-
 #### Walkthrough
 
 Let us trace the Recursive DFS solution on Example 1: `image = [[1,1,1],[1,1,0],[1,0,1]]`, `sr = 1`, `sc = 1`, `color = 2`.
@@ -155,7 +150,7 @@ First, `initial_color = image[1][1] = 1`. Since `1 != 2`, we do not take the ear
 
 The call tree below shows each call, indented by recursion depth. `set 2` means the pixel matched `1` and was recolored; `stop` means the call returned without doing anything.
 
-```
+```text
 fill(1,1)  set 2        image = [[1,1,1],[1,2,0],[1,0,1]]
   fill(0,1)  set 2      image = [[1,2,1],[1,2,0],[1,0,1]]   (up)
     fill(-1,1)  stop    (out of bounds)
@@ -179,7 +174,129 @@ Notice the pixel at `(2,2)` (the bottom-right `1`) is never reached: every path 
 
 After every recursion unwinds, the image is `[[2,2,2],[2,2,0],[2,0,1]]`, which matches the expected Output.
 
+#### Solution
+
+The code is the call tree from the walkthrough written down: the termination guard,
+the bounds-and-color base case, the recolor, then the four recursive calls.
+
+```python
+from typing import List
+
+
+class Solution:
+    def floodFill(self, image: List[List[int]], sr: int, sc: int, color: int) -> List[List[int]]:
+        initial_color = image[sr][sc]
+        # If the starting color is already the target color, return the image as is
+        if initial_color == color:
+            return image
+        self.fill(image, sr, sc, initial_color, color)
+        return image
+
+    def fill(self, image: List[List[int]], sr: int, sc: int, initial_color: int, color: int):
+        # Check if coordinates are out of bounds or pixel is not the initial color
+        if sr < 0 or sr >= len(image) or sc < 0 or sc >= len(image[0]) or image[sr][sc] != initial_color:
+            return
+
+        # Change the color of the current pixel
+        image[sr][sc] = color
+
+        # Recursively fill the adjacent pixels
+        self.fill(image, sr-1, sc, initial_color, color)  # Up
+        self.fill(image, sr+1, sc, initial_color, color)  # Down
+        self.fill(image, sr, sc-1, initial_color, color)  # Left
+        self.fill(image, sr, sc+1, initial_color, color)  # Right
+```
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n)`
+
+- In the worst case, we might need to visit all pixels in the image
+- Each pixel is visited at most once, where `n` is the total number of pixels (`m × n` for an `m×n` image)
+
+##### Space Complexity: `O(n)`
+
+- The recursion stack can go as deep as the number of pixels in the worst case
+- This occurs in scenarios where the image consists of a snake-like path of connected pixels
+
+#### Key Insights
+
+- The early check for `initial_color == color` is a termination requirement rather than an optimization: recoloring a pixel is the only visited marker here, so without the guard nothing is ever marked and the recursion runs until `RecursionError`
+- Using recursion provides an elegant solution for traversing connected components
+- The algorithm only modifies pixels that match the initial color, precisely implementing the flood fill behavior
+
 ### Iterative DFS
+
+#### Derivation
+
+The recursive version has one weakness: its bookkeeping lives on the call stack,
+which grows one frame per pixel along a path and can hit Python's recursion limit on
+a large snake-shaped region. Ask what the call stack is actually doing: it only
+remembers which pixels still need visiting. A plain list of coordinate tuples can do
+that job explicitly, with no depth limit.
+
+Popping from the end of the list visits the most recently discovered pixel first,
+so the traversal order is still
+[depth-first](https://en.wikipedia.org/wiki/Depth-first_search). One structural
+shift: the recursive version tested validity before recursing (the base case at the
+top of `fill`); here, neighbors are pushed unconditionally and the same
+bounds-and-color test runs when a coordinate is popped. Invalid or already-recolored
+entries are simply discarded at that point. The steps:
+
+1. Record `initial_color` and return early when it equals `color`; recoloring is
+   still the only visited mark, so the guard is as essential as before.
+2. Seed `stack = [(sr, sc)]` and cache `rows, cols`.
+3. While `stack` is non-empty, pop `(r, c)`. If it is in bounds and
+   `image[r][c] == initial_color`, set the pixel to `color` and append the four
+   neighbors, in the order down, up, right, left.
+4. When the stack drains, every reachable pixel has been recolored: return `image`.
+
+#### Walkthrough
+
+Let us run the pop loop on Example 1: `image = [[1,1,1],[1,1,0],[1,0,1]]`, `sr = 1`,
+`sc = 1`, `color = 2`. Since `initial_color = 1` differs from `2`, we seed
+`stack = [(1, 1)]`. The trace below shows one popped coordinate per line: `set 2`
+means the pixel passed the bounds-and-color check and was recolored (its four
+neighbors were then pushed), and `skip` means the pop was discarded. Because a pop
+takes the most recently pushed entry, the left neighbor (pushed last) is explored
+before right, up, and down.
+
+```text
+pop (1,1)   set 2   push (2,1)(0,1)(1,2)(1,0)    image [[1,1,1],[1,2,0],[1,0,1]]
+pop (1,0)   set 2   push (2,0)(0,0)(1,1)(1,-1)   image [[1,1,1],[2,2,0],[1,0,1]]
+pop (1,-1)  skip    out of bounds
+pop (1,1)   skip    now 2, not 1
+pop (0,0)   set 2   push (1,0)(-1,0)(0,1)(0,-1)  image [[2,1,1],[2,2,0],[1,0,1]]
+pop (0,-1)  skip    out of bounds
+pop (0,1)   set 2   push (1,1)(-1,1)(0,2)(0,0)   image [[2,2,1],[2,2,0],[1,0,1]]
+pop (0,0)   skip    now 2, not 1
+pop (0,2)   set 2   push (1,2)(-1,2)(0,3)(0,1)   image [[2,2,2],[2,2,0],[1,0,1]]
+pop (0,1)   skip    now 2, not 1
+pop (0,3)   skip    out of bounds
+pop (-1,2)  skip    out of bounds
+pop (1,2)   skip    value 0, not 1
+pop (-1,1)  skip    out of bounds
+pop (1,1)   skip    now 2, not 1
+pop (-1,0)  skip    out of bounds
+pop (1,0)   skip    now 2, not 1
+pop (2,0)   set 2   push (3,0)(1,0)(2,1)(2,-1)   image [[2,2,2],[2,2,0],[2,0,1]]
+pop (2,-1)  skip    out of bounds
+pop (2,1)   skip    value 0, not 1
+pop (1,0)   skip    now 2, not 1
+pop (3,0)   skip    out of bounds
+pop (1,2)   skip    value 0, not 1
+pop (0,1)   skip    now 2, not 1
+pop (2,1)   skip    value 0, not 1
+```
+
+Six pops recolor a pixel, one per pixel of the component; every other pop is
+filtered by the same test the recursive base case performed. When the stack
+empties, the image is `[[2,2,2],[2,2,0],[2,0,1]]`, matching the expected Output.
+
+#### Solution
+
+The code is the pop loop from the walkthrough, with the recursive base case
+reappearing as the pop-time validity check.
 
 ```python
 from typing import List
@@ -209,15 +326,6 @@ class Solution:
         return image
 ```
 
-#### Approach
-
-This solution implements flood fill using an iterative [depth-first search](https://en.wikipedia.org/wiki/Depth-first_search) approach with a stack:
-
-- We use a stack to keep track of pixels we need to process
-- For each pixel, we check if it's valid and has the initial color
-- If valid, we change its color and add all four adjacent pixels to the stack
-- The stack naturally handles the DFS traversal pattern without recursion
-
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(n)`
@@ -237,6 +345,65 @@ This solution implements flood fill using an iterative [depth-first search](http
 - The order of neighbor addition affects the traversal path
 
 ### Recursive BFS
+
+#### Derivation
+
+Both DFS variants dive as deep as possible along one path before backing up. Nothing
+about flood fill requires that order: the component can equally be covered in
+concentric waves, visiting every pixel at distance 1 from the start, then every
+pixel at distance 2, and so on. That order is a
+[breadth-first search](https://en.wikipedia.org/wiki/Breadth-first_search), and it
+can still be expressed recursively by making each call process an entire wave, a
+`level` list of coordinates, rather than a single pixel. The recursion depth then
+equals the number of waves (the component's radius) instead of the length of the
+deepest path.
+
+A pixel can be appended to `next_level` twice within one wave when two of its
+neighbors are recolored in the same pass; the second occurrence fails the color
+check and is skipped, so the duplicate is harmless. The steps:
+
+1. Record `initial_color` and return early when it equals `color`; the recolor is
+   still the only visited mark.
+2. Call `bfs_level` with the initial level `[(sr, sc)]`.
+3. In `bfs_level`, return when `level` is empty. Otherwise, for each `(r, c)` in
+   `level` that is in bounds and still equals `initial_color`, set it to `color`
+   and append its four neighbors (down, up, right, left) to `next_level`.
+4. Recurse on `next_level`; the base case fires when a wave produces no new pixels.
+
+#### Walkthrough
+
+Let us run the level recursion on Example 1: `image = [[1,1,1],[1,1,0],[1,0,1]]`,
+`sr = 1`, `sc = 1`, `color = 2`. Each line below is one call to `bfs_level`,
+showing which pixels in `level` recolor (`set`) or fail the check (`skip`), the
+image after the wave, and the `next_level` handed to the next call.
+
+```text
+level 0  [(1,1)]
+         (1,1) set                              image [[1,1,1],[1,2,0],[1,0,1]]
+         next_level [(2,1),(0,1),(1,2),(1,0)]
+level 1  [(2,1),(0,1),(1,2),(1,0)]
+         (2,1) skip value 0; (0,1) set; (1,2) skip value 0; (1,0) set
+                                                image [[1,2,1],[2,2,0],[1,0,1]]
+         next_level [(1,1),(-1,1),(0,2),(0,0),(2,0),(0,0),(1,1),(1,-1)]
+level 2  (1,1) skip now 2; (-1,1) skip out of bounds; (0,2) set; (0,0) set;
+         (2,0) set; (0,0) skip now 2; (1,1) skip now 2; (1,-1) skip out of bounds
+                                                image [[2,2,2],[2,2,0],[2,0,1]]
+         next_level [(1,2),(-1,2),(0,3),(0,1),(1,0),(-1,0),(0,1),(0,-1),
+                     (3,0),(1,0),(2,1),(2,-1)]
+level 3  every entry skips (value 0, now 2, or out of bounds)
+         next_level []
+level 4  level is empty -> return
+```
+
+Note the duplicate `(0,0)` in level 2: both `(0,1)` and `(1,0)` appended it during
+level 1. The first occurrence recolors it; the second fails the color check. After
+the empty level returns, the image is `[[2,2,2],[2,2,0],[2,0,1]]`, matching the
+expected Output.
+
+#### Solution
+
+The code is the wave loop from the walkthrough: each `bfs_level` call processes one
+level and recurses on the pixels it discovered.
 
 ```python
 from typing import List
@@ -273,15 +440,6 @@ class Solution:
         self.bfs_level(image, next_level, initial_color, color)
 ```
 
-#### Approach
-
-This solution implements a [breadth-first search](https://en.wikipedia.org/wiki/Breadth-first_search) using recursive level-by-level processing:
-
-- Instead of processing one pixel at a time, we process entire "levels" of pixels
-- Each recursive call handles all pixels at the same distance from the starting point
-- We build up the next level as we process the current one
-- This ensures we visit pixels in order of increasing distance from the start
-
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(n)`
@@ -301,6 +459,72 @@ This solution implements a [breadth-first search](https://en.wikipedia.org/wiki/
 - Each recursive call processes a "wave" of pixels at equal distance from the start
 
 ### Iterative BFS
+
+#### Derivation
+
+The level-list recursion is an unusual shape; the textbook way to get
+breadth-first order is a first-in-first-out queue. Where the Iterative DFS popped
+the newest entry, popping the *oldest* entry visits pixels in exactly the order
+they were discovered, which is the same wave-by-wave order as the level recursion
+with no level bookkeeping and no recursion at all.
+
+This implementation uses a plain Python list as the queue, which is where its flaw
+lives: `queue.pop(0)` removes the first element by shifting every remaining element
+one slot left, an `O(n)` operation per dequeue (a `collections.deque` would restore
+`O(1)`). The steps:
+
+1. Record `initial_color` and return early when it equals `color`.
+2. Seed `queue = [(sr, sc)]`.
+3. While `queue` is non-empty, dequeue `r, c = queue.pop(0)`. If it is in bounds
+   and `image[r][c] == initial_color`, set it to `color` and append the four
+   neighbors: down, up, right, left.
+4. When the queue drains, return `image`.
+
+#### Walkthrough
+
+Let us run the queue on Example 1: `image = [[1,1,1],[1,1,0],[1,0,1]]`, `sr = 1`,
+`sc = 1`, `color = 2`. We seed `queue = [(1, 1)]`. One dequeued coordinate per
+line; `set 2` recolors and appends four neighbors, `skip` discards. Because
+`pop(0)` takes the oldest entry, pixels leave the queue in discovery order:
+compare with the Iterative DFS trace, which recolored the same six pixels in a
+different order.
+
+```text
+pop (1,1)   set 2   push (2,1)(0,1)(1,2)(1,0)    image [[1,1,1],[1,2,0],[1,0,1]]
+pop (2,1)   skip    value 0, not 1
+pop (0,1)   set 2   push (1,1)(-1,1)(0,2)(0,0)   image [[1,2,1],[1,2,0],[1,0,1]]
+pop (1,2)   skip    value 0, not 1
+pop (1,0)   set 2   push (2,0)(0,0)(1,1)(1,-1)   image [[1,2,1],[2,2,0],[1,0,1]]
+pop (1,1)   skip    now 2, not 1
+pop (-1,1)  skip    out of bounds
+pop (0,2)   set 2   push (1,2)(-1,2)(0,3)(0,1)   image [[1,2,2],[2,2,0],[1,0,1]]
+pop (0,0)   set 2   push (1,0)(-1,0)(0,1)(0,-1)  image [[2,2,2],[2,2,0],[1,0,1]]
+pop (2,0)   set 2   push (3,0)(1,0)(2,1)(2,-1)   image [[2,2,2],[2,2,0],[2,0,1]]
+pop (0,0)   skip    now 2, not 1
+pop (1,1)   skip    now 2, not 1
+pop (1,-1)  skip    out of bounds
+pop (1,2)   skip    value 0, not 1
+pop (-1,2)  skip    out of bounds
+pop (0,3)   skip    out of bounds
+pop (0,1)   skip    now 2, not 1
+pop (1,0)   skip    now 2, not 1
+pop (-1,0)  skip    out of bounds
+pop (0,1)   skip    now 2, not 1
+pop (0,-1)  skip    out of bounds
+pop (3,0)   skip    out of bounds
+pop (1,0)   skip    now 2, not 1
+pop (2,1)   skip    value 0, not 1
+pop (2,-1)  skip    out of bounds
+```
+
+The recolors arrive in waves: `(1,1)` at distance 0; `(0,1)` and `(1,0)` at
+distance 1; `(0,2)`, `(0,0)`, `(2,0)` at distance 2. When the queue empties, the
+image is `[[2,2,2],[2,2,0],[2,0,1]]`, matching the expected Output.
+
+#### Solution
+
+The code is the dequeue loop from the walkthrough; the only change from Iterative
+DFS is `pop(0)` in place of `pop()`.
 
 ```python
 from typing import List
@@ -329,15 +553,6 @@ class Solution:
 
         return image
 ```
-
-#### Approach
-
-This solution implements a standard iterative [breadth-first search](https://en.wikipedia.org/wiki/Breadth-first_search) using a queue:
-
-- We use a list as a queue to process pixels in order of their distance from the start
-- For each pixel, we check if it's valid and has the initial color
-- If valid, we change its color and add all four adjacent pixels to the queue
-- This ensures we process pixels in concentric "waves" from the starting point
 
 #### Time and Space Complexity Analysis
 
