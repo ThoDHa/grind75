@@ -42,60 +42,55 @@ You may assume that you have an infinite number of each kind of coin.
 - `1 <= coins[i] <= 2^31 - 1`
 - `0 <= amount <= 10^4`
 
+## Deriving the Solution
+
+The fewest coins for an amount contains a smaller copy of itself: whichever coin
+is chosen last, the remaining coins must make `amount - coin` as cheaply as
+possible. Every solution below exploits this optimal substructure; they differ in
+how much repeated work they spend exploring it.
+
+1. **Start literal.** Ask recursively: for the remaining amount, try every coin,
+   solve what each choice leaves behind, and keep the cheapest branch. Correct,
+   but the same remaining amounts are re-solved across countless branches,
+   costing `O(coins.length^amount)`: see
+   [Brute Force Recursion](#brute-force-recursion).
+2. **Cache the repeats.** The answer for a remaining amount does not depend on
+   how the recursion reached it, so store each amount's answer the first time it
+   is computed and serve every revisit from the cache. Work collapses to one
+   computation per distinct amount, `O(amount × coins.length)`: see
+   [Top-Down Memoization](#top-down-memoization).
+3. **Flip the direction.** The cached recursion still burns one stack frame per
+   coin subtracted, which can reach `amount` frames. Building a table upward
+   from `dp[0]` computes the same values iteratively, with no recursion at all:
+   see [Bottom-Up DP](#bottom-up-dp).
+4. **Reframe as a shortest path.** A lateral alternative: treat every amount as a
+   node and every coin as a unit-weight edge, so "fewest coins" becomes "fewest
+   edges" from `0` to `amount`, which breadth-first search finds level by level:
+   see [BFS](#bfs).
+
 ## Solutions
 
 ### Brute Force Recursion
 
-```python
-from typing import List
+#### Derivation
 
+The most literal reading of the problem is a question that answers itself
+recursively: what is the fewest number of coins making `remaining_amount`? If
+some coin is used, the rest of the coins must make `remaining_amount - coin`, so
+try every coin and keep the cheapest branch. This naive
+[recursive](https://en.wikipedia.org/wiki/Recursion_(computer_science)) approach explores all possible combinations of coins with no
+cleverness at all:
 
-class Solution:
-    def coinChange(self, coins: List[int], amount: int) -> int:
-        def backtrack(remaining_amount):
-            # Base cases
-            if remaining_amount == 0:
-                return 0
-            if remaining_amount < 0:
-                return -1
+1. Define `backtrack(remaining_amount)` as the fewest coins making that amount,
+   or `-1` when it cannot be made.
+2. Base cases: an amount of `0` needs `0` coins; a negative amount means the last
+   coin overshot, so return `-1`.
+3. Otherwise try each `coin`: recurse on `remaining_amount - coin`, and whenever
+   the branch is possible (`result != -1`), fold `1 + result` into `min_coins`.
+4. Return `min_coins`, or `-1` when every branch failed.
 
-            min_coins = float('inf')
-
-            # Try each coin denomination
-            for coin in coins:
-                # Recursively solve for remaining amount
-                result = backtrack(remaining_amount - coin)
-
-                # If it's possible to make the remaining amount
-                if result != -1:
-                    min_coins = min(min_coins, 1 + result)
-
-            return -1 if min_coins == float('inf') else min_coins
-
-        return backtrack(amount)
-```
-
-#### Approach
-
-This is a naive [recursive](https://en.wikipedia.org/wiki/Recursion_(computer_science)) approach without memoization. It explores all possible combinations of coins by trying each coin at each step and recursively solving the remaining amount.
-
-While conceptually simple, this approach has exponential time complexity due to overlapping subproblems being solved multiple times.
-
-#### Time and Space Complexity Analysis
-
-##### Time Complexity: `O(coins.length^amount)`
-
-In the worst case, we make `coins.length` recursive calls for each level, and the depth can go up to `amount`.
-
-##### Space Complexity: `O(amount)`
-
-Space for the recursion stack, which can be up to `amount` levels deep.
-
-#### Key Insights
-
-- The recurrence is simple: the minimum coins for amount `x` is `1 + min(backtrack(x - coin))` over all coins `c` that keep `x - coin` non-negative.
-- It exposes the optimal substructure of the problem, which every faster approach exploits.
-- Without caching, the same remaining amounts are recomputed exponentially many times, so this is only viable for tiny inputs.
+While conceptually simple, this approach has exponential time complexity due to
+overlapping subproblems being solved multiple times.
 
 #### Walkthrough
 
@@ -129,7 +124,115 @@ At the top, `backtrack(4)` compares its three coin branches: coin `1` gives `1 +
 
 Notice that `backtrack(1)` and `backtrack(0)` were each computed more than once across different branches: this repeated recomputation is exactly the overlapping-subproblems waste that memoization and bottom-up DP eliminate.
 
+#### Solution
+
+The code is the call tree from the walkthrough: two base cases, then the `min`
+over one recursive call per coin.
+
+```python
+from typing import List
+
+
+class Solution:
+    def coinChange(self, coins: List[int], amount: int) -> int:
+        def backtrack(remaining_amount):
+            # Base cases
+            if remaining_amount == 0:
+                return 0
+            if remaining_amount < 0:
+                return -1
+
+            min_coins = float('inf')
+
+            # Try each coin denomination
+            for coin in coins:
+                # Recursively solve for remaining amount
+                result = backtrack(remaining_amount - coin)
+
+                # If it's possible to make the remaining amount
+                if result != -1:
+                    min_coins = min(min_coins, 1 + result)
+
+            return -1 if min_coins == float('inf') else min_coins
+
+        return backtrack(amount)
+```
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(coins.length^amount)`
+
+In the worst case, we make `coins.length` recursive calls for each level, and the depth can go up to `amount`.
+
+##### Space Complexity: `O(amount)`
+
+Space for the recursion stack, which can be up to `amount` levels deep.
+
+#### Key Insights
+
+- The recurrence is simple: the minimum coins for amount `x` is `1 + min(backtrack(x - coin))` over all coins `c` that keep `x - coin` non-negative.
+- It exposes the optimal substructure of the problem, which every faster approach exploits.
+- Without caching, the same remaining amounts are recomputed exponentially many times, so this is only viable for tiny inputs.
+
 ### Top-Down Memoization
+
+#### Derivation
+
+The brute force pays for its honesty by re-deriving `backtrack(1)` and
+`backtrack(0)` in branch after branch. The observation that saves it is that a
+call's answer depends only on its argument: the fewest coins for a remaining
+amount is the same no matter which coin choices led there. That makes each
+distinct `remaining_amount` a cacheable state, so
+[memoization](https://en.wikipedia.org/wiki/Memoization) keeps the natural top-down recursion and puts a dictionary in
+front of it:
+
+1. Keep the brute-force recursion, now named `dp(remaining_amount)`, with the
+   same base cases.
+2. Before trying coins, look `remaining_amount` up in `memo`; on a hit, return
+   the stored answer without recursing.
+3. Otherwise compute `min_coins` over the coins exactly as before, record the
+   result in `memo[remaining_amount]` (`-1` when impossible), and return it.
+
+One practical guard is required: each recursive call subtracts a single coin, so when the smallest coin is small relative to `amount` the call chain can approach `amount` frames. With `amount` up to `10^4` under the stated constraints, that comfortably exceeds CPython's default recursion limit of 1000 and raises `RecursionError`, so `coinChange` raises the limit with `sys.setrecursionlimit` before recursing.
+
+#### Walkthrough
+
+Example 1 costs the brute force 46 calls, too many to trace, so we reuse the same
+tailored input as the Brute Force walkthrough: `coins = [1,3,4]`, `amount = 4`.
+It is small enough to follow in full and reaches a memo hit within a dozen lines.
+
+The tree below indents one level per recursive call. Watch `memo` fill as calls
+resolve, then pay off when `dp(4)` tries coin `3`:
+
+```text
+dp(4)                              try coin 1 -> dp(3)
+  dp(3)                            try coin 1 -> dp(2)
+    dp(2)                          try coin 1 -> dp(1)
+      dp(1)                        try coin 1 -> dp(0)
+        dp(0)  -> 0                base case
+        (coins 3, 4 -> negative, return -1)
+      -> 1, memo[1] = 1            best for 1 is 1 + 0
+      (coins 3, 4 -> negative, return -1)
+    -> 2, memo[2] = 2              best for 2 is 1 + 1
+    dp(0)  -> 0                    try coin 3: base case
+    (coin 4 -> negative, return -1)
+  -> 1, memo[3] = 1                min(1 + 2, 1 + 0) = 1
+  dp(1)   -> 1                     try coin 3  ** memo hit, no recursion **
+  dp(0)   -> 0                     try coin 4: base case
+-> 1, memo[4] = 1                  min(1 + 1, 1 + 1, 1 + 0) = 1
+```
+
+In the brute-force tree, the coin-3 branch of `backtrack(4)` re-derived
+`backtrack(1)` and its children from scratch; here `dp(1)` answers from `memo` in
+a single lookup. On this small input that saves only a few calls, but for amounts
+near `10^4` the same mechanism is what collapses `O(coins.length^amount)` into
+one computation per distinct amount. The final answer is `1` (the single coin
+`4`), matching the tailored example's expected result.
+
+#### Solution
+
+The code is the Brute Force recursion with the memo lookup and store wrapped
+around the coin loop, plus the recursion-limit guard.
 
 ```python
 import sys
@@ -175,14 +278,6 @@ class Solution:
         return dp(amount)
 ```
 
-#### Approach
-
-This top-down approach uses recursion with [memoization](https://en.wikipedia.org/wiki/Memoization). We start from the target amount and recursively try using each coin, asking "what's the minimum coins needed for the remaining amount?"
-
-The recursive relation is the same: for amount `x`, try each coin `c` and take the minimum of `1 + dp(x - c)` for all valid coins. Memoization prevents recomputing the same subproblems multiple times.
-
-One practical guard is required: each recursive call subtracts a single coin, so when the smallest coin is small relative to `amount` the call chain can approach `amount` frames. With `amount` up to `10^4` under the stated constraints, that comfortably exceeds CPython's default recursion limit of 1000 and raises `RecursionError`, so `coinChange` raises the limit with `sys.setrecursionlimit` before recursing.
-
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(amount × coins.length)`
@@ -200,6 +295,77 @@ Space for the memoization table plus recursion stack depth (worst case O(amount)
 - Deep recursion can approach `amount` stack frames, which is why the code raises the interpreter's recursion limit up front; an iterative formulation avoids the issue entirely.
 
 ### Bottom-Up DP
+
+#### Derivation
+
+The memoized recursion still asks from the top ("what does `amount` need?") and
+pays for that framing with a call stack that can grow one frame per unit of
+amount. Turn the direction around: instead of waiting for the recursion to demand
+a subproblem, compute every amount's answer in increasing order, so that by the
+time `current_amount` is considered, every smaller answer it depends on already
+sits in a table. To make amount `i`, use any coin `c` with `c <= i` and then
+optimally make the remainder `i - c`, which gives the relation
+`dp[i] = min(dp[i], 1 + dp[i - c])`. This is the iterative
+[dynamic programming](https://en.wikipedia.org/wiki/Dynamic_programming) form of the exact same recurrence the recursion evaluated:
+
+1. Create `dp` of size `amount + 1`, filled with the sentinel `amount + 1` (an
+   impossible coin count standing in for infinity), and set `dp[0] = 0`: zero
+   coins make amount `0`.
+2. For each `current_amount` from `1` to `amount`, try every `coin` with
+   `coin <= current_amount` and relax
+   `dp[current_amount] = min(dp[current_amount], 1 + dp[current_amount - coin])`.
+3. Return `dp[amount]`, or `-1` when it still holds the sentinel, meaning no
+   combination of coins reaches it.
+
+#### Recurrence
+
+Let `dp[i]` be the fewest coins that sum to exactly `i`:
+
+$$
+dp[i] =
+\begin{cases}
+0, & i = 0 \\[4pt]
+\displaystyle\min_{\substack{c \in \text{coins} \\ c \le i}} \bigl(dp[i - c] + 1\bigr), & i > 0
+\end{cases}
+$$
+
+```text
+dp[0] = 0
+dp[i] = min(dp[i - c] + 1) over coins c <= i,  for i > 0
+        (min over an empty set is infinity: no coin fits)
+```
+
+The minimum over an empty set is \(\infty\): when no coin fits, amount `i` is
+unreachable. The code stands in the sentinel `amount + 1` for that infinity,
+which is larger than any achievable answer but small enough not to overflow.
+The result is `dp[amount]`, or `-1` if it never fell below the sentinel.
+
+#### Walkthrough
+
+Let us fill the table by hand on Example 1: `coins = [1,3,4]`, `amount = 6`, so
+the sentinel is `7` and `dp` starts as `[0, 7, 7, 7, 7, 7, 7]`. Each line below
+is one pass of the outer loop, showing which coins fit and the `min` they
+produce:
+
+```text
+start               dp = [0, 7, 7, 7, 7, 7, 7]                    only dp[0] known
+current_amount = 1  dp[1] = 1 + dp[0] = 1                         coin 1 only
+current_amount = 2  dp[2] = 1 + dp[1] = 2                         coin 1 only
+current_amount = 3  dp[3] = min(1 + dp[2], 1 + dp[0]) = 1         coins 1, 3
+current_amount = 4  dp[4] = min(1 + dp[3], 1 + dp[1], 1 + dp[0]) = 1   coins 1, 3, 4
+current_amount = 5  dp[5] = min(1 + dp[4], 1 + dp[2], 1 + dp[1]) = 2   coins 1, 3, 4
+current_amount = 6  dp[6] = min(1 + dp[5], 1 + dp[3], 1 + dp[2]) = 2   coins 1, 3, 4
+```
+
+The finished table is `[0, 1, 2, 1, 1, 2, 2]`. The winning term for `dp[6]` was
+`1 + dp[3]`: one coin `3` on top of the one-coin answer for amount `3`, which is
+the combination `6 = 3 + 3`. The function returns `dp[6] = 2`, matching the
+expected Output for Example 1.
+
+#### Solution
+
+The code is the table fill from the walkthrough: one relaxation per fitting coin
+per amount.
 
 ```python
 from typing import List
@@ -227,37 +393,6 @@ class Solution:
         return dp[amount] if dp[amount] != amount + 1 else -1
 ```
 
-#### Recurrence
-
-Let `dp[i]` be the fewest coins that sum to exactly `i`:
-
-$$
-dp[i] =
-\begin{cases}
-0, & i = 0 \\[4pt]
-\displaystyle\min_{\substack{c \in \text{coins} \\ c \le i}} \bigl(dp[i - c] + 1\bigr), & i > 0
-\end{cases}
-$$
-
-```text
-dp[0] = 0
-dp[i] = min(dp[i - c] + 1) over coins c <= i,  for i > 0
-        (min over an empty set is infinity: no coin fits)
-```
-
-The minimum over an empty set is \(\infty\): when no coin fits, amount `i` is
-unreachable. The code stands in the sentinel `amount + 1` for that infinity,
-which is larger than any achievable answer but small enough not to overflow.
-The result is `dp[amount]`, or `-1` if it never fell below the sentinel.
-
-#### Approach
-
-This bottom-up [dynamic programming](https://en.wikipedia.org/wiki/Dynamic_programming) solution builds the answer for all amounts from 0 to the target amount. For each amount, we try using each coin denomination and choose the combination that requires the fewest total coins.
-
-The key insight is that to make amount `i`, we can use any coin `c` (where `c <= i`) and then optimally make the remaining amount `i - c`. This gives us the recurrence relation: `dp[i] = min(dp[i], 1 + dp[i - c])` for all valid coins `c`.
-
-We initialize all values to `amount + 1` (an impossible value) so we can easily detect unreachable amounts. The base case `dp[0] = 0` means zero coins are needed to make amount 0.
-
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(amount × coins.length)`
@@ -275,6 +410,56 @@ We use a DP array of size `amount + 1` to store the minimum coins needed for eac
 - Being iterative, it carries no recursion overhead and no stack-depth risk, which makes it the most robust choice for large amounts.
 
 ### BFS
+
+#### Derivation
+
+The three approaches above all refine one recursion. This one steps sideways and
+reframes the problem as a graph search: every amount from `0` to `amount` is a
+node, and adding one coin is a unit-weight edge from `current_amount` to
+`current_amount + coin`. The fewest coins making `amount` is then the fewest
+edges on a path from `0` to `amount`, and fewest edges on a unit-weight graph is
+exactly what [BFS](https://en.wikipedia.org/wiki/Breadth-first_search) computes: it explores every amount reachable with one coin
+before any reachable with two, so the first time the target is reached is
+guaranteed optimal. This reframing is a clever lateral leap rather than a direct
+refinement of the recursion, which is why it lands last among the approaches.
+
+1. Return `0` immediately when `amount == 0`: no coins are needed.
+2. Start `queue` holding amount `0`, a `visited` set holding `0`, and
+   `steps = 0`.
+3. Each pass of the `while` loop processes one full level: increment `steps`,
+   then pop every amount currently in the queue. For each popped
+   `current_amount` and each `coin`, form `new_amount = current_amount + coin`.
+4. If `new_amount == amount`, return `steps`: the target was reached using
+   `steps` coins. Otherwise enqueue `new_amount` when it is below `amount` and
+   not yet in `visited`.
+5. If the queue drains without reaching the target, return `-1`.
+
+#### Walkthrough
+
+Let us run the search on Example 1: `coins = [1,3,4]`, `amount = 6`. The queue
+starts as `[0]` with `visited = {0}`. Each level below adds one more coin to
+every amount discovered on the previous level:
+
+```text
+start      queue = [0]          visited = {0}
+steps = 1  pop 0: 0+1=1 enqueue, 0+3=3 enqueue, 0+4=4 enqueue
+           queue = [1, 3, 4]    visited = {0, 1, 3, 4}    every 1-coin amount
+steps = 2  pop 1: 1+1=2 enqueue, 1+3=4 in visited (skip), 1+4=5 enqueue
+           pop 3: 3+1=4 in visited (skip), 3+3=6 == amount -> return steps = 2
+```
+
+Level one discovers every amount a single coin can make: `1`, `3`, and `4`. On
+level two, popping `3` and adding coin `3` produces `new_amount == 6`, so the
+function returns `steps = 2` without even finishing the level. The path
+`0 -> 3 -> 6` is the combination `6 = 3 + 3`, and the returned `2` matches the
+expected Output. Note the `visited` skips: amount `4` was already discovered on
+level one as `0 + 4`, so rediscovering it two coins deep could never improve on
+that and is pruned.
+
+#### Solution
+
+The code is the level sweep from the walkthrough: one `steps` increment per
+level, returning the moment `new_amount` hits `amount`.
 
 ```python
 from collections import deque
@@ -312,12 +497,6 @@ class Solution:
 
         return -1  # Target amount is unreachable
 ```
-
-#### Approach
-
-This [BFS](https://en.wikipedia.org/wiki/Breadth-first_search) approach treats the problem as finding the shortest path from amount 0 to the target amount, where each coin represents an edge with weight 1. We use level-by-level BFS where each level represents using one more coin.
-
-The key insight is that BFS naturally finds the minimum number of steps (coins) to reach any amount, since it explores all possibilities with fewer coins before exploring those with more coins. This reframing is a clever lateral leap rather than a direct refinement of the recursion, which is why it lands last among the approaches.
 
 #### Time and Space Complexity Analysis
 

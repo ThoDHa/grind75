@@ -49,38 +49,40 @@ These are the only two combinations.
 - All elements of `candidates` are **distinct**.
 - `1 <= target <= 40`
 
+## Deriving the Solution
+
+Enumerating combinations rather than permutations is at heart a question about
+order: `[2,2,3]` and `[2,3,2]` are the same multiset, so every solution must
+build each combination in exactly one canonical order. All three approaches below
+share that discipline: once the search or the table moves past a candidate, it
+never returns to it, so no combination can ever be produced a second way.
+
+1. **Start literal.** At each candidate, branch on a binary decision: include
+   `candidates[index]` and stay on the same index (so it can be reused), or
+   exclude it and move to `index + 1`. The exclude branch never revisits earlier
+   candidates, so uniqueness is automatic; the cost is the full exponential
+   decision tree: see
+   [Include-Exclude Backtracking](#include-exclude-backtracking).
+2. **Spot the waste.** The binary tree walks doomed branches one exclude at a
+   time: once `remaining` drops below every candidate still available, no
+   include can succeed, yet the tree still visits each exclusion step
+   separately.
+3. **Sort and prune.** Rewrite the fork as a loop over candidates from `start`
+   onward and sort the input first: the moment one candidate exceeds
+   `remaining`, every later one does too, so a single `break` discards the rest
+   of the level: see
+   [Sorted Backtracking with Pruning](#sorted-backtracking-with-pruning).
+4. **Build up instead of searching down.** Replace the recursion with a table
+   holding, for every sub-target `t`, all combinations summing to `t`, grown one
+   candidate at a time; keeping candidates as the outer loop preserves
+   non-decreasing order, which is what keeps every stored combination unique:
+   see [Bottom-Up Dynamic Programming](#bottom-up-dynamic-programming).
+
 ## Solutions
 
 ### Include-Exclude Backtracking
 
-```python
-from typing import List
-
-
-class Solution:
-    def combinationSum(self, candidates: List[int], target: int) -> List[List[int]]:
-        result: List[List[int]] = []
-
-        def backtrack(index: int, remaining: int, current: List[int]) -> None:
-            if remaining == 0:
-                result.append(current[:])
-                return
-            if remaining < 0 or index >= len(candidates):
-                return
-
-            # Include candidates[index], staying on the same index to allow reuse.
-            current.append(candidates[index])
-            backtrack(index, remaining - candidates[index], current)
-            current.pop()
-
-            # Exclude candidates[index] and move on to the next candidate.
-            backtrack(index + 1, remaining, current)
-
-        backtrack(0, target, [])
-        return result
-```
-
-#### Approach
+#### Derivation
 
 The most direct way to think about the problem is a [binary decision tree](https://en.wikipedia.org/wiki/Backtracking): at each
 candidate, we either include it (and stay put so it can be used again) or exclude it
@@ -99,29 +101,6 @@ The steps:
 Because the "exclude" branch only ever advances the index, no candidate is ever
 revisited after we move past it. Each combination is therefore produced exactly once
 in the order its candidates first appear, guaranteeing uniqueness.
-
-#### Time and Space Complexity Analysis
-
-##### Time Complexity: `O(2^target)` (loosely; `O(N^(target / min_candidate))` tighter)
-
-Every node makes a binary choice, so the decision tree has up to `2^target` leaves
-in the worst case. A tighter bound is `O(N^(target / m))` where `N` is the number of
-candidates and `m` the smallest candidate, since a combination can be at most
-`target / m` long. Copying each valid combination adds a factor proportional to its
-length.
-
-##### Space Complexity: `O(target / min_candidate)`
-
-Excluding the output, space is dominated by the recursion stack and the `current`
-list, both bounded by the maximum combination length `target / min_candidate`.
-
-#### Key Insights
-
-- The include/exclude framing needs no sorting: correctness comes purely from never
-  revisiting a candidate on the exclude branch.
-- Reuse is captured by recursing on the same `index` in the include branch.
-- The `remaining < 0` guard is what stops a branch that has overshot the target.
-- Always append a copy (`current[:]`), since `current` is mutated throughout.
 
 #### Walkthrough
 
@@ -173,7 +152,135 @@ times was possible because the include branch kept `index=0`, while `[7]` was on
 reached through the exclude branches that skipped `2`, `3`, and `6` first. No combination
 is ever produced twice.
 
+#### Solution
+
+The code is the decision tree from the walkthrough: record at `remaining == 0`,
+abandon on overshoot, otherwise fork on include and exclude.
+
+```python
+from typing import List
+
+
+class Solution:
+    def combinationSum(self, candidates: List[int], target: int) -> List[List[int]]:
+        result: List[List[int]] = []
+
+        def backtrack(index: int, remaining: int, current: List[int]) -> None:
+            if remaining == 0:
+                result.append(current[:])
+                return
+            if remaining < 0 or index >= len(candidates):
+                return
+
+            # Include candidates[index], staying on the same index to allow reuse.
+            current.append(candidates[index])
+            backtrack(index, remaining - candidates[index], current)
+            current.pop()
+
+            # Exclude candidates[index] and move on to the next candidate.
+            backtrack(index + 1, remaining, current)
+
+        backtrack(0, target, [])
+        return result
+```
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(2^target)` (loosely; `O(N^(target / min_candidate))` tighter)
+
+Every node makes a binary choice, so the decision tree has up to `2^target` leaves
+in the worst case. A tighter bound is `O(N^(target / m))` where `N` is the number of
+candidates and `m` the smallest candidate, since a combination can be at most
+`target / m` long. Copying each valid combination adds a factor proportional to its
+length.
+
+##### Space Complexity: `O(target / min_candidate)`
+
+Excluding the output, space is dominated by the recursion stack and the `current`
+list, both bounded by the maximum combination length `target / min_candidate`.
+
+#### Key Insights
+
+- The include/exclude framing needs no sorting: correctness comes purely from never
+  revisiting a candidate on the exclude branch.
+- Reuse is captured by recursing on the same `index` in the include branch.
+- The `remaining < 0` guard is what stops a branch that has overshot the target.
+- Always append a copy (`current[:]`), since `current` is mutated throughout.
+
 ### Sorted Backtracking with Pruning
+
+#### Derivation
+
+The include-exclude tree wastes effort in two ways: it walks the exclude
+decisions one at a time, and it cannot tell when a branch has become hopeless.
+The same search expressed as a loop repairs both. We explore with the classic
+["choose, explore, unchoose"](https://en.wikipedia.org/wiki/Backtracking) pattern, where each call loops over the candidates
+it may still take, and add one preparation step that unlocks a real prune. Two
+details make it both correct and efficient:
+
+1. Sort `candidates` ascending. This lets us `break` out of the loop the moment a
+   candidate exceeds the remaining target, since every later candidate is at least
+   as large.
+2. Pass the current index `i` (rather than `i + 1`) into the recursive call. This
+   allows a number to be reused an unlimited number of times while the `start`
+   bound still prevents us from revisiting earlier candidates, which is what avoids
+   counting `[2,3]` and `[3,2]` as distinct combinations.
+
+The steps:
+
+1. Sort the candidates.
+2. Recurse with a `start` index, the running `remaining` target, and the partial
+   `current` combination.
+3. When `remaining` hits `0`, record a copy of `current` as a valid combination.
+4. For each candidate from `start` onward, `break` if it exceeds `remaining`,
+   otherwise pick it, recurse on the same `i` allowing reuse, then unpick and
+   continue.
+
+Because we only ever move the start index forward, each combination is generated in
+non-decreasing order exactly once, guaranteeing uniqueness.
+
+#### Walkthrough
+
+Let us run the pruned search on Example 1: `candidates = [2,3,6,7]` (already
+sorted), `target = 7`. Each call loops `i` upward from its `start`; a `take` line
+descends one level, and every `break` line kills the remainder of a loop in one
+stroke. Indices map to candidates as `i=0 -> 2`, `i=1 -> 3`, `i=2 -> 6`,
+`i=3 -> 7`.
+
+```text
+backtrack(start=0, remaining=7, current=[])
+  i=0: take 2 -> backtrack(0, 5, [2])
+    i=0: take 2 -> backtrack(0, 3, [2,2])
+      i=0: take 2 -> backtrack(0, 1, [2,2,2])
+        i=0: 2 > 1 -> break                 whole level dies in one test
+      i=1: take 3 -> backtrack(1, 0, [2,2,3])
+                     remaining == 0 -> RECORD [2,2,3]
+      i=2: 6 > 3 -> break
+    i=1: take 3 -> backtrack(1, 2, [2,3])
+      i=1: 3 > 2 -> break
+    i=2: 6 > 5 -> break
+  i=1: take 3 -> backtrack(1, 4, [3])
+    i=1: take 3 -> backtrack(1, 1, [3,3])
+      i=1: 3 > 1 -> break
+    i=2: 6 > 4 -> break
+  i=2: take 6 -> backtrack(2, 1, [6])
+    i=2: 6 > 1 -> break
+  i=3: take 7 -> backtrack(3, 0, [7])
+                 remaining == 0 -> RECORD [7]
+```
+
+Compare the `[2,2,2]` node with its include-exclude counterpart: there, the
+search still descended an exclude chain before every option died; here, `2 > 1`
+fails once and the `break` discards candidates `3`, `6`, and `7` unexamined,
+because sorting guarantees they are even larger. Reuse still comes from recursing
+on the same `i` (three `2`s in `[2,2,3]`), and `[7]` appears only after the loop
+has walked past `2`, `3`, and `6`. The two recorded leaves give
+`result = [[2,2,3],[7]]`, matching the expected Output.
+
+#### Solution
+
+The code is the loop from the walkthrough: sort once, then choose, explore,
+unchoose, with the `break` prune guarding the loop.
 
 ```python
 from typing import List
@@ -204,31 +311,6 @@ class Solution:
         return result
 ```
 
-#### Approach
-
-This is the same search expressed with a loop rather than a binary tree, plus a
-sorting optimization. We explore with the classic ["choose, explore, unchoose"](https://en.wikipedia.org/wiki/Backtracking)
-pattern. Two details make it both correct and efficient:
-
-1. Sort `candidates` ascending. This lets us `break` out of the loop the moment a
-   candidate exceeds the remaining target, since every later candidate is at least
-   as large.
-2. Pass the current index `i` (rather than `i + 1`) into the recursive call. This
-   allows a number to be reused an unlimited number of times while the `start`
-   bound still prevents us from revisiting earlier candidates, which is what avoids
-   counting `[2,3]` and `[3,2]` as distinct combinations.
-
-The steps:
-
-1. Sort the candidates.
-2. Recurse with a running `remaining` target and the partial `current` combination.
-3. When `remaining` hits `0`, record a copy of `current` as a valid combination.
-4. For each candidate from `start` onward, prune if it exceeds `remaining`,
-   otherwise pick it, recurse allowing reuse, then unpick and continue.
-
-Because we only ever move the start index forward, each combination is generated in
-non-decreasing order exactly once, guaranteeing uniqueness.
-
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(N^(target / min_candidate))`
@@ -257,24 +339,24 @@ list, both bounded by the maximum combination length `target / min_candidate`.
 
 ### Bottom-Up Dynamic Programming
 
-```python
-from typing import List
+#### Derivation
 
+Instead of recursing, we [build up answers for every sub-target](https://en.wikipedia.org/wiki/Dynamic_programming) from `0` to
+`target`. The outer loop over candidates (rather than an inner loop) is the trick
+that prevents duplicate combinations: by the time we consider a candidate, every
+combination already stored uses only earlier candidates, so appending the current
+candidate keeps each combination in non-decreasing order and unique. The
+Invariant below states that property formally, along with why the naive
+`dp[t] = union of dp[t - c] + [c]` relation would over-count.
 
-class Solution:
-    def combinationSum(self, candidates: List[int], target: int) -> List[List[int]]:
-        candidates.sort()
-        # dp[t] holds every combination summing to t, each in non-decreasing order.
-        dp: List[List[List[int]]] = [[] for _ in range(target + 1)]
-        dp[0] = [[]]
+The steps:
 
-        for candidate in candidates:
-            for t in range(candidate, target + 1):
-                for combo in dp[t - candidate]:
-                    dp[t].append(combo + [candidate])
-
-        return dp[target]
-```
+1. Sort the candidates so combinations are built in non-decreasing order.
+2. Initialize `dp[0]` with one empty combination; every other `dp[t]` starts empty.
+3. For each `candidate`, sweep sub-targets `t` from `candidate` up to `target`.
+4. For each combination that sums to `t - candidate`, append `candidate` to form a
+   new combination that sums to `t`, and store it in `dp[t]`.
+5. Return `dp[target]`.
 
 #### Invariant
 
@@ -340,24 +422,59 @@ each `dp[t]` is finished while later candidates are still unprocessed, so a
 smaller candidate can be appended after a larger one: the invariant fails, and
 the permutation duplicates of the naive relation come straight back.
 
-#### Approach
+#### Walkthrough
 
-Instead of recursing, we [build up answers for every sub-target](https://en.wikipedia.org/wiki/Dynamic_programming) from `0` to
-`target`. The outer loop over candidates (rather than an inner loop) is the trick
-that prevents duplicate combinations: by the time we consider a candidate, every
-combination already stored uses only earlier candidates, so appending the current
-candidate keeps each combination in non-decreasing order and unique. The
-Invariant above states that property formally, along with why the naive
-`dp[t] = union of dp[t - c] + [c]` relation would over-count.
+Let us grow the table by hand on Example 1: `candidates = [2,3,6,7]` (already
+sorted), `target = 7`. `dp[0]` starts as `[[]]` and every other `dp[t]` starts
+empty. Each candidate sweeps sub-targets `t` upward from its own value, appending
+itself to every combination in `dp[t - candidate]`; the lines below show only the
+entries each pass changes:
 
-The steps:
+```text
+start          dp[0] = [[]]                        all other dp[t] empty
+candidate 2    dp[2] = [[2]]                       [] + [2]
+               dp[4] = [[2,2]]                     [2] + [2], written this pass
+               dp[6] = [[2,2,2]]                   [2,2] + [2], written this pass
+candidate 3    dp[3] = [[3]]                       [] + [3]
+               dp[5] = [[2,3]]                     [2] + [3]
+               dp[6] = [[2,2,2], [3,3]]            [3] + [3]
+               dp[7] = [[2,2,3]]                   [2,2] + [3]
+candidate 6    dp[6] = [[2,2,2], [3,3], [6]]       [] + [6]
+candidate 7    dp[7] = [[2,2,3], [7]]              [] + [7]
+```
 
-1. Sort the candidates so combinations are built in non-decreasing order.
-2. Initialize `dp[0]` with one empty combination; every other `dp[t]` starts empty.
-3. For each `candidate`, sweep sub-targets `t` from `candidate` up to `target`.
-4. For each combination that sums to `t - candidate`, append `candidate` to form a
-   new combination that sums to `t`, and store it in `dp[t]`.
-5. Return `dp[target]`.
+The candidate `2` pass shows reuse working through the upward sweep: `dp[4]`
+reads the `[2]` that the very same pass just wrote into `dp[2]`, and `dp[6]`
+reads `[2,2]`, so one candidate stacks on itself as many times as it fits.
+Uniqueness shows in what never happens: when candidate `3` reaches `t = 5` it
+extends `[2]` into `[2,3]`, but `[3,2]` can never arise, because by the
+invariant no stored combination ever has a smaller candidate appended after a
+larger one. The final `dp[7] = [[2,2,3], [7]]` is returned, matching the
+expected Output.
+
+#### Solution
+
+The code is the table growth from the walkthrough: three nested loops, candidates
+outermost.
+
+```python
+from typing import List
+
+
+class Solution:
+    def combinationSum(self, candidates: List[int], target: int) -> List[List[int]]:
+        candidates.sort()
+        # dp[t] holds every combination summing to t, each in non-decreasing order.
+        dp: List[List[List[int]]] = [[] for _ in range(target + 1)]
+        dp[0] = [[]]
+
+        for candidate in candidates:
+            for t in range(candidate, target + 1):
+                for combo in dp[t - candidate]:
+                    dp[t].append(combo + [candidate])
+
+        return dp[target]
+```
 
 #### Time and Space Complexity Analysis
 
