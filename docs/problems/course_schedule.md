@@ -44,40 +44,39 @@ take course `0` you should also have finished course `1`. So it is impossible.
 - `0 <= ai, bi < numCourses`
 - All the pairs `prerequisites[i]` are unique.
 
+## Deriving the Solution
+
+Each prerequisite pair is a directed edge, so the courses form a directed
+graph, and every course is finishable exactly when that graph has no cycle: a
+cycle is a set of courses that all wait on one another. The solutions differ
+only in how they hunt for that cycle.
+
+1. **Start literal.** Simulate a student: repeatedly take any course whose
+   prerequisites are all finished, and stop when a full round takes nothing.
+   Courses left over are trapped in a cycle. Correct, but each round re-checks
+   everything, costing `O(V * (V + E))`: see [Brute Force](#brute-force).
+2. **Spot the waste.** Every sweep re-examines prerequisites that have not
+   changed since the last sweep; almost all of that checking is repeated
+   verbatim.
+3. **Follow the edges.** Walk the graph directly with a depth-first search: a
+   cycle is precisely a back edge into the path the recursion is currently
+   standing on, which needs a third state beyond visited/unvisited. One
+   traversal of each vertex and edge decides the answer in `O(V + E)`. The
+   same idea wears two bookkeeping styles, a color array in
+   [DFS Three-Color](#dfs-three-color) and a pair of explicit sets in
+   [DFS with Recursion Stack](#dfs-with-recursion-stack).
+4. **Count instead of re-scan.** Record each course's prerequisite count once,
+   and touch a course again only when one of its prerequisites completes.
+   Repeatedly taking courses whose count has hit zero peels the graph layer by
+   layer; any shortfall at the end is a cycle. This is Kahn's topological
+   sort, also `O(V + E)`, and its processing order is a valid schedule: see
+   [Kahn's Algorithm](#kahns-algorithm).
+
 ## Solutions
 
 ### Brute Force
 
-```python
-from typing import List
-
-
-class Solution:
-    def canFinish(self, numCourses: int, prerequisites: List[List[int]]) -> bool:
-        # remaining[course] holds the prerequisites that course still needs.
-        remaining: List[List[int]] = [[] for _ in range(numCourses)]
-        for course, prereq in prerequisites:
-            remaining[course].append(prereq)
-
-        taken = [False] * numCourses
-        taken_count = 0
-
-        # Repeatedly sweep for any course whose prerequisites are all taken.
-        progress = True
-        while progress:
-            progress = False
-            for course in range(numCourses):
-                if taken[course]:
-                    continue
-                if all(taken[prereq] for prereq in remaining[course]):
-                    taken[course] = True
-                    taken_count += 1
-                    progress = True
-
-        return taken_count == numCourses
-```
-
-#### Approach
+#### Derivation
 
 The most direct simulation mirrors how a student actually clears a degree:
 keep taking any course whose prerequisites are already finished, and repeat
@@ -85,40 +84,17 @@ until no new course can be taken. If every course eventually gets taken, the
 schedule is feasible; if a round ever passes without taking anything while
 courses remain, the leftovers depend on one another in a cycle.
 
-1. For each course, record the list of prerequisites it still needs.
+1. For each course, record the list of prerequisites it still needs in
+   `remaining`.
 2. Sweep over every untaken course. If all of its prerequisites are already
-   taken, take it and mark that progress was made this round.
+   `taken`, take it and mark that `progress` was made this round.
 3. Repeat the full sweep as long as any course was taken during it.
-4. When a sweep makes no progress, stop and compare the number of taken
-   courses against `numCourses`.
+4. When a sweep makes no progress, stop and compare `taken_count` against
+   `numCourses`.
 
 A course stuck forever is one whose prerequisites can never all be satisfied,
 which is exactly a cycle. The loop terminates because each round either takes at
 least one new course or ends the process.
-
-#### Time and Space Complexity Analysis
-
-##### Time Complexity: `O(V^2 + V * E)`
-
-Each sweep is `O(V + E)` because it re-checks every course's full prerequisite
-list, and in the worst case only one course is taken per sweep, forcing up to
-`V` sweeps. That gives `O(V * (V + E))` overall, far more work than the linear
-methods below because the same prerequisites are re-examined every round.
-
-##### Space Complexity: `O(V + E)`
-
-The `remaining` lists store all `E` prerequisite edges, and the `taken` array
-uses `O(V)`.
-
-#### Key Insights
-
-- This is pure simulation: no graph theory vocabulary is needed, only the rule
-  "take a course once its prerequisites are done."
-- The wasted work is re-scanning every course's prerequisites on every round,
-  even courses and prerequisites that have not changed.
-- The next solutions remove that waste either by following edges directly (DFS)
-  or by counting prerequisites once and only revisiting a course when one of its
-  prerequisites is taken (Kahn's Algorithm).
 
 #### Walkthrough
 
@@ -150,7 +126,123 @@ Sweep `2` took nothing (both courses already taken), so `progress` became
 Finally, compare `taken_count == numCourses`: `2 == 2` is `True`, so the function
 returns `True`, which matches the example's expected Output.
 
+#### Solution
+
+The code is the walkthrough's sweep loop: keep taking courses until a round
+takes nothing.
+
+```python
+from typing import List
+
+
+class Solution:
+    def canFinish(self, numCourses: int, prerequisites: List[List[int]]) -> bool:
+        # remaining[course] holds the prerequisites that course still needs.
+        remaining: List[List[int]] = [[] for _ in range(numCourses)]
+        for course, prereq in prerequisites:
+            remaining[course].append(prereq)
+
+        taken = [False] * numCourses
+        taken_count = 0
+
+        # Repeatedly sweep for any course whose prerequisites are all taken.
+        progress = True
+        while progress:
+            progress = False
+            for course in range(numCourses):
+                if taken[course]:
+                    continue
+                if all(taken[prereq] for prereq in remaining[course]):
+                    taken[course] = True
+                    taken_count += 1
+                    progress = True
+
+        return taken_count == numCourses
+```
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(V^2 + V * E)`
+
+Each sweep is `O(V + E)` because it re-checks every course's full prerequisite
+list, and in the worst case only one course is taken per sweep, forcing up to
+`V` sweeps. That gives `O(V * (V + E))` overall, far more work than the linear
+methods below because the same prerequisites are re-examined every round.
+
+##### Space Complexity: `O(V + E)`
+
+The `remaining` lists store all `E` prerequisite edges, and the `taken` array
+uses `O(V)`.
+
+#### Key Insights
+
+- This is pure simulation: no graph theory vocabulary is needed, only the rule
+  "take a course once its prerequisites are done."
+- The wasted work is re-scanning every course's prerequisites on every round,
+  even courses and prerequisites that have not changed.
+- The next solutions remove that waste either by following edges directly (DFS)
+  or by counting prerequisites once and only revisiting a course when one of its
+  prerequisites is taken (Kahn's Algorithm).
+
 ### DFS Three-Color
+
+#### Derivation
+
+The brute force re-checks unchanged prerequisites every round because it never
+follows the dependency structure; it only polls it. Model the courses as a
+directed graph instead: each course is a vertex, and a prerequisite pair
+`[a, b]` becomes an edge from `b` to `a`. Every course can be finished if and
+only if this graph has no cycle, so the polling loop can be replaced by one
+walk of the graph that looks for a cycle directly.
+
+The subtlety is that a plain visited flag cannot recognize a cycle in a
+directed graph: reaching an already-visited vertex is harmless when it was
+finished by an earlier branch, and fatal only when it is an ancestor still on
+the current recursion path. A
+[depth-first search](https://en.wikipedia.org/wiki/Depth-first_search) with
+three states per vertex captures that distinction:
+
+1. Build the adjacency list `graph`, pointing each prerequisite at the courses
+   that depend on it.
+2. Mark every vertex `WHITE` (unvisited) in `color`.
+3. Run `has_cycle` from each `WHITE` vertex. On entry, paint the vertex `GRAY`
+   to mark it as part of the active recursion path.
+4. If the search reaches a `GRAY` vertex, that is a back edge to an ancestor in
+   the current path, which proves a cycle exists, so return `false`.
+5. After exploring all of a vertex's neighbors, paint it `BLACK` to record that
+   it is fully processed and can never participate in a cycle reached later.
+
+If no search ever revisits a `GRAY` vertex, the graph is acyclic and every
+course can be finished.
+
+#### Walkthrough
+
+Example 2 is the one with a cycle, so it exercises the back-edge detection:
+`numCourses = 2`, `prerequisites = [[1,0],[0,1]]`. Building the adjacency list
+gives `graph[0] = [1]` and `graph[1] = [0]` (each prerequisite points at the
+course depending on it), with `color = [WHITE, WHITE]`.
+
+The outer loop starts at vertex `0`, and the trace indents one level per
+recursive call:
+
+```text
+has_cycle(0)     color[0] = GRAY               path: 0
+  has_cycle(1)   color[1] = GRAY               path: 0 -> 1
+    has_cycle(0) color[0] is GRAY -> back edge -> return True
+  has_cycle(1)   -> True
+has_cycle(0)     -> True
+```
+
+Following the edge `0 -> 1` and then `1 -> 0` lands the search on vertex `0`
+while it is still `GRAY`, meaning still on the active path: the recursion has
+looped back onto its own ancestor, which is the cycle
+`0 -> 1 -> 0`. The `True` bubbles up, the outer loop sees the cycle, and the
+function returns `False`, matching the expected Output for Example 2.
+
+#### Solution
+
+The code is the walkthrough's colored search: `GRAY` on entry, `BLACK` on
+exit, back edge on meeting `GRAY`.
 
 ```python
 from typing import List
@@ -186,28 +278,6 @@ class Solution:
         return True
 ```
 
-#### Approach
-
-Model the courses as a directed graph: each course is a vertex, and a
-prerequisite pair `[a, b]` becomes an edge from `b` to `a`. Every course can be
-finished if and only if this graph has no cycle, because a cycle is a set of
-courses that mutually depend on one another.
-
-Detect the cycle with a [depth-first search](https://en.wikipedia.org/wiki/Depth-first_search) that colors each vertex:
-
-1. Build the adjacency list, pointing each prerequisite at the courses that
-   depend on it.
-2. Mark every vertex `WHITE` (unvisited).
-3. Run DFS from each `WHITE` vertex. On entry, paint the vertex `GRAY` to mark
-   it as part of the active recursion path.
-4. If DFS reaches a `GRAY` vertex, that is a back edge to an ancestor in the
-   current path, which proves a cycle exists, so return `false`.
-5. After exploring all of a vertex's neighbors, paint it `BLACK` to record that
-   it is fully processed and can never participate in a cycle reached later.
-
-If no DFS ever revisits a `GRAY` vertex, the graph is acyclic and every course
-can be finished.
-
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(V + E)`
@@ -232,6 +302,57 @@ recursion stack reaches depth `O(V)` in the worst case.
   DFS from every still-`WHITE` vertex.
 
 ### DFS with Recursion Stack
+
+#### Derivation
+
+The three-color search packs two different facts into one array: "this vertex
+is on the active path" and "this vertex is fully done". Splitting them into
+two explicit sets states each fact by name, which some find clearer to reason
+about than color codes. This variant also orients the graph the other way,
+from each course to its prerequisites, so the recursion walks dependencies
+before the course that needs them; the cycle test is unaffected by the
+direction.
+
+1. Build the adjacency list `graph` mapping each course to the courses it
+   requires.
+2. Keep a `visited` set of fully processed courses and a `path` set of courses
+   currently on the recursion stack.
+3. For each unvisited course, run
+   [DFS](https://en.wikipedia.org/wiki/Depth-first_search) via `has_cycle`.
+   Add the course to both sets on entry.
+4. If the search reaches a course already in `path`, the recursion has looped
+   back on itself, so a cycle exists and the answer is `false`.
+5. After exploring a course's prerequisites, remove it from `path` (backtrack)
+   while leaving it in `visited`, so future searches skip it.
+
+#### Walkthrough
+
+Example 1 is acyclic, which is the case that exercises both the backtrack and
+the `visited` skip: `numCourses = 2`, `prerequisites = [[1,0]]`. With this
+orientation the adjacency list maps each course to its prerequisites:
+`graph[0] = []` and `graph[1] = [0]`. Both sets start empty.
+
+```text
+course 0: has_cycle(0)    path = {0}, visited = {0}
+  graph[0] is empty       no prerequisites to follow
+  backtrack 0             path = {}, return False
+course 1: has_cycle(1)    path = {1}, visited = {0, 1}
+  has_cycle(0)            0 in visited -> False, no re-exploration
+  backtrack 1             path = {}, return False
+no cycle found -> return True
+```
+
+Course `0` enters and leaves the path without finding a loop, staying in
+`visited`. When course `1` follows its prerequisite edge to `0`, the `visited`
+check answers immediately: `0` is done and cycle-free, and crucially it is no
+longer in `path`, so it is not mistaken for a cycle. Both calls return
+`False`, so the function returns `True`, matching the expected Output for
+Example 1.
+
+#### Solution
+
+The code is the walkthrough's search with the two sets: `path` for the active
+branch, `visited` for finished courses.
 
 ```python
 from typing import List
@@ -267,22 +388,6 @@ class Solution:
         return True
 ```
 
-#### Approach
-
-This variant detects the same cycle but tracks state with two explicit sets
-rather than a color array, which some find clearer to reason about. It also
-orients the graph the other way, from each course to its prerequisites, so the
-recursion walks dependencies before the course that needs them.
-
-1. Build the adjacency list mapping each course to the courses it requires.
-2. Keep a `visited` set of fully processed courses and a `path` set of courses
-   currently on the recursion stack.
-3. For each unvisited course, run [DFS](https://en.wikipedia.org/wiki/Depth-first_search). Add the course to both sets on entry.
-4. If DFS reaches a course already in `path`, the recursion has looped back on
-   itself, so a cycle exists and the answer is `false`.
-5. After exploring a course's prerequisites, remove it from `path` (backtrack)
-   while leaving it in `visited`, so future searches skip it.
-
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(V + E)`
@@ -306,34 +411,30 @@ to `O(V)` entries, and the recursion stack reaches `O(V)` depth.
 
 ### Kahn's Algorithm
 
-```python
-from collections import deque
-from typing import List
+#### Derivation
 
+The DFS solutions fix the brute force by following edges, but there is a second
+repair: fix the counting. The brute force re-derives "are all prerequisites
+taken?" from scratch each round; instead, count each course's outstanding
+prerequisites once, and update that count only when one of its prerequisites
+actually completes. This is
+[Kahn's algorithm](https://en.wikipedia.org/wiki/Topological_sorting#Kahn%27s_algorithm),
+a [topological sort](https://en.wikipedia.org/wiki/Topological_sorting)
+performed with BFS. The key observation is that in an acyclic dependency graph
+there is always at least one course with no remaining prerequisites, so
+courses can be finished one in-degree-zero layer at a time:
 
-class Solution:
-    def canFinish(self, numCourses: int, prerequisites: List[List[int]]) -> bool:
-        # graph[prereq] holds the courses that depend on prereq.
-        graph: List[List[int]] = [[] for _ in range(numCourses)]
-        in_degree = [0] * numCourses
-        for course, prereq in prerequisites:
-            graph[prereq].append(course)
-            in_degree[course] += 1
+1. Build the adjacency list `graph` and an `in_degree` array counting how many
+   prerequisites each course still needs.
+2. Seed a `queue` with every course whose in-degree is `0`.
+3. Pop a course, count it in `completed`, and decrement the in-degree of each
+   course that depended on it. Whenever a dependent course drops to in-degree
+   `0`, enqueue it.
+4. Continue until the queue empties, then return `completed == numCourses`.
 
-        # Start with every course that has no outstanding prerequisites.
-        queue = deque(i for i in range(numCourses) if in_degree[i] == 0)
-        completed = 0
-
-        while queue:
-            node = queue.popleft()
-            completed += 1
-            for neighbor in graph[node]:
-                in_degree[neighbor] -= 1
-                if in_degree[neighbor] == 0:
-                    queue.append(neighbor)
-
-        return completed == numCourses
-```
+If every course was completed, a full topological order exists and the graph is
+acyclic. If some courses never reached in-degree `0`, they are trapped in a
+cycle, so return `false`.
 
 #### Termination Condition
 
@@ -382,24 +483,60 @@ all courses finishable  if and only if  completed == numCourses
 Each vertex enters the queue at most once (only on the decrement that brings it
 to zero) and each edge is relaxed exactly once, giving \(O(V + E)\).
 
-#### Approach
+#### Walkthrough
 
-[Kahn's algorithm](https://en.wikipedia.org/wiki/Topological_sorting#Kahn%27s_algorithm) performs a [topological sort](https://en.wikipedia.org/wiki/Topological_sorting) with BFS. The key observation is
-that in an acyclic dependency graph there is always at least one course with no
-remaining prerequisites, so we can finish courses one in-degree-zero layer at a
-time.
+Trace the peeling on Example 1: `numCourses = 2`, `prerequisites = [[1,0]]`.
+Building the structures gives `graph[0] = [1]` (course `1` depends on `0`) and
+`in_degree = [0, 1]`. Course `0` starts takeable, so the queue is seeded with
+it:
 
-1. Build the adjacency list and an in-degree array counting how many
-   prerequisites each course still needs.
-2. Seed a queue with every course whose in-degree is `0`.
-3. Pop a course, count it as completed, and decrement the in-degree of each
-   course that depended on it. Whenever a dependent course drops to in-degree
-   `0`, enqueue it.
-4. Continue until the queue empties.
+```text
+setup    graph[0] = [1]    in_degree = [0, 1]      queue = [0]   completed = 0
+pop 0    completed = 1     in_degree[1]: 1 -> 0    enqueue 1  -> queue = [1]
+pop 1    completed = 2     no dependents           queue = []
+queue empty -> completed == numCourses is 2 == 2 -> return True
+```
 
-If every course was completed, a full topological order exists and the graph is
-acyclic. If some courses never reached in-degree `0`, they are trapped in a
-cycle, so return `false`.
+Taking course `0` removes the only outstanding prerequisite of course `1`,
+whose in-degree drops to `0` at that exact moment, so it enters the queue and
+is taken next. Both courses complete, so the function returns `True`, matching
+the expected Output for Example 1. On Example 2 both in-degrees start at `1`,
+the queue starts empty, `completed` stays `0`, and `0 == 2` fails, so the
+function returns `False` there.
+
+#### Solution
+
+The code is the walkthrough's peel: pop a takeable course, decrement its
+dependents, enqueue any that hit zero.
+
+```python
+from collections import deque
+from typing import List
+
+
+class Solution:
+    def canFinish(self, numCourses: int, prerequisites: List[List[int]]) -> bool:
+        # graph[prereq] holds the courses that depend on prereq.
+        graph: List[List[int]] = [[] for _ in range(numCourses)]
+        in_degree = [0] * numCourses
+        for course, prereq in prerequisites:
+            graph[prereq].append(course)
+            in_degree[course] += 1
+
+        # Start with every course that has no outstanding prerequisites.
+        queue = deque(i for i in range(numCourses) if in_degree[i] == 0)
+        completed = 0
+
+        while queue:
+            node = queue.popleft()
+            completed += 1
+            for neighbor in graph[node]:
+                in_degree[neighbor] -= 1
+                if in_degree[neighbor] == 0:
+                    queue.append(neighbor)
+
+        return completed == numCourses
+```
 
 #### Time and Space Complexity Analysis
 

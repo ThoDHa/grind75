@@ -37,71 +37,26 @@ Given the `root` of a binary tree, return the level order traversal of its nodes
 - The number of nodes in the tree is in the range `[0, 2000]`.
 - `-1000 <= Node.val <= 1000`
 
+## Deriving the Solution
+
+The output is the tree's values grouped by depth, left to right within each group. Every solution below visits all `n` nodes exactly once; what separates them is *when* the grouping by depth happens: after the walk, during a depth-carrying walk, or by walking in level order to begin with.
+
+1. **Start literal.** Treat visiting and grouping as two separate jobs: walk the tree recording each value together with its depth, then bucket the recorded pairs by depth afterward. Correct in `O(n)`, but it stores a full intermediate pairs list and scans it twice: see [Brute Force](#brute-force).
+2. **Group as you go.** The depth is already in hand at the moment each node is visited, so the after-the-fact bucketing is redundant: append each value straight into `result[depth]` during the walk, creating each bucket the first time its depth is reached: see [Recursive DFS](#recursive-dfs).
+3. **Match the traversal to the output.** The output shape is one finished list per level, so traverse in exactly that order: a queue drained one full level at a time produces each level as a complete list, with no depth counter at all: see [Iterative BFS](#iterative-bfs).
+
 ## Solutions
 
 ### Brute Force
 
-```python
-# Definition for a binary tree node.
-# class TreeNode:
-#     def __init__(self, val=0, left=None, right=None):
-#         self.val = val
-#         self.left = left
-#         self.right = right
-from typing import List, Optional
+#### Derivation
 
+The problem hands us two jobs at once: visit every node, and group the values by level. The most direct plan refuses to interleave them, so it ignores any clever level-grouping trick: just walk the entire tree, remember the depth of every node as you pass it, then sort the values into level buckets afterward. Because we visit the left child before the right child, the values within each depth already arrive in left-to-right order:
 
-class Solution:
-    def levelOrder(self, root: Optional[TreeNode]) -> List[List[int]]:
-        # Walk the whole tree, recording each value alongside its depth
-        pairs = []
-
-        def visit(node: Optional[TreeNode], depth: int) -> None:
-            if not node:
-                return
-            pairs.append((depth, node.val))
-            visit(node.left, depth + 1)
-            visit(node.right, depth + 1)
-
-        visit(root, 0)
-        if not pairs:
-            return []
-
-        # Group the collected values by depth into per-level buckets
-        max_depth = 0
-        for depth, _ in pairs:
-            if depth > max_depth:
-                max_depth = depth
-        result = [[] for _ in range(max_depth + 1)]
-        for depth, val in pairs:
-            result[depth].append(val)
-        return result
-```
-
-#### Approach
-
-The most direct idea ignores any clever level-grouping trick: just walk the entire tree, remember the depth of every node as you pass it, then sort the values into level buckets afterward. Because we visit the left child before the right child, the values within each depth already arrive in left-to-right order.
-
-1. Traverse the tree, appending a `(depth, value)` pair for every node, starting the root at depth `0`.
+1. Traverse the tree with `visit`, appending a `(depth, value)` pair for every node, starting the root at depth `0`.
 2. Return an empty list immediately if no pairs were collected (the tree was empty).
 3. Scan the pairs once to find the maximum depth, which is the number of levels minus one.
 4. Allocate one empty bucket per level, then drop each value into `result[depth]`.
-
-#### Time and Space Complexity Analysis
-
-##### Time Complexity: `O(n)`
-
-The traversal touches each of the `n` nodes once, and the two follow-up scans over the collected pairs are each linear, so the total work is `O(n)`.
-
-##### Space Complexity: `O(n)`
-
-The intermediate `pairs` list holds one entry per node, the output holds all `n` values, and the recursion stack adds `O(h)` for height `h`, so the auxiliary space is `O(n)`.
-
-#### Key Insights
-
-- Separating collection from grouping makes the logic obvious at the cost of a full intermediate `pairs` list.
-- Visiting left before right is what keeps each level's values in the correct order without any extra sorting.
-- It does redundant work: it stores every node's depth explicitly and walks the pairs twice, where the refined approaches group on the fly.
 
 #### Walkthrough
 
@@ -141,7 +96,100 @@ The `null` children of `9` and the absent children of `15` and `7` hit `if not n
 
 The function returns `[[3], [9, 20], [15, 7]]`, which matches the expected Output `[[3],[9,20],[15,7]]`. Notice that because step 4 (`15`) ran before step 5 (`7`), the bottom level lands in left-to-right order with no sorting needed.
 
+#### Solution
+
+The code is the walkthrough's three phases written down: collect the pairs, find `max_depth`, then bucket the values.
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+from typing import List, Optional
+
+
+class Solution:
+    def levelOrder(self, root: Optional[TreeNode]) -> List[List[int]]:
+        # Walk the whole tree, recording each value alongside its depth
+        pairs = []
+
+        def visit(node: Optional[TreeNode], depth: int) -> None:
+            if not node:
+                return
+            pairs.append((depth, node.val))
+            visit(node.left, depth + 1)
+            visit(node.right, depth + 1)
+
+        visit(root, 0)
+        if not pairs:
+            return []
+
+        # Group the collected values by depth into per-level buckets
+        max_depth = 0
+        for depth, _ in pairs:
+            if depth > max_depth:
+                max_depth = depth
+        result = [[] for _ in range(max_depth + 1)]
+        for depth, val in pairs:
+            result[depth].append(val)
+        return result
+```
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n)`
+
+The traversal touches each of the `n` nodes once, and the two follow-up scans over the collected pairs are each linear, so the total work is `O(n)`.
+
+##### Space Complexity: `O(n)`
+
+The intermediate `pairs` list holds one entry per node, the output holds all `n` values, and the recursion stack adds `O(h)` for height `h`, so the auxiliary space is `O(n)`.
+
+#### Key Insights
+
+- Separating collection from grouping makes the logic obvious at the cost of a full intermediate `pairs` list.
+- Visiting left before right is what keeps each level's values in the correct order without any extra sorting.
+- It does redundant work: it stores every node's depth explicitly and walks the pairs twice, where the refined approaches group on the fly.
+
 ### Recursive DFS
+
+#### Derivation
+
+The Brute Force already knows each node's depth at the very moment it visits the node, yet it writes that depth into an intermediate `pairs` list only to read it back in a second pass. The repair is to do the grouping at visit time: a [depth-first traversal](https://en.wikipedia.org/wiki/Depth-first_search) that carries a `depth` parameter can append each value straight into the correct per-level bucket, and the buckets themselves can be created lazily the first time their depth is reached:
+
+1. Maintain a `result` list whose index `depth` holds the values for that level.
+2. Recurse with a `depth` parameter, starting at `0` for the root.
+3. When `depth == len(result)`, this is the first node encountered at that depth, so append a new empty sublist to grow `result`.
+4. Append the current node's value to `result[depth]`.
+5. Recurse into the left child before the right child, both at `depth + 1`.
+
+Visiting left before right in preorder guarantees that values land in each level's sublist in left-to-right order, matching the BFS output exactly even though the traversal itself is depth-first.
+
+#### Walkthrough
+
+Let us run the depth-carrying traversal on Example 1: `root = [3,9,20,null,null,15,7]`. Each line of the trace shows one `visit` call, whether it opens a new bucket, and `result` afterward:
+
+```text
+        3        (depth 0)
+       / \
+      9   20     (depth 1)
+         /  \
+        15   7   (depth 2)
+
+visit(3, depth=0)     depth 0 == len(result) = 0 -> new bucket    result = [[3]]
+visit(9, depth=1)     depth 1 == len(result) = 1 -> new bucket    result = [[3], [9]]
+visit(20, depth=1)    bucket exists, append                       result = [[3], [9, 20]]
+visit(15, depth=2)    depth 2 == len(result) = 2 -> new bucket    result = [[3], [9, 20], [15]]
+visit(7, depth=2)     bucket exists, append                       result = [[3], [9, 20], [15, 7]]
+```
+
+The `null` children of `9`, `15`, and `7` hit the `if not node` guard and contribute nothing. Because `9` is visited before `20`, and `15` before `7`, every bucket fills left to right on its own. The traversal ends with `result = [[3], [9, 20], [15, 7]]`: exactly the expected Output, with no intermediate pairs list and no second pass.
+
+#### Solution
+
+The code is the trace's single walk: the `depth == len(result)` check opens each bucket on first contact.
 
 ```python
 # Definition for a binary tree node.
@@ -171,18 +219,6 @@ class Solution:
         return result
 ```
 
-#### Approach
-
-A [depth-first traversal](https://en.wikipedia.org/wiki/Depth-first_search) can produce level-order output if it tracks how deep each node sits and appends values into the correct per-level bucket:
-
-1. Maintain a `result` list whose index `depth` holds the values for that level.
-2. Recurse with a `depth` parameter, starting at `0` for the root.
-3. When `depth == len(result)`, this is the first node encountered at that depth, so append a new empty sublist to grow `result`.
-4. Append the current node's value to `result[depth]`.
-5. Recurse into the left child before the right child, both at `depth + 1`.
-
-Visiting left before right in preorder guarantees that values land in each level's sublist in left-to-right order, matching the BFS output exactly even though the traversal itself is depth-first.
-
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(n)`
@@ -201,6 +237,46 @@ The output stores all `n` values. The recursion stack adds `O(h)` for the tree h
 - This approach is convenient when recursion is already natural for the surrounding code, trading queue space for recursion-stack space.
 
 ### Iterative BFS
+
+#### Derivation
+
+Both previous solutions simulate level order with a depth-first walk and a `depth` counter. But the output shape, one finished list per level, invites traversing in exactly that order instead. Level order traversal is a textbook [breadth-first search](https://en.wikipedia.org/wiki/Breadth-first_search): a queue naturally holds nodes level by level, and the one trick needed to emit grouped output is measuring each level's size before draining it:
+
+1. Return an empty list immediately when the tree is empty.
+2. Seed a queue with `root`.
+3. While the queue is non-empty, capture `level_size = len(queue)`: the exact count of nodes on the current level.
+4. Dequeue that many nodes, collecting their values into a fresh `level` list and enqueuing each node's children (left then right).
+5. Append the completed `level` to `result` and repeat for the next level.
+
+Snapshotting `level_size` at the top of each iteration is what cleanly partitions the output into per-level sublists, since any children appended during the loop belong to the next level and are excluded from the current count.
+
+#### Walkthrough
+
+Let us run the queue on Example 1: `root = [3,9,20,null,null,15,7]`. Each round of the outer loop snapshots `level_size`, drains exactly that many nodes into `level`, and enqueues their children behind them:
+
+```text
+        3        level 0
+       / \
+      9   20     level 1
+         /  \
+        15   7   level 2
+
+queue = [3]                                              seeded with root
+level_size = 1   pop 3    level = [3]      push 9, 20    result = [[3]]
+                 queue = [9, 20]
+level_size = 2   pop 9    level = [9]      no children
+                 pop 20   level = [9, 20]  push 15, 7    result = [[3], [9, 20]]
+                 queue = [15, 7]
+level_size = 2   pop 15   level = [15]     no children
+                 pop 7    level = [15, 7]  no children   result = [[3], [9, 20], [15, 7]]
+queue empty -> loop ends
+```
+
+In the second round, `15` and `7` are pushed while `level_size` is already fixed at `2`, so they wait in the queue for the next round instead of leaking into the current level. The loop ends with `result = [[3], [9, 20], [15, 7]]`, matching the expected Output.
+
+#### Solution
+
+The code is the walkthrough's outer loop written down: snapshot `level_size`, drain one level, enqueue the next.
 
 ```python
 # Definition for a binary tree node.
@@ -234,18 +310,6 @@ class Solution:
             result.append(level)
         return result
 ```
-
-#### Approach
-
-Level order traversal is a textbook [breadth-first search](https://en.wikipedia.org/wiki/Breadth-first_search). The trick that separates it from the brute force is grouping nodes by level on the fly, which we achieve by measuring each level's size before draining it:
-
-1. Return an empty list immediately when the tree is empty.
-2. Seed a queue with `root`.
-3. While the queue is non-empty, capture `level_size = len(queue)`: the exact count of nodes on the current level.
-4. Dequeue that many nodes, collecting their values into a fresh `level` list and enqueuing each node's children (left then right).
-5. Append the completed `level` to `result` and repeat for the next level.
-
-Snapshotting `level_size` at the top of each iteration is what cleanly partitions the output into per-level sublists, since any children appended during the loop belong to the next level and are excluded from the current count.
 
 #### Time and Space Complexity Analysis
 

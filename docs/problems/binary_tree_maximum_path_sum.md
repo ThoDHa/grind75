@@ -41,51 +41,42 @@ Given the `root` of a binary tree, return the **maximum path sum** of any **non-
 - The number of nodes in the tree is in the range `[1, 3 * 10^4]`.
 - `-1000 <= Node.val <= 1000`
 
+## Deriving the Solution
+
+Every path in a tree has a unique highest node: the point where it bends from
+one subtree into the other, or from which it descends one side only. Fixing
+that bend point decomposes the path into the node itself plus at most one
+downward path into each child, so both solutions reduce the problem to
+measuring best downward paths.
+
+1. **Start literal.** Try every node as the bend point: for each candidate,
+   measure the best downward path into its left and right subtrees with a
+   helper, and keep the largest `node.val + left_gain + right_gain`. Correct,
+   but the helper re-walks whole subtrees for every candidate, costing
+   `O(n^2)`: see [Brute Force](#brute-force).
+2. **Spot the waste.** The helper's answer for a node never changes between
+   calls, yet the brute force recomputes it once for the node itself and once
+   more for every one of its ancestors.
+3. **Compute each gain once.** A post-order traversal finishes both children
+   before their parent, so each node can record its own bent sum and hand its
+   downward gain up to the parent in the same visit. One pass replaces the
+   nested re-walks, reaching `O(n)`: see [Post-Order DFS](#post-order-dfs).
+
 ## Solutions
 
 ### Brute Force
 
-```python
-# Definition for a binary tree node.
-# class TreeNode:
-#     def __init__(self, val=0, left=None, right=None):
-#         self.val = val
-#         self.left = left
-#         self.right = right
-from typing import Optional
+#### Derivation
 
-
-class Solution:
-    def maxPathSum(self, root: Optional[TreeNode]) -> int:
-        # Best downward path that starts at node and descends one side only.
-        # Negative branches are dropped by clamping at 0.
-        def max_down(node: Optional[TreeNode]) -> int:
-            if not node:
-                return 0
-            return node.val + max(max_down(node.left), max_down(node.right), 0)
-
-        self.best = float("-inf")
-
-        # Try every node as the highest point (the "bend") of the path.
-        def visit(node: Optional[TreeNode]) -> None:
-            if not node:
-                return
-            left_gain = max(max_down(node.left), 0)
-            right_gain = max(max_down(node.right), 0)
-            self.best = max(self.best, node.val + left_gain + right_gain)
-            visit(node.left)
-            visit(node.right)
-
-        visit(root)
-        return self.best
-```
-
-#### Approach
-
-Every path has a single highest node where it bends from one branch into the
-other (or stays straight on one side). The most direct idea is to try each node
-as that bend point and, for each one, find the best downward path into its left
-and right subtrees independently.
+The problem asks for the best path anywhere in the tree, which is hard to grab
+directly. The reformulation that makes it tractable is to ask, for each node,
+"what is the best path whose *highest* point is this node?": every path has
+exactly one highest node where it bends from one branch into the other (or
+stays straight on one side), so taking the maximum over all bend points covers
+every path exactly once. For a fixed bend the two halves are independent: the
+best downward descent into the left subtree and the best downward descent into
+the right subtree. The most direct plan measures those descents from scratch
+for each candidate:
 
 1. Define `max_down(node)`: the largest sum of a path that starts at `node` and
    descends through at most one child. Clamp the chosen child at `0` so a
@@ -93,32 +84,11 @@ and right subtrees independently.
 2. For each node in the tree, compute the best left descent and best right
    descent, then form `node.val + left_gain + right_gain` as the path that bends
    at this node.
-3. Track the maximum of these bent sums across every node and return it.
+3. Track the maximum of these bent sums in `self.best` across every node and
+   return it.
 
 This recomputes `max_down` from scratch at every node, which is wasteful but
 needs no insight beyond the definition of a path.
-
-#### Time and Space Complexity Analysis
-
-##### Time Complexity: `O(n^2)`
-
-`visit` touches all `n` nodes, and at each node `max_down` walks the entire
-subtree below it. In a skewed tree this is `O(n)` work per node, giving
-`O(n^2)` in the worst case.
-
-##### Space Complexity: `O(h)`
-
-Both recursions descend at most to the tree height `h` at once: `O(log n)` for a
-balanced tree and `O(n)` for a skewed one.
-
-#### Key Insights
-
-- Naming the bend point as the path's highest node makes the enumeration
-  concrete: every path is counted exactly once, at its peak.
-- `max_down` already captures the "drop a negative branch" rule by clamping at
-  `0`, the same rule the optimal solution reuses.
-- The waste is purely the repeated `max_down` calls; the gain values it produces
-  do not change between visits, which is exactly what the next solution exploits.
 
 #### Walkthrough
 
@@ -156,7 +126,10 @@ The best bend happens at the root, where the path descends into both children:
 `2 -> 1 -> 3`. After every node has been tried, `visit` returns and the method
 returns `self.best`, which is `6`: matching the expected Output.
 
-### Post-Order DFS
+#### Solution
+
+The code is the walkthrough's two nested recursions: `visit` enumerates the
+bend points and `max_down` measures each descent.
 
 ```python
 # Definition for a binary tree node.
@@ -170,26 +143,84 @@ from typing import Optional
 
 class Solution:
     def maxPathSum(self, root: Optional[TreeNode]) -> int:
-        self.max_sum = float("-inf")
-
-        def max_gain(node: Optional[TreeNode]) -> int:
+        # Best downward path that starts at node and descends one side only.
+        # Negative branches are dropped by clamping at 0.
+        def max_down(node: Optional[TreeNode]) -> int:
             if not node:
                 return 0
+            return node.val + max(max_down(node.left), max_down(node.right), 0)
 
-            # Best downward path from each child, clamped at 0 so a
-            # negative branch is simply dropped rather than dragging us down
-            left_gain = max(max_gain(node.left), 0)
-            right_gain = max(max_gain(node.right), 0)
+        self.best = float("-inf")
 
-            # A path that bends through this node uses both children
-            self.max_sum = max(self.max_sum, node.val + left_gain + right_gain)
+        # Try every node as the highest point (the "bend") of the path.
+        def visit(node: Optional[TreeNode]) -> None:
+            if not node:
+                return
+            left_gain = max(max_down(node.left), 0)
+            right_gain = max(max_down(node.right), 0)
+            self.best = max(self.best, node.val + left_gain + right_gain)
+            visit(node.left)
+            visit(node.right)
 
-            # But a path returned to the parent can only descend one side
-            return node.val + max(left_gain, right_gain)
-
-        max_gain(root)
-        return self.max_sum
+        visit(root)
+        return self.best
 ```
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n^2)`
+
+`visit` touches all `n` nodes, and at each node `max_down` walks the entire
+subtree below it. In a skewed tree this is `O(n)` work per node, giving
+`O(n^2)` in the worst case.
+
+##### Space Complexity: `O(h)`
+
+Both recursions descend at most to the tree height `h` at once: `O(log n)` for a
+balanced tree and `O(n)` for a skewed one.
+
+#### Key Insights
+
+- Naming the bend point as the path's highest node makes the enumeration
+  concrete: every path is counted exactly once, at its peak.
+- `max_down` already captures the "drop a negative branch" rule by clamping at
+  `0`, the same rule the optimal solution reuses.
+- The waste is purely the repeated `max_down` calls; the gain values it produces
+  do not change between visits, which is exactly what the next solution exploits.
+
+### Post-Order DFS
+
+#### Derivation
+
+The Brute Force wastes its time in one place: `max_down(node)` is recomputed
+for every ancestor of `node`, even though its value never changes. The repair
+is to compute each node's downward gain exactly once and let its parent reuse
+it, which a single
+[post-order traversal](https://en.wikipedia.org/wiki/Tree_traversal) makes
+possible: children finish before their parent, so the parent can combine the
+freshly computed child gains on the spot.
+
+The price of merging the two recursions is keeping two quantities apart. A
+maximum path can take two shapes at any node: it can **bend** through the node,
+descending into both the left and right subtrees, or it can **pass straight
+through**, continuing up to the node's parent on only one side. Only the
+straight shape may be handed upward, because a bent path already uses both
+children. So the recursion returns the best straight (single-side) path while
+a global maximum captures the best bent path seen anywhere:
+
+1. Define `max_gain(node)` to return the largest sum of a downward path that
+   starts at `node` and goes through at most one child. An empty node
+   contributes `0`.
+2. Recurse into both children, clamping each gain with `max(..., 0)`. If a
+   subtree's best contribution is negative, we drop it: a single positive node
+   beats a node plus a negative branch.
+3. The best path that *peaks* at this node is `node.val + left_gain +
+   right_gain`. Compare it against the running global `max_sum`.
+4. Return `node.val + max(left_gain, right_gain)` to the parent, because a path
+   the parent extends can only pass through one of this node's sides.
+
+Tracking the bent sum separately from the returned straight sum is what lets
+the single traversal consider every possible path.
 
 #### Recurrence
 
@@ -235,27 +266,78 @@ extending it through the parent would revisit `v` and no longer be a path. That
 asymmetry is why the recursion returns \(g\) while \(b\) accumulates into a
 separate running maximum.
 
-#### Approach
+#### Walkthrough
 
-A maximum path can take two shapes at any node: it can **bend** through the node,
-descending into both the left and right subtrees, or it can **pass straight
-through**, continuing up to the node's parent on only one side. We handle this by
-having the recursion return the best straight (single-side) path while a global
-maximum captures the best bent path seen anywhere.
+Let us trace the traversal on Example 2: `root = [-10,9,20,null,null,15,7]`,
+where the best path avoids the root entirely. `self.max_sum` starts at `-inf`,
+and post-order means every node's children resolve before the node itself:
 
-1. Define `max_gain(node)` to return the largest sum of a downward path that
-   starts at `node` and goes through at most one child. An empty node
-   contributes `0`.
-2. Recurse into both children, clamping each gain with `max(..., 0)`. If a
-   subtree's best contribution is negative, we drop it: a single positive node
-   beats a node plus a negative branch.
-3. The best path that *peaks* at this node is `node.val + left_gain +
-   right_gain`. Compare it against the running global `max_sum`.
-4. Return `node.val + max(left_gain, right_gain)` to the parent, because a path
-   the parent extends can only pass through one of this node's sides.
+```text
+        -10
+        /  \
+       9    20
+           /  \
+         15    7
 
-Tracking the bent sum separately from the returned straight sum is what lets a
-single [post-order traversal](https://en.wikipedia.org/wiki/Tree_traversal) consider every possible path.
+max_gain(9)      leaf: left_gain = right_gain = 0
+                 bent sum 9 + 0 + 0 = 9          max_sum = 9
+                 returns 9 + max(0, 0) = 9
+max_gain(15)     leaf: bent sum 15               max_sum = 15
+                 returns 15
+max_gain(7)      leaf: bent sum 7                max_sum stays 15
+                 returns 7
+max_gain(20)     left_gain = 15, right_gain = 7
+                 bent sum 20 + 15 + 7 = 42       max_sum = 42
+                 returns 20 + max(15, 7) = 35
+max_gain(-10)    left_gain = max(9, 0) = 9
+                 right_gain = max(35, 0) = 35
+                 bent sum -10 + 9 + 35 = 34      max_sum stays 42
+                 returns -10 + 35 = 25           (discarded by the caller)
+```
+
+The bent sum at `20` uses both of its children (`15 -> 20 -> 7`), which is why
+`42` is recorded in `max_sum` but only the straight sum `35` travels up to the
+root. At the root, even the best bent sum `34` loses to `42`, because the `-10`
+drags it down. The method returns `max_sum = 42`, matching the expected Output
+and the optimal path `15 -> 20 -> 7`.
+
+#### Solution
+
+The code is the single traversal from the walkthrough: each call records its
+bent sum into `max_sum` and returns its straight sum.
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+from typing import Optional
+
+
+class Solution:
+    def maxPathSum(self, root: Optional[TreeNode]) -> int:
+        self.max_sum = float("-inf")
+
+        def max_gain(node: Optional[TreeNode]) -> int:
+            if not node:
+                return 0
+
+            # Best downward path from each child, clamped at 0 so a
+            # negative branch is simply dropped rather than dragging us down
+            left_gain = max(max_gain(node.left), 0)
+            right_gain = max(max_gain(node.right), 0)
+
+            # A path that bends through this node uses both children
+            self.max_sum = max(self.max_sum, node.val + left_gain + right_gain)
+
+            # But a path returned to the parent can only descend one side
+            return node.val + max(left_gain, right_gain)
+
+        max_gain(root)
+        return self.max_sum
+```
 
 #### Time and Space Complexity Analysis
 

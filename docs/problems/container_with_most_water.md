@@ -40,29 +40,50 @@ Return the maximum amount of water a container can store.
 - `2 <= n <= 10^5`
 - `0 <= height[i] <= 10^4`
 
+## Deriving the Solution
+
+Every candidate container is a pair of lines `i < j`, worth
+`(j - i) * min(height[i], height[j])`: the width times the shorter wall. The
+question every solution answers is how many of those pairs actually need to be
+measured.
+
+1. **Start literal.** Measure every pair and keep the best. Correct, but there
+   are `n * (n - 1) / 2` pairs, so it costs `O(n^2)`: see
+   [Brute Force](#brute-force).
+2. **Spot the waste.** Consider the widest pair. Its area is capped by its
+   shorter wall, and any other pair that keeps that shorter wall is narrower
+   with the same cap or a lower one. Every such pair loses to the one just
+   measured, so it never needs to be checked.
+3. **Discard in bulk.** Start at the two ends and repeatedly move the pointer
+   at the shorter wall inward: each move discards all pairs involving that
+   wall at once, leaving only `n - 1` measurements: see
+   [Two Pointers](#two-pointers).
+4. **Skip whole runs.** The same argument condemns any line no taller than the
+   current limiting wall, so the pointer can jump past consecutive runs of
+   them instead of stepping one at a time. Same `O(n)` bound, fewer area
+   computations: see
+   [Two Pointers with Skip Optimization](#two-pointers-with-skip-optimization).
+
 ## Solutions
 
 ### Brute Force
 
-```python
-from typing import List
+#### Derivation
 
+The most direct way to solve this is to consider every possible pair of lines as
+the two walls of the container. For each pair `(i, j)`, the amount of water it
+holds is limited by the shorter of the two lines, multiplied by the horizontal
+distance between them. Nothing more than the objective itself is needed:
+evaluate it everywhere and keep the best value seen.
 
-class Solution:
-    def maxArea(self, height: List[int]) -> int:
-        n = len(height)
-        max_area = 0
+1. Iterate over every starting line `i`.
+2. For each `i`, iterate over every later line `j`.
+3. Compute `width = j - i` and `current_height = min(height[i], height[j])`,
+   and multiply them to get the pair's area.
+4. Track the maximum area seen across all pairs in `max_area` and return it.
 
-        # Try every pair of lines as the container walls
-        for i in range(n):
-            for j in range(i + 1, n):
-                # Water level is capped by the shorter wall
-                width = j - i
-                current_height = min(height[i], height[j])
-                max_area = max(max_area, width * current_height)
-
-        return max_area
-```
+This examines all `n * (n - 1) / 2` pairs, guaranteeing the optimum is found, but
+the quadratic work makes it impractical for large inputs.
 
 #### Formula
 
@@ -97,38 +118,6 @@ which is the source of the \(O(n^2)\) bound. The two-pointer solution below
 discards pairs in bulk instead: moving the taller wall inward can only shrink
 both factors at once, so no pair it skips can beat the one just measured.
 
-#### Approach
-
-The most direct way to solve this is to consider every possible pair of lines as
-the two walls of the container. For each pair `(i, j)`, the amount of water it
-holds is limited by the shorter of the two lines, multiplied by the horizontal
-distance between them.
-
-1. Iterate over every starting line `i`.
-2. For each `i`, iterate over every later line `j`.
-3. Compute the area as `min(height[i], height[j]) * (j - i)`.
-4. Track the maximum area seen across all pairs.
-
-This examines all `n * (n - 1) / 2` pairs, guaranteeing the optimum is found, but
-the quadratic work makes it impractical for large inputs.
-
-#### Time and Space Complexity Analysis
-
-##### Time Complexity: `O(n^2)`
-
-The nested loops evaluate every pair of lines, which grows quadratically with the
-number of lines.
-
-##### Space Complexity: `O(1)`
-
-Only a few scalar variables are used regardless of input size.
-
-#### Key Insights
-
-- Provides a correct baseline by exhaustively checking every container
-- The limiting wall is always the shorter line, so the height term is a `min`
-- The quadratic pair count is what the two-pointer approach later eliminates
-
 #### Walkthrough
 
 Example 1 has 9 lines, which means 36 pairs to check: too many to follow by hand.
@@ -158,7 +147,101 @@ The full Example 1 runs the exact same nested sweep over all 36 pairs of
 `width = 7` and `min(height[1], height[8]) = min(8, 7) = 7`, giving
 `area = 7 * 7 = 49`. So the function returns `49`, matching the expected Output.
 
+#### Solution
+
+The code is the nested sweep from the walkthrough: every pair measured once.
+
+```python
+from typing import List
+
+
+class Solution:
+    def maxArea(self, height: List[int]) -> int:
+        n = len(height)
+        max_area = 0
+
+        # Try every pair of lines as the container walls
+        for i in range(n):
+            for j in range(i + 1, n):
+                # Water level is capped by the shorter wall
+                width = j - i
+                current_height = min(height[i], height[j])
+                max_area = max(max_area, width * current_height)
+
+        return max_area
+```
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n^2)`
+
+The nested loops evaluate every pair of lines, which grows quadratically with the
+number of lines.
+
+##### Space Complexity: `O(1)`
+
+Only a few scalar variables are used regardless of input size.
+
+#### Key Insights
+
+- Provides a correct baseline by exhaustively checking every container
+- The limiting wall is always the shorter line, so the height term is a `min`
+- The quadratic pair count is what the two-pointer approach later eliminates
+
 ### Two Pointers
+
+#### Derivation
+
+The brute force measures every pair even though most pairs cannot possibly win.
+The [two-pointer technique](https://www.geeksforgeeks.org/dsa/two-pointers-technique/)
+turns that observation into a discard rule. Look at the widest pair, the two
+end lines: its area is `width * min(height[left], height[right])`, capped by
+the shorter wall. Now ask what any other pair keeping that shorter wall could
+do. It would be strictly narrower, and its height would still be capped at the
+same shorter wall or lower, so it can never beat the pair just measured. That
+means every remaining pair involving the shorter wall is dead, and the pointer
+standing on it can move inward, writing off all those pairs in one step.
+
+Repeating the argument at each new pair discards the pair space in bulk:
+moving the shorter wall's pointer is always safe, because the pairs it skips
+are provably no better than one already recorded. Only `n - 1` pairs are ever
+measured.
+
+1. Start with `left = 0` and `right = len(height) - 1`, the widest container,
+   and `max_area = 0`.
+2. Measure the current pair: `width = right - left`,
+   `current_height = min(height[left], height[right])`, and
+   `current_area = width * current_height`; fold it into `max_area`.
+3. Move the pointer at the shorter wall inward: `left += 1` when
+   `height[left] < height[right]`, otherwise `right -= 1`.
+4. Repeat until the pointers meet, then return `max_area`.
+
+#### Walkthrough
+
+Let us run the scan by hand on Example 1: `height = [1,8,6,2,5,4,8,3,7]`. Each
+line shows the pair measured and which pointer moves; `h[i]` abbreviates
+`height[i]`:
+
+```text
+left=0 (h=1)  right=8 (h=7)   width=8  min=1  area=8    max_area=8    h[0]<h[8] -> left+=1
+left=1 (h=8)  right=8 (h=7)   width=7  min=7  area=49   max_area=49   h[1]>=h[8] -> right-=1
+left=1 (h=8)  right=7 (h=3)   width=6  min=3  area=18   max_area=49   right-=1
+left=1 (h=8)  right=6 (h=8)   width=5  min=8  area=40   max_area=49   equal heights -> right-=1
+left=1 (h=8)  right=5 (h=4)   width=4  min=4  area=16   max_area=49   right-=1
+left=1 (h=8)  right=4 (h=5)   width=3  min=5  area=15   max_area=49   right-=1
+left=1 (h=8)  right=3 (h=2)   width=2  min=2  area=4    max_area=49   right-=1
+left=1 (h=8)  right=2 (h=6)   width=1  min=6  area=6    max_area=49   right-=1 -> pointers meet
+```
+
+The first move retires the short wall of height `1`, and the very next pair
+(`left = 1`, `right = 8`) is the winner: `7 * min(8, 7) = 49`. Every later
+pair is narrower and never beats it, so the loop ends with `max_area = 49`,
+matching the expected Output for Example 1.
+
+#### Solution
+
+The code is the walkthrough's loop: measure the pair, fold it into `max_area`,
+move the shorter wall inward.
 
 ```python
 from typing import List
@@ -187,24 +270,6 @@ class Solution:
         return max_area
 ```
 
-#### Approach
-
-This problem uses the **[two-pointer technique](https://www.geeksforgeeks.org/dsa/two-pointers-technique/)** with a key optimization insight. The container's water capacity is determined by the shorter of the two lines and the distance between them (area = width × height).
-
-The algorithm works as follows:
-
-1. **Start with maximum width**: Place pointers at the far ends (leftmost and rightmost positions) to begin with the maximum possible width.
-
-2. **Calculate current area**: For each pair of lines, compute the area as `width × min(height[left], height[right])`.
-
-3. **Greedy pointer movement**: Always move the pointer pointing to the shorter line inward. This is the key insight:
-    - Moving the taller line inward can only decrease width while keeping the limiting height the same (or worse)
-    - Moving the shorter line inward decreases width but gives us a chance to find a taller line that might compensate for the lost width
-
-4. **Track maximum**: Keep track of the maximum area encountered during the process.
-
-The greedy choice is optimal because we're systematically exploring all potentially better configurations while pruning impossible ones.
-
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(n)`
@@ -223,6 +288,52 @@ The algorithm uses only a constant amount of extra space for variables (`left`, 
 - **Geometric intuition**: We're finding the rectangle with maximum area under the constraint that one side must touch the x-axis and the other two sides are limited by the given heights
 
 ### Two Pointers with Skip Optimization
+
+#### Derivation
+
+The plain [two-pointer scan](https://www.geeksforgeeks.org/dsa/two-pointers-technique/)
+still advances one line at a time, even through lines its own discard argument
+has already condemned. After measuring a pair, the limiting wall is the shorter
+of the two, `current_height`. Any line on that side whose height is less than
+or equal to `current_height` cannot improve the answer: moving to it shrinks
+the width while the height stays capped at the same value or lower. So instead
+of a single step, the pointer may jump past the entire consecutive run of such
+lines in one inner loop.
+
+1. Measure the pair at `left` and `right`: fold
+   `current_height * (right - left)` into `max_area`, exactly as before.
+2. Identify the shorter side; its height is the limiting `current_height`.
+3. Advance that side's pointer past every consecutive line with height at most
+   `current_height`, guarding each step with `left < right`.
+4. Repeat until the pointers meet, then return `max_area`.
+
+The result is identical to the plain two-pointer scan; the inner skip loops
+simply collapse runs of useless positions into one move.
+
+#### Walkthrough
+
+Let us rerun Example 1, `height = [1,8,6,2,5,4,8,3,7]`, and watch the skip
+loops eat whole runs. Each measurement line is followed by the skip it
+triggers; `h[i]` abbreviates `height[i]`:
+
+```text
+left=0 (h=1)  right=8 (h=7)   cap=1  area=8*1=8    max_area=8
+  skip left:  h[0]=1 <= 1 -> left=1; h[1]=8 > 1 stops the skip
+left=1 (h=8)  right=8 (h=7)   cap=7  area=7*7=49   max_area=49
+  skip right: h[8]=7 <= 7 -> right=7; h[7]=3 <= 7 -> right=6; h[6]=8 > 7 stops
+left=1 (h=8)  right=6 (h=8)   cap=8  area=5*8=40   max_area=49
+  skip right: h[6]=8, h[5]=4, h[4]=5, h[3]=2, h[2]=6 all <= 8 -> right=1
+left=1, right=1 -> pointers meet, loop ends
+```
+
+The second skip discards indices `8` and `7` in one move, and the third
+discards the whole remaining run because no line left of index `6` exceeds the
+cap of `8`. Only 3 areas are computed instead of the plain scan's 8, and the
+function returns `max_area = 49`, matching the expected Output for Example 1.
+
+#### Solution
+
+The code adds the two inner skip loops to the plain scan; nothing else changes.
 
 ```python
 from typing import List
@@ -249,23 +360,6 @@ class Solution:
 
         return max_area
 ```
-
-#### Approach
-
-This is the same [two-pointer scan](https://www.geeksforgeeks.org/dsa/two-pointers-technique/), refined with a pruning observation. After
-processing a pair, the limiting wall is the shorter of the two. Any line on that
-side whose height is less than or equal to the current limiting height cannot
-improve the answer: moving inward reduces the width while the height stays capped
-at the same value or lower.
-
-1. Start with the pointers at the two ends and record the area of that pair.
-2. Identify the shorter wall, which is the current limiting height.
-3. Instead of advancing the shorter side by a single step, skip every consecutive
-   line on that side that is no taller than the limiting height.
-4. Repeat until the pointers meet.
-
-The result is identical to the plain two-pointer scan; the inner skip loops simply
-collapse runs of useless positions in one move.
 
 #### Time and Space Complexity Analysis
 

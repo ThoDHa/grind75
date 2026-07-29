@@ -37,9 +37,56 @@ Given the `root` of a binary tree, imagine yourself standing on the **right side
 - The number of nodes in the tree is in the range `[0, 100]`.
 - `-100 <= Node.val <= 100`
 
+## Deriving the Solution
+
+Standing on the right, the node visible at each level is the rightmost one, so the answer is the last node of every level when the level is read left to right. Every solution below works from that reformulation; they differ only in how much of each level they keep around to find its last node.
+
+1. **Start literal.** Bucket every node's value by depth, then read the last entry of each bucket. One traversal plus one final pass, but it stores entire levels when only a single value per level matters: see [Brute Force](#brute-force).
+2. **Keep only the winner.** The rightmost node of a level is the *first* one a traversal reaches if it always descends the right child before the left, so a right-first DFS can record exactly one node per depth and skip the buckets entirely: see [Recursive DFS](#recursive-dfs).
+3. **Read it off level by level.** A queue drained one level at a time hands over each level in left-to-right order, so the last node dequeued per level is the answer directly, with no ordering argument needed: see [Iterative BFS](#iterative-bfs).
+
 ## Solutions
 
 ### Brute Force
+
+#### Derivation
+
+The most direct reading of the problem is literal: group every node by its level, then the rightmost node of each level is simply the last one written when we walk left to right. This needs no clever ordering trick, just an honest bucket-per-depth collection:
+
+1. Walk the tree with a plain [depth-first traversal](https://en.wikipedia.org/wiki/Depth-first_search), carrying the current `depth`.
+2. The first time a `depth` is reached, append a fresh empty list so `levels[depth]` exists.
+3. Append the current node's value to its depth's bucket, then recurse left child before right child so each bucket fills left to right.
+4. After the walk, take the last value of every bucket: that is the node visible from the right.
+
+#### Walkthrough
+
+Let us trace the Brute Force on Example 1, `root = [1,2,3,null,5,null,4]`, whose tree looks like this:
+
+```
+        1          depth 0
+       / \
+      2   3        depth 1
+       \   \
+        5   4      depth 2
+```
+
+`collect` recurses left child before right child, carrying `depth`. Each call appends the node's value to `levels[depth]`, creating a fresh bucket the first time a depth is reached. The order of calls is therefore `1` (depth 0), then `2` and its right child `5` (depths 1 and 2), then back up to `3` and its right child `4`:
+
+| Step | Node visited (`depth`) | New bucket? | `levels` after the call |
+| --- | --- | --- | --- |
+| 1 | `1` (0) | yes, `levels[0]` | `[[1]]` |
+| 2 | `2` (1) | yes, `levels[1]` | `[[1], [2]]` |
+| 3 | `5` (2) | yes, `levels[2]` | `[[1], [2], [5]]` |
+| 4 | `3` (1) | no | `[[1], [2, 3], [5]]` |
+| 5 | `4` (2) | no | `[[1], [2, 3], [5, 4]]` |
+
+Notice that node `2` has no left child, so after visiting `5` the recursion unwinds back to the root and descends into `3`. Because the walk fills each bucket left to right, `3` lands after `2` in `levels[1]`, and `4` lands after `5` in `levels[2]`.
+
+The final pass takes the last value of every bucket: `levels[0][-1] = 1`, `levels[1][-1] = 3`, `levels[2][-1] = 4`. The function returns `[1, 3, 4]`, which matches the expected Output.
+
+#### Solution
+
+The code is the walkthrough's collection pass followed by the last-of-each-bucket read.
 
 ```python
 # Definition for a binary tree node.
@@ -70,15 +117,6 @@ class Solution:
         return [level[-1] for level in levels]
 ```
 
-#### Approach
-
-The most direct reading of the problem is literal: group every node by its level, then the rightmost node of each level is simply the last one written when we walk left to right. This needs no clever ordering trick, just an honest bucket-per-depth collection.
-
-1. Walk the tree with a plain [depth-first traversal](https://en.wikipedia.org/wiki/Depth-first_search), carrying the current `depth`.
-2. The first time a `depth` is reached, append a fresh empty list so `levels[depth]` exists.
-3. Append the current node's value to its depth's bucket, then recurse left child before right child so each bucket fills left to right.
-4. After the walk, take the last value of every bucket: that is the node visible from the right.
-
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(n)`
@@ -95,33 +133,41 @@ The `levels` structure stores every node's value, so it grows to `O(n)` overall,
 - Requires no ordering trick, which makes it the easiest version to derive but the most wasteful in space.
 - Storing whole levels is redundant when only the last node of each is needed, which the next approaches eliminate.
 
+### Recursive DFS
+
+#### Derivation
+
+The Brute Force stores every value on every level, then throws away all but one per bucket. The repair comes from asking which single node per level to keep, and how to recognize it without seeing the whole level. The answer: if a [depth-first traversal](https://en.wikipedia.org/wiki/Depth-first_search) always explores the right subtree before the left, then the first node it reaches at any depth is the rightmost node on that level, so recording only the first arrival per depth suffices:
+
+1. Track the current `depth`, starting at `0` for the root.
+2. When `depth == len(result)`, no node has been recorded for this level yet, so the current node is the first (and therefore rightmost) one seen there. Append its value.
+3. Recurse into the right child first, then the left child, both at `depth + 1`.
+
+Because the right branch is always visited before the left, deeper-right nodes are recorded ahead of any left node at the same depth. The `depth == len(result)` guard ensures only that first node per level is captured, which is exactly the right side view.
+
 #### Walkthrough
 
-Let us trace the Brute Force on Example 1, `root = [1,2,3,null,5,null,4]`, whose tree looks like this:
+Let us run the right-first traversal on Example 1, `root = [1,2,3,null,5,null,4]`. Each line shows one `visit` call in the order the recursion makes them, whether the guard fires, and `result` afterward:
 
-```
+```text
         1          depth 0
        / \
       2   3        depth 1
        \   \
         5   4      depth 2
+
+visit(1, depth=0)    depth 0 == len(result) = 0 -> record 1    result = [1]
+visit(3, depth=1)    depth 1 == len(result) = 1 -> record 3    result = [1, 3]
+visit(4, depth=2)    depth 2 == len(result) = 2 -> record 4    result = [1, 3, 4]
+visit(2, depth=1)    depth 1 < len(result) = 3 -> skip         result = [1, 3, 4]
+visit(5, depth=2)    depth 2 < len(result) = 3 -> skip         result = [1, 3, 4]
 ```
 
-`collect` recurses left child before right child, carrying `depth`. Each call appends the node's value to `levels[depth]`, creating a fresh bucket the first time a depth is reached. The order of calls is therefore `1` (depth 0), then `2` and its right child `5` (depths 1 and 2), then back up to `3` and its right child `4`:
+From the root, the traversal dives right first: `1`, then `3`, then `3`'s right child `4`. Each arrives at a brand-new depth, so all three are recorded. Only then does the recursion unwind and descend the left side: `2` and its right child `5` reach depths `1` and `2` after those levels were already claimed by `3` and `4`, so the guard skips them. The traversal ends with `result = [1, 3, 4]`, matching the expected Output.
 
-| Step | Node visited (`depth`) | New bucket? | `levels` after the call |
-| --- | --- | --- | --- |
-| 1 | `1` (0) | yes, `levels[0]` | `[[1]]` |
-| 2 | `2` (1) | yes, `levels[1]` | `[[1], [2]]` |
-| 3 | `5` (2) | yes, `levels[2]` | `[[1], [2], [5]]` |
-| 4 | `3` (1) | no | `[[1], [2, 3], [5]]` |
-| 5 | `4` (2) | no | `[[1], [2, 3], [5, 4]]` |
+#### Solution
 
-Notice that node `2` has no left child, so after visiting `5` the recursion unwinds back to the root and descends into `3`. Because the walk fills each bucket left to right, `3` lands after `2` in `levels[1]`, and `4` lands after `5` in `levels[2]`.
-
-The final pass takes the last value of every bucket: `levels[0][-1] = 1`, `levels[1][-1] = 3`, `levels[2][-1] = 4`. The function returns `[1, 3, 4]`, which matches the expected Output.
-
-### Recursive DFS
+The code is the right-first walk from the trace, with the `depth == len(result)` guard doing the recording.
 
 ```python
 # Definition for a binary tree node.
@@ -151,16 +197,6 @@ class Solution:
         return result
 ```
 
-#### Approach
-
-If a [depth-first traversal](https://en.wikipedia.org/wiki/Depth-first_search) always explores the right subtree before the left, then the first node it reaches at any depth is the rightmost node on that level:
-
-1. Track the current `depth`, starting at `0` for the root.
-2. When `depth == len(result)`, no node has been recorded for this level yet, so the current node is the first (and therefore rightmost) one seen there. Append its value.
-3. Recurse into the right child first, then the left child, both at `depth + 1`.
-
-Because the right branch is always visited before the left, deeper-right nodes are recorded ahead of any left node at the same depth. The `depth == len(result)` guard ensures only that first node per level is captured, which is exactly the right side view.
-
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(n)`
@@ -179,6 +215,46 @@ No queue is used; the only auxiliary space is the recursion stack, which reaches
 - The mirror version (visit left before right with the same guard) yields the left side view.
 
 ### Iterative BFS
+
+#### Derivation
+
+The right-first DFS rests on a subtle ordering argument. Asking instead for a traversal in which "last node of each level" is directly visible leads to [breadth-first search](https://en.wikipedia.org/wiki/Breadth-first_search): process the tree one level at a time, and the node a viewer on the right sees is simply the final one dequeued on each level:
+
+1. Return an empty list immediately when the tree is empty.
+2. Seed a queue with `root` and process the tree level by level.
+3. Before draining a level, record its size (`level_size`) so we know how many nodes belong to the current level.
+4. Dequeue exactly `level_size` nodes; the final one (index `level_size - 1`) is the rightmost node visible from the right.
+5. Enqueue each node's left child then right child so the next level stays ordered left to right.
+
+Because children are enqueued left before right, the last node dequeued on every level is guaranteed to be the rightmost, which is precisely the node a viewer on the right would see.
+
+#### Walkthrough
+
+Let us run the queue on Example 1, `root = [1,2,3,null,5,null,4]`. Each round snapshots `level_size`, dequeues that many nodes, and records only the one at index `level_size - 1`:
+
+```text
+        1          level 0
+       / \
+      2   3        level 1
+       \   \
+        5   4      level 2
+
+queue = [1]                                                 seeded with root
+level_size = 1   i=0  pop 1   last index -> record 1    push 2, 3    result = [1]
+                 queue = [2, 3]
+level_size = 2   i=0  pop 2                             push 5
+                 i=1  pop 3   last index -> record 3    push 4       result = [1, 3]
+                 queue = [5, 4]
+level_size = 2   i=0  pop 5
+                 i=1  pop 4   last index -> record 4                 result = [1, 3, 4]
+queue empty -> loop ends
+```
+
+On the middle level, `2` is dequeued first and passed over; only `3`, sitting at index `level_size - 1 = 1`, is recorded. Its child `4` is enqueued after `5`, so on the bottom level `4` is again the last one out. The loop ends with `result = [1, 3, 4]`, matching the expected Output.
+
+#### Solution
+
+The code is the walkthrough's loop written down: snapshot `level_size`, drain the level, and keep the value at index `level_size - 1`.
 
 ```python
 # Definition for a binary tree node.
@@ -212,18 +288,6 @@ class Solution:
                     queue.append(node.right)
         return result
 ```
-
-#### Approach
-
-The right side view is exactly the last node of each level when scanning left to right. A [breadth-first traversal](https://en.wikipedia.org/wiki/Breadth-first_search) that processes the tree one level at a time gives us that node directly:
-
-1. Return an empty list immediately when the tree is empty.
-2. Seed a queue with `root` and process the tree level by level.
-3. Before draining a level, record its size (`level_size`) so we know how many nodes belong to the current level.
-4. Dequeue exactly `level_size` nodes; the final one (index `level_size - 1`) is the rightmost node visible from the right.
-5. Enqueue each node's left child then right child so the next level stays ordered left to right.
-
-Because children are enqueued left before right, the last node dequeued on every level is guaranteed to be the rightmost, which is precisely the node a viewer on the right would see.
 
 #### Time and Space Complexity Analysis
 

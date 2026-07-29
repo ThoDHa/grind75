@@ -39,9 +39,64 @@ You must write an algorithm with `O(log n)` runtime complexity.
 - All the integers in `nums` are unique.
 - `nums` is sorted in ascending order.
 
+## Deriving the Solution
+
+The array is sorted, and sortedness turns one comparison into a verdict about
+many elements: if `nums[mid] < target`, then everything at or left of `mid` is
+also too small. Every solution past the first is built on discarding half the
+candidates per comparison.
+
+1. **Start literal.** Ignore the sorted order and check every element in turn.
+   Correct on any array, but `O(n)`, which violates the problem's required
+   `O(log n)` bound: see [Linear Scan](#linear-scan).
+2. **Use what the problem hands you.** One comparison against the middle
+   element rules out an entire half, so keep an interval of surviving
+   candidates and halve it each round: `O(log n)` with two index variables,
+   the halving written as a loop: see
+   [Iterative Binary Search](#iterative-binary-search), or as a recursion
+   where each call owns one subinterval: see
+   [Recursive Binary Search](#recursive-binary-search).
+3. **Let the library do the halving.** Python's `bisect` module performs the
+   same binary search internally; one insertion-point call plus a presence
+   check finishes the job, which is why it ranks after the from-scratch
+   forms: see [Library Bisect](#library-bisect).
+
 ## Solutions
 
 ### Linear Scan
+
+#### Derivation
+
+Before exploiting the sorted order, the most direct idea is a [linear search](https://en.wikipedia.org/wiki/Linear_search): look at every element in turn and report the first index that matches `target`. This works on any array, sorted or not, and needs no insight beyond a single pass:
+
+1. Iterate over the indices `0` to `len(nums) - 1`.
+2. If `nums[i]` equals `target`, return `i` immediately.
+3. If the loop finishes without a match, `target` is absent, so return `-1`.
+
+Because the array is scanned left to right, the first index returned is the only index for any value (the constraints guarantee unique elements).
+
+#### Walkthrough
+
+Trace the scan on Example 1: `nums = [-1, 0, 3, 5, 9, 12]`, `target = 9`. The
+loop compares each element against `target` in index order:
+
+```text
+i=0   nums[0]=-1   -1 != 9, keep going
+i=1   nums[1]=0     0 != 9, keep going
+i=2   nums[2]=3     3 != 9, keep going
+i=3   nums[3]=5     5 != 9, keep going
+i=4   nums[4]=9     9 == 9 -> return 4
+```
+
+The match at `i = 4` returns immediately, giving `4`, the expected Output of
+Example 1. Note that the scan walked right past the sorted structure: the
+comparisons at `i = 0..3` each eliminated only a single element, and an absent
+target (Example 2) would force all six comparisons before returning `-1`.
+
+#### Solution
+
+The code is the walkthrough's loop verbatim: compare, return on match, `-1`
+after the loop.
 
 ```python
 from typing import List
@@ -54,16 +109,6 @@ class Solution:
                 return i
         return -1
 ```
-
-#### Approach
-
-Before exploiting the sorted order, the most direct idea is a [linear search](https://en.wikipedia.org/wiki/Linear_search): look at every element in turn and report the first index that matches `target`. This works on any array, sorted or not, and needs no insight beyond a single pass:
-
-1. Iterate over the indices `0` to `len(nums) - 1`.
-2. If `nums[i]` equals `target`, return `i` immediately.
-3. If the loop finishes without a match, `target` is absent, so return `-1`.
-
-Because the array is scanned left to right, the first index returned is the only index for any value (the constraints guarantee unique elements).
 
 #### Time and Space Complexity Analysis
 
@@ -82,48 +127,27 @@ Because the array is scanned left to right, the first index returned is the only
 - It is correct for every input but wastes the structure the problem hands us, motivating the logarithmic binary search below.
 - The `O(n)` runtime violates the problem's stated requirement, so it serves only as a baseline rather than an accepted answer.
 
-#### Walkthrough
-
-The Linear Scan above is a trivial left-to-right loop, so watching it run teaches nothing about the technique this problem is really about. Instead this walkthrough traces the `Iterative Binary Search` below, the first solution that actually exploits the sorted order.
-
-Using Example 1: `nums = [-1, 0, 3, 5, 9, 12]` and `target = 9`. The search keeps an inclusive interval `[left, right]`, looks at the middle element each round, and throws away the half that cannot contain `9`.
-
-The interval starts at `left = 0`, `right = 5`. Each row shows the state at the top of one loop iteration, after `mid` is computed:
-
-| Iteration | `left` | `right` | `mid` | `nums[mid]` | Comparison to `target = 9` | Action |
-|-----------|--------|---------|-------|-------------|-----------------------------|--------|
-| 1 | `0` | `5` | `2` | `3` | `3 < 9` | answer is to the right: `left = mid + 1 = 3` |
-| 2 | `3` | `5` | `4` | `9` | `9 == 9` | match found: `return mid = 4` |
-
-Step by step:
-
-1. Iteration 1: `mid = 0 + (5 - 0) // 2 = 2`, so `nums[2] = 3`. Since `3 < 9`, everything from index `0` to `2` is too small, so `left` jumps to `3`. The interval shrinks to `[3, 5]`.
-2. Iteration 2: `mid = 3 + (5 - 3) // 2 = 4`, so `nums[4] = 9`. This equals `target`, so the function returns `4` immediately.
-
-The returned value is `4`, which matches the expected Output of Example 1. Notice it took only two comparisons instead of the five a linear scan would have needed to reach index `4`: that is the halving that makes binary search `O(log n)`.
-
 ### Iterative Binary Search
 
-```python
-from typing import List
+#### Derivation
 
+The Linear Scan buys each discarded candidate with one comparison, never using
+the fact that `nums` is sorted. Sortedness is exactly what [binary search](https://en.wikipedia.org/wiki/Binary_search_algorithm)
+exploits: a single comparison against the middle element reveals which half of
+the remaining range can still contain the target, so half the candidates
+vanish per comparison instead of one. Maintaining an inclusive search interval
+`[left, right]` and repeatedly halving it is the most direct way to express
+this:
 
-class Solution:
-    def search(self, nums: List[int], target: int) -> int:
-        left, right = 0, len(nums) - 1
+1. Initialize `left` to `0` and `right` to `len(nums) - 1`, bounding the full array.
+2. While the interval is non-empty (`left <= right`):
+   - Compute the middle index as `left + (right - left) // 2`.
+   - If `nums[mid]` equals `target`, return `mid`.
+   - If `nums[mid]` is less than `target`, the answer must lie to the right, so set `left = mid + 1`.
+   - Otherwise the answer lies to the left, so set `right = mid - 1`.
+3. When the loop exits, the interval is empty and the target was never found, so return `-1`.
 
-        while left <= right:
-            mid = left + (right - left) // 2
-
-            if nums[mid] == target:
-                return mid
-            elif nums[mid] < target:
-                left = mid + 1
-            else:
-                right = mid - 1
-
-        return -1
-```
+Each iteration discards half of the candidates, so the interval shrinks to a single element in logarithmic time.
 
 #### Invariant and Bound
 
@@ -176,19 +200,49 @@ but in a fixed-width integer type the second form can overflow when `left` and
 are arbitrary-precision so it cannot overflow here, but the habit carries to
 languages where it can.
 
-#### Approach
+#### Walkthrough
 
-The array is sorted, so [binary search](https://en.wikipedia.org/wiki/Binary_search_algorithm) applies: a single comparison against the middle element reveals which half of the remaining range can still contain the target. Maintaining an inclusive search interval `[left, right]` and repeatedly halving it is the most direct way to express this:
+Using Example 1: `nums = [-1, 0, 3, 5, 9, 12]` and `target = 9`. The search keeps an inclusive interval `[left, right]`, looks at the middle element each round, and throws away the half that cannot contain `9`.
 
-1. Initialize `left` to `0` and `right` to `len(nums) - 1`, bounding the full array.
-2. While the interval is non-empty (`left <= right`):
-   - Compute the middle index as `left + (right - left) // 2`.
-   - If `nums[mid]` equals `target`, return `mid`.
-   - If `nums[mid]` is less than `target`, the answer must lie to the right, so set `left = mid + 1`.
-   - Otherwise the answer lies to the left, so set `right = mid - 1`.
-3. When the loop exits, the interval is empty and the target was never found, so return `-1`.
+The interval starts at `left = 0`, `right = 5`. Each row shows the state at the top of one loop iteration, after `mid` is computed:
 
-Each iteration discards half of the candidates, so the interval shrinks to a single element in logarithmic time.
+| Iteration | `left` | `right` | `mid` | `nums[mid]` | Comparison to `target = 9` | Action |
+|-----------|--------|---------|-------|-------------|-----------------------------|--------|
+| 1 | `0` | `5` | `2` | `3` | `3 < 9` | answer is to the right: `left = mid + 1 = 3` |
+| 2 | `3` | `5` | `4` | `9` | `9 == 9` | match found: `return mid = 4` |
+
+Step by step:
+
+1. Iteration 1: `mid = 0 + (5 - 0) // 2 = 2`, so `nums[2] = 3`. Since `3 < 9`, everything from index `0` to `2` is too small, so `left` jumps to `3`. The interval shrinks to `[3, 5]`.
+2. Iteration 2: `mid = 3 + (5 - 3) // 2 = 4`, so `nums[4] = 9`. This equals `target`, so the function returns `4` immediately.
+
+The returned value is `4`, which matches the expected Output of Example 1. Notice it took only two comparisons instead of the five a linear scan would have needed to reach index `4`: that is the halving that makes binary search `O(log n)`.
+
+#### Solution
+
+The code is the walkthrough's interval bookkeeping: `left` and `right` bound
+the candidates, `mid` decides which half survives.
+
+```python
+from typing import List
+
+
+class Solution:
+    def search(self, nums: List[int], target: int) -> int:
+        left, right = 0, len(nums) - 1
+
+        while left <= right:
+            mid = left + (right - left) // 2
+
+            if nums[mid] == target:
+                return mid
+            elif nums[mid] < target:
+                left = mid + 1
+            else:
+                right = mid - 1
+
+        return -1
+```
 
 #### Time and Space Complexity Analysis
 
@@ -210,6 +264,44 @@ Each iteration discards half of the candidates, so the interval shrinks to a sin
 - The constant space makes this the standard production form of binary search.
 
 ### Recursive Binary Search
+
+#### Derivation
+
+This is the same halving strategy expressed through [recursion](https://en.wikipedia.org/wiki/Recursion_(computer_science)), where each call owns one subinterval and delegates the smaller subinterval to the next call:
+
+1. The public `search` method seeds the recursion with the full range `[0, len(nums) - 1]`.
+2. The helper `_binary_search` handles one interval at a time:
+   - Base case: if `left > right`, the interval is empty and the target is absent, so return `-1`.
+   - Compute `mid` and compare `nums[mid]` with `target`.
+   - If they are equal, return `mid`.
+   - If `nums[mid] < target`, recurse on the right half `[mid + 1, right]`.
+   - Otherwise recurse on the left half `[left, mid - 1]`.
+
+Because each call passes a strictly smaller interval, the recursion is guaranteed to terminate.
+
+#### Walkthrough
+
+Example 1 finds its target before the interval ever empties, so it never
+touches the base case. Example 2, `nums = [-1, 0, 3, 5, 9, 12]` with
+`target = 2` (absent), is the official example that drives the recursion all
+the way down to `left > right`. The trace indents one level per call:
+
+```text
+_binary_search(left=0, right=5)         mid=2, nums[2]=3   3 > 2 -> left half
+  _binary_search(left=0, right=1)       mid=0, nums[0]=-1  -1 < 2 -> right half
+    _binary_search(left=1, right=1)     mid=1, nums[1]=0    0 < 2 -> right half
+      _binary_search(left=2, right=1)   left > right -> return -1
+```
+
+Each call shrinks the interval: `[0, 5]` to `[0, 1]` to `[1, 1]` to the empty
+`[2, 1]`. The base case returns `-1`, and because every caller returns its
+recursive call's value unchanged, that `-1` passes straight back up the chain.
+The function returns `-1`, matching the expected Output of Example 2.
+
+#### Solution
+
+The code is the walkthrough's call chain: one interval per call, base case
+first.
 
 ```python
 from typing import List
@@ -235,20 +327,6 @@ class Solution:
             return self._binary_search(nums, target, left, mid - 1)
 ```
 
-#### Approach
-
-This is the same halving strategy expressed through [recursion](https://en.wikipedia.org/wiki/Recursion_(computer_science)), where each call owns one subinterval and delegates the smaller subinterval to the next call:
-
-1. The public `search` method seeds the recursion with the full range `[0, len(nums) - 1]`.
-2. The helper `_binary_search` handles one interval at a time:
-   - Base case: if `left > right`, the interval is empty and the target is absent, so return `-1`.
-   - Compute `mid` and compare `nums[mid]` with `target`.
-   - If they are equal, return `mid`.
-   - If `nums[mid] < target`, recurse on the right half `[mid + 1, right]`.
-   - Otherwise recurse on the left half `[left, mid - 1]`.
-
-Because each call passes a strictly smaller interval, the recursion is guaranteed to terminate.
-
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(log n)`
@@ -269,6 +347,46 @@ Because each call passes a strictly smaller interval, the recursion is guarantee
 
 ### Library Bisect
 
+#### Derivation
+
+Python's [`bisect`](https://docs.python.org/3/library/bisect.html) module performs binary search over a sorted sequence, so the work reduces to a single library call plus a membership check:
+
+1. `bisect.bisect_left(nums, target)` returns the leftmost index where `target` could be inserted to keep `nums` sorted.
+2. If that index is within bounds and `nums[index]` equals `target`, the target is present, so return `index`.
+3. Otherwise `target` is not in the array, so return `-1`.
+
+The bounds and equality check are required because `bisect_left` returns an insertion point even when the target is absent.
+
+#### Walkthrough
+
+The library call is the whole technique here, so the trace follows what
+`bisect_left` does internally and then the presence check that converts its
+insertion point into an answer. Use Example 2: `nums = [-1, 0, 3, 5, 9, 12]`,
+`target = 2` (absent), which exercises both the insertion-point semantics and
+the `-1` conversion.
+
+Internally `bisect_left` halves a half-open interval `[lo, hi)`, moving `lo`
+past elements smaller than `target` and pulling `hi` down onto everything else:
+
+```text
+lo=0, hi=6   mid=3, nums[3]=5    5 < 2 is false -> hi=3
+lo=0, hi=3   mid=1, nums[1]=0    0 < 2 is true  -> lo=2
+lo=2, hi=3   mid=2, nums[2]=3    3 < 2 is false -> hi=2
+lo=2, hi=2   lo == hi -> return 2
+```
+
+So `index = 2`: inserting `2` between `0` and `3` would keep the array sorted.
+Now the presence check: `index < len(nums)` holds (`2 < 6`), but
+`nums[index] = 3` does not equal `target = 2`, so the target is absent and the
+method returns `-1`, matching the expected Output of Example 2. On Example 1
+the same call returns `4` with `nums[4] = 9` equal to the target, so `4` is
+returned directly.
+
+#### Solution
+
+The code is one `bisect_left` call followed by the walkthrough's presence
+check.
+
 ```python
 import bisect
 from typing import List
@@ -281,16 +399,6 @@ class Solution:
             return index
         return -1
 ```
-
-#### Approach
-
-Python's [`bisect`](https://docs.python.org/3/library/bisect.html) module performs binary search over a sorted sequence, so the work reduces to a single library call plus a membership check:
-
-1. `bisect.bisect_left(nums, target)` returns the leftmost index where `target` could be inserted to keep `nums` sorted.
-2. If that index is within bounds and `nums[index]` equals `target`, the target is present, so return `index`.
-3. Otherwise `target` is not in the array, so return `-1`.
-
-The bounds and equality check are required because `bisect_left` returns an insertion point even when the target is absent.
 
 #### Time and Space Complexity Analysis
 

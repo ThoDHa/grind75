@@ -30,9 +30,64 @@ Given two binary strings `a` and `b`, return their sum as a binary string.
 - `a` and `b` consist only of `'0'` or `'1'` characters.
 - Each string does not contain leading zeros except for the zero itself.
 
+## Deriving the Solution
+
+Binary addition is column addition in base two: at each position the two bits plus
+the incoming carry form a `total`, whose parity (`total % 2`) is the output bit and
+whose half (`total // 2`) is the carry passed leftward. Every solution below is
+that one rule in different clothing.
+
+1. **Start literal.** Walk both strings from their last characters with indices
+   `i` and `j`, apply the column rule, collect bits in a list, and reverse once at
+   the end. This is already linear, `O(max(n, m))`, the best any approach here
+   achieves: see [Brute Force](#brute-force).
+2. **Same loop, costlier bookkeeping.** Two common variants keep the identical
+   column rule but build the result by prepending to a string, which copies the
+   whole result on every iteration and silently turns the loop quadratic: padding
+   the inputs to equal length first in
+   [Bit-by-bit Computation](#bit-by-bit-computation), or tracking indices without
+   padding in [Single-Loop Iterative Approach](#single-loop-iterative-approach).
+3. **Push the carry into bitwise operators.** Treating each whole number at once,
+   XOR is the carry-free sum and the shifted AND is exactly the carries; folding
+   the carry back in until it vanishes adds without ever using `+`: see
+   [Bit Manipulation](#bit-manipulation).
+4. **Delegate everything.** Python can parse, add, and format on its own:
+   `int(a, 2) + int(b, 2)` followed by `bin` hands the entire technique to the
+   library: see [Using Built-in Functions](#using-built-in-functions).
+
 ## Solutions
 
 ### Brute Force
+
+#### Derivation
+
+The most intuitive idea is to mimic the column addition we learned for decimal numbers, only in base two. Starting from the rightmost bit of each string, we add the two digits plus any carry from the column to the right, write down the parity bit, and pass the carry leftward.
+
+1. Set two indices `i` and `j` at the last character of `a` and `b`, and a `carry` of `0`.
+2. Loop while either index is still in range or a carry remains. Each pass compares characters to `"1"` directly to add `0` or `1`, never converting the whole string to a number.
+3. The current bit is `total % 2` and the next carry is `total // 2`, since `total` is at most `3`.
+4. Bits are appended least-significant first, so reverse the collected list and join it into the result string.
+
+#### Walkthrough
+
+Let us watch the brute force run on Example 1: `a = "11"`, `b = "1"`, expected Output `"100"`.
+
+We start with `i = 1` (last index of `a`), `j = 0` (last index of `b`), `carry = 0`, and an empty `result = []`. Each pass adds the in-range bits plus the carry into `total`, appends `total % 2` as the new bit, and keeps `total // 2` as the next `carry`.
+
+| Step | bit `a[i]` | bit `b[j]` | `carry` in | `total` | appended bit | `carry` out | `result` after |
+|------|------------|------------|------------|---------|--------------|-------------|----------------|
+| 1 | `a[1]` = `1` | `b[0]` = `1` | `0` | `2` | `0` | `1` | `["0"]` |
+| 2 | `a[0]` = `1` | none (`j` < 0) | `1` | `2` | `0` | `1` | `["0", "0"]` |
+| 3 | none (`i` < 0) | none (`j` < 0) | `1` | `1` | `1` | `0` | `["0", "0", "1"]` |
+
+After step 1, `i` drops to `0` and `j` drops to `-1`. After step 2, `i` drops to `-1`. By step 3 both indices are out of range, but `carry` is still `1`, so the loop runs once more to flush it: `total = 1`, which writes the final `1` bit and clears the carry to `0`. Now `i < 0`, `j < 0`, and `carry == 0`, so the loop stops.
+
+The bits were collected least-significant first, so `result` holds `["0", "0", "1"]`. Reversing and joining gives `"100"`, which matches the expected Output `"100"`.
+
+#### Solution
+
+The code is the column loop from the walkthrough: one pass from the least
+significant bits, with the loop condition flushing any final carry.
 
 ```python
 class Solution:
@@ -59,15 +114,6 @@ class Solution:
         return "".join(reversed(result))
 ```
 
-#### Approach
-
-The most intuitive idea is to mimic the column addition we learned for decimal numbers, only in base two. Starting from the rightmost bit of each string, we add the two digits plus any carry from the column to the right, write down the parity bit, and pass the carry leftward.
-
-1. Set two indices `i` and `j` at the last character of `a` and `b`, and a `carry` of `0`.
-2. Loop while either index is still in range or a carry remains. Each pass compares characters to `"1"` directly to add `0` or `1`, never converting the whole string to a number.
-3. The current bit is `total % 2` and the next carry is `total // 2`, since `total` is at most `3`.
-4. Bits are appended least-significant first, so reverse the collected list and join it into the result string.
-
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(max(n, m))`
@@ -84,23 +130,46 @@ The result list holds at most `max(n, m) + 1` bits before it is joined into the 
 - Compares characters directly against `"1"`, so it never leans on `int(s, 2)` or `bin()` to do the arithmetic.
 - Appending to a list and reversing once at the end avoids the quadratic cost of repeated string prepending.
 
+### Bit-by-bit Computation
+
+#### Derivation
+
+The brute force handles unequal lengths by testing each index inside the loop.
+This variant asks: what if the strings had equal lengths to begin with? Padding
+the shorter one with leading zeros makes every column hold two real bits, so the
+loop body needs no in-range tests and can walk a single index. The column rule is
+unchanged; what changes is the bookkeeping, and for the worse: each bit is
+prepended to the `result` string, which copies everything built so far on every
+iteration.
+
+1. Pad `a` and `b` with leading zeros (`zfill`) to the longer length.
+2. Walk `i` from the last index down to `0`; each column's `bit_sum` is
+   `int(a[i]) + int(b[i]) + carry`.
+3. Prepend `str(bit_sum % 2)` to `result` and keep `carry = bit_sum // 2`.
+4. After the loop, prepend a final `'1'` if a carry remains.
+
 #### Walkthrough
 
-Let us watch the brute force run on Example 1: `a = "11"`, `b = "1"`, expected Output `"100"`.
+Let us run this variant on Example 1: `a = "11"`, `b = "1"`, expected Output
+`"100"`. The padding step brings both strings to length `2`, so `b` becomes
+`"01"`, and a single index `i` walks the columns right to left:
 
-We start with `i = 1` (last index of `a`), `j = 0` (last index of `b`), `carry = 0`, and an empty `result = []`. Each pass adds the in-range bits plus the carry into `total`, appends `total % 2` as the new bit, and keeps `total // 2` as the next `carry`.
+```text
+padding   a = "11"   b = "01"                     b gains one leading zero
+i = 1     bit_sum = 1 + 1 + 0 = 2                 result = "0"    carry = 1
+i = 0     bit_sum = 1 + 0 + 1 = 2                 result = "00"   carry = 1
+after     carry = 1 still set                     result = "100"
+```
 
-| Step | bit `a[i]` | bit `b[j]` | `carry` in | `total` | appended bit | `carry` out | `result` after |
-|------|------------|------------|------------|---------|--------------|-------------|----------------|
-| 1 | `a[1]` = `1` | `b[0]` = `1` | `0` | `2` | `0` | `1` | `["0"]` |
-| 2 | `a[0]` = `1` | none (`j` < 0) | `1` | `2` | `0` | `1` | `["0", "0"]` |
-| 3 | none (`i` < 0) | none (`j` < 0) | `1` | `1` | `1` | `0` | `["0", "0", "1"]` |
+The loop ends with `carry = 1`, so the final `if carry` prepends the leading
+`'1'`. Note that each of those `result` updates copied the whole string built so
+far, which is the hidden quadratic cost. The returned string is `"100"`, matching
+the expected Output.
 
-After step 1, `i` drops to `0` and `j` drops to `-1`. After step 2, `i` drops to `-1`. By step 3 both indices are out of range, but `carry` is still `1`, so the loop runs once more to flush it: `total = 1`, which writes the final `1` bit and clears the carry to `0`. Now `i < 0`, `j < 0`, and `carry == 0`, so the loop stops.
+#### Solution
 
-The bits were collected least-significant first, so `result` holds `["0", "0", "1"]`. Reversing and joining gives `"100"`, which matches the expected Output `"100"`.
-
-### Bit-by-bit Computation
+The code is the padded column loop from the walkthrough, prepending each bit to
+`result`.
 
 ```python
 class Solution:
@@ -125,10 +194,6 @@ class Solution:
         return result
 ```
 
-#### Approach
-
-This solution simulates the binary addition process we do by hand, going from right to left. For each position, we add the corresponding bits from both numbers and the carry from the previous step. The result bit is the sum modulo 2, and the new carry is the integer division of the sum by 2.
-
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(max(n, m)^2)`
@@ -146,6 +211,47 @@ We create a new string to store the result, which has at most max(n, m) + 1 bits
 - Uses integer division to determine the carry bit
 
 ### Single-Loop Iterative Approach
+
+#### Derivation
+
+The padding variant spends a preliminary pass equalizing the strings and still
+needs a special case for the final carry. This version asks whether one loop can
+absorb both: keep separate indices `i` and `j`, read a bit as `0` once its index
+runs off the string, and let the loop condition `i >= 0 or j >= 0 or carry` run
+one extra pass to flush a trailing carry. The column rule is again unchanged, and
+so is the flaw it inherits: the result is still built by string prepending, so
+the loop remains quadratic.
+
+1. Start `i` and `j` at the last characters of `a` and `b`, with `carry = 0`.
+2. Loop while either index is in range or a carry remains; read `bit_a` and
+   `bit_b` as `0` when their index is out of range.
+3. Compute `current_sum = bit_a + bit_b + carry`, prepend `str(current_sum % 2)`
+   to `result`, and set `carry = current_sum // 2`.
+4. Decrement both indices; when both are exhausted, the carry term of the loop
+   condition performs the final flush with no special case.
+
+#### Walkthrough
+
+Let us run this version on Example 2: `a = "1010"`, `b = "1011"`, expected Output
+`"10101"`. Both indices start at `3` and step left together:
+
+```text
+i=3  j=3    bit_a=0  bit_b=1  carry=0   current_sum=1   result = "1"      carry = 0
+i=2  j=2    bit_a=1  bit_b=1  carry=0   current_sum=2   result = "01"     carry = 1
+i=1  j=1    bit_a=0  bit_b=0  carry=1   current_sum=1   result = "101"    carry = 0
+i=0  j=0    bit_a=1  bit_b=1  carry=0   current_sum=2   result = "0101"   carry = 1
+i=-1 j=-1   bit_a=0  bit_b=0  carry=1   current_sum=1   result = "10101"  carry = 0
+```
+
+After the fourth pass both indices are exhausted, but `carry = 1` keeps the loop
+alive for one more pass, which reads both bits as `0` and writes the leading
+`1`. With `i < 0`, `j < 0`, and `carry == 0` the loop stops, returning
+`"10101"`, which matches the expected Output for Example 2.
+
+#### Solution
+
+The code is the trace written down: out-of-range bits read as `0`, and the carry
+keeps the loop alive for the final flush.
 
 ```python
 class Solution:
@@ -172,10 +278,6 @@ class Solution:
         return result
 ```
 
-#### Approach
-
-This iterative solution explicitly tracks indices for both strings and processes them in a single loop. It handles strings of different lengths and carries without padding or multiple loops.
-
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(max(n, m)^2)`
@@ -194,25 +296,29 @@ The space needed for the result string, which is at most max(n, m) + 1 bits.
 
 ### Bit Manipulation
 
-```python
-class Solution:
-    def addBinary(self, a: str, b: str) -> str:
-        # Parse the inputs into integers for the bitwise work
-        x = int(a, 2)
-        y = int(b, 2)
+#### Derivation
 
-        # Add using only bitwise operations: XOR is the sum ignoring carries,
-        # and (x & y) << 1 is the carry that must be propagated. Repeat until
-        # there is no carry left to fold back in.
-        while y:
-            sum_without_carry = x ^ y
-            carry = (x & y) << 1
-            x = sum_without_carry
-            y = carry
+Every version so far processes one column per iteration. This approach asks
+whether the columns can all be processed at once, using the classic
+carry-propagation loop built entirely from
+[bitwise operators](https://en.wikipedia.org/wiki/Bitwise_operation). The XOR of
+two values gives their sum at each bit position while ignoring any carries, and
+the AND of the two values (shifted left by one) gives exactly the carry bits.
+Folding the carry back in repeatedly, the carry eventually becomes zero and `x`
+holds the final sum.
 
-        # Strip the '0b' prefix to return the binary string
-        return bin(x)[2:]
-```
+Being honest about the boundaries: `int(a, 2)` and `bin(...)` are still used for
+input parsing and output formatting, so the I/O is not bitwise. The arithmetic
+itself, however, never uses `+`: every bit of the sum is produced purely with
+XOR, AND, and shift.
+
+1. Parse `a` and `b` into integers `x` and `y` (I/O only; the addition never
+   touches `+`).
+2. While `y` is nonzero, compute `sum_without_carry = x ^ y` and
+   `carry = (x & y) << 1`.
+3. Replace `x` with `sum_without_carry` and `y` with `carry`; the pair's total is
+   preserved while the carries move one position left.
+4. When `y` reaches `0`, `x` holds the sum; format it with `bin(x)[2:]`.
 
 #### Formula
 
@@ -251,18 +357,52 @@ This is a [ripple-carry adder](https://en.wikipedia.org/wiki/Adder_(electronics)
 written in software: \(\oplus\) is the half-adder's sum bit and \(\wedge\) its
 carry bit.
 
-#### Approach
+#### Walkthrough
 
-This solution performs the addition using the classic carry-propagation loop
-built entirely from [bitwise operators](https://en.wikipedia.org/wiki/Bitwise_operation). The XOR of two values gives their sum at
-each bit position while ignoring any carries, and the AND of the two values
-(shifted left by one) gives exactly the carry bits. Folding the carry back in
-repeatedly, the carry eventually becomes zero and `x` holds the final sum.
+Let us fold the carries on Example 2: `a = "1010"`, `b = "1011"`, expected Output
+`"10101"`. Parsing gives `x = 10` and `y = 11`; the trace below shows each value
+in five binary digits, since the answer needs five bits:
 
-Being honest about the boundaries: `int(a, 2)` and `bin(...)` are still used for
-input parsing and output formatting, so the I/O is not bitwise. The arithmetic
-itself, however, never uses `+`: every bit of the sum is produced purely with
-XOR, AND, and shift.
+```text
+start     x = 01010 (10)    y = 01011 (11)
+pass 1    sum_without_carry = 01010 ^ 01011 = 00001    bits where exactly one is set
+          carry = (01010 & 01011) << 1
+                = 01010 << 1 = 10100                   both-set bits, moved one left
+          x = 00001 (1)     y = 10100 (20)
+pass 2    sum_without_carry = 00001 ^ 10100 = 10101    no positions overlap
+          carry = (00001 & 10100) << 1 = 00000         no bit set in both
+          x = 10101 (21)    y = 00000 (0)
+```
+
+The invariant is visible at every line: `10 + 11 = 21` and `1 + 20 = 21`, so each
+pass preserves the total while the carry marches left. After the second pass
+`y = 0`, the loop exits, and `bin(21)[2:]` formats `x` as `"10101"`, matching
+the expected Output for Example 2.
+
+#### Solution
+
+The code is the fold from the walkthrough: XOR and shifted AND replace the pair
+until the carry dies out.
+
+```python
+class Solution:
+    def addBinary(self, a: str, b: str) -> str:
+        # Parse the inputs into integers for the bitwise work
+        x = int(a, 2)
+        y = int(b, 2)
+
+        # Add using only bitwise operations: XOR is the sum ignoring carries,
+        # and (x & y) << 1 is the carry that must be propagated. Repeat until
+        # there is no carry left to fold back in.
+        while y:
+            sum_without_carry = x ^ y
+            carry = (x & y) << 1
+            x = sum_without_carry
+            y = carry
+
+        # Strip the '0b' prefix to return the binary string
+        return bin(x)[2:]
+```
 
 #### Time and Space Complexity Analysis
 
@@ -290,6 +430,35 @@ is proportional to the input sizes as well.
 
 ### Using Built-in Functions
 
+#### Derivation
+
+The last step is to delegate the whole task. Python already knows how to parse a
+binary string, add integers of any size, and format the result back, so the
+entire problem collapses into one expression. Nothing of the column rule remains
+visible; the library performs it internally.
+
+1. `int(a, 2)` and `int(b, 2)` parse the strings positionally: each character
+   contributes its bit times the matching power of two.
+2. Native `+` adds the two integers into `sum_int`.
+3. `bin(sum_int)` formats the sum with a `0b` prefix, which `[2:]` strips off.
+
+#### Walkthrough
+
+Here the built-ins are themselves the technique, so the trace opens them up on
+Example 1: `a = "11"`, `b = "1"`, expected Output `"100"`.
+
+```text
+int("11", 2)    1 * 2^1 + 1 * 2^0 = 3        positional parse of a
+int("1", 2)     1 * 2^0 = 1                  positional parse of b
+sum_int         3 + 1 = 4                    native integer addition
+bin(4)          "0b100"                      binary formatting, prefixed
+bin(4)[2:]      "100"                        prefix stripped
+```
+
+The returned string is `"100"`, matching the expected Output for Example 1.
+
+#### Solution
+
 ```python
 class Solution:
     def addBinary(self, a: str, b: str) -> str:
@@ -298,10 +467,6 @@ class Solution:
         # Remove '0b' prefix from binary representation
         return bin(sum_int)[2:]
 ```
-
-#### Approach
-
-This solution leverages Python's built-in functions to convert binary strings to integers, perform the addition, and then convert the result back to a binary string.
 
 #### Time and Space Complexity Analysis
 
