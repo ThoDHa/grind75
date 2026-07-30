@@ -49,9 +49,62 @@ You can return the answer in any order.
 
 Can you come up with an algorithm that is less than O(n²) time complexity?
 
+## Deriving the Solution
+
+Once one number of the pair is fixed, the other is fully determined: if `nums[x]`
+is in the answer, its partner must equal `target - nums[x]`. Every solution below
+asks the same question, "have I seen the complement?", and differs only in how
+that lookup is performed.
+
+1. **Start literal.** Fix each element in turn and scan the rest of the array
+   for its complement. Correct, but the scan repeats for every element and
+   costs `O(n^2)`: see [Brute Force](#brute-force).
+2. **Spot the waste.** The inner scan is a search for one known value, yet it
+   walks blindly through an unordered suffix every time. Searching is only
+   expensive because the data has no structure to exploit.
+3. **Add structure by ordering.** In a sorted sequence the search dissolves
+   into a single converging sweep: too small a sum advances the left end, too
+   large retreats the right end. Sorting costs `O(n log n)` and the original
+   indices must be carried along: see
+   [Sort and Two Pointers](#sort-and-two-pointers).
+4. **Add structure by memory instead.** A hash map answers "have I seen the
+   complement?" in `O(1)` without any ordering: record each value's index as
+   it passes and test each new element against the map. One pass, `O(n)`: see
+   [Hash Map](#hash-map).
+
 ## Solutions
 
 ### Brute Force
+
+#### Derivation
+
+The most direct reading of the problem examines every possible pair of numbers in
+the array. For each element, calculate the complement (`target - current number`)
+and check all remaining elements for this complement; the pair is found the moment
+the complement appears.
+
+1. Iterate over each index `x` in the array.
+2. Compute the complement `target - nums[x]` that would complete the pair.
+3. Scan every later index `y` and return `[x, y]` as soon as `nums[y]` equals the complement.
+
+#### Walkthrough
+
+Let us run the pair scan by hand on Example 1: `nums = [2,7,11,15]`, target = `9`.
+
+The outer loop fixes one index `x`, computes `complement = target - nums[x]`, and the inner loop scans every later index `y` looking for a value equal to that complement.
+
+| Step | `x` | `nums[x]` | `complement` | `y` | `nums[y]` | `nums[y] == complement`? |
+|------|-----|-----------|--------------|-----|-----------|--------------------------|
+| 1    | `0` | `2`       | `9 - 2 = 7`  | `1` | `7`       | yes, `7 == 7`            |
+
+On the very first inner step the complement is found: `nums[0] = 2` and `nums[1] = 7` sum to `9`. The scan stops and reports `[x, y]`, which is `[0, 1]`.
+
+The returned value is `[0, 1]`, which matches the expected Output for Example 1.
+
+#### Solution
+
+The code is the walkthrough's double scan written down: an outer loop fixing `x`,
+an inner loop hunting the complement.
 
 ```python
 from typing import List
@@ -70,14 +123,6 @@ class Solution:
         return []
 ```
 
-#### Approach
-
-This brute force approach examines every possible pair of numbers in the array. For each element, it calculates the complement (`target - current number`) and checks all remaining elements to find this complement.
-
-1. Iterate over each index `x` in the array.
-2. Compute the complement `target - nums[x]` that would complete the pair.
-3. Scan every later index `y` and return `[x, y]` as soon as `nums[y]` equals the complement.
-
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(n²)`
@@ -94,21 +139,56 @@ Only a constant amount of extra space is used regardless of input size.
 - Inefficient for large arrays due to quadratic time complexity
 - No additional data structures required
 
+### Sort and Two Pointers
+
+#### Derivation
+
+The brute force pays because its inner scan searches an unordered suffix by
+walking all of it. Give the values an order and the search collapses: in a sorted
+sequence, the smallest and largest remaining candidates sit at the two ends, and
+their sum can only be corrected in one direction. That is the
+[two pointers](https://www.geeksforgeeks.org/dsa/two-pointers-technique/)
+technique: if the pointed values sum to less than the target, the left pointer
+moves right to increase the sum; if they sum to more, the right pointer moves left
+to decrease it. When the sum matches, the pair is found.
+
+Because the problem asks for the original indices, we cannot sort `nums` directly
+without losing that information. We instead pair each value with its original
+index before sorting, sort by value, and return the stored original indices when
+the matching pair is found:
+
+1. Build `indexed = sorted(enumerate(nums), key=lambda pair: pair[1])`, pairing
+   each original index with its value and ordering by value.
+2. Start `left` at `0` and `right` at the last position of `indexed`.
+3. Compare `current_sum = indexed[left][1] + indexed[right][1]` with `target`:
+   on a match return the stored original indices `[indexed[left][0],
+   indexed[right][0]]`; if too small, advance `left`; if too large, retreat
+   `right`.
+
 #### Walkthrough
 
-Let us watch the Brute Force code run on Example 1: `nums = [2,7,11,15]`, target = `9`.
+Let us converge the pointers by hand on Example 1: `nums = [2,7,11,15]`,
+target = `9`. Sorting by value happens to keep this input's order, so
+`indexed = [(0,2), (1,7), (2,11), (3,15)]`, with each entry holding
+`(original index, value)`:
 
-The outer loop fixes one index `x`, computes `complement = target - nums[x]`, and the inner loop scans every later index `y` looking for a value equal to that complement.
+```text
+left=0 (value 2)   right=3 (value 15)   current_sum = 17 > 9   -> right = 2
+left=0 (value 2)   right=2 (value 11)   current_sum = 13 > 9   -> right = 1
+left=0 (value 2)   right=1 (value 7)    current_sum = 9 == 9   -> match
+```
 
-| Step | `x` | `nums[x]` | `complement` | `y` | `nums[y]` | `nums[y] == complement`? |
-|------|-----|-----------|--------------|-----|-----------|--------------------------|
-| 1    | `0` | `2`       | `9 - 2 = 7`  | `1` | `7`       | yes, `7 == 7`            |
+Every overshoot retreats `right` to shrink the sum, and the ends meet exactly on
+the pair `2 + 7`. The match reports the stored original indices
+`[indexed[0][0], indexed[1][0]] = [0, 1]`, matching the expected Output for
+Example 1. The index bookkeeping earns its keep on inputs the sort actually
+reorders: Example 2's `[3,2,4]` sorts to values `[2,3,4]`, yet the same procedure
+still reports the original positions `[1, 2]`.
 
-On the very first inner step the complement is found: `nums[0] = 2` and `nums[1] = 7` sum to `9`. The code returns `[x, y]`, which is `[0, 1]`.
+#### Solution
 
-The returned value is `[0, 1]`, which matches the expected Output for Example 1.
-
-### Sort and Two Pointers
+The code is the converging sweep from the walkthrough, run over the
+index-carrying `indexed` list.
 
 ```python
 from typing import List
@@ -131,12 +211,6 @@ class Solution:
         return []
 ```
 
-#### Approach
-
-This solution sorts the values and then converges [two pointers](https://www.geeksforgeeks.org/dsa/two-pointers-technique/) from the ends of the sorted array. If the pointed values sum to less than the target, the left pointer moves right to increase the sum; if they sum to more, the right pointer moves left to decrease it. When the sum matches, we have found the pair.
-
-Because the problem asks for the original indices, we cannot sort `nums` directly without losing that information. We instead pair each value with its original index before sorting, sort by value, and return the stored original indices when the matching pair is found.
-
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(n log n)`
@@ -155,6 +229,45 @@ Pairing each value with its original index produces a new list of `n` elements, 
 
 ### Hash Map
 
+#### Derivation
+
+Sorting bought a faster search by rearranging the data, but the question "have I
+seen the complement?" does not need order at all: it needs memory. A
+[hash map](https://en.wikipedia.org/wiki/Hash_table) provides exactly that,
+answering membership questions in `O(1)` on average. Walk the array once,
+and for each element ask whether its complement has already passed by; if not,
+record the current value and its index and move on:
+
+1. Iterate over each index `x`, computing `complement = target - nums[x]`.
+2. If `complement` is already a key in `nums_dict`, the earlier element and this
+   one form the pair: return `[nums_dict[complement], x]`.
+3. Otherwise store `nums_dict[nums[x]] = x` and continue.
+
+Checking before storing is what keeps an element from pairing with itself: the
+map only ever holds strictly earlier elements.
+
+#### Walkthrough
+
+Let us fill the map by hand on Example 2: `nums = [3,2,4]`, target = `6`, which
+exercises both a miss and a hit:
+
+```text
+x=0  nums[0]=3  complement=3  not in {}            store -> nums_dict = {3: 0}
+x=1  nums[1]=2  complement=4  not in {3: 0}        store -> nums_dict = {3: 0, 2: 1}
+x=2  nums[2]=4  complement=2  in nums_dict! -> return [nums_dict[2], 2] = [1, 2]
+```
+
+The complement of `4` is `2`, which was recorded at index `1`, so the function
+returns `[1, 2]`, matching the expected Output for Example 2. The check-then-store
+order also handles Example 3's duplicates: on `nums = [3,3]`, index `0` stores
+`{3: 0}` (its complement `3` is not yet in the empty map), and index `1` finds
+that stored `3` and returns `[0, 1]` without ever pairing an element with itself.
+
+#### Solution
+
+The code is the walkthrough's single pass: one complement lookup and one store
+per element.
+
 ```python
 from typing import List
 
@@ -172,10 +285,6 @@ class Solution:
             nums_dict[nums[x]] = x
         return []
 ```
-
-#### Approach
-
-This solution uses a [hash map](https://en.wikipedia.org/wiki/Hash_table) to store previously encountered numbers and their indices. For each element, we check if its complement (`target - current number`) already exists in the hash map. If found, we've identified our pair. Otherwise, we add the current number and its index to the hash map.
 
 #### Time and Space Complexity Analysis
 
