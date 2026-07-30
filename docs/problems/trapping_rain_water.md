@@ -32,70 +32,50 @@ Given `n` non-negative integers representing an elevation map where the width of
 - `1 <= n <= 2 * 10^4`
 - `0 <= height[i] <= 3 * 10^4`
 
+## Deriving the Solution
+
+Water above bar `i` rises exactly to `min(left_max, right_max)`, the shorter of the
+tallest walls to its left and right, and the bar itself fills `height[i]` of that
+column. Every solution below computes `min(left_max, right_max) - height[i]` in some
+form; they differ only in how the two wall heights are obtained.
+
+1. **Start literal.** For each bar, rescan the whole array for the tallest wall on
+   its left and the tallest on its right, then add the difference. Correct, but the
+   two full scans per bar cost `O(n^2)`: see [Brute Force](#brute-force).
+2. **Cache the scans.** The rescans keep recomputing the same maxima, which obey
+   one-step recurrences (`left_max[i] = max(left_max[i - 1], height[i])`). Two
+   linear sweeps precompute every wall once, cutting time to `O(n)` for two `O(n)`
+   arrays: see [Prefix and Suffix Maximums](#prefix-and-suffix-maximums).
+3. **Account by layers instead of columns.** The same water can be summed
+   horizontally: keep a stack of bars in decreasing height (unresolved dips), and
+   let each taller arrival close a basin and settle one layer. Still `O(n)` time
+   and `O(n)` space, but the per-basin amounts come out as a bonus: see
+   [Monotonic Stack](#monotonic-stack).
+4. **Drop the arrays.** Only the smaller of the two maxima decides the water level,
+   and walking inward from both ends always knows which side is smaller. Two
+   pointers with two running maxima reach `O(n)` time and `O(1)` space: see
+   [Two Pointers](#two-pointers).
+
 ## Solutions
 
 ### Brute Force
 
-```python
-from typing import List
+#### Derivation
 
+The question to ask first is local: how much water sits directly above bar `i`?
+Water can only rest there if taller bars hem it in on both sides, and it rises to
+the level of the shorter of those two walls. So for each bar, find the tallest bar
+on its left and the tallest on its right, take the smaller of the two, and subtract
+the bar's own height. Nothing beyond those two walls matters, and the literal way to
+find them is to scan for them:
 
-class Solution:
-    def trap(self, height: List[int]) -> int:
-        n = len(height)
-        trapped = 0
+1. For every index `i`, scan left from the start to find `left_max`, the tallest
+   bar at or before `i`.
+2. Scan right to the end to find `right_max`, the tallest bar at or after `i`.
+3. Add `min(left_max, right_max) - height[i]` to the running `trapped` total.
 
-        for i in range(n):
-            # Tallest bar at or to the left of i
-            left_max = 0
-            for j in range(i + 1):
-                left_max = max(left_max, height[j])
-
-            # Tallest bar at or to the right of i
-            right_max = 0
-            for j in range(i, n):
-                right_max = max(right_max, height[j])
-
-            # Water above this bar is bounded by the shorter wall on each side.
-            trapped += min(left_max, right_max) - height[i]
-
-        return trapped
-```
-
-#### Approach
-
-The most intuitive idea works one bar at a time and asks a simple question: how much
-water sits directly above bar `i`? Water can only rest there if taller bars hem it in
-on both sides, and it rises to the level of the shorter of those two walls. So for each
-bar we find the tallest bar on its left and the tallest on its right, take the smaller of
-the two, and subtract the bar's own height.
-
-1. For every index `i`, scan left from the start to find the tallest bar at or before `i`.
-2. Scan right to the end to find the tallest bar at or after `i`.
-3. Add `min(left_max, right_max) - height[i]` to the running total.
-
-Because `left_max` and `right_max` both include `height[i]` itself, the contribution is
-never negative: a bar that is the tallest on one side traps nothing and adds `0`.
-
-#### Time and Space Complexity Analysis
-
-##### Time Complexity: `O(n^2)`
-
-For each of the `n` bars we rescan the entire array to recompute both maxima, so the work
-is quadratic.
-
-##### Space Complexity: `O(1)`
-
-Only a few scalar accumulators are tracked; no auxiliary array is allocated.
-
-#### Key Insights
-
-- Encodes the core definition directly: trapped water above a bar is
-  `min(maxLeft, maxRight) - height[i]`.
-- Simple to derive under pressure because it mirrors the physical intuition of walls
-  holding water.
-- Wasteful: every bar recomputes the same prefix and suffix maxima from scratch, which the
-  next approach caches away.
+Because `left_max` and `right_max` both include `height[i]` itself, the contribution
+is never negative: a bar that is the tallest on one side traps nothing and adds `0`.
 
 #### Walkthrough
 
@@ -126,7 +106,10 @@ so each one banks water up to the shorter wall, height `2`. Past the tallest bar
 `i = 7`, `right_max` drops to `2` and the remaining bars trap little. The loop ends with
 `trapped = 6`, which matches the expected Output of `6`.
 
-### Prefix and Suffix Maximums
+#### Solution
+
+The code is the walkthrough's table computed row by row: two scans and one
+subtraction per bar.
 
 ```python
 from typing import List
@@ -135,26 +118,65 @@ from typing import List
 class Solution:
     def trap(self, height: List[int]) -> int:
         n = len(height)
-        if n == 0:
-            return 0
-
-        left_max = [0] * n
-        right_max = [0] * n
-
-        left_max[0] = height[0]
-        for i in range(1, n):
-            left_max[i] = max(left_max[i - 1], height[i])
-
-        right_max[n - 1] = height[n - 1]
-        for i in range(n - 2, -1, -1):
-            right_max[i] = max(right_max[i + 1], height[i])
-
         trapped = 0
+
         for i in range(n):
-            trapped += min(left_max[i], right_max[i]) - height[i]
+            # Tallest bar at or to the left of i
+            left_max = 0
+            for j in range(i + 1):
+                left_max = max(left_max, height[j])
+
+            # Tallest bar at or to the right of i
+            right_max = 0
+            for j in range(i, n):
+                right_max = max(right_max, height[j])
+
+            # Water above this bar is bounded by the shorter wall on each side.
+            trapped += min(left_max, right_max) - height[i]
 
         return trapped
 ```
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n^2)`
+
+For each of the `n` bars we rescan the entire array to recompute both maxima, so the work
+is quadratic.
+
+##### Space Complexity: `O(1)`
+
+Only a few scalar accumulators are tracked; no auxiliary array is allocated.
+
+#### Key Insights
+
+- Encodes the core definition directly: trapped water above a bar is
+  `min(maxLeft, maxRight) - height[i]`.
+- Simple to derive under pressure because it mirrors the physical intuition of walls
+  holding water.
+- Wasteful: every bar recomputes the same prefix and suffix maxima from scratch, which the
+  next approach caches away.
+
+### Prefix and Suffix Maximums
+
+#### Derivation
+
+The brute force recomputes the same information over and over: `left_max` at `i`
+differs from `left_max` at `i - 1` by at most one comparison, yet every bar rebuilds
+it from scratch. That one-step dependence is the signature of
+[dynamic programming](https://en.wikipedia.org/wiki/Dynamic_programming): `left_max`
+and `right_max` are DP tables in which each entry comes from its neighbor
+(`left_max[i] = max(left_max[i - 1], height[i])`), so two linear sweeps cache every
+wall height the trapping formula needs, and a third pass sums the water:
+
+1. Build `left_max` in a forward sweep: `left_max[0] = height[0]`, then each entry
+   is `max(left_max[i - 1], height[i])`.
+2. Build `right_max` in a backward sweep, the mirror image.
+3. For each bar, add `min(left_max[i], right_max[i]) - height[i]` to `trapped`.
+
+It refines the brute force by computing each prefix and suffix maximum once and
+reusing it, turning the quadratic rescans into two linear sweeps, at the cost of two
+auxiliary arrays.
 
 #### Formula
 
@@ -212,20 +234,66 @@ The outer \(\max(0, \cdot)\) is redundant here: \(\min(L[i], R[i]) \ge
 \text{height}[i]\) always holds, because `height[i]` is itself a candidate in
 both maxima, which is why the code adds the difference unguarded.
 
-#### Approach
+#### Walkthrough
 
-This is the [dynamic programming](https://en.wikipedia.org/wiki/Dynamic_programming) formulation: `left_max` and `right_max` are DP tables
-where each entry depends on the previous one (`left_max[i] = max(left_max[i-1], height[i])`),
-caching the subproblem results that the trapping formula needs. We precompute, for every
-index, the tallest bar at or to its left (`left_max`) and at or to its right (`right_max`),
-then sum `min(left_max[i], right_max[i]) - height[i]` across all bars.
+Let us fill the arrays on Example 2: `height = [4,2,0,3,2,5]`. The forward sweep
+carries the running maximum left to right, the backward sweep right to left:
 
-1. Build `left_max` in a forward sweep.
-2. Build `right_max` in a backward sweep.
-3. For each bar, the trapped water is `min(left_max[i], right_max[i]) - height[i]`.
+```text
+height       [4, 2, 0, 3, 2, 5]
+left_max     [4, 4, 4, 4, 4, 5]     forward: tallest so far from the left
+right_max    [5, 5, 5, 5, 5, 5]     backward: tallest so far from the right
+```
 
-It refines the brute force by computing each prefix and suffix maximum once and reusing it,
-turning the quadratic rescans into two linear sweeps, at the cost of two auxiliary arrays.
+The tallest bar `5` sits at the right edge, so `right_max` is `5` everywhere and
+every column's water level is set by `left_max`. The summation pass then applies the
+formula bar by bar:
+
+```text
+i=0   min(4, 5) - 4 = 0    trapped = 0
+i=1   min(4, 5) - 2 = 2    trapped = 2
+i=2   min(4, 5) - 0 = 4    trapped = 6
+i=3   min(4, 5) - 3 = 1    trapped = 7
+i=4   min(4, 5) - 2 = 2    trapped = 9
+i=5   min(5, 5) - 5 = 0    trapped = 9
+```
+
+The dip between the wall of height `4` at `i = 0` and the wall of height `5` at
+`i = 5` fills up to level `4`, giving `2 + 4 + 1 + 2 = 9` units. The final
+`trapped = 9` matches Example 2's Output.
+
+#### Solution
+
+The code is the three passes from the walkthrough: forward sweep, backward
+sweep, then the summation.
+
+```python
+from typing import List
+
+
+class Solution:
+    def trap(self, height: List[int]) -> int:
+        n = len(height)
+        if n == 0:
+            return 0
+
+        left_max = [0] * n
+        right_max = [0] * n
+
+        left_max[0] = height[0]
+        for i in range(1, n):
+            left_max[i] = max(left_max[i - 1], height[i])
+
+        right_max[n - 1] = height[n - 1]
+        for i in range(n - 2, -1, -1):
+            right_max[i] = max(right_max[i + 1], height[i])
+
+        trapped = 0
+        for i in range(n):
+            trapped += min(left_max[i], right_max[i]) - height[i]
+
+        return trapped
+```
 
 #### Time and Space Complexity Analysis
 
@@ -245,6 +313,61 @@ Two arrays of size `n` store the prefix and suffix maxima.
 - The `O(n)` space is the price for clarity; the two-pointer method removes it.
 
 ### Monotonic Stack
+
+#### Derivation
+
+Both approaches so far account for water column by column, which forces each column
+to know its two walls. Flip the accounting: fill the water in horizontal layers, and
+settle each layer the moment its right wall arrives. The
+[stack](https://www.geeksforgeeks.org/introduction-to-monotonic-stack-data-structure-and-algorithm/)
+holds indices of bars whose heights are decreasing from bottom to top, so the top is
+always the most recent unresolved dip. When a bar taller than the stack top arrives,
+it acts as a right wall: the popped top becomes the `floor` of a basin, and the new
+stack top (if any) is the `left` wall.
+
+1. Walk left to right, treating the stack as a record of unresolved dips.
+2. While the current bar `h` is taller than the bar at the top of the stack, pop
+   the top as `floor`.
+3. If the stack is now empty there is no left wall, so that water escapes;
+   otherwise the settled layer holds
+   `(i - left - 1) * (min(height[left], h) - height[floor])` units: the width
+   between the walls times the depth of the shorter wall above the floor.
+4. Push the current index `i` and continue.
+
+A single bar may settle several layers as it pops successively taller floors, and
+each index is pushed and popped at most once.
+
+#### Walkthrough
+
+Let us run the stack on Example 2: `height = [4,2,0,3,2,5]`. Each line is one event:
+a push, or a pop that settles a layer of `width * bounded` water:
+
+```text
+i=0 h=4   push 0                                      stack [0]      heights [4]
+i=1 h=2   push 1                                      stack [0,1]    heights [4,2]
+i=2 h=0   push 2                                      stack [0,1,2]  heights [4,2,0]
+i=3 h=3   pop floor=2  left=1  1 * (min(2,3)-0) = 2   trapped 2
+          pop floor=1  left=0  2 * (min(4,3)-2) = 2   trapped 4
+          push 3                                      stack [0,3]    heights [4,3]
+i=4 h=2   push 4                                      stack [0,3,4]  heights [4,3,2]
+i=5 h=5   pop floor=4  left=3  1 * (min(3,5)-2) = 1   trapped 5
+          pop floor=3  left=0  4 * (min(4,5)-3) = 4   trapped 9
+          pop floor=0  stack empty -> break           water escapes left
+          push 5                                      stack [5]      heights [5]
+```
+
+The bar of height `3` at `i = 3` settles two layers on arrival: first the thin layer
+above the floor of height `0` up to its left wall of height `2`, then the wider
+layer above the floor of height `2`, capped at `min(4, 3) = 3`. The final bar of
+height `5` settles the remaining layers the same way, and when it pops the bar of
+height `4` with nothing left beneath it, the empty-stack check discards that water:
+with no left wall it would spill off the edge. The total is `trapped = 9`, matching
+Example 2's Output.
+
+#### Solution
+
+The code is the event log above: the `while` loop performs the pops that
+settle layers, and every index is pushed exactly once.
 
 ```python
 from typing import List
@@ -277,26 +400,6 @@ class Solution:
         return trapped
 ```
 
-#### Approach
-
-Instead of asking how much water sits above each bar, this approach fills water in
-horizontal layers between bars. The [stack](https://www.geeksforgeeks.org/introduction-to-monotonic-stack-data-structure-and-algorithm/) holds indices of bars whose heights are
-decreasing from bottom to top, so the top is always the most recent dip.
-
-When a bar taller than the stack top arrives, it can act as a right wall. The bar just
-popped becomes the floor of a basin, and the new stack top (if any) is the left wall.
-The trapped water for that basin is the width between the two walls times the height of
-the shorter wall above the floor.
-
-1. Walk left to right, treating the stack as a record of unresolved dips.
-2. While the current bar is taller than the top of the stack, pop the top as a floor.
-3. If the stack is now empty there is no left wall, so that water escapes; otherwise add
-   `(i - left - 1) * (min(height[left], height[i]) - height[floor])`.
-4. Push the current index and continue.
-
-A single bar may settle several layers as it pops successively taller floors, and each
-index is pushed and popped at most once.
-
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(n)`
@@ -319,6 +422,62 @@ once before any pops occur.
   the left edge when no left wall exists.
 
 ### Two Pointers
+
+#### Derivation
+
+The prefix and suffix arrays store every wall height, yet the formula only ever
+consumes `min(left_max[i], right_max[i])`: the larger side is computed and then
+ignored. The [two-pointer method](https://www.geeksforgeeks.org/dsa/two-pointers-technique/)
+exploits that slack. Walk inward from both ends carrying just two running maxima. If
+`left_max <= right_max`, the water level at the left pointer is already decided:
+some bar on the right reaches `right_max >= left_max`, so the true minimum at that
+position is `left_max` no matter what stands between the pointers. The symmetric
+claim holds on the right, so whichever side carries the smaller running max can be
+settled and stepped inward immediately:
+
+1. Place `left` and `right` at the two ends and seed `left_max` / `right_max` with
+   the endpoint heights.
+2. While `left < right`, compare the running maxima. If `left_max <= right_max`,
+   advance `left`, fold the new bar into `left_max`, and add
+   `left_max - height[left]`; otherwise mirror the step on the right side.
+3. Stop when the pointers meet: every column has been settled from one side or the
+   other.
+
+This computes the correct trapped water in a single pass with constant extra
+memory.
+
+#### Walkthrough
+
+Let us walk the pointers on Example 1: `height = [0,1,0,2,1,0,1,3,2,1,2,1]`. Start
+with `left = 0`, `right = 11`, `left_max = 0`, `right_max = 1`. Each line shows the
+`left_max <= right_max` comparison, the pointer that moves, and the water settled at
+its new position:
+
+```text
+0 <= 1   left  -> 1    left_max 1    + 1-1 = 0   trapped 0
+1 <= 1   left  -> 2    left_max 1    + 1-0 = 1   trapped 1
+1 <= 1   left  -> 3    left_max 2    + 2-2 = 0   trapped 1
+2 >  1   right -> 10   right_max 2   + 2-2 = 0   trapped 1
+2 <= 2   left  -> 4    left_max 2    + 2-1 = 1   trapped 2
+2 <= 2   left  -> 5    left_max 2    + 2-0 = 2   trapped 4
+2 <= 2   left  -> 6    left_max 2    + 2-1 = 1   trapped 5
+2 <= 2   left  -> 7    left_max 3    + 3-3 = 0   trapped 5
+3 >  2   right -> 9    right_max 2   + 2-1 = 1   trapped 6
+3 >  2   right -> 8    right_max 2   + 2-2 = 0   trapped 6
+3 >  2   right -> 7    right_max 3   + 3-3 = 0   trapped 6
+```
+
+The left pointer settles the deep dip at indices `2` through `6` using only
+`left_max = 2`, which is safe because `right_max = 2` guarantees a wall at least
+that tall further right. Once `left_max` reaches `3` at the tallest bar, the right
+side becomes the smaller one and settles indices `10` down to `8`. The pointers meet
+at `i = 7`, the tallest bar, which is its own wall and contributes `0` from either
+side. The loop exits with `trapped = 6`, matching Example 1's Output.
+
+#### Solution
+
+The code is the two-branch step from the walkthrough, repeated until the
+pointers meet.
 
 ```python
 from typing import List
@@ -347,26 +506,6 @@ class Solution:
 
         return trapped
 ```
-
-#### Approach
-
-The water sitting above any bar `i` equals `min(maxLeft[i], maxRight[i]) - height[i]`,
-where `maxLeft` and `maxRight` are the tallest bars to the left and right. The
-challenge is computing that minimum without storing both prefix arrays.
-
-The [two-pointer method](https://www.geeksforgeeks.org/dsa/two-pointers-technique/) exploits a key observation: if `left_max <= right_max`, then
-the water level at the left pointer is bounded by `left_max`, regardless of what taller
-bars might lie further right, because we already know some bar on the right is at least
-`right_max >= left_max`. So we can safely settle the left pointer's water using only
-`left_max`, and symmetrically for the right.
-
-1. Place pointers at both ends and seed `left_max` / `right_max` with the endpoints.
-2. Repeatedly move the pointer on the side with the smaller running max inward.
-3. Update that side's running max, then add `running_max - height` at the new
-   position to the total.
-4. Stop when the pointers meet.
-
-This computes the correct trapped water in a single pass with constant extra memory.
 
 #### Time and Space Complexity Analysis
 

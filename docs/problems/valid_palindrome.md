@@ -46,34 +46,47 @@ Since an empty string reads the same forward and backward, it is a palindrome.
 - `1 <= s.length <= 2 * 10^5`
 - `s` consists only of printable ASCII characters.
 
+## Deriving the Solution
+
+Every solution reads the problem as two independent jobs: normalize the string
+(keep only alphanumeric characters, fold uppercase onto lowercase) and test
+mirror symmetry on the normalized form. The approaches differ only in who does
+the normalizing and where the mirror test runs.
+
+1. **Start literal.** Spell both rules out by hand: classify characters through
+   raw `ord` ranges, shift uppercase down to lowercase, collect the survivors,
+   and compare mirrored indices. Linear time, but an `O(n)` buffer and the most
+   verbose code: see [Brute Force](#brute-force).
+2. **Hand the rules to the library.** `isalnum` and `lower` perform exactly the
+   range tests the brute force wrote out, in single optimized calls. Clean
+   first, then walk two pointers inward over the cleaned list. Simpler code,
+   same `O(n)` buffer: see
+   [Filter then Two Pointers](#filter-then-two-pointers).
+3. **Spot the waste.** The cleaned buffer exists only to be read once by the
+   pointers. Let the pointers skip non-alphanumeric characters in place instead
+   and the buffer disappears, reaching `O(1)` space: see
+   [Two Pointers with Inline Filtering](#two-pointers-with-inline-filtering).
+4. **Shortcut family.** When the extra memory is acceptable, "reads the same
+   backward" is literally `cleaned == cleaned[::-1]`, one expression. Two
+   library-driven forms of the same idea: comprehension-based cleaning in
+   [Filter and Reverse](#filter-and-reverse), and `filter(str.isalnum, s)` with
+   a single `.lower()` call in
+   [Builtin Filter and Reverse](#builtin-filter-and-reverse).
+
 ## Solutions
 
 ### Brute Force
 
-```python
-class Solution:
-    def isPalindrome(self, s: str) -> bool:
-        cleaned = []
-        for c in s:
-            o = ord(c)
-            if ord("0") <= o <= ord("9") or ord("a") <= o <= ord("z"):
-                cleaned.append(c)
-            elif ord("A") <= o <= ord("Z"):
-                # Convert uppercase to lowercase by hand: 'A' and 'a' differ by 32
-                cleaned.append(chr(o + (ord("a") - ord("A"))))
-        n = len(cleaned)
-        for i in range(n // 2):
-            if cleaned[i] != cleaned[n - 1 - i]:
-                return False
-        return True
-```
+#### Derivation
 
-#### Approach
-
-The problem hinges on two rules: which characters count as alphanumeric, and how
-to fold uppercase onto lowercase. The most self-derivable solution spells both
-rules out by hand instead of leaning on `str.isalnum` or `str.lower`, then checks
-the result by comparing mirrored positions.
+The problem hinges on two rules: which characters count as alphanumeric, and
+how to fold uppercase onto lowercase. This first attempt asks what the check
+looks like when nothing is delegated to `str.isalnum` or `str.lower`. Both
+rules reduce to code-point arithmetic: a character survives when `ord(c)` falls
+in the digit range `'0'..'9'` or the lowercase range `'a'..'z'`, and an
+uppercase letter is folded by shifting its code point down by
+`ord('a') - ord('A')` (32). Once a cleaned list exists, "reads the same forward
+and backward" means position `i` must match its mirror `n - 1 - i`:
 
 1. Walk the input once. For each character, take its code point with `ord`.
 2. Keep it only when its code point falls inside the digit range `'0'..'9'` or
@@ -86,27 +99,6 @@ the result by comparing mirrored positions.
 
 Defining the character classes through explicit code-point ranges is the core
 lesson here; the rest is the same mirror comparison every palindrome check uses.
-
-#### Time and Space Complexity Analysis
-
-##### Time Complexity: `O(n)`
-
-The cleaning pass touches each of the `n` characters once, and the mirror
-comparison walks at most half the cleaned list, so the work is linear.
-
-##### Space Complexity: `O(n)`
-
-The `cleaned` list can hold up to `n` characters when every character is
-alphanumeric.
-
-#### Key Insights
-
-- Spelling out the alphanumeric test and the case fold with raw `ord` arithmetic
-  shows exactly what `isalnum` and `lower` do under the hood.
-- Comparing index `i` against `n - 1 - i` checks both ends at once without a
-  second pointer or a reversed copy.
-- Only the first half needs checking; the middle character of an odd-length
-  string mirrors itself.
 
 #### Walkthrough
 
@@ -143,26 +135,59 @@ and index `10` (the middle `c`) mirrors itself, so it needs no check. No mismatc
 ever fired, so the function returns `True`, which matches the expected Output for
 Example 1.
 
-### Filter then Two Pointers
+#### Solution
+
+The code is the walkthrough written down: the hand-rolled cleaning pass
+followed by the half-length mirror comparison.
 
 ```python
 class Solution:
     def isPalindrome(self, s: str) -> bool:
-        filtered = [c.lower() for c in s if c.isalnum()]
-        left, right = 0, len(filtered) - 1
-        while left < right:
-            if filtered[left] != filtered[right]:
+        cleaned = []
+        for c in s:
+            o = ord(c)
+            if ord("0") <= o <= ord("9") or ord("a") <= o <= ord("z"):
+                cleaned.append(c)
+            elif ord("A") <= o <= ord("Z"):
+                # Convert uppercase to lowercase by hand: 'A' and 'a' differ by 32
+                cleaned.append(chr(o + (ord("a") - ord("A"))))
+        n = len(cleaned)
+        for i in range(n // 2):
+            if cleaned[i] != cleaned[n - 1 - i]:
                 return False
-            left += 1
-            right -= 1
         return True
 ```
 
-#### Approach
+#### Time and Space Complexity Analysis
 
-The most direct way to read the problem is to do exactly what it describes:
-first build the cleaned form of the string, then check whether that cleaned form
-reads the same forward and backward.
+##### Time Complexity: `O(n)`
+
+The cleaning pass touches each of the `n` characters once, and the mirror
+comparison walks at most half the cleaned list, so the work is linear.
+
+##### Space Complexity: `O(n)`
+
+The `cleaned` list can hold up to `n` characters when every character is
+alphanumeric.
+
+#### Key Insights
+
+- Spelling out the alphanumeric test and the case fold with raw `ord` arithmetic
+  shows exactly what `isalnum` and `lower` do under the hood.
+- Comparing index `i` against `n - 1 - i` checks both ends at once without a
+  second pointer or a reversed copy.
+- Only the first half needs checking; the middle character of an odd-length
+  string mirrors itself.
+
+### Filter then Two Pointers
+
+#### Derivation
+
+The Brute Force spells the character rules out by hand, but Python already
+ships them: `c.isalnum()` performs the same range tests and `c.lower()` the
+same case fold, each in one optimized call. Delegating the normalization
+leaves only the mirror test, and a natural way to phrase that test is with two
+pointers marching toward each other from the ends of the cleaned list:
 
 1. Walk the input once, keeping only the characters for which `isalnum()` is
    true and converting each to lowercase. Collect them into a list `filtered`.
@@ -176,6 +201,42 @@ reads the same forward and backward.
 
 Separating the cleaning step from the comparison step keeps each phase simple at
 the cost of an extra pass and an `O(n)` buffer.
+
+#### Walkthrough
+
+Trace the solution on Example 2, `s = "race a car"`, which exercises the
+mismatch exit. The cleaning pass keeps the eight letters and drops the two
+spaces (nothing needs lowercasing), then the pointers start at the ends of
+`filtered` and walk inward:
+
+```text
+filtered = ['r','a','c','e','a','c','a','r']    from "race a car", spaces dropped
+left=0 'r'   right=7 'r'    match; move both inward
+left=1 'a'   right=6 'a'    match; move both inward
+left=2 'c'   right=5 'c'    match; move both inward
+left=3 'e'   right=4 'a'    mismatch -> return False
+```
+
+The fourth comparison pits `'e'` against `'a'` and fails, so the function
+returns `False` immediately, matching the expected Output for Example 2.
+
+#### Solution
+
+The code is the two-phase plan from the walkthrough: build `filtered`, then
+close the pointers over it.
+
+```python
+class Solution:
+    def isPalindrome(self, s: str) -> bool:
+        filtered = [c.lower() for c in s if c.isalnum()]
+        left, right = 0, len(filtered) - 1
+        while left < right:
+            if filtered[left] != filtered[right]:
+                return False
+            left += 1
+            right -= 1
+        return True
+```
 
 #### Time and Space Complexity Analysis
 
@@ -198,6 +259,64 @@ alphanumeric.
 
 ### Two Pointers with Inline Filtering
 
+#### Derivation
+
+The previous approach still pays `O(n)` memory for `filtered`, a buffer built
+only to be read once by the pointers. The repair is to filter on the fly:
+instead of materializing a cleaned string, the [pointers](https://www.geeksforgeeks.org/dsa/two-pointers-technique/) skip past non-alphanumeric
+characters as they advance over the original `s`, lowercasing only the two
+characters actually being compared:
+
+1. Start `left` at index `0` and `right` at the last index of the original
+   string `s`.
+2. While `left < right`, first advance `left` rightward past any character that
+   is not alphanumeric, and advance `right` leftward past any such character.
+   Each inner loop keeps the `left < right` guard so the pointers never cross.
+3. Compare `s[left].lower()` with `s[right].lower()`. If they differ, return
+   `False`.
+4. Move both pointers one step inward and continue.
+5. When the pointers meet or cross, every alphanumeric pair matched, so return
+   `True`.
+
+#### Walkthrough
+
+Trace the pointers on Example 1, `s = "A man, a plan, a canal: Panama"`, whose
+punctuation exercises the skip loops on both sides. Indices run `0..29`; each
+line below is one skip or one comparison, with both compared characters shown
+after lowercasing:
+
+```text
+compare s[0]='A'  ~ s[29]='a'   'a' == 'a', match; left=1,  right=28
+skip    s[1]=' '                left -> 2
+compare s[2]='m'  ~ s[28]='m'   match; left=3,  right=27
+compare s[3]='a'  ~ s[27]='a'   match; left=4,  right=26
+compare s[4]='n'  ~ s[26]='n'   match; left=5,  right=25
+skip    s[5]=','  s[6]=' '      left -> 7
+compare s[7]='a'  ~ s[25]='a'   match; left=8,  right=24
+skip    s[8]=' '                left -> 9
+compare s[9]='p'  ~ s[24]='P'   'p' == 'p', match; left=10, right=23
+skip    s[23]=' ' s[22]=':'     right -> 21
+compare s[10]='l' ~ s[21]='l'   match; left=11, right=20
+compare s[11]='a' ~ s[20]='a'   match; left=12, right=19
+compare s[12]='n' ~ s[19]='n'   match; left=13, right=18
+skip    s[13]=',' s[14]=' '     left -> 15
+compare s[15]='a' ~ s[18]='a'   match; left=16, right=17
+skip    s[16]=' '               left -> 17, guard stops at left == right
+compare s[17]='c' ~ s[17]='c'   pointers met on the middle 'c'; match
+exit    left=18 > right=16      loop condition fails -> return True
+```
+
+Every skip line is punctuation being filtered inline, work the previous
+approach did in a separate pass. The final comparison harmlessly checks the
+middle `'c'` against itself because the left skip loop stopped at
+`left == right`. No mismatch ever fired, so the function returns `True`,
+matching the expected Output for Example 1.
+
+#### Solution
+
+The code is the skip-then-compare loop from the walkthrough, run directly on
+the original string.
+
 ```python
 class Solution:
     def isPalindrome(self, s: str) -> bool:
@@ -213,23 +332,6 @@ class Solution:
             right -= 1
         return True
 ```
-
-#### Approach
-
-This refinement removes the auxiliary buffer by filtering on the fly. Instead of
-materializing a cleaned string, the [pointers](https://www.geeksforgeeks.org/dsa/two-pointers-technique/) skip past non-alphanumeric
-characters as they advance.
-
-1. Start `left` at index `0` and `right` at the last index of the original
-   string `s`.
-2. While `left < right`, first advance `left` rightward past any character that
-   is not alphanumeric, and advance `right` leftward past any such character.
-   Each inner loop keeps the `left < right` guard so the pointers never cross.
-3. Compare `s[left].lower()` with `s[right].lower()`. If they differ, return
-   `False`.
-4. Move both pointers one step inward and continue.
-5. When the pointers meet or cross, every alphanumeric pair matched, so return
-   `True`.
 
 #### Time and Space Complexity Analysis
 
@@ -254,22 +356,48 @@ Only the two integer pointers are stored; no copy of the input is made.
 
 ### Filter and Reverse
 
+#### Derivation
+
+The pointer solutions phrase "reads the same backward" as a loop, but the
+phrase also names a single comparison: a cleaned string is a palindrome exactly
+when it equals its own reverse. Python's slice `cleaned[::-1]` produces that
+reverse directly, so when clarity matters more than memory the whole check
+collapses into one expression:
+
+1. Use a generator expression to keep only alphanumeric characters and lowercase
+   each one, joining them into the string `cleaned`.
+2. Build the reverse of `cleaned` with the slice `cleaned[::-1]`.
+3. Return whether `cleaned` equals its reverse.
+
+#### Walkthrough
+
+Trace the expression on Example 2, `s = "race a car"`. The generator keeps the
+eight letters and drops the spaces, the slice reverses the result, and the
+equality test compares the two strings position by position:
+
+```text
+cleaned        = "raceacar"    letters kept, spaces dropped
+cleaned[::-1]  = "racaecar"    same characters read right to left
+compare          raceacar
+                 racaecar
+                    ^          first difference at index 3: 'e' vs 'a'
+```
+
+Reversing swaps the unmatched `'e'` and `'a'` around the center, so the two
+strings differ at index `3` and the equality test is `False`, matching the
+expected Output for Example 2.
+
+#### Solution
+
+The code is the comparison from the walkthrough: clean once, reverse by slice,
+test equality.
+
 ```python
 class Solution:
     def isPalindrome(self, s: str) -> bool:
         cleaned = "".join(c.lower() for c in s if c.isalnum())
         return cleaned == cleaned[::-1]
 ```
-
-#### Approach
-
-When clarity matters more than memory, Python's slicing makes the palindrome
-check a single expression.
-
-1. Use a generator expression to keep only alphanumeric characters and lowercase
-   each one, joining them into the string `cleaned`.
-2. Build the reverse of `cleaned` with the slice `cleaned[::-1]`.
-3. Return whether `cleaned` equals its reverse.
 
 #### Time and Space Complexity Analysis
 
@@ -291,23 +419,43 @@ input.
 
 ### Builtin Filter and Reverse
 
-```python
-class Solution:
-    def isPalindrome(self, s: str) -> bool:
-        cleaned = "".join(filter(str.isalnum, s)).lower()
-        return cleaned == cleaned[::-1]
-```
+#### Derivation
 
-#### Approach
-
-This is the most library-driven form. It delegates the filtering to the built-in
-`filter` and lowercases the whole result at once.
+The previous form still lowercases character by character inside the
+comprehension. The most library-driven form pushes even that to the standard
+library: delegate the filtering to the built-in `filter` and lowercase the
+whole joined result in one call:
 
 1. Pass the unbound method `str.isalnum` and the string `s` to `filter`, which
    yields only the alphanumeric characters.
 2. Join those characters and call `.lower()` once on the assembled string to get
    `cleaned`.
 3. Return whether `cleaned` equals its reverse `cleaned[::-1]`.
+
+#### Walkthrough
+
+Trace the expression on Example 3, `s = " "`, the edge case where nothing
+survives the filter:
+
+```text
+filter(str.isalnum, " ")   yields nothing: the lone space fails isalnum
+cleaned = ""               joining nothing gives "", and .lower() leaves it ""
+cleaned[::-1] = ""         reversing the empty string gives the empty string
+"" == ""                   -> True
+```
+
+With no characters left, `cleaned` and its reverse are both the empty string,
+so the equality holds and the function returns `True`, matching the expected
+Output for Example 3: an empty string reads the same forward and backward.
+
+#### Solution
+
+```python
+class Solution:
+    def isPalindrome(self, s: str) -> bool:
+        cleaned = "".join(filter(str.isalnum, s)).lower()
+        return cleaned == cleaned[::-1]
+```
 
 #### Time and Space Complexity Analysis
 

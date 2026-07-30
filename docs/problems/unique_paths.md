@@ -37,30 +37,43 @@ The test cases are generated so that the answer will be less than or equal to `2
 
 - `1 <= m, n <= 100`
 
+## Deriving the Solution
+
+A path is nothing but a sequence of down and right steps, and the number of paths
+onward from any cell depends only on that cell, never on how the robot arrived
+there. Every solution below exploits that one observation, ending with a
+formulation that skips the grid entirely.
+
+1. **Start literal.** From any cell the robot steps down or right, so the count
+   from a cell is the count from the cell below plus the count from the cell to
+   its right. Recurse on both choices: correct but `O(2^(m + n))`, since nothing
+   is remembered: see [Recursion](#recursion).
+2. **Spot the waste.** Many distinct routes pass through the same cell, and the
+   recursion re-derives that cell's count once per route. The answer from
+   `(i, j)` never changes, yet it is recomputed exponentially often.
+3. **Cache it.** Store each cell's count the first time it is computed and answer
+   every later visit from the cache. Only `m × n` distinct cells exist, so the
+   work collapses to `O(m × n)`: see
+   [Top-Down Memoization](#top-down-memoization).
+4. **Fill the table directly.** The memo is a table filled lazily in whatever
+   order the recursion demands. Filling it row by row with an explicit loop
+   removes the recursion and its stack entirely: see
+   [Bottom-Up DP](#bottom-up-dp).
+5. **Shrink the table.** Each row of that table reads only the row above it, so a
+   single reusable row of `n` counts is enough: see
+   [Space-Optimized DP](#space-optimized-dp).
+6. **Count instead of build.** Every path is exactly `m - 1` downs and `n - 1`
+   rights in some order, so the answer is the number of ways to place the downs
+   among `m + n - 2` moves: one binomial coefficient, computed in
+   `O(min(m, n))` time: see [Combinatorics](#combinatorics).
+
 ## Solutions
 
 ### Recursion
 
-```python
-class Solution:
-    def uniquePaths(self, m: int, n: int) -> int:
-        # Count paths from cell (i, j) to the bottom-right corner
-        def count(i: int, j: int) -> int:
-            # Reached the destination: exactly one way to "finish"
-            if i == m - 1 and j == n - 1:
-                return 1
-            # Fell off the grid: this branch contributes no path
-            if i >= m or j >= n:
-                return 0
-            # Every path either steps down or steps right
-            return count(i + 1, j) + count(i, j + 1)
+#### Derivation
 
-        return count(0, 0)
-```
-
-#### Approach
-
-The most direct idea mirrors the problem statement exactly: from any cell the robot may step down or step right, so the number of paths from a cell is the sum of the paths from the cell below and the cell to its right. [Recurse](https://en.wikipedia.org/wiki/Recursion_(computer_science)) on both choices and add the results, with no table and no memory of past work.
+The most direct idea mirrors the problem statement exactly: from any cell the robot may step down or step right, so the number of paths from a cell is the sum of the paths from the cell below and the cell to its right. [Recurse](https://en.wikipedia.org/wiki/Recursion_(computer_science)) on both choices and add the results, with no table and no memory of past work:
 
 1. Start at the top-left cell `(0, 0)`.
 2. If the current cell is the bottom-right corner, this branch is one complete path, so return `1`.
@@ -69,29 +82,13 @@ The most direct idea mirrors the problem statement exactly: from any cell the ro
 
 This enumerates every down/right path by brute force, recomputing shared subproblems each time it reaches them.
 
-#### Time and Space Complexity Analysis
-
-##### Time Complexity: `O(2^(m + n))`
-
-Each call branches into two recursive calls and the recursion runs up to `m + n` levels deep, so the call tree grows exponentially. The same cell is recomputed many times because nothing is cached.
-
-##### Space Complexity: `O(m + n)`
-
-No auxiliary table is built, but the recursion stack reaches a depth of `m + n - 2` along the longest down-and-right path.
-
-#### Key Insights
-
-- Reads straight off the problem statement: a path is a sequence of down and right moves, so paths split into "go down" plus "go right".
-- It is simple and library-free but wasteful: it recomputes the same `(i, j)` subproblem on every path that passes through it.
-- The exponential blow-up motivates caching shared subproblems, which the DP solutions do next.
-
 #### Walkthrough
 
 Example 1 (`m = 3`, `n = 7`) has 28 paths, far too many to draw by hand, so this trace uses the smaller Example 2: `m = 3`, `n = 2`, whose expected Output is `3`. The grid is 3 rows by 2 columns, so the corner is cell `(2, 1)`, and a cell is "off the grid" once `i >= 3` or `j >= 2`.
 
 The recursion forms a call tree. Each `count(i, j)` first checks the two base cases, then returns `count(i + 1, j)` (step down) plus `count(i, j + 1)` (step right). Reading the tree top-down shows each call; the `->` lines show what each call returns as results combine back up:
 
-```
+```text
 count(0,0)
   count(1,0)                    down from start
     count(2,0)
@@ -115,7 +112,94 @@ count(0,0)
 
 The root `count(0, 0)` adds its down branch (`2`) and its right branch (`1`) to return `3`, which matches the expected Output `3`. Notice `count(2,1)` and `count(1,1)` are each evaluated more than once: that repeated work is exactly the waste the DP solutions remove.
 
+#### Solution
+
+The code is the call tree from the walkthrough: two base cases, then the down
+branch plus the right branch.
+
+```python
+class Solution:
+    def uniquePaths(self, m: int, n: int) -> int:
+        # Count paths from cell (i, j) to the bottom-right corner
+        def count(i: int, j: int) -> int:
+            # Reached the destination: exactly one way to "finish"
+            if i == m - 1 and j == n - 1:
+                return 1
+            # Fell off the grid: this branch contributes no path
+            if i >= m or j >= n:
+                return 0
+            # Every path either steps down or steps right
+            return count(i + 1, j) + count(i, j + 1)
+
+        return count(0, 0)
+```
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(2^(m + n))`
+
+Each call branches into two recursive calls and the recursion runs up to `m + n` levels deep, so the call tree grows exponentially. The same cell is recomputed many times because nothing is cached.
+
+##### Space Complexity: `O(m + n)`
+
+No auxiliary table is built, but the recursion stack reaches a depth of `m + n - 2` along the longest down-and-right path.
+
+#### Key Insights
+
+- Reads straight off the problem statement: a path is a sequence of down and right moves, so paths split into "go down" plus "go right".
+- It is simple and library-free but wasteful: it recomputes the same `(i, j)` subproblem on every path that passes through it.
+- The exponential blow-up motivates caching shared subproblems, which the DP solutions do next.
+
 ### Top-Down Memoization
+
+#### Derivation
+
+The pure recursion pays for its honesty: it re-solves `count(i, j)` on every route that passes through `(i, j)`, and its `O(2^(m + n))` call tree times out on the 23 x 12 full-size case. The observation that repairs it is that the number of paths from `(i, j)` to the corner depends only on the cell itself, not on how the robot arrived there, so the result of `count(i, j)` can be stored the first time it is computed and returned instantly on every later visit. There are only `m × n` distinct cells, so with the cache each cell's body executes at most once and every repeated visit is a constant-time lookup. The memo is the same table the Bottom-Up DP below fills explicitly; [memoization](https://en.wikipedia.org/wiki/Memoization) simply fills it lazily, in whatever order the recursion demands, while keeping the top-down framing that reads straight off the problem statement:
+
+1. Keep the `count(i, j)` recursion and its two base cases exactly as in the
+   Recursion solution.
+2. Before branching, return `memo[(i, j)]` when the pair is already in the
+   dictionary.
+3. Otherwise compute `count(i + 1, j) + count(i, j + 1)` once, store it under
+   `(i, j)`, and return it.
+4. The answer is `count(0, 0)`.
+
+#### Walkthrough
+
+Like the Recursion walkthrough, this trace uses Example 2 (`m = 3`, `n = 2`),
+which is small enough to draw and reaches the same cell along two different
+routes, so it exercises the memo. The trace indents one level per call; base
+cases (corner, off grid) return before the memo is consulted, so only interior
+cells are stored:
+
+```text
+count(0,0)                       compute
+  count(1,0)                     down; compute
+    count(2,0)                   compute
+      count(3,0) -> 0            off the grid
+      count(2,1) -> 1            corner reached
+    memo[(2,0)] = 0 + 1 = 1
+    count(1,1)                   compute
+      count(2,1) -> 1            corner reached
+      count(1,2) -> 0            off the grid
+    memo[(1,1)] = 1 + 0 = 1
+  memo[(1,0)] = 1 + 1 = 2
+  count(0,1)                     right; compute
+    count(1,1) -> 1              ** memo hit, no recursion **
+    count(0,2) -> 0              off the grid
+  memo[(0,1)] = 1 + 0 = 1
+memo[(0,0)] = 2 + 1 = 3
+```
+
+The cell `(1, 1)` is reached twice: once through the down branch `(1, 0)` and
+once through the right branch `(0, 1)`. The pure recursion re-expanded it both
+times; here the second visit answers from `memo[(1, 1)]` without recursing. The
+call returns `3`, matching the expected Output for Example 2.
+
+#### Solution
+
+The code is the Recursion solution with the memo lookup and store wrapped around
+the branch; nothing else changes.
 
 ```python
 class Solution:
@@ -141,12 +225,6 @@ class Solution:
         return count(0, 0)
 ```
 
-#### Approach
-
-This is the recursion above with one addition: a cache. The number of paths from `(i, j)` to the corner depends only on the cell itself, not on how the robot arrived there, so the result of `count(i, j)` can be stored the first time it is computed and returned instantly on every later visit. A dictionary keyed on the `(i, j)` pair serves as the cache: before branching, the function returns the memoized value if one exists; otherwise it computes `count(i + 1, j) + count(i, j + 1)` once, records it, and returns it.
-
-The recurrence and base cases are identical to the pure recursion, but the cost model collapses. The brute force enumerates every down/right path, and its `O(2^(m + n))` call tree times out on the 23 x 12 full-size case. There are only `m × n` distinct cells, however, so with the cache each cell's body executes at most once and every repeated visit is a constant-time lookup. The memo is the same table the Bottom-Up DP below fills explicitly; [memoization](https://en.wikipedia.org/wiki/Memoization) simply fills it lazily, in whatever order the recursion demands, while keeping the top-down framing that reads straight off the problem statement.
-
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(m × n)`
@@ -166,20 +244,15 @@ The memo can hold one entry per cell, which dominates at `O(m × n)`. The recurs
 
 ### Bottom-Up DP
 
-```python
-class Solution:
-    def uniquePaths(self, m: int, n: int) -> int:
-        # Create DP table where dp[i][j] = paths to reach cell (i, j)
-        dp = [[1] * n for _ in range(m)]
+#### Derivation
 
-        # Fill the DP table
-        for i in range(1, m):
-            for j in range(1, n):
-                # Paths to current cell = paths from above + paths from left
-                dp[i][j] = dp[i-1][j] + dp[i][j-1]
+The memoized recursion still carries a call stack and fills its table in an order dictated by the call tree. Ask the question from the other direction instead: how many paths reach cell `(i, j)` from the origin? The robot only moves down or right, so it can only arrive from the cell above `(i-1, j)` or the cell to the left `(i, j-1)`, giving `paths[i][j] = paths[i-1][j] + paths[i][j-1]`. The first row and first column have exactly one path each (keep moving right, or keep moving down), which seeds the table. Filling the table row by row is the same information the memo holds, computed with a plain double loop and no recursion: the textbook [bottom-up approach](https://en.wikipedia.org/wiki/Dynamic_programming):
 
-        return dp[m-1][n-1]
-```
+1. Allocate `dp` as an `m × n` table filled with `1`. The first row and first
+   column really are all `1`, and every other cell will be overwritten.
+2. For `i` from `1` to `m - 1` and `j` from `1` to `n - 1`, set
+   `dp[i][j] = dp[i-1][j] + dp[i][j-1]`.
+3. Return `dp[m-1][n-1]`.
 
 #### Recurrence
 
@@ -203,15 +276,45 @@ dp[i][j] = dp[i - 1][j] + dp[i][j - 1]  for i >= 1 and j >= 1
 The first row and first column are `1` because there is a single monotone path
 along an edge. The answer is \(dp[m-1][n-1]\).
 
-#### Approach
+#### Walkthrough
 
-The key insight is that to reach any cell (i, j), the robot must come from either the cell above (i-1, j) or the cell to the left (i, j-1). Therefore: `paths[i][j] = paths[i-1][j] + paths[i][j-1]`
+Let us fill the table by hand on Example 1: `m = 3`, `n = 7`, expected Output
+`28`. The table starts as three rows of `1`s; row `0` and column `0` keep those
+values, and each later cell becomes the cell above plus the cell to the left:
 
-The base cases are:
-- First row: only 1 way to reach each cell (keep moving right)
-- First column: only 1 way to reach each cell (keep moving down)
+```text
+start   dp[0] = [1, 1, 1, 1,  1,  1,  1]    one path along the top edge
+        dp[1] = [1, 1, 1, 1,  1,  1,  1]    initialized; only dp[1][0] is final
+        dp[2] = [1, 1, 1, 1,  1,  1,  1]    initialized; only dp[2][0] is final
+i = 1   dp[1] = [1, 2, 3, 4,  5,  6,  7]    dp[1][j] = dp[0][j] + dp[1][j-1]
+i = 2   dp[2] = [1, 3, 6, 10, 15, 21, 28]   dp[2][j] = dp[1][j] + dp[2][j-1]
+```
 
-This [bottom-up approach](https://en.wikipedia.org/wiki/Dynamic_programming) fills a full 2D table, mirroring the recurrence directly.
+Two cells in detail: `dp[1][1] = dp[0][1] + dp[1][0] = 1 + 1 = 2`, and the final
+cell `dp[2][6] = dp[1][6] + dp[2][5] = 7 + 21 = 28`.
+
+The function returns `dp[2][6] = 28`, matching the expected Output for
+Example 1.
+
+#### Solution
+
+The code is the row fill from the walkthrough: seed the table with `1`s, then
+sweep the interior cells in order.
+
+```python
+class Solution:
+    def uniquePaths(self, m: int, n: int) -> int:
+        # Create DP table where dp[i][j] = paths to reach cell (i, j)
+        dp = [[1] * n for _ in range(m)]
+
+        # Fill the DP table
+        for i in range(1, m):
+            for j in range(1, n):
+                # Paths to current cell = paths from above + paths from left
+                dp[i][j] = dp[i-1][j] + dp[i][j-1]
+
+        return dp[m-1][n-1]
+```
 
 #### Time and Space Complexity Analysis
 
@@ -230,6 +333,38 @@ We store the entire 2D DP table.
 
 ### Space-Optimized DP
 
+#### Derivation
+
+The 2D table wastes memory: once row `i` is filled, row `i - 1` is never read again, yet the table keeps every row alive. Since computing the current row needs only the previous row, a single row can be updated in place. The recurrence stays the same; only the storage changes. In `dp[j] += dp[j-1]`, the old value of `dp[j]` is the cell above (not yet overwritten this pass) and the freshly updated `dp[j-1]` is the cell to the left, so one row plays both roles:
+
+1. Initialize `dp = [1] * n`: the first row of the table.
+2. For each subsequent row `i` from `1` to `m - 1`, sweep `j` from `1` to
+   `n - 1`, updating `dp[j] += dp[j-1]` in place.
+3. Return `dp[n-1]`.
+
+#### Walkthrough
+
+Let us run the single row on Example 1 again: `m = 3`, `n = 7`. Each pass of the
+outer loop turns the row for grid row `i - 1` into the row for grid row `i`,
+overwriting it left to right:
+
+```text
+start   dp = [1, 1, 1, 1, 1, 1, 1]         row 0: one path to each cell
+i = 1   j = 1: dp[1] = 1 + 1 = 2           old dp[1] is the cell above,
+        j = 2: dp[2] = 1 + 2 = 3           fresh dp[j-1] is the cell to the left
+        j = 3 .. 6 continue the sweep
+        dp = [1, 2, 3, 4, 5, 6, 7]         row 1 complete
+i = 2   dp = [1, 3, 6, 10, 15, 21, 28]     row 2 overwrites row 1 in place
+```
+
+The rows that appear are exactly the rows of the 2D table, computed without ever
+storing more than one of them. The function returns `dp[6] = 28`, matching the
+expected Output for Example 1.
+
+#### Solution
+
+The code is the in-place row sweep from the walkthrough.
+
 ```python
 class Solution:
     def uniquePaths(self, m: int, n: int) -> int:
@@ -242,10 +377,6 @@ class Solution:
 
         return dp[n-1]
 ```
-
-#### Approach
-
-This applies the same recurrence as the 2D DP, but recognizes that calculating the current row only requires the previous row. By updating a single row in place, `dp[j] += dp[j-1]` reuses the old value of `dp[j]` (the cell above) and the freshly updated `dp[j-1]` (the cell to the left), collapsing storage to a single row.
 
 #### Time and Space Complexity Analysis
 
@@ -264,22 +395,14 @@ We keep only one row of results.
 
 ### Combinatorics
 
-```python
-class Solution:
-    def uniquePaths(self, m: int, n: int) -> int:
-        # Total moves needed: (m-1) down + (n-1) right = (m+n-2) total moves
-        # Choose (m-1) positions for down moves out of (m+n-2) total positions
-        # This equals C(m+n-2, m-1) = C(m+n-2, n-1), so iterate the smaller side
-        total_moves = m + n - 2
-        k = min(m - 1, n - 1)
+#### Derivation
 
-        # Calculate C(total_moves, k) efficiently
-        result = 1
-        for i in range(k):
-            result = result * (total_moves - i) // (i + 1)
+Every DP above still touches all `m × n` cells, but the grid is scaffolding: a path never turns back, so it is fully described by the order of its moves. The robot makes exactly `m - 1` down moves and `n - 1` right moves, `m + n - 2` moves in total, and choosing which positions hold the down moves determines the entire path. The question collapses to "in how many ways can we choose `m - 1` positions out of `m + n - 2`?", the [binomial coefficient](https://en.wikipedia.org/wiki/Combination) `C(m+n-2, m-1)`. By symmetry `C(m+n-2, m-1) = C(m+n-2, n-1)`, so the loop iterates over the smaller of the two counts, and it multiplies before dividing to keep every intermediate value an exact integer:
 
-        return result
-```
+1. Set `total_moves = m + n - 2` and `k = min(m - 1, n - 1)`.
+2. Build the coefficient one factor at a time: for `i` in `range(k)`, update
+   `result = result * (total_moves - i) // (i + 1)`.
+3. Return `result`.
 
 #### Closed Form
 
@@ -315,9 +438,43 @@ Building it that way keeps every partial result an exact integer, because the pr
 consecutive integers is divisible by \((i+1)!\). That is why the code can use
 floor division inside the loop without ever losing a remainder.
 
-#### Approach
+#### Walkthrough
 
-From a mathematical perspective, the robot needs to make exactly (m-1) down moves and (n-1) right moves for a total of (m+n-2) moves. The problem reduces to: "In how many ways can we choose (m-1) positions for down moves out of (m+n-2) total positions?" This is the [binomial coefficient](https://en.wikipedia.org/wiki/Combination) C(m+n-2, m-1). By symmetry C(m+n-2, m-1) = C(m+n-2, n-1), the loop iterates over the smaller of the two counts, and it multiplies before dividing to keep intermediate values integral and avoid overflow.
+Let us evaluate the formula on Example 1: `m = 3`, `n = 7`. The path has
+`m - 1 = 2` downs and `n - 1 = 6` rights, and the loop builds the coefficient one
+factor at a time; after each iteration `i`, `result` equals
+`C(total_moves, i + 1)`:
+
+```text
+total_moves = 3 + 7 - 2 = 8        8 moves: 2 downs and 6 rights
+k = min(2, 6) = 2                  choose positions for the 2 downs
+i = 0   result = 1 * 8 // 1 = 8    C(8, 1)
+i = 1   result = 8 * 7 // 2 = 28   C(8, 2)
+```
+
+The loop ends with `result = C(8, 2) = 28`: there are 28 ways to place the two
+down moves among eight positions, matching the expected Output for Example 1.
+
+#### Solution
+
+The code is the factor-by-factor product from the walkthrough.
+
+```python
+class Solution:
+    def uniquePaths(self, m: int, n: int) -> int:
+        # Total moves needed: (m-1) down + (n-1) right = (m+n-2) total moves
+        # Choose (m-1) positions for down moves out of (m+n-2) total positions
+        # This equals C(m+n-2, m-1) = C(m+n-2, n-1), so iterate the smaller side
+        total_moves = m + n - 2
+        k = min(m - 1, n - 1)
+
+        # Calculate C(total_moves, k) efficiently
+        result = 1
+        for i in range(k):
+            result = result * (total_moves - i) // (i + 1)
+
+        return result
+```
 
 #### Time and Space Complexity Analysis
 

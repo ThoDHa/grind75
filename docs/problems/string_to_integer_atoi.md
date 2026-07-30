@@ -90,9 +90,81 @@ Since 4193 is in the range `[-2^31, 2^31 - 1]`, the final result is 4193.
 - `0 <= s.length <= 200`
 - `s` consists of English letters (lower-case and upper-case), digits (0-9), `' '`, `'+'`, `'-'`, and `'.'`.
 
+## Deriving the Solution
+
+This is a simulation problem: the six specification steps (skip spaces, read
+one optional sign, read digits, convert, clamp, return) are the algorithm,
+and every solution is a different way of organizing the same left-to-right
+scan.
+
+1. **Start literal.** Implement the steps as four separate phases with the
+   simplest possible code: skip spaces, record the sign, collect the digit
+   run into a string, then fold that string into a number by hand with a
+   clamp. Clear, but it buffers an `O(n)` digit substring: see
+   [Brute Force](#brute-force).
+2. **Spot the waste.** The digits are collected only to be walked again.
+   Folding each digit into `result` the moment it is read removes the buffer,
+   provided overflow is tested before each multiply. That yields the `O(1)`
+   space hand parser: see [Single Pass](#single-pass).
+3. **Make the phases explicit.** The phase order lives implicitly in the
+   sequence of loops, so every edge case depends on conditionals being
+   ordered correctly. Reformulating the parse as a finite automaton moves the
+   whole grammar into a transition table whose entries can be verified one by
+   one: see [State Machine (DFA)](#state-machine-dfa).
+4. **Delegate to the library.** Python can do the conversion itself: keep the
+   phases but hand the digit string to `int()`, in
+   [Strip and Parse](#strip-and-parse), or let a regular expression match the
+   whole grammar at once, in [Regular Expression](#regular-expression). Both
+   clamp once at the end instead of guarding every multiply.
+
 ## Solutions
 
 ### Brute Force
+
+#### Derivation
+
+The most literal way to solve this is to follow the six specification steps
+as four separate phases, doing each one with the simplest possible code and
+no library help. Whitespace, sign, and digit collection are handled in order,
+then the collected digit characters are converted into a number by hand.
+
+1. Skip leading spaces by advancing `i` while the current character is `' '`.
+2. Read a single optional `'+'` or `'-'`, recording `sign` and moving past
+   it.
+3. Walk forward collecting every consecutive digit character into a `digits`
+   string, stopping at the first non-digit or the end of input.
+4. Fold `digits` into an integer left to right with
+   `result * 10 + (ord(ch) - ord('0'))`, clamping to `INT_MAX` or `INT_MIN`
+   the moment the running value leaves the 32-bit range.
+
+#### Walkthrough
+
+Let us watch the Brute Force code run on Example 1: `s = "42"`, so `n = 2`. The expected Output is `42`.
+
+**Phase 1, skip leading spaces:** `i` starts at `0`. `s[0]` is `'4'`, not a space, so the `while` loop never runs. `i` stays `0`.
+
+**Phase 2, read an optional sign:** `s[0]` is `'4'`, which is neither `'+'` nor `'-'`, so the `if` is skipped. `sign` stays `1` and `i` stays `0`.
+
+**Phase 3, collect the digit run:** the `while` loop appends one character per step. This is the heart of the parse, so trace it index by index:
+
+| Step | `i` before | `s[i]` | digit? | `digits` after | `i` after |
+|------|-----------|--------|--------|----------------|-----------|
+| 1 | `0` | `'4'` | yes | `'4'` | `1` |
+| 2 | `1` | `'2'` | yes | `'42'` | `2` |
+| 3 | `2` | (end, `i == n`) | loop stops | `'42'` | `2` |
+
+**Phase 4, fold the digits into a number:** `result` starts at `0`, then each character is folded with `result = result * 10 + (ord(ch) - ord('0'))`:
+
+| `ch` | `result` before | `result * 10 + digit` | `result` after |
+|------|-----------------|------------------------|----------------|
+| `'4'` | `0` | `0 * 10 + 4` | `4` |
+| `'2'` | `4` | `4 * 10 + 2` | `42` |
+
+Neither value leaves the 32-bit range, so no clamp fires. The function returns `sign * result`, which is `1 * 42 = 42`. This matches the expected Output `42`.
+
+#### Solution
+
+The code is the four phases from the walkthrough, executed in order.
 
 ```python
 class Solution:
@@ -131,15 +203,6 @@ class Solution:
         return sign * result
 ```
 
-#### Approach
-
-The most literal way to solve this is to follow the six specification steps as four separate phases, doing each one with the simplest possible code and no library help. Whitespace, sign, and digit collection are handled in order, then the collected digit characters are converted into a number by hand.
-
-1. Skip leading spaces by advancing while the current character is `' '`.
-2. Read a single optional `'+'` or `'-'`, recording the sign and moving past it.
-3. Walk forward collecting every consecutive digit character into a `digits` string, stopping at the first non-digit or the end of input.
-4. Fold `digits` into an integer left to right with `result * 10 + (ord(ch) - ord('0'))`, clamping to `INT_MAX` or `INT_MIN` the moment the running value leaves the 32-bit range.
-
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(n)`
@@ -156,70 +219,25 @@ The `digits` substring can grow to the length of the input in the worst case, so
 - The character-to-digit conversion `ord(ch) - ord('0')` is written out by hand, with no `int()` or `isdigit()` doing the work.
 - Clamping inside the fold (rather than after) keeps every intermediate value inside the 32-bit range, even for inputs far larger than `2^31`.
 
-#### Walkthrough
-
-Let us watch the Brute Force code run on Example 1: `s = "42"`, so `n = 2`. The expected Output is `42`.
-
-**Phase 1, skip leading spaces:** `i` starts at `0`. `s[0]` is `'4'`, not a space, so the `while` loop never runs. `i` stays `0`.
-
-**Phase 2, read an optional sign:** `s[0]` is `'4'`, which is neither `'+'` nor `'-'`, so the `if` is skipped. `sign` stays `1` and `i` stays `0`.
-
-**Phase 3, collect the digit run:** the `while` loop appends one character per step. This is the heart of the parse, so trace it index by index:
-
-| Step | `i` before | `s[i]` | digit? | `digits` after | `i` after |
-|------|-----------|--------|--------|----------------|-----------|
-| 1 | `0` | `'4'` | yes | `'4'` | `1` |
-| 2 | `1` | `'2'` | yes | `'42'` | `2` |
-| 3 | `2` | (end, `i == n`) | loop stops | `'42'` | `2` |
-
-**Phase 4, fold the digits into a number:** `result` starts at `0`, then each character is folded with `result = result * 10 + (ord(ch) - ord('0'))`:
-
-| `ch` | `result` before | `result * 10 + digit` | `result` after |
-|------|-----------------|------------------------|----------------|
-| `'4'` | `0` | `0 * 10 + 4` | `4` |
-| `'2'` | `4` | `4 * 10 + 2` | `42` |
-
-Neither value leaves the 32-bit range, so no clamp fires. The function returns `sign * result`, which is `1 * 42 = 42`. This matches the expected Output `42`.
-
 ### Single Pass
 
-```python
-class Solution:
-    def myAtoi(self, s: str) -> int:
-        INT_MAX = 2**31 - 1
-        INT_MIN = -2**31
+#### Derivation
 
-        index = 0
-        sign = 1
-        result = 0
+The brute force's one waste is the intermediate `digits` substring:
+characters are collected only to be walked a second time. Fuse collection and
+conversion into one loop, folding each digit into `result` the moment it is
+read, and the buffer disappears. The price is that overflow can now happen
+mid-scan, so the test must run *before* each multiply: in plain text the
+dangerous condition is `result * 10 + digit > INT_MAX`, restated below as a
+pre-multiply comparison the code can evaluate safely.
 
-        # Skip leading spaces
-        while index < len(s) and s[index] == ' ':
-            index += 1
-
-        if index >= len(s):
-            return 0
-
-        # Read an optional sign
-        if s[index] == '+':
-            sign = 1
-            index += 1
-        elif s[index] == '-':
-            sign = -1
-            index += 1
-
-        # Accumulate digits, guarding overflow before each multiply
-        while index < len(s) and s[index].isdigit():
-            digit = ord(s[index]) - ord('0')
-
-            if result > INT_MAX // 10 or (result == INT_MAX // 10 and digit > INT_MAX % 10):
-                return INT_MAX if sign == 1 else INT_MIN
-
-            result = result * 10 + digit
-            index += 1
-
-        return sign * result
-```
+1. Skip leading spaces, then read the optional sign exactly as before,
+   tracking the position in `index`.
+2. For each digit, check overflow before the multiply by comparing `result`
+   against `INT_MAX // 10` and the incoming `digit` against `INT_MAX % 10`;
+   clamp to `INT_MAX` or `INT_MIN` by `sign` the instant the guard fires.
+3. Otherwise accumulate `result = result * 10 + digit` and advance `index`.
+4. Return `sign * result` when the digit run ends.
 
 #### Overflow Condition
 
@@ -268,13 +286,78 @@ yields `INT_MIN`, and \(-2^{31}\) is precisely the value the exact parse would
 have produced. Every larger magnitude genuinely exceeds the range and clamps to
 `INT_MIN` regardless, so a single boundary serves both signs.
 
-#### Approach
+#### Walkthrough
 
-This refines the brute force by fusing digit collection and conversion into one loop, dropping the intermediate `digits` substring. The string is consumed in a single forward pass while the running integer is built directly, which brings the space down to constant.
+None of the official Examples overflows, so the guard never fires on them. To
+see the clamp we use a tailored input one below the 32-bit floor:
+`s = "-2147483649"`, which must clamp to `INT_MIN = -2147483648`.
 
-1. Skip leading spaces, then read the optional sign exactly as before.
-2. For each digit, check overflow *before* the multiply by comparing against `INT_MAX // 10` and the boundary digit `INT_MAX % 10`. In plain text the condition is `result * 10 + digit > INT_MAX`, restated above as the pre-multiply test the code can safely evaluate.
-3. Accumulate into `result` in place, and clamp to `INT_MAX` or `INT_MIN` the instant an overflow would occur.
+There are no spaces to skip; `s[0]` is `'-'`, so `sign = -1` and `index`
+moves to `1`. The digit loop then folds one digit per step, checking the
+guard (`q = INT_MAX // 10 = 214748364`, `r = INT_MAX % 10 = 7`) before each
+multiply:
+
+```text
+digit=2   result 0 -> 2
+digit=1   result 2 -> 21
+digit=4   result 21 -> 214
+digit=7   result 214 -> 2147
+digit=4   result 2147 -> 21474
+digit=8   result 21474 -> 214748
+digit=3   result 214748 -> 2147483
+digit=6   result 2147483 -> 21474836
+digit=4   result 21474836 -> 214748364    result now equals q
+digit=9   result == q and digit 9 > r=7   guard fires -> return INT_MIN
+```
+
+The first nine digits pass the guard comfortably (`result < q` before each of
+them, or exactly `q` only after the ninth fold). The tenth digit lands on the
+boundary case: `result == q`, so the digit decides, and `9 > 7` means
+`10 * result + 9` would exceed `INT_MAX`. Since `sign == -1`, the function
+returns `INT_MIN = -2147483648`, the correct clamp for `-2147483649`.
+
+#### Solution
+
+The code is the fold from the walkthrough with the guard placed before the
+multiply.
+
+```python
+class Solution:
+    def myAtoi(self, s: str) -> int:
+        INT_MAX = 2**31 - 1
+        INT_MIN = -2**31
+
+        index = 0
+        sign = 1
+        result = 0
+
+        # Skip leading spaces
+        while index < len(s) and s[index] == ' ':
+            index += 1
+
+        if index >= len(s):
+            return 0
+
+        # Read an optional sign
+        if s[index] == '+':
+            sign = 1
+            index += 1
+        elif s[index] == '-':
+            sign = -1
+            index += 1
+
+        # Accumulate digits, guarding overflow before each multiply
+        while index < len(s) and s[index].isdigit():
+            digit = ord(s[index]) - ord('0')
+
+            if result > INT_MAX // 10 or (result == INT_MAX // 10 and digit > INT_MAX % 10):
+                return INT_MAX if sign == 1 else INT_MIN
+
+            result = result * 10 + digit
+            index += 1
+
+        return sign * result
+```
 
 #### Time and Space Complexity Analysis
 
@@ -293,6 +376,77 @@ The running integer, sign, and index are the only state; no per-digit buffer is 
 - Folding collection into the accumulation loop removes the brute force's `O(n)` digit substring, the one piece of waste it carried.
 
 ### State Machine (DFA)
+
+#### Derivation
+
+The Single Pass is correct, but its phase structure is implicit: skipping,
+sign reading, and digit accumulation live in the order of its loops, and
+every edge case rests on conditionals being placed exactly right. This
+solution reformulates the parse as a
+**[deterministic finite automaton](https://en.wikipedia.org/wiki/Deterministic_finite_automaton)**
+(the classic LeetCode editorial framing). Every character of the input
+belongs to exactly one of four input classes: `space` (the literal `' '`),
+`sign` (`'+'` or `'-'`), `digit` (`'0'` through `'9'`), or `other` (anything
+else). The parser itself is always in exactly one of four states, and a fixed
+transition table maps each (state, input class) pair to the next state:
+
+| State | `space` | `sign` | `digit` | `other` |
+|-------|---------|--------|---------|---------|
+| `start` | `start` | `sign` | `number` | `end` |
+| `sign` | `end` | `end` | `number` | `end` |
+| `number` | `end` | `end` | `number` | `end` |
+| `end` | `end` | `end` | `end` | `end` |
+
+In words: the automaton begins in `start` and stays there while consuming
+leading spaces; a sign character moves it to `sign`, a digit moves it to
+`number`, and anything else moves it to the absorbing `end` state. From
+`sign` only a digit continues the parse; from `number` only further digits
+do. Once `end` is reached, nothing can leave it, so the loop simply breaks.
+
+The payoff is that the messy edge cases stop being code at all. A lone sign
+(`"+"`), a sign after spaces (`"   -"`), a second sign (`"+-12"`), leading
+letters (`"abc42"`), and trailing junk (`"42abc"`) are not handled by
+if-chains: each one is just a row-column lookup in the table that happens to
+land in `end`. The correctness argument shrinks from "did I order my
+conditionals correctly?" to "is this 16-entry table right?", which can be
+checked cell by cell against the specification. The same formulation
+generalizes directly to other parsing problems (Valid Number is the canonical
+example): define the input classes, draw the states, fill in the table, and
+the control flow writes itself.
+
+1. Declare the `TRANSITIONS` table above and a `classify` helper mapping each
+   character to its input class.
+2. For each `ch` in `s`, step with
+   `state = TRANSITIONS[state][classify(ch)]`.
+3. Attach one action to each state landed in: entering `sign` records the
+   sign, entering `number` folds the digit into `result` with the same
+   before-the-multiply overflow guard as the Single Pass (compare against
+   `INT_MAX // 10` and the boundary digit `INT_MAX % 10`, then clamp by
+   sign), and entering `end` breaks the scan.
+4. Return `sign * result`.
+
+#### Walkthrough
+
+Let us watch the State Machine code run on the tricky input `s = "   -42abc"`. The expected result is `-42`.
+
+The automaton starts in `state = 'start'` with `sign = 1` and `result = 0`. Each character is classified, the table picks the next state, and the state's action fires:
+
+| Step | `ch` | Input class | State before | State after | Action |
+|------|------|-------------|--------------|-------------|--------|
+| 1 | `' '` | `space` | `start` | `start` | none (still skipping spaces) |
+| 2 | `' '` | `space` | `start` | `start` | none |
+| 3 | `' '` | `space` | `start` | `start` | none |
+| 4 | `'-'` | `sign` | `start` | `sign` | `sign = -1` |
+| 5 | `'4'` | `digit` | `sign` | `number` | `result = 0 * 10 + 4 = 4` |
+| 6 | `'2'` | `digit` | `number` | `number` | `result = 4 * 10 + 2 = 42` |
+| 7 | `'a'` | `other` | `number` | `end` | `break` |
+
+The `'a'` at step 7 drives the automaton into the absorbing `end` state, so `"bc"` is never examined. No overflow guard fires along the way (`4` and `42` are far below `INT_MAX // 10`). The function returns `sign * result = -1 * 42 = -42`, matching the expected result. Note how the three leading spaces, the sign, and the trailing junk were all handled by the same table lookup that handled the digits: no phase of the input needed its own code path.
+
+#### Solution
+
+The code is the table plus the per-state actions; the loop body never changes
+across characters.
 
 ```python
 class Solution:
@@ -336,23 +490,6 @@ class Solution:
         return sign * result
 ```
 
-#### Approach
-
-This solution reformulates the parse as a **[deterministic finite automaton](https://en.wikipedia.org/wiki/Deterministic_finite_automaton)** (the classic LeetCode editorial framing). Every character of the input belongs to exactly one of four input classes: `space` (the literal `' '`), `sign` (`'+'` or `'-'`), `digit` (`'0'` through `'9'`), or `other` (anything else). The parser itself is always in exactly one of four states, and a fixed transition table maps each (state, input class) pair to the next state:
-
-| State | `space` | `sign` | `digit` | `other` |
-|-------|---------|--------|---------|---------|
-| `start` | `start` | `sign` | `number` | `end` |
-| `sign` | `end` | `end` | `number` | `end` |
-| `number` | `end` | `end` | `number` | `end` |
-| `end` | `end` | `end` | `end` | `end` |
-
-In words: the automaton begins in `start` and stays there while consuming leading spaces; a sign character moves it to `sign`, a digit moves it to `number`, and anything else moves it to the absorbing `end` state. From `sign` only a digit continues the parse; from `number` only further digits do. Once `end` is reached, nothing can leave it, so the loop simply breaks.
-
-The loop then attaches a small action to each state it lands in: entering `sign` records the sign, entering `number` folds the digit into the running integer with the same before-the-multiply overflow guard as the Single Pass solution (compare against `INT_MAX // 10` and the boundary digit `INT_MAX % 10`, then clamp to `INT_MAX` or `INT_MIN` by sign), and entering `end` stops the scan.
-
-The payoff is that the messy edge cases stop being code at all. A lone sign (`"+"`), a sign after spaces (`"   -"`), a second sign (`"+-12"`), leading letters (`"abc42"`), and trailing junk (`"42abc"`) are not handled by if-chains: each one is just a row-column lookup in the table that happens to land in `end`. The correctness argument shrinks from "did I order my conditionals correctly?" to "is this 16-entry table right?", which can be checked cell by cell against the specification. The same formulation generalizes directly to other parsing problems (Valid Number is the canonical example): define the input classes, draw the states, fill in the table, and the control flow writes itself.
-
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(n)`
@@ -370,25 +507,50 @@ The transition table has a fixed 4 x 4 shape regardless of input length, and the
 - The absorbing `end` state is what makes trailing junk free: once any invalid character is seen, every subsequent character maps back to `end`, so "ignore the rest of the string" requires no dedicated code path beyond the early `break`.
 - Interviewers often like the DFA framing because it demonstrates a transferable technique: the same states-and-table recipe cleanly handles harder parsing problems (Valid Number, tokenizers, protocol decoders) where if-chains become unmanageable.
 
+### Strip and Parse
+
+#### Derivation
+
+Every solution so far converts the digits by hand, but Python's `int()`
+already parses a digit string, and its arbitrary-precision integers cannot
+overflow. Keep the explicit phase structure of the manual parser and offload
+only the final numeric conversion: `lstrip(' ')` drops leading spaces (only
+the space character, matching the specification), a manual scan reads the
+sign and collects the digit run, and `int()` plus a single `max`/`min` clamp
+replace the per-digit overflow arithmetic.
+
+1. Strip leading spaces with `s.lstrip(' ')`; if the string empties, return
+   `0`.
+2. Read an optional sign at `s[0]`, setting `sign` and the start position
+   `idx`.
+3. Collect consecutive digit characters into `digits`; if none were read,
+   return `0`.
+4. Convert with `result = sign * int(digits)` and clamp once with
+   `max(INT_MIN, min(INT_MAX, result))`.
+
 #### Walkthrough
 
-Let us watch the State Machine code run on the tricky input `s = "   -42abc"`. The expected result is `-42`.
+Let us run Strip and Parse on Example 2: `s = "   -42"`, expected Output
+`-42`. Each line shows one phase acting:
 
-The automaton starts in `state = 'start'` with `sign = 1` and `result = 0`. Each character is classified, the table picks the next state, and the state's action fires:
+```text
+lstrip(' ')     s = "-42"                 the three leading spaces vanish
+s[0] = '-'      sign = -1, idx = 1
+idx=1  '4'      digits = "4",  idx = 2
+idx=2  '2'      digits = "42", idx = 3    idx == len(s): scan stops
+int("42")       result = -1 * 42 = -42
+clamp           max(INT_MIN, min(INT_MAX, -42)) = -42
+```
 
-| Step | `ch` | Input class | State before | State after | Action |
-|------|------|-------------|--------------|-------------|--------|
-| 1 | `' '` | `space` | `start` | `start` | none (still skipping spaces) |
-| 2 | `' '` | `space` | `start` | `start` | none |
-| 3 | `' '` | `space` | `start` | `start` | none |
-| 4 | `'-'` | `sign` | `start` | `sign` | `sign = -1` |
-| 5 | `'4'` | `digit` | `sign` | `number` | `result = 0 * 10 + 4 = 4` |
-| 6 | `'2'` | `digit` | `number` | `number` | `result = 4 * 10 + 2 = 42` |
-| 7 | `'a'` | `other` | `number` | `end` | `break` |
+The digit scan is the same character walk as the brute force's Phase 3; only
+the final fold is delegated to `int()`. `-42` sits inside the 32-bit range,
+so the clamp passes it through unchanged, and the function returns `-42`,
+matching the expected Output.
 
-The `'a'` at step 7 drives the automaton into the absorbing `end` state, so `"bc"` is never examined. No overflow guard fires along the way (`4` and `42` are far below `INT_MAX // 10`). The function returns `sign * result = -1 * 42 = -42`, matching the expected result. Note how the three leading spaces, the sign, and the trailing junk were all handled by the same table lookup that handled the digits: no phase of the input needed its own code path.
+#### Solution
 
-### Strip and Parse
+The code is the phase list from the walkthrough, with `int()` performing the
+final fold.
 
 ```python
 class Solution:
@@ -423,10 +585,6 @@ class Solution:
         return max(INT_MIN, min(INT_MAX, result))
 ```
 
-#### Approach
-
-This solution keeps the explicit phase structure of the manual parser but offloads the final numeric conversion to Python's `int()`. It uses `lstrip(' ')` to drop leading spaces (only the space character, matching the specification), reads an optional sign, then collects the consecutive digit run into a substring. Conversion and clamping happen once at the end rather than per character.
-
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(n)`
@@ -444,6 +602,46 @@ The accumulated `digits` substring can grow to the length of the input in the wo
 - Returning early when `digits` is empty covers the "sign only" and "leading non-digit" cases without special-casing them.
 
 ### Regular Expression
+
+#### Derivation
+
+Strip and Parse still writes the sign and digit scan by hand. The whole
+grammar (leading whitespace, optional sign, digit run) is regular, so a
+[regular expression](https://docs.python.org/3/library/re.html) can match it
+in one step: `^\s*([+-]?\d+)` anchors at the start of the string, consumes
+whitespace, and captures the signed digit run. `int()` then converts the
+captured token and a final clamp bounds it.
+
+1. Match with `re.match(r'^\s*([+-]?\d+)', s)`; when there is no match
+   (empty string, sign with no digits, leading letters), return `0`.
+2. Extract the token `num_str = match.group(1)` and convert with
+   `int(num_str)`.
+3. Clamp once with `max(INT_MIN, min(INT_MAX, result))`.
+
+#### Walkthrough
+
+Let us run the pattern on Example 3: `s = "4193 with words"`, expected Output
+`4193`. The regex engine walks the pattern against the string from position
+`0`:
+
+```text
+^          anchors at position 0
+\s*        matches zero spaces               position stays 0
+[+-]?      matches zero sign characters      position stays 0
+\d+        matches '4','1','9','3'           position moves to 4
+           ' ' is not a digit: the match ends here
+group(1) = "4193"
+```
+
+The capture group holds exactly the token the hand parsers would have
+collected, and `" with words"` is left unmatched, which implements "ignore
+the rest of the string" for free. `int("4193")` gives `4193`, inside the
+32-bit range, so the clamp leaves it unchanged and the function returns
+`4193`, matching the expected Output.
+
+#### Solution
+
+The code is one match, one conversion, one clamp.
 
 ```python
 import re
@@ -471,10 +669,6 @@ class Solution:
         # Clamp to 32-bit signed integer range
         return max(INT_MIN, min(INT_MAX, result))
 ```
-
-#### Approach
-
-This solution uses **[regular expressions](https://docs.python.org/3/library/re.html)** to extract the valid integer pattern from the string in one step. The regex `^\s*([+-]?\d+)` matches leading whitespace, optional sign, and digits. This approach is more concise but relies on Python's built-in `int()` function for conversion and manual clamping for overflow.
 
 #### Time and Space Complexity Analysis
 

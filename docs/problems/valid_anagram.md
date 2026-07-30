@@ -35,9 +35,81 @@ An **anagram** is a word or phrase formed by rearranging the letters of a differ
 
 What if the inputs contain Unicode characters? How would you adapt your solution to such a case?
 
+## Deriving the Solution
+
+Rearranging the same letters means the two strings hold the same multiset of
+characters: every character appears in `t` exactly as many times as in `s`.
+Every solution below is a different way of comparing those two multisets, and
+all but the last two begin with the same length check, since strings of
+different lengths cannot possibly match.
+
+1. **Start literal.** Act out "rearranging the letters": for each character of
+   `t`, find an unused matching character in `s` and cross it off. Each
+   cross-off rescans and rebuilds `s`, costing `O(n^2)`: see
+   [Iterative Character Removal](#iterative-character-removal).
+2. **Compare counts, not letters.** The order of letters never mattered, only
+   how many times each one appears. Comparing `s.count(c)` against `t.count(c)`
+   for each distinct character drops the string rebuilding, but every `count`
+   call still rescans a whole string, leaving `O(n * k)`: see
+   [Set-based Counting](#set-based-counting).
+3. **Count in one pass.** Tally `s` into a dictionary once, then cancel counts
+   while walking `t`. Two linear passes replace all the rescans, reaching
+   `O(n)`: see [Hash Map Count](#hash-map-count).
+4. **Exploit the fixed alphabet.** With only lowercase English letters, the
+   dictionary collapses into a 26-slot array indexed by `ord(c) - ord("a")`:
+   still `O(n)` time, now with true constant space and no hashing: see
+   [Fixed Array Count](#fixed-array-count).
+5. **Library shortcuts last.** Sorting both strings canonicalizes the multisets
+   so a plain equality test decides the answer, at `O(n log n)`: see
+   [Sorting](#sorting). `Counter` builds both frequency maps in one call each
+   and compares them directly: see [Counter Comparison](#counter-comparison).
+
 ## Solutions
 
 ### Iterative Character Removal
+
+#### Derivation
+
+The definition says `t` is formed by rearranging the letters of `s`, using each
+exactly once. The most literal reading acts that sentence out: pair every
+character of `t` with an unused character of `s`, consuming `s` one character
+at a time:
+
+1. If the strings differ in length they cannot be anagrams, so return `False`.
+2. For each character `c` in `t`, look for `c` in the remaining `s`.
+3. If `c` is present, remove a single occurrence with `replace(c, "", 1)`.
+4. If `c` is missing, the strings are not anagrams, so return `False`.
+5. If every character of `t` is matched and removed, return `True`.
+
+Equal lengths plus a successful match for every character of `t` guarantees the
+two strings hold the same multiset of characters.
+
+#### Walkthrough
+
+Trace the removal loop on Example 1: `s = "anagram"`, `t = "nagaram"`. The
+lengths match (`7` and `7`), so the loop runs. Each row shows the character `c`
+taken from `t`, whether it is found in the current `s`, and the value of `s`
+after `replace(c, "", 1)` removes one copy:
+
+| Step | `c` from `t` | Found in `s`? | `s` after removal |
+|------|--------------|---------------|-------------------|
+| start | - | - | `"anagram"` |
+| 1 | `n` | yes | `"aagram"` |
+| 2 | `a` | yes | `"agram"` |
+| 3 | `g` | yes | `"aram"` |
+| 4 | `a` | yes | `"ram"` |
+| 5 | `r` | yes | `"am"` |
+| 6 | `a` | yes | `"m"` |
+| 7 | `m` | yes | `""` |
+
+Every character of `t` was found and removed, so the loop never hits the `else`
+branch that would return `False`. After the final step `s` is empty, the loop
+ends, and the code returns `True`, which matches the expected Output `true`.
+
+#### Solution
+
+The code is the cross-off procedure from the walkthrough: one `replace` per
+character of `t`.
 
 ```python
 class Solution:
@@ -51,20 +123,6 @@ class Solution:
                 return False
         return True
 ```
-
-#### Approach
-
-This solution directly implements the anagram definition by consuming `s` one
-character at a time:
-
-1. If the strings differ in length they cannot be anagrams, so return `False`.
-2. For each character `c` in `t`, look for `c` in the remaining `s`.
-3. If `c` is present, remove a single occurrence with `replace(c, "", 1)`.
-4. If `c` is missing, the strings are not anagrams, so return `False`.
-5. If every character of `t` is matched and removed, return `True`.
-
-Equal lengths plus a successful match for every character of `t` guarantees the
-two strings hold the same multiset of characters.
 
 #### Time and Space Complexity Analysis
 
@@ -84,29 +142,45 @@ length is proportional to the input.
 - Quadratic time makes it unsuitable for the upper constraint of `5 * 10^4`.
 - Repeated string copying compounds the cost because strings are immutable.
 
+### Set-based Counting
+
+#### Derivation
+
+The removal loop wastes its effort on bookkeeping: rebuilding `s` after every
+match exists only to stop a character being used twice. The same guarantee
+falls out of counting: if every character appears equally often in both
+strings, no pairing step is needed at all. This version asks the counting
+question in the most direct way available, one distinct character at a time:
+
+1. Reject mismatched lengths immediately.
+2. Collect the distinct characters of `s` with `set(s)`.
+3. For each distinct character, compare its occurrence count in `s` and `t`.
+4. If any count differs, return `False`; otherwise return `True`.
+
+Equal lengths mean that matching the count of every character present in `s` is
+sufficient: `t` cannot contain an extra unmatched character without exceeding the
+shared length.
+
 #### Walkthrough
 
-Trace the first solution on Example 1: `s = "anagram"`, `t = "nagaram"`. The
-lengths match (`7` and `7`), so the loop runs. Each row shows the character `c`
-taken from `t`, whether it is found in the current `s`, and the value of `s`
-after `replace(c, "", 1)` removes one copy:
+Trace the count comparison on Example 2: `s = "rat"`, `t = "car"`. The lengths
+match (`3` and `3`), so the loop runs over `set(s) = {'r', 'a', 't'}`. A set
+has no defined order, so the checks may come in any sequence; one possible run:
 
-| Step | `c` from `t` | Found in `s`? | `s` after removal |
-|------|--------------|---------------|-------------------|
-| start | — | — | `"anagram"` |
-| 1 | `n` | yes | `"aagram"` |
-| 2 | `a` | yes | `"agram"` |
-| 3 | `g` | yes | `"aram"` |
-| 4 | `a` | yes | `"ram"` |
-| 5 | `r` | yes | `"am"` |
-| 6 | `a` | yes | `"m"` |
-| 7 | `m` | yes | `""` |
+```text
+c = 'r'   s.count('r') = 1   t.count('r') = 1   equal, continue
+c = 'a'   s.count('a') = 1   t.count('a') = 1   equal, continue
+c = 't'   s.count('t') = 1   t.count('t') = 0   differ -> return False
+```
 
-Every character of `t` was found and removed, so the loop never hits the `else`
-branch that would return `False`. After the final step `s` is empty, the loop
-ends, and the code returns `True`, which matches the expected Output `true`.
+Counting by hand: `"rat"` holds one `'t'` but `"car"` holds none, so whichever
+order the set yields, the `'t'` check fails. The function returns `False`,
+matching the expected Output `false`.
 
-### Set-based Counting
+#### Solution
+
+The code is the per-character count comparison from the walkthrough, driven by
+the set of distinct characters.
 
 ```python
 class Solution:
@@ -118,20 +192,6 @@ class Solution:
                 return False
         return True
 ```
-
-#### Approach
-
-This solution compares per-character frequencies without an explicit counter
-structure:
-
-1. Reject mismatched lengths immediately.
-2. Collect the distinct characters of `s` with `set(s)`.
-3. For each distinct character, compare its occurrence count in `s` and `t`.
-4. If any count differs, return `False`; otherwise return `True`.
-
-Equal lengths mean that matching the count of every character present in `s` is
-sufficient: `t` cannot contain an extra unmatched character without exceeding the
-shared length.
 
 #### Time and Space Complexity Analysis
 
@@ -154,6 +214,60 @@ The set holds at most `k` distinct characters, where `k` is the alphabet size.
 
 ### Hash Map Count
 
+#### Derivation
+
+The set-based version still rescans both strings once per distinct character,
+recomputing from scratch what a single pass could remember. The repair is to
+count each string only once: build a frequency table for `s`, then let `t`
+spend those counts back down. If `t` ever needs a character whose count is
+exhausted, the multisets differ:
+
+1. Reject mismatched lengths immediately.
+2. Build a [dictionary](https://en.wikipedia.org/wiki/Hash_table) `counter` mapping each character of `s` to its frequency.
+3. Walk `t`, decrementing the matching count for each character.
+4. If a character of `t` has no remaining count, return `False`.
+5. Surviving the full walk means every count cancelled exactly, so return `True`.
+
+The length check makes a single decrementing pass sufficient: if all counts stay
+non-negative and the totals match, the multisets are identical.
+
+#### Walkthrough
+
+Trace both passes on Example 1: `s = "anagram"`, `t = "nagaram"`. The first
+pass tallies `s` character by character:
+
+```text
+c = 'a'   counter = {'a': 1}
+c = 'n'   counter = {'a': 1, 'n': 1}
+c = 'a'   counter = {'a': 2, 'n': 1}
+c = 'g'   counter = {'a': 2, 'n': 1, 'g': 1}
+c = 'r'   counter = {'a': 2, 'n': 1, 'g': 1, 'r': 1}
+c = 'a'   counter = {'a': 3, 'n': 1, 'g': 1, 'r': 1}
+c = 'm'   counter = {'a': 3, 'n': 1, 'g': 1, 'r': 1, 'm': 1}
+```
+
+The second pass walks `t`, checking each character still has count left before
+decrementing it:
+
+```text
+c = 'n'   count 1 -> 0
+c = 'a'   count 3 -> 2
+c = 'g'   count 1 -> 0
+c = 'a'   count 2 -> 1
+c = 'r'   count 1 -> 0
+c = 'a'   count 1 -> 0
+c = 'm'   count 1 -> 0
+```
+
+No character of `t` ever finds a zero count, and after the walk every entry
+sits at exactly `0`: the counts cancelled perfectly. The function returns
+`True`, matching the expected Output `true`.
+
+#### Solution
+
+The code is the tally pass and the cancel pass from the walkthrough, in that
+order.
+
 ```python
 class Solution:
     def isAnagram(self, s: str, t: str) -> bool:
@@ -168,19 +282,6 @@ class Solution:
             counter[c] -= 1
         return True
 ```
-
-#### Approach
-
-This solution counts characters once and then cancels them out, all by hand:
-
-1. Reject mismatched lengths immediately.
-2. Build a [dictionary](https://en.wikipedia.org/wiki/Hash_table) mapping each character of `s` to its frequency.
-3. Walk `t`, decrementing the matching count for each character.
-4. If a character of `t` has no remaining count, return `False`.
-5. Surviving the full walk means every count cancelled exactly, so return `True`.
-
-The length check makes a single decrementing pass sufficient: if all counts stay
-non-negative and the totals match, the multisets are identical.
 
 #### Time and Space Complexity Analysis
 
@@ -203,6 +304,50 @@ size (`26` for lowercase English letters).
 
 ### Fixed Array Count
 
+#### Derivation
+
+The dictionary in the previous approach hashes every character it touches, yet
+the constraints promise only lowercase English letters: a known, fixed alphabet
+of 26. That means each character can be its own array index, `ord(c) -
+ord("a")`, and the dictionary shrinks to a 26-slot integer array with no
+hashing at all:
+
+1. Reject mismatched lengths immediately.
+2. Map each character to an index with `ord(c) - ord("a")`.
+3. Increment the slot for every character in `s`.
+4. Decrement the slot for every character in `t`, failing fast if any slot goes
+   negative.
+5. Equal lengths plus no negative slot means every count returned to zero, so
+   return `True`.
+
+#### Walkthrough
+
+Trace the array on Example 2: `s = "rat"`, `t = "car"`, which exercises the
+fail-fast exit. With `base = ord("a") = 97`, the increment pass over `s` fills
+three slots (only nonzero slots are shown):
+
+```text
+c = 'r'   index 17   counts[17] = 1
+c = 'a'   index 0    counts[0]  = 1
+c = 't'   index 19   counts[19] = 1
+```
+
+The decrement pass over `t` starts with `'c'`:
+
+```text
+c = 'c'   index 2    counts[2] = 0 - 1 = -1   negative -> return False
+```
+
+`"rat"` contains no `'c'`, so slot `2` was never incremented and the very first
+decrement drives it to `-1`. The negative slot proves `t` needs a character `s`
+cannot supply, so the function returns `False` without ever reading `'a'` or
+`'r'`, matching the expected Output `false`.
+
+#### Solution
+
+The code is the two passes from the walkthrough over the 26-slot `counts`
+array.
+
 ```python
 class Solution:
     def isAnagram(self, s: str, t: str) -> bool:
@@ -218,19 +363,6 @@ class Solution:
                 return False
         return True
 ```
-
-#### Approach
-
-This solution specializes the hash map idea to the fixed lowercase alphabet by
-replacing the dictionary with a 26-slot array:
-
-1. Reject mismatched lengths immediately.
-2. Map each character to an index with `ord(c) - ord("a")`.
-3. Increment the slot for every character in `s`.
-4. Decrement the slot for every character in `t`, failing fast if any slot goes
-   negative.
-5. Equal lengths plus no negative slot means every count returned to zero, so
-   return `True`.
 
 #### Time and Space Complexity Analysis
 
@@ -252,19 +384,41 @@ auxiliary space is constant.
 
 ### Sorting
 
+#### Derivation
+
+All the counting approaches compare multisets entry by entry. A different
+question sidesteps the counting entirely: is there a canonical form that two
+anagrams, and only two anagrams, share? [Sorting](https://en.wikipedia.org/wiki/Sorting_algorithm) provides one. Placing the
+characters of each string in sorted order arranges equal multisets into
+identical sequences, so `sorted(s) == sorted(t)` decides the answer directly,
+and unequal lengths naturally produce unequal lists with no separate check:
+
+1. Sort the characters of `s` and the characters of `t`.
+2. Return whether the two sorted lists are equal.
+
+#### Walkthrough
+
+Trace the canonical forms on Example 1: `s = "anagram"`, `t = "nagaram"`. Here
+`sorted` is itself the technique: it rearranges each string's characters into
+ascending order, gathering equal letters together:
+
+```text
+sorted("anagram")  ['a', 'a', 'a', 'g', 'm', 'n', 'r']   3 a's, then g, m, n, r
+sorted("nagaram")  ['a', 'a', 'a', 'g', 'm', 'n', 'r']   same letters, same order
+```
+
+Both strings hold three `'a'`s and one each of `'g'`, `'m'`, `'n'`, `'r'`, so
+sorting funnels them into the same sequence. The element-by-element list
+comparison finds every position equal and the function returns `True`, matching
+the expected Output `true`.
+
+#### Solution
+
 ```python
 class Solution:
     def isAnagram(self, s: str, t: str) -> bool:
         return sorted(s) == sorted(t)
 ```
-
-#### Approach
-
-This solution relies on a single observation: two strings are anagrams if and
-only if they contain the same characters with the same frequencies. Sorting both
-strings places their characters in a canonical order, so anagrams produce
-identical sorted sequences. Comparing the two [sorted](https://en.wikipedia.org/wiki/Sorting_algorithm) lists yields the answer
-directly, and unequal lengths naturally produce unequal lists.
 
 #### Time and Space Complexity Analysis
 
@@ -287,6 +441,36 @@ additional space.
 
 ### Counter Comparison
 
+#### Derivation
+
+The Hash Map Count already showed that one tally per string settles the
+question; the only work left is writing the tally, and Python's standard
+library has done that too. [`Counter`](https://docs.python.org/3/library/collections.html#collections.Counter) builds the frequency map of an iterable
+in one call, and two `Counter` objects compare equal exactly when every key has
+the same count. The length mismatch case comes free, since differing totals
+produce unequal counters:
+
+1. Build `Counter(s)` and `Counter(t)`.
+2. Return whether the two counters are equal.
+
+#### Walkthrough
+
+Trace the two counters on Example 1: `s = "anagram"`, `t = "nagaram"`. Here
+`Counter` is itself the technique: each constructor performs the same tally the
+Hash Map Count made by hand:
+
+```text
+Counter("anagram")   {'a': 3, 'n': 1, 'g': 1, 'r': 1, 'm': 1}
+Counter("nagaram")   {'n': 1, 'a': 3, 'g': 1, 'r': 1, 'm': 1}
+```
+
+The two counters list their keys in different insertion orders, but dictionary
+equality ignores order: it checks that both hold the same keys with the same
+values. Every key (`a`, `n`, `g`, `r`, `m`) carries the same count in both, so
+`Counter(s) == Counter(t)` is `True`, matching the expected Output `true`.
+
+#### Solution
+
 ```python
 from collections import Counter
 
@@ -295,14 +479,6 @@ class Solution:
     def isAnagram(self, s: str, t: str) -> bool:
         return Counter(s) == Counter(t)
 ```
-
-#### Approach
-
-This solution defers the counting to Python's built-in [`Counter`](https://docs.python.org/3/library/collections.html#collections.Counter), which tallies
-the occurrences of each element. Building a `Counter` from each string and
-comparing the two for equality determines whether they hold the same characters
-with the same frequencies. The equality check covers the length mismatch case for
-free, since differing totals produce unequal counters.
 
 #### Time and Space Complexity Analysis
 

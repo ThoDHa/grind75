@@ -44,9 +44,93 @@ Given two words, `beginWord` and `endWord`, and a dictionary `wordList`, return 
 - `beginWord != endWord`
 - All the strings in `wordList` are **unique**.
 
+## Deriving the Solution
+
+Every solution below rests on the same reformulation: words are nodes, two words
+share an edge when they differ in exactly one letter, and the answer is the number
+of words on a shortest path from `beginWord` to `endWord` in that unweighted graph.
+[BFS](https://en.wikipedia.org/wiki/Breadth-first_search) is the natural engine,
+because it visits words in order of distance; the approaches differ in how the
+edges are discovered and in how many ends the search grows from.
+
+1. **Start literal.** Materialize the graph: compare every pair of words to find
+   the one-letter edges, then BFS from `beginWord`. The all-pairs comparison costs
+   `O(N² × M)`: see [Brute Force Graph BFS](#brute-force-graph-bfs).
+2. **Discover neighbors on the fly.** Most pairs are not neighbors, so comparing
+   them all is wasted work. Reverse the direction: from the current word, generate
+   its `25 × M` one-letter variants and keep those found in a hash set of the
+   dictionary. The BFS is unchanged and the total drops to `O(M² × N)`: see
+   [BFS with Word-by-Word Comparison](#bfs-with-word-by-word-comparison).
+3. **Precompute neighbors by pattern.** Generation still probes mostly gibberish
+   strings. Bucketing words under wildcard patterns
+   (`"hot" -> "*ot", "h*t", "ho*"`) turns neighbor lookup into a hash hit that
+   returns only real words, at the price of `O(M² × N)` extra space: see
+   [BFS with Pattern Matching](#bfs-with-pattern-matching).
+4. **A wrong turn worth seeing.** Depth-first search also reaches `endWord`, but
+   it does not visit words in distance order, must run every path to completion,
+   and admits no sound memoization, degrading toward factorial time: see
+   [Backtracking DFS](#backtracking-dfs).
+5. **Halve the depth.** One-ended BFS explores on the order of `b^d` words for
+   branching factor `b` and distance `d`. Growing frontiers from both ends and
+   always expanding the smaller one meets in the middle at roughly `2 × b^(d/2)`:
+   see [Bidirectional BFS](#bidirectional-bfs).
+
 ## Solutions
 
 ### Brute Force Graph BFS
+
+#### Derivation
+
+The reformulation splits the problem into two questions: which words are neighbors,
+and how to find the shortest path between two nodes. The literal plan answers each
+with the most direct tool available. For neighbors, two words are adjacent when they
+differ in exactly one position, which a hand-written character scan (`is_one_diff`)
+decides for any pair, so compare all pairs. For the path,
+[BFS](https://en.wikipedia.org/wiki/Breadth-first_search) expands all words
+reachable in `k` steps before any reachable in `k + 1`, so the first arrival at
+`endWord` uses the fewest words.
+
+1. Collect every word as a node in `nodes`, including `beginWord`, since the path
+   may start from a word that is not in `wordList`.
+2. Compare every pair of words with `is_one_diff`, building an `adjacency` list for
+   each word from the matches.
+3. Run BFS from `(beginWord, 1)`, carrying `length`, the number of words used so
+   far, and return `length` the first time `endWord` is dequeued.
+
+#### Walkthrough
+
+Let us trace Example 1: `beginWord = "hit"`, `endWord = "cog"`, `wordList = ["hot","dot","dog","lot","log","cog"]`.
+
+First, `endWord` ("cog") is in `wordList`, so we proceed. The nodes are `beginWord` plus every word: `["hit","hot","dot","dog","lot","log","cog"]`. The all-pairs `is_one_diff` scan builds this adjacency list (each word points to the words that differ from it by exactly one letter):
+
+| Word | Neighbors |
+|------|-----------|
+| `hit` | `hot` |
+| `hot` | `hit`, `dot`, `lot` |
+| `dot` | `hot`, `dog`, `lot` |
+| `dog` | `dot`, `log`, `cog` |
+| `lot` | `hot`, `dot`, `log` |
+| `log` | `dog`, `lot`, `cog` |
+| `cog` | `dog`, `log` |
+
+Now BFS runs from `("hit", 1)` with `visited = {hit}`. Each row below shows the pair just dequeued, then any unvisited neighbors enqueued (each carries `length + 1`), and the queue that remains:
+
+| Step | Dequeued `(word, length)` | New neighbors enqueued | Queue after step |
+|------|---------------------------|------------------------|------------------|
+| 1 | `(hit, 1)` | `(hot, 2)` | `[(hot, 2)]` |
+| 2 | `(hot, 2)` | `(dot, 3)`, `(lot, 3)` | `[(dot, 3), (lot, 3)]` |
+| 3 | `(dot, 3)` | `(dog, 4)` | `[(lot, 3), (dog, 4)]` |
+| 4 | `(lot, 3)` | `(log, 4)` | `[(dog, 4), (log, 4)]` |
+| 5 | `(dog, 4)` | `(cog, 5)` | `[(log, 4), (cog, 5)]` |
+| 6 | `(log, 4)` | none (`dog`, `lot`, `cog` all already visited) | `[(cog, 5)]` |
+| 7 | `(cog, 5)` | `current_word == endWord`, so return `5` | - |
+
+At step 7 the dequeued word equals `endWord`, so BFS returns `5`. This matches the expected Output `5`, and the path that produced it is `"hit" -> "hot" -> "dot" -> "dog" -> "cog"`, exactly 5 words long.
+
+#### Solution
+
+The code is the two phases of the walkthrough in order: the all-pairs
+adjacency build, then the queue loop.
 
 ```python
 from collections import deque
@@ -95,16 +179,6 @@ class Solution:
         return 0
 ```
 
-#### Approach
-
-The most direct idea is to first answer "which words are neighbors?" by brute force, then run an ordinary shortest-path [BFS](https://en.wikipedia.org/wiki/Breadth-first_search) over that graph. Two words are neighbors when they differ in exactly one position, which a hand-written character scan can decide.
-
-1. Collect every word as a node, including `beginWord`, since the path may start from a word that is not in `wordList`.
-2. Compare every pair of words with `is_one_diff`, building an adjacency list for each word from the matches.
-3. Run BFS from `beginWord`, tracking the words used so far, and return that count the first time `endWord` is dequeued.
-
-Because BFS expands all words reachable in `k` steps before any reachable in `k + 1`, the first arrival at `endWord` uses the fewest words.
-
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(N² × M)`
@@ -121,37 +195,58 @@ The adjacency lists can hold up to `O(N²)` edges in the worst case, and the que
 - The all-pairs comparison is the obvious but wasteful step: it costs `O(N²)` even when most words are not neighbors.
 - The BFS half is already optimal; only the neighbor discovery needs improving, which the next solutions target.
 
+### BFS with Word-by-Word Comparison
+
+#### Derivation
+
+The brute force spends nearly all its time building edges it never walks: all `N²`
+pairs are compared even though each word has only a handful of true neighbors. The
+repair is to flip the neighbor question at search time: instead of asking "which
+known words is this word adjacent to?", ask "which strings are one letter away, and
+which of those are known words?". Each word has only `25 × M` one-letter variants,
+and testing one against a hash set costs `O(1)`, so neighbors can be discovered on
+demand with no precomputed graph. The [BFS](https://en.wikipedia.org/wiki/Breadth-first_search)
+shell stays exactly as before:
+
+1. Return `0` immediately when `endWord` is not in `wordList`; otherwise convert
+   the list to `word_set` for `O(1)` membership tests.
+2. Start the queue at `(beginWord, 1)`: `beginWord` counts as the first word of
+   the sequence.
+3. For the word at the front of the queue, build every variant `new_word` by
+   replacing each position `i` with each of the 26 lowercase letters, skipping the
+   letter already there.
+4. If `new_word` equals `endWord`, the sequence closes: return `length + 1`.
+   Otherwise enqueue `(new_word, length + 1)` when it is in `word_set` and
+   unvisited, marking it visited at enqueue time so no word enters the queue
+   twice.
+
 #### Walkthrough
 
-Let us trace Example 1: `beginWord = "hit"`, `endWord = "cog"`, `wordList = ["hot","dot","dog","lot","log","cog"]`.
+Let us trace Example 1: `beginWord = "hit"`, `endWord = "cog"`,
+`wordList = ["hot","dot","dog","lot","log","cog"]`. `endWord` is present, so the
+search starts with `queue = [("hit", 1)]` and `visited = {hit}`. Each line dequeues
+one word and lists the generated variants that survive the filters (in `word_set`,
+not yet visited):
 
-First, `endWord` ("cog") is in `wordList`, so we proceed. The nodes are `beginWord` plus every word: `["hit","hot","dot","dog","lot","log","cog"]`. The all-pairs `is_one_diff` scan builds this adjacency list (each word points to the words that differ from it by exactly one letter):
+```text
+dequeue (hit, 1)   "hot" (h_t) in word_set              enqueue (hot, 2)
+dequeue (hot, 2)   "dot", "lot" (_ot) in word_set       enqueue (dot, 3), (lot, 3)
+dequeue (dot, 3)   "hot" visited; "dog" (do_) is new    enqueue (dog, 4)
+dequeue (lot, 3)   "hot", "dot" visited; "log" is new   enqueue (log, 4)
+dequeue (dog, 4)   variant "cog" == endWord             return 4 + 1 = 5
+```
 
-| Word | Neighbors |
-|------|-----------|
-| `hit` | `hot` |
-| `hot` | `hit`, `dot`, `lot` |
-| `dot` | `hot`, `dog`, `lot` |
-| `dog` | `dot`, `log`, `cog` |
-| `lot` | `hot`, `dot`, `log` |
-| `log` | `dog`, `lot`, `cog` |
-| `cog` | `dog`, `log` |
+Two details are easy to miss. When `hot` is expanded, the variant `hit` is generated
+but rejected: `beginWord` was never added to `word_set`, and it is already visited
+anyway. And the final step never consults `word_set` at all: expanding `dog`,
+position `0` reaches `"cog"` at letter `c`, the `new_word == endWord` test fires
+first, and the function returns `length + 1 = 5`. That matches Example 1's Output,
+along the sequence `hit -> hot -> dot -> dog -> cog`.
 
-Now BFS runs from `("hit", 1)` with `visited = {hit}`. Each row below shows the pair just dequeued, then any unvisited neighbors enqueued (each carries `length + 1`), and the queue that remains:
+#### Solution
 
-| Step | Dequeued `(word, length)` | New neighbors enqueued | Queue after step |
-|------|---------------------------|------------------------|------------------|
-| 1 | `(hit, 1)` | `(hot, 2)` | `[(hot, 2)]` |
-| 2 | `(hot, 2)` | `(dot, 3)`, `(lot, 3)` | `[(dot, 3), (lot, 3)]` |
-| 3 | `(dot, 3)` | `(dog, 4)` | `[(lot, 3), (dog, 4)]` |
-| 4 | `(lot, 3)` | `(log, 4)` | `[(dog, 4), (log, 4)]` |
-| 5 | `(dog, 4)` | `(cog, 5)` | `[(log, 4), (cog, 5)]` |
-| 6 | `(log, 4)` | none (`dog`, `lot`, `cog` all already visited) | `[(cog, 5)]` |
-| 7 | `(cog, 5)` | `current_word == endWord`, so return `5` | - |
-
-At step 7 the dequeued word equals `endWord`, so BFS returns `5`. This matches the expected Output `5`, and the path that produced it is `"hit" -> "hot" -> "dot" -> "dog" -> "cog"`, exactly 5 words long.
-
-### BFS with Word-by-Word Comparison
+The code is the dequeue loop from the trace, with the two nested loops
+building `new_word` position by position.
 
 ```python
 from collections import deque
@@ -191,17 +286,6 @@ class Solution:
         return 0
 ```
 
-#### Approach
-
-This solution models the problem as a shortest-path search in an unweighted graph:
-
-1. Each word is a node, and two words share an edge when they differ by exactly one letter.
-2. [BFS](https://en.wikipedia.org/wiki/Breadth-first_search) explores the graph level by level, so the first time it reaches `endWord` it has used the fewest possible transformations.
-3. For the word at the front of the queue, generate every one-letter variation by replacing each character position with each of the 26 lowercase letters.
-4. A generated word is a valid neighbor when it appears in `word_set` and has not been visited. Mark it visited as soon as it is enqueued to prevent revisits.
-
-Because BFS expands all words reachable in one step before any reachable in two, the level at which `endWord` first appears is the shortest transformation length.
-
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(M² × N)`
@@ -219,6 +303,57 @@ The `word_set`, `visited` set, and queue each hold up to `N` words of length `M`
 - Generating candidates directly (no preprocessing) keeps the logic simple, at the cost of producing words that may not exist in the dictionary.
 
 ### BFS with Pattern Matching
+
+#### Derivation
+
+Generating variants probes `25 × M` strings per dequeued word, and most of them are
+gibberish that fails the set lookup. Those wasted probes can be precomputed away:
+two words differ in one letter exactly when masking that position makes them equal,
+so file every word under its `M` wildcard patterns (`"hot" -> "*ot", "h*t", "ho*"`).
+Words sharing a bucket are precisely the one-letter neighbors, and the
+[BFS](https://en.wikipedia.org/wiki/Breadth-first_search) can look neighbors up by
+bucket instead of generating candidates:
+
+1. For every word in `all_words` (`wordList` plus `beginWord`), build its `M`
+   patterns and append the word under each in `pattern_dict`.
+2. Run the same BFS from `(beginWord, 1)`.
+3. For the dequeued word, form its `M` patterns and visit every `neighbor`
+   recorded under them, skipping visited ones.
+4. Return `length + 1` the first time a neighbor equals `endWord`.
+
+By precomputing patterns, the search only ever touches words that actually exist in
+the dictionary, rather than the full 26-letter expansion at every step.
+
+#### Walkthrough
+
+The pattern map is built once up front. On Example 1,
+`all_words = ["hot","dot","dog","lot","log","cog","hit"]` produces these buckets
+(every bucket not shown holds a single word):
+
+```text
+*ot -> [hot, dot, lot]     h*t -> [hot, hit]     do* -> [dot, dog]
+*og -> [dog, log, cog]     lo* -> [lot, log]
+```
+
+BFS then walks bucket mates instead of generated strings:
+
+```text
+dequeue (hit, 1)   buckets *it, h*t, hi*: new mate "hot"     enqueue (hot, 2)
+dequeue (hot, 2)   bucket *ot: "dot", "lot" new              enqueue (dot, 3), (lot, 3)
+dequeue (dot, 3)   bucket do*: "dog" new                     enqueue (dog, 4)
+dequeue (lot, 3)   bucket lo*: "log" new                     enqueue (log, 4)
+dequeue (dog, 4)   bucket *og: mate "cog" == endWord         return 4 + 1 = 5
+```
+
+Every word the search touches is a real dictionary word: no gibberish candidate is
+ever formed. Expanding `dog`, its first pattern `*og` lists `[dog, log, cog]`: `dog`
+and `log` are already visited, and `cog` trips the `endWord` check, returning `5`.
+That matches Example 1's Output along `hit -> hot -> dot -> dog -> cog`.
+
+#### Solution
+
+The code builds `pattern_dict` up front; the BFS loop then reads neighbors
+straight out of the buckets.
 
 ```python
 from collections import deque, defaultdict
@@ -259,17 +394,6 @@ class Solution:
         return 0
 ```
 
-#### Approach
-
-This approach precomputes adjacency instead of regenerating neighbors on the fly:
-
-1. For every word, build `M` wildcard patterns by replacing one character at a time with `*`, and group words under each pattern in `pattern_dict`.
-2. Two words that share a pattern differ by exactly one letter, so the pattern map encodes the graph's edges.
-3. During [BFS](https://en.wikipedia.org/wiki/Breadth-first_search), look up the current word's patterns and visit every word recorded under them.
-4. The first time `endWord` is encountered, return the accumulated length plus one.
-
-By precomputing patterns, the search only ever touches words that actually exist in the dictionary, rather than the full 26-letter expansion at every step.
-
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(M² × N)`
@@ -287,6 +411,77 @@ The pattern dictionary stores `M` patterns per word, each of length `M`, giving 
 - Including `beginWord` in the pattern map lets the search start from it even though it need not be in `wordList`.
 
 ### Backtracking DFS
+
+#### Derivation
+
+BFS owes its shortest-path guarantee to visiting words level by level; it is worth
+seeing what happens without that order. A
+[depth-first](https://en.wikipedia.org/wiki/Depth-first_search) search follows one
+transformation chain as deep as it can, backtracks, and tries the next, taking the
+minimum length over every complete path it finds:
+
+1. From `current_word`, scan `word_set` for every word that differs by exactly one
+   character (`is_one_diff`).
+2. Recurse into each such neighbor, adding it to `visited` before the call and
+   removing it afterward so `visited` always reflects the current path only.
+3. The shortest path through this word is one plus the best result among its
+   neighbors; `min_length` collects that minimum.
+4. Return `min_length`, leaving it at `float("inf")` when no neighbor reaches the
+   target, and translate `inf` to `0` at the top level.
+
+DFS is included for contrast. It returns the correct answer, but because
+depth-first search does not visit nodes in distance order, it must explore every
+path to completion rather than stopping at the first arrival the way BFS does.
+
+No memoization is used here. A cache keyed on `(current_word, target_word)` would
+be unsound: the result of `dfs` depends on which words the active path has already
+consumed, so a value computed while one path blocks certain words does not hold
+when a different path reaches the same word with a different `visited` set. Caching
+such path-dependent values inflates the recorded minimum and yields wrong answers,
+so the search recomputes each subproblem instead.
+
+#### Walkthrough
+
+Example 1's dictionary spawns a recursion tree far too large to trace by hand, so
+we use a tailored input that keeps the full tree small while still offering two
+competing routes: `beginWord = "hit"`, `endWord = "cog"`,
+`wordList = ["hot","dot","dog","cog","cot"]`. The direct route is
+`hit -> hot -> cot -> cog` (4 words); the detour runs through `dot` and `dog`
+(5 words). The tree below indents one level per call; the iteration order over
+`word_set` does not matter, because every branch is explored either way:
+
+```text
+dfs(hit)   visited {hit}                     neighbor: hot
+  dfs(hot)   visited {hit,hot}               neighbors: dot, cot
+    dfs(dot)   visited {hit,hot,dot}         neighbors: cot, dog
+      dfs(cot)   visited {hit,hot,dot,cot}   neighbor: cog
+        dfs(cog) -> 1                        target reached
+      cot -> 1 + 1 = 2
+      dfs(dog)   visited {hit,hot,dot,dog}   neighbor: cog
+        dfs(cog) -> 1                        target reached
+      dog -> 1 + 1 = 2
+    dot -> 1 + min(2, 2) = 3
+    dfs(cot)   visited {hit,hot,cot}         neighbors: dot, cog
+      dfs(dot)   visited {hit,hot,cot,dot}   neighbor: dog
+        dfs(dog) -> 2                        via cog, as above
+      dot -> 1 + 2 = 3
+      dfs(cog) -> 1                          target reached
+    cot -> 1 + min(3, 1) = 2
+  hot -> 1 + min(3, 2) = 3
+hit -> 1 + 3 = 4
+```
+
+The backtracking is visible in the two visits to `dot`: after the first branch
+returns, `visited.remove` drops `dot` from the set, which is what lets the later
+`cot` branch descend into `dot` again, this time with `cot` blocked instead of
+available. The two visits face different neighbor sets, which is exactly why a
+cache keyed on the word alone would conflate distinct subproblems. Every complete
+path is explored, and the minimum, `4`, is returned: `hit -> hot -> cot -> cog`.
+
+#### Solution
+
+The code is the recursion tree above: the loop over `word_set` creates the
+branches, and the add/remove pair around each call performs the backtracking.
 
 ```python
 from typing import List
@@ -327,19 +522,6 @@ class Solution:
         return result if result != float("inf") else 0
 ```
 
-#### Approach
-
-This recursive approach explores transformation paths [depth-first](https://en.wikipedia.org/wiki/Depth-first_search) and takes the shortest:
-
-1. From the current word, scan the dictionary for every word that differs by exactly one character.
-2. Recurse into each such neighbor, marking it visited before the call and unmarking it afterward so the `visited` set always reflects the current path only.
-3. Combine the best result from any neighbor: the shortest path through this word is one plus the shortest path from its best neighbor.
-4. After exploring every neighbor, return the minimum length found across all complete paths.
-
-DFS is included for contrast. It returns the correct answer, but because depth-first search does not visit nodes in distance order, it must explore every path to completion rather than stopping at the first arrival the way BFS does.
-
-No memoization is used here. A cache keyed on `(current_word, target_word)` would be unsound: the result of `dfs` depends on which words the active path has already consumed, so a value computed while one path blocks certain words does not hold when a different path reaches the same word with a different `visited` set. Caching such path-dependent values inflates the recorded minimum and yields wrong answers, so the search recomputes each subproblem instead.
-
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(N! × M²)` worst case
@@ -357,6 +539,58 @@ The `visited` set holds up to `O(N)` words of length `M` along the active path, 
 - Memoization is tempting but unsound here: the subproblem result depends on the path-specific `visited` set, so a cache keyed only on the word pair would return wrong (inflated) lengths. Plain backtracking that takes the min over all complete paths stays correct at the cost of recomputation.
 
 ### Bidirectional BFS
+
+#### Derivation
+
+Every BFS above grows a single frontier from `beginWord`, and in a dense word graph
+that frontier can swell like `b^d`, the branching factor to the power of the
+distance. [Bidirectional BFS](https://en.wikipedia.org/wiki/Bidirectional_search)
+attacks the exponent instead of the base: grow a `front` set from `beginWord` and a
+`back` set from `endWord`, and stop the moment a variant generated on one side
+lands in the other. Each side then covers only about half the depth, roughly
+`2 × b^(d/2)` work instead of `b^d`:
+
+1. Seed `front = {beginWord}`, `back = {endWord}`, and a shared `visited` holding
+   both, with `steps = 1`.
+2. Each iteration expands the smaller of the two frontiers (swapping `front` and
+   `back` when needed) so the branching factor stays as low as possible.
+3. For each word in `front`, generate its one-letter variants. A `neighbor` found
+   in `back` means the two searches have met: return `steps + 1`.
+4. Otherwise collect valid, unvisited variants into `next_front`, then advance
+   `front` and increment `steps`.
+
+Meeting in the middle halves the effective search depth, which is the dominant
+factor when the branching factor is high.
+
+#### Walkthrough
+
+Let us grow both frontiers on Example 1: `beginWord = "hit"`, `endWord = "cog"`,
+`wordList = ["hot","dot","dog","lot","log","cog"]`. The state starts at
+`front = {hit}`, `back = {cog}`, `visited = {hit, cog}`, `steps = 1`. Each line is
+one pass of the outer loop, labeled with the `steps` value during that pass:
+
+```text
+steps 1   front {hit}      back {cog}        expand hit: keep "hot"         front -> {hot}
+steps 2   front {hot}      back {cog}        expand hot: keep "dot","lot"   front -> {dot, lot}
+steps 3   front {dot,lot} > back {cog}: swap
+          front {cog}      back {dot, lot}   expand cog: keep "dog","log"   front -> {dog, log}
+steps 4   front {dog,log}  back {dot, lot}   expand dog: variant "dot" is in back
+          -> return steps + 1 = 5
+```
+
+The third pass shows both refinements at once. The frontiers are unequal, so the
+sets swap and the singleton `{cog}` is expanded instead of `{dot, lot}`: the search
+now grows backward from the end. On the fourth pass the two searches sit one edge
+apart: whichever of `dog` or `log` is expanded first, one of its variants (`dot` or
+`lot`) is already a member of `back`, so the searches meet and the answer is
+`steps + 1 = 5` either way. Read across the join, the path is `hit -> hot -> dot`
+from the begin side stitched to `dog -> cog` from the end side: 5 words, matching
+Example 1's Output.
+
+#### Solution
+
+The code is the frontier loop from the trace: swap to the smaller side,
+expand it wholesale, and return the moment a variant lands in `back`.
 
 ```python
 from typing import List
@@ -402,17 +636,6 @@ class Solution:
 
         return 0
 ```
-
-#### Approach
-
-[Bidirectional BFS](https://en.wikipedia.org/wiki/Bidirectional_search) searches inward from both ends at once:
-
-1. Maintain a `front` set starting at `beginWord` and a `back` set starting at `endWord`, plus a shared `visited` set.
-2. On each iteration, expand whichever frontier is smaller so the branching factor stays low.
-3. For each word in the active frontier, generate its one-letter variations. If any variation already lies in the opposite frontier, the two searches have met and the answer is `steps + 1`.
-4. Otherwise add valid, unvisited variations to the next frontier and increment the step count.
-
-Meeting in the middle halves the effective search depth, which is the dominant factor when the branching factor is high.
 
 #### Time and Space Complexity Analysis
 
