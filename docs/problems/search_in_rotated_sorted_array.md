@@ -44,9 +44,64 @@ You must write an algorithm with `O(log n)` runtime complexity.
 - `nums` is an ascending array that is possibly rotated.
 - `-10^4 <= target <= 10^4`
 
+## Deriving the Solution
+
+Rotating a sorted array of distinct values leaves two ascending runs laid end to
+end, with a single descending step at the pivot. Every logarithmic solution below
+exploits the consequence of that shape: any midpoint splits the array so that at
+least one of the two halves is fully sorted, and a sorted half can be tested
+against its endpoints.
+
+1. **Start literal.** Ignore the structure and scan for `target` element by
+   element. Always correct, but `O(n)` violates the required `O(log n)` bound:
+   see [Linear Scan](#linear-scan).
+2. **Restore the order first.** The pivot (the index of the minimum) is itself
+   findable by a binary search, and it splits the array into two plain sorted
+   runs. Binary search the runs with the standard algorithm: `O(log n)`, at the
+   cost of two or three separate passes: see
+   [Find Pivot then Binary Search](#find-pivot-then-binary-search).
+3. **Handle the rotation inside one search.** The two-phase split pays a
+   constant factor to avoid thinking about the pivot during the lookup. The
+   sharper observation is that no pivot-finding is needed: at every probe, at
+   least one half around `mid` is sorted, and comparing `target` against that
+   half's exact endpoint bounds tells which half to discard. One pass, same
+   `O(log n)`: see [Modified Binary Search](#modified-binary-search).
+
 ## Solutions
 
 ### Linear Scan
+
+#### Derivation
+
+The most direct reading of the problem ignores the rotated-sorted structure entirely and simply [walks the array](https://en.wikipedia.org/wiki/Linear_search) looking for `target`:
+
+1. Iterate over the array, tracking each index.
+2. Return the index as soon as an element equals `target`.
+3. Return `-1` if the loop finishes without a match.
+
+This always produces the correct answer and is the natural starting point, but it discards the ordering information that makes a logarithmic solution possible. The problem explicitly requires `O(log n)` runtime, so this baseline serves as a correctness reference rather than an acceptable submission.
+
+#### Walkthrough
+
+Let us scan Example 1 by hand: `nums = [4,5,6,7,0,1,2]`, `target = 0`. The loop
+compares each element to `target` in index order and stops at the first match:
+
+```text
+i = 0   num = 4   4 != 0, continue
+i = 1   num = 5   5 != 0, continue
+i = 2   num = 6   6 != 0, continue
+i = 3   num = 7   7 != 0, continue
+i = 4   num = 0   0 == 0, return 4
+```
+
+The scan walks straight past the pivot without noticing it and returns `4`, the
+expected Output. The cost is visible in the trace: five comparisons where the
+binary-search solutions below need three.
+
+#### Solution
+
+The code is the scan from the walkthrough: one comparison per element until the
+first match.
 
 ```python
 from typing import List
@@ -59,16 +114,6 @@ class Solution:
                 return i
         return -1
 ```
-
-#### Approach
-
-The most direct reading of the problem ignores the rotated-sorted structure entirely and simply [walks the array](https://en.wikipedia.org/wiki/Linear_search) looking for `target`:
-
-1. Iterate over the array, tracking each index.
-2. Return the index as soon as an element equals `target`.
-3. Return `-1` if the loop finishes without a match.
-
-This always produces the correct answer and is the natural starting point, but it discards the ordering information that makes a logarithmic solution possible. The problem explicitly requires `O(log n)` runtime, so this baseline serves as a correctness reference rather than an acceptable submission.
 
 #### Time and Space Complexity Analysis
 
@@ -86,9 +131,27 @@ Only a loop index and the current value are stored.
 - It violates the required `O(log n)` bound, demonstrating exactly what the binary-search refinements need to improve upon.
 - It needs no special handling for rotation, single-element arrays, or non-rotated input.
 
+### Find Pivot then Binary Search
+
+#### Derivation
+
+The Linear Scan discards the one guarantee the input offers: apart from a single
+descending step at the pivot, the array is sorted. If that step's position were
+known, the problem would collapse into ordinary
+[binary search](https://en.wikipedia.org/wiki/Binary_search_algorithm) territory.
+So ask: can the pivot itself be found in `O(log n)`? It can, because the pivot is
+the unique minimum, and comparing `nums[mid]` to `nums[right]` always tells which
+side of `mid` it lies on. That decomposes the problem into two independent
+phases, each a familiar binary search:
+
+1. Locate the rotation pivot, the index of the smallest element. If `nums[left] <= nums[right]` the array is not rotated and the pivot is index `0`. Otherwise binary search for the point where the descending step occurs: when `nums[mid] > nums[right]` the pivot lies to the right, so move `left = mid + 1`; otherwise the pivot is at `mid` or to its left, so set `right = mid`.
+2. The pivot splits the array into two sorted runs, `[0, pivot - 1]` and `[pivot, n - 1]`. Run a standard binary search over the first run, and if the target is not found there, run it over the second.
+
+Because each run is strictly ascending, the inner searches are ordinary binary searches with no rotation handling, which keeps the logic easy to verify.
+
 #### Walkthrough
 
-Tracing `Linear Scan` would only show a loop comparing each element, which teaches nothing about the rotated structure. Instead we trace the more instructive `Find Pivot then Binary Search` solution on Example 1: `nums = [4,5,6,7,0,1,2]`, `target = 0`. The indices are `0:4 1:5 2:6 3:7 4:0 5:1 6:2`.
+Let us trace both phases on Example 1: `nums = [4,5,6,7,0,1,2]`, `target = 0`. The indices are `0:4 1:5 2:6 3:7 4:0 5:1 6:2`.
 
 **Phase 1, find the pivot.** First check `nums[left] <= nums[right]`, that is `nums[0]=4 <= nums[6]=2`: false, so the array is rotated and we binary search for the smallest element. Each step compares `nums[mid]` against `nums[right]`: if `nums[mid] > nums[right]` the smallest element is to the right (`left = mid + 1`), otherwise it is at `mid` or to its left (`right = mid`).
 
@@ -116,7 +179,10 @@ The window empties, so the first run returns `-1`. Now search the second run `bi
 
 The search returns `4`, which matches the expected Output of `4`.
 
-### Find Pivot then Binary Search
+#### Solution
+
+The code is the two phases from the walkthrough as helper closures: `find_pivot`
+first, then `binary_search` over each sorted run.
 
 ```python
 from typing import List
@@ -157,15 +223,6 @@ class Solution:
         return binary_search(pivot, len(nums) - 1)
 ```
 
-#### Approach
-
-This solution decomposes the problem into two independent phases, each a familiar [binary search](https://en.wikipedia.org/wiki/Binary_search_algorithm):
-
-1. Locate the rotation pivot, the index of the smallest element. If `nums[left] <= nums[right]` the array is not rotated and the pivot is index `0`. Otherwise binary search for the point where the descending step occurs: when `nums[mid] > nums[right]` the pivot lies to the right, so move `left = mid + 1`; otherwise the pivot is at `mid` or to its left, so set `right = mid`.
-2. The pivot splits the array into two sorted runs, `[0, pivot - 1]` and `[pivot, n - 1]`. Run a standard binary search over the first run, and if the target is not found there, run it over the second.
-
-Because each run is strictly ascending, the inner searches are ordinary binary searches with no rotation handling, which keeps the logic easy to verify.
-
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(log n)`
@@ -184,33 +241,16 @@ Only constant pointer state is used; the helper closures allocate no additional 
 
 ### Modified Binary Search
 
-```python
-from typing import List
+#### Derivation
 
+The two-phase approach spends a whole [binary search](https://en.wikipedia.org/wiki/Binary_search_algorithm) locating the pivot before it looks at `target` at all, and may run two more searches after it. Ask whether the pivot needs to be found at all: the rotation can be handled inside a single search. The key observation is that for any `mid`, at least one of the two halves `[left, mid]` and `[mid, right]` is fully sorted, and a sorted half can be tested exactly against its endpoints. The Invariant below states why that test is trustworthy; the loop it justifies is:
 
-class Solution:
-    def search(self, nums: List[int], target: int) -> int:
-        left, right = 0, len(nums) - 1
+1. Compute `mid` and return immediately if `nums[mid]` equals `target`.
+2. If `nums[left] <= nums[mid]`, the left half is sorted. When `nums[left] <= target < nums[mid]`, the target can only be in that sorted half, so set `right = mid - 1`; otherwise discard it with `left = mid + 1`.
+3. Otherwise the right half is sorted. When `nums[mid] < target <= nums[right]`, search right with `left = mid + 1`; otherwise search left with `right = mid - 1`.
+4. Return `-1` when the window empties.
 
-        while left <= right:
-            mid = left + (right - left) // 2
-
-            if nums[mid] == target:
-                return mid
-
-            if nums[left] <= nums[mid]:  # left half is sorted
-                if nums[left] <= target < nums[mid]:
-                    right = mid - 1
-                else:
-                    left = mid + 1
-            else:  # right half is sorted
-                if nums[mid] < target <= nums[right]:
-                    left = mid + 1
-                else:
-                    right = mid - 1
-
-        return -1
-```
+Every decision is made against the exact bounds of a provably sorted half, so the target is never discarded by mistake.
 
 #### Invariant
 
@@ -280,16 +320,61 @@ happens whenever the window narrows to one or two elements. Using `<` there
 would misclassify a single-element half as unsorted and send the search down the
 wrong branch.
 
-#### Approach
+#### Walkthrough
 
-This solution handles the rotation inside a single [binary search](https://en.wikipedia.org/wiki/Binary_search_algorithm). The key observation is that for any `mid`, at least one of the two halves `[left, mid]` and `[mid, right]` is fully sorted:
+Let us run the single-pass search on Example 1: `nums = [4,5,6,7,0,1,2]`,
+`target = 0`. Each probe computes `mid`, checks for a direct hit, identifies
+the sorted half with `nums[left] <= nums[mid]`, and tests `target` against that
+half's endpoint bounds:
 
-1. Compute `mid` and return immediately if `nums[mid]` equals `target`.
-2. If `nums[left] <= nums[mid]`, the left half is sorted. When `nums[left] <= target < nums[mid]`, the target can only be in that sorted half, so set `right = mid - 1`; otherwise discard it with `left = mid + 1`.
-3. Otherwise the right half is sorted. When `nums[mid] < target <= nums[right]`, search right with `left = mid + 1`; otherwise search left with `right = mid - 1`.
-4. Return `-1` when the window empties.
+```text
+left=0  right=6  mid=3   nums[mid]=7 != 0
+                         nums[left]=4 <= 7: left half [0..3] sorted
+                         4 <= 0 < 7 false: not in the sorted half, left = 4
+left=4  right=6  mid=5   nums[mid]=1 != 0
+                         nums[left]=0 <= 1: left half [4..5] sorted
+                         0 <= 0 < 1 true: in the sorted half, right = 4
+left=4  right=4  mid=4   nums[mid]=0 == target, return 4
+```
 
-Every decision is made against the exact bounds of a provably sorted half, so the target is never discarded by mistake.
+The first probe lands in the left run `[4,5,6,7]`; the bound test proves `0`
+cannot be there, so the whole run is discarded in one step. The second probe's
+window `[0,1,2]` no longer contains the pivot, so the search behaves exactly
+like plain binary search from there. The direct hit at `mid = 4` returns `4`,
+matching the expected Output of `4`.
+
+#### Solution
+
+The code is the probe loop from the walkthrough: hit check, sorted-half test,
+then the two-sided bound comparison.
+
+```python
+from typing import List
+
+
+class Solution:
+    def search(self, nums: List[int], target: int) -> int:
+        left, right = 0, len(nums) - 1
+
+        while left <= right:
+            mid = left + (right - left) // 2
+
+            if nums[mid] == target:
+                return mid
+
+            if nums[left] <= nums[mid]:  # left half is sorted
+                if nums[left] <= target < nums[mid]:
+                    right = mid - 1
+                else:
+                    left = mid + 1
+            else:  # right half is sorted
+                if nums[mid] < target <= nums[right]:
+                    left = mid + 1
+                else:
+                    right = mid - 1
+
+        return -1
+```
 
 #### Time and Space Complexity Analysis
 

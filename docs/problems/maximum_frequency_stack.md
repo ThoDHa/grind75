@@ -56,9 +56,79 @@ freqStack.pop();   // return 4, as 4, 5 and 7 is the most frequent, but 4 is clo
 - At most `2 * 10^4` calls will be made to `push` and `pop`.
 - It is guaranteed that there will be at least one element in the stack before calling `pop`.
 
+## Deriving the Solution
+
+Every `pop` must return the element with the highest current frequency, breaking
+ties toward the most recent push. All three designs below keep a live frequency
+map; they differ in how they locate that winner.
+
+1. **Start literal.** Store exactly what the problem describes: the stack as one
+   list in push order, plus a `freq_count` map. To pop, compute the maximum
+   frequency and scan the list from the top for the first element carrying it.
+   Correct, but each pop pays a linear scan and a linear mid-list removal: see
+   [Brute Force](#brute-force).
+2. **Spot the waste.** The pop rebuilds from scratch information that only
+   changes incrementally: the maximum frequency moves by at most one per
+   operation, and "closest to the top among the winners" can be maintained
+   rather than searched for.
+3. **Group by frequency.** Give every frequency level its own stack: an
+   element's `k`-th copy lives in bucket `k`. The winner is always the top of
+   the `max_freq` bucket, LIFO order inside each bucket resolves the recency
+   tie for free, and `max_freq` moves in single steps. Both operations drop to
+   `O(1)`: see [Stack of Stacks](#stack-of-stacks).
+4. **Or reach for a priority queue.** "Highest frequency, then most recent" is
+   a priority order, so a heap keyed `(-frequency, -timestamp)` surfaces the
+   winner directly, at `O(log n)` per operation and with `heapq` carrying the
+   core logic: see [Heap with Timestamps](#heap-with-timestamps).
+
 ## Solutions
 
 ### Brute Force
+
+#### Derivation
+
+The most direct model keeps exactly what the problem statement talks about: the
+stack itself, as one list in push order, plus a live `freq_count` map from each
+value to its current frequency. `push` maintains both in constant time. `pop`
+answers its two requirements literally: first find the highest frequency, then
+find the element closest to the top that carries it, by scanning the list from
+the top down. The steps:
+
+1. `push(val)`: append `val` to `stack` and increment `freq_count[val]`.
+2. `pop()`: compute `max_freq = max(self.freq_count.values())`.
+3. Scan `stack` from the last index toward `0`; the first `val` whose
+   `freq_count[val]` equals `max_freq` is the winner. Remove it with
+   `stack.pop(i)`, decrement its count (deleting the entry when it reaches
+   zero), and return it.
+
+Scanning from the top is what enforces the tie-break: among all elements at the
+maximum frequency, the first one met is the one closest to the top.
+
+#### Walkthrough
+
+Let us run the **Brute Force** code on Example 1: push `5, 7, 5, 7, 4, 5`, then call `pop()` four times. Each `push` appends to `stack` and bumps that value's count in `freq_count`.
+
+| Operation | `stack` after | `freq_count` after |
+| --- | --- | --- |
+| `push(5)` | `[5]` | `{5: 1}` |
+| `push(7)` | `[5, 7]` | `{5: 1, 7: 1}` |
+| `push(5)` | `[5, 7, 5]` | `{5: 2, 7: 1}` |
+| `push(7)` | `[5, 7, 5, 7]` | `{5: 2, 7: 2}` |
+| `push(4)` | `[5, 7, 5, 7, 4]` | `{5: 2, 7: 2, 4: 1}` |
+| `push(5)` | `[5, 7, 5, 7, 4, 5]` | `{5: 3, 7: 2, 4: 1}` |
+
+Now the pops. Each `pop()` first computes `max_freq = max(freq_count.values())`, then scans `stack` from the top down (`i` from the last index toward `0`) and removes the first value whose count equals `max_freq`:
+
+- `pop()`: `max_freq` is `3`. Scanning from the top, the last `5` (index `5`) has count `3`, so it is removed and its count drops. `stack` becomes `[5, 7, 5, 7, 4]`, `freq_count` becomes `{5: 2, 7: 2, 4: 1}`. Returns `5`.
+- `pop()`: `max_freq` is `2`. Scanning from the top, `4` (count `1`) is skipped, then `7` (count `2`) matches and is removed. `stack` becomes `[5, 7, 5, 4]`, `freq_count` becomes `{5: 2, 7: 1, 4: 1}`. Returns `7`: the tie between `5` and `7` resolves to `7` because it sits closer to the top.
+- `pop()`: `max_freq` is `2`. Scanning from the top, `4` (count `1`) is skipped, then `5` (count `2`) matches and is removed. `stack` becomes `[5, 7, 4]`, `freq_count` becomes `{5: 1, 7: 1, 4: 1}`. Returns `5`.
+- `pop()`: `max_freq` is `1`. The top element `4` (count `1`) matches immediately and is removed. `stack` becomes `[5, 7]`, `freq_count` becomes `{5: 1, 7: 1}`. Returns `4`.
+
+The four pops return `5, 7, 5, 4`, which matches the expected Output `[null, null, null, null, null, null, null, 5, 7, 5, 4]` for the pop calls.
+
+#### Solution
+
+The code is the walkthrough's two structures and its top-down scan written down.
 
 ```python
 class FreqStack:
@@ -100,10 +170,6 @@ class FreqStack:
         return -1  # Should never reach here
 ```
 
-#### Approach
-
-This **brute force solution** maintains the complete stack and searches for the most frequent element during each pop operation. While correct, it's highly inefficient for large inputs but useful for understanding the problem requirements.
-
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(1)` for push, `O(n)` for pop
@@ -121,72 +187,33 @@ Maintains the complete element history in the stack.
 - `pop(i)` from the middle of a Python list is `O(n)`, and `max(self.freq_count.values())` re-scans every distinct value, so each pop is linear; this is the cost the later designs eliminate.
 - Correct for every valid sequence, but too slow at the upper constraint of `2 * 10^4` calls.
 
-#### Walkthrough
-
-Let us run the **Brute Force** code on Example 1: push `5, 7, 5, 7, 4, 5`, then call `pop()` four times. Each `push` appends to `stack` and bumps that value's count in `freq_count`.
-
-| Operation | `stack` after | `freq_count` after |
-| --- | --- | --- |
-| `push(5)` | `[5]` | `{5: 1}` |
-| `push(7)` | `[5, 7]` | `{5: 1, 7: 1}` |
-| `push(5)` | `[5, 7, 5]` | `{5: 2, 7: 1}` |
-| `push(7)` | `[5, 7, 5, 7]` | `{5: 2, 7: 2}` |
-| `push(4)` | `[5, 7, 5, 7, 4]` | `{5: 2, 7: 2, 4: 1}` |
-| `push(5)` | `[5, 7, 5, 7, 4, 5]` | `{5: 3, 7: 2, 4: 1}` |
-
-Now the pops. Each `pop()` first computes `max_freq = max(freq_count.values())`, then scans `stack` from the top down (`i` from the last index toward `0`) and removes the first value whose count equals `max_freq`:
-
-- `pop()`: `max_freq` is `3`. Scanning from the top, the last `5` (index `5`) has count `3`, so it is removed and its count drops. `stack` becomes `[5, 7, 5, 7, 4]`, `freq_count` becomes `{5: 2, 7: 2, 4: 1}`. Returns `5`.
-- `pop()`: `max_freq` is `2`. Scanning from the top, `4` (count `1`) is skipped, then `7` (count `2`) matches and is removed. `stack` becomes `[5, 7, 5, 4]`, `freq_count` becomes `{5: 2, 7: 1, 4: 1}`. Returns `7`: the tie between `5` and `7` resolves to `7` because it sits closer to the top.
-- `pop()`: `max_freq` is `2`. Scanning from the top, `4` (count `1`) is skipped, then `5` (count `2`) matches and is removed. `stack` becomes `[5, 7, 4]`, `freq_count` becomes `{5: 1, 7: 1, 4: 1}`. Returns `5`.
-- `pop()`: `max_freq` is `1`. The top element `4` (count `1`) matches immediately and is removed. `stack` becomes `[5, 7]`, `freq_count` becomes `{5: 1, 7: 1}`. Returns `4`.
-
-The four pops return `5, 7, 5, 4`, which matches the expected Output `[null, null, null, null, null, null, null, 5, 7, 5, 4]` for the pop calls.
-
 ### Stack of Stacks
 
-```python
-class FreqStack:
-    def __init__(self):
-        """
-        Stack of stacks approach - group elements by frequency level
-        """
-        self.freq_count = {}  # val -> frequency count
-        self.freq_stacks = {}  # frequency -> stack of elements with that frequency
-        self.max_freq = 0     # track maximum frequency seen
+#### Derivation
 
-    def push(self, val: int) -> None:
-        """
-        Push element and update frequency tracking
-        """
-        # Update frequency count
-        self.freq_count[val] = self.freq_count.get(val, 0) + 1
-        freq = self.freq_count[val]
+The Brute Force pop searches for two things it could have maintained: the
+maximum frequency, and the most recent element carrying it. The repair is to
+organize elements by the very property the pop keys on. Give each frequency
+level its own [stack](https://en.wikipedia.org/wiki/Stack_(abstract_data_type)):
+when a value's count climbs to `k`, that occurrence is appended to bucket `k`.
+The most frequent element is then always on top of the highest non-empty
+bucket, and because each bucket is itself a stack, elements with the same
+frequency come off most-recent-first, which is exactly the required tie-break.
 
-        # Update maximum frequency
-        self.max_freq = max(self.max_freq, freq)
+The remaining question is how `max_freq` moves. A push raises it by at most one
+(a value's count climbs one step at a time). On a pop that empties the top
+bucket, a single decrement suffices: an element only reaches count `k` after
+leaving an entry in every bucket from `1` to `k - 1`, so a non-empty
+`freq_stacks[k]` guarantees a non-empty `freq_stacks[k-1]`. The Invariant below
+states the property formally and shows that both `push` and `pop` preserve it.
+The steps:
 
-        # Add to appropriate frequency stack
-        if freq not in self.freq_stacks:
-            self.freq_stacks[freq] = []
-        self.freq_stacks[freq].append(val)
-
-    def pop(self) -> int:
-        """
-        Pop the most frequent element (most recent if tie)
-        """
-        # Get element from highest frequency stack
-        val = self.freq_stacks[self.max_freq].pop()
-
-        # Decrease frequency count
-        self.freq_count[val] -= 1
-
-        # Update max_freq if highest frequency stack becomes empty
-        if not self.freq_stacks[self.max_freq]:
-            self.max_freq -= 1
-
-        return val
-```
+1. `push(val)`: increment `freq_count[val]` to obtain `freq`, raise `max_freq`
+   if `freq` exceeds it, and append `val` to `freq_stacks[freq]` (creating the
+   bucket on first use).
+2. `pop()`: pop `val` from `freq_stacks[max_freq]`, decrement
+   `freq_count[val]`, and if that bucket is now empty, decrement `max_freq`.
+3. Return `val`.
 
 #### Invariant
 
@@ -231,11 +258,84 @@ makes the scan unnecessary: when \(F_{\textit{max\_freq}}\) empties,
 bucket, so on entry to the next `pop`, `max_freq` still names the true maximum
 frequency and `freq_stacks[max_freq]` is non-empty.
 
-#### Approach
+#### Walkthrough
 
-This solution uses a **stack of stacks design** where each frequency level has its own [stack](https://en.wikipedia.org/wiki/Stack_(abstract_data_type)). Elements are grouped by their current frequency, and we maintain the maximum frequency seen. The key insight is that elements with the same frequency should be processed in LIFO order (most recent first), which naturally handles the tie-breaking requirement.
+Let us run Example 1 through the buckets: push `5, 7, 5, 7, 4, 5`, then call
+`pop()` four times. Each line shows the full internal state after the call:
 
-Because an element only reaches count `k` after leaving an entry in every bucket from `1` to `k - 1`, a non-empty `freq_stacks[k]` guarantees a non-empty `freq_stacks[k-1]`. That is what lets an emptied top bucket be handled with `max_freq -= 1` instead of a scan downward for the next non-empty level. The Invariant above states the property formally and shows that both `push` and `pop` preserve it.
+```text
+op          freq_count       freq_stacks                    max_freq
+push(5)     {5:1}            {1:[5]}                        1
+push(7)     {5:1,7:1}        {1:[5,7]}                      1
+push(5)     {5:2,7:1}        {1:[5,7], 2:[5]}               2
+push(7)     {5:2,7:2}        {1:[5,7], 2:[5,7]}             2
+push(4)     {5:2,7:2,4:1}    {1:[5,7,4], 2:[5,7]}           2
+push(5)     {5:3,7:2,4:1}    {1:[5,7,4], 2:[5,7], 3:[5]}    3
+pop() -> 5  {5:2,7:2,4:1}    {1:[5,7,4], 2:[5,7], 3:[]}     2
+pop() -> 7  {5:2,7:1,4:1}    {1:[5,7,4], 2:[5], 3:[]}       2
+pop() -> 5  {5:1,7:1,4:1}    {1:[5,7,4], 2:[], 3:[]}        1
+pop() -> 4  {5:1,7:1,4:0}    {1:[5,7], 2:[], 3:[]}          1
+```
+
+Each push files the value under its *new* count: the second `5` lands in bucket
+`2`, the third in bucket `3`, raising `max_freq` step by step. The first pop
+takes the top of bucket `3`, the lone third copy of `5`; the bucket empties, so
+`max_freq` drops to `2`. The second pop reads bucket `2`, whose top is `7`
+because `7`'s second copy was pushed after `5`'s: the LIFO order inside the
+bucket delivers the recency tie-break with no timestamps. The third pop takes
+`5` from bucket `2` and empties it (`max_freq` drops to `1`), and the fourth
+takes the top of bucket `1`, which is `4`.
+
+The four pops return `5, 7, 5, 4`, matching the expected Output
+`[null, null, null, null, null, null, null, 5, 7, 5, 4]` for the pop calls.
+
+#### Solution
+
+The code is the bucket update from the walkthrough: one count map, one
+dictionary of per-frequency stacks, and the `max_freq` marker.
+
+```python
+class FreqStack:
+    def __init__(self):
+        """
+        Stack of stacks approach - group elements by frequency level
+        """
+        self.freq_count = {}  # val -> frequency count
+        self.freq_stacks = {}  # frequency -> stack of elements with that frequency
+        self.max_freq = 0     # track maximum frequency seen
+
+    def push(self, val: int) -> None:
+        """
+        Push element and update frequency tracking
+        """
+        # Update frequency count
+        self.freq_count[val] = self.freq_count.get(val, 0) + 1
+        freq = self.freq_count[val]
+
+        # Update maximum frequency
+        self.max_freq = max(self.max_freq, freq)
+
+        # Add to appropriate frequency stack
+        if freq not in self.freq_stacks:
+            self.freq_stacks[freq] = []
+        self.freq_stacks[freq].append(val)
+
+    def pop(self) -> int:
+        """
+        Pop the most frequent element (most recent if tie)
+        """
+        # Get element from highest frequency stack
+        val = self.freq_stacks[self.max_freq].pop()
+
+        # Decrease frequency count
+        self.freq_count[val] -= 1
+
+        # Update max_freq if highest frequency stack becomes empty
+        if not self.freq_stacks[self.max_freq]:
+            self.max_freq -= 1
+
+        return val
+```
 
 #### Time and Space Complexity Analysis
 
@@ -255,6 +355,65 @@ Where n is the total number of elements pushed. Each element appears in exactly 
 - This is the optimal from-scratch design: no library handles the priority logic.
 
 ### Heap with Timestamps
+
+#### Derivation
+
+Instead of designing a bespoke structure, ask whether a standard one already
+answers "give me the item of highest priority". A
+[priority queue](https://en.wikipedia.org/wiki/Priority_queue) does, provided
+the priority is spelled out: highest frequency first, and among equal
+frequencies, the most recent push. Encode both in one key by recording, at push
+time, the frequency the element has *at that moment* alongside a global
+timestamp. Python's `heapq` is a min-heap, so negating both fields makes the
+smallest tuple the intended winner. Because each entry snapshots its frequency,
+the element currently at the highest count always owns the heap's best entry;
+no stale entry can outrank it. The steps:
+
+1. On `push(val)`, increment the global `timestamp` and `freq_count[val]`, then
+   push the tuple `(-self.freq_count[val], -self.timestamp, val)` onto
+   `max_heap`.
+2. On `pop()`, `heappop` the top tuple; its `val` is the element with the
+   highest current frequency, ties broken toward the later timestamp.
+3. Decrement the popped element's `freq_count` so future pushes record accurate
+   frequencies.
+
+#### Walkthrough
+
+Let us run Example 1 through the heap: push `5, 7, 5, 7, 4, 5`, then call
+`pop()` four times. Each push adds one `(-freq, -timestamp, val)` entry. The
+lines below list the live entries in priority order, best (smallest tuple)
+first, rather than the heap's internal array layout:
+
+```text
+push(5)  ts=1  entry (-1,-1,5)  heap: (-1,-1,5)
+push(7)  ts=2  entry (-1,-2,7)  heap: (-1,-2,7) (-1,-1,5)
+push(5)  ts=3  entry (-2,-3,5)  heap: (-2,-3,5) (-1,-2,7) (-1,-1,5)
+push(7)  ts=4  entry (-2,-4,7)  heap: (-2,-4,7) (-2,-3,5) (-1,-2,7) (-1,-1,5)
+push(4)  ts=5  entry (-1,-5,4)  heap: (-2,-4,7) (-2,-3,5) (-1,-5,4) (-1,-2,7) (-1,-1,5)
+push(5)  ts=6  entry (-3,-6,5)  heap: (-3,-6,5) (-2,-4,7) (-2,-3,5) (-1,-5,4) (-1,-2,7) (-1,-1,5)
+```
+
+Now the pops, each removing the heap's smallest tuple:
+
+```text
+pop() -> 5   removes (-3,-6,5)   heap: (-2,-4,7) (-2,-3,5) (-1,-5,4) (-1,-2,7) (-1,-1,5)
+pop() -> 7   removes (-2,-4,7)   heap: (-2,-3,5) (-1,-5,4) (-1,-2,7) (-1,-1,5)
+pop() -> 5   removes (-2,-3,5)   heap: (-1,-5,4) (-1,-2,7) (-1,-1,5)
+pop() -> 4   removes (-1,-5,4)   heap: (-1,-2,7) (-1,-1,5)
+```
+
+The first pop takes `(-3,-6,5)`, the only frequency-3 entry. The second is the
+tie the problem cares about: `(-2,-4,7)` beats `(-2,-3,5)` because `-4 < -3`,
+so equal frequency `2` resolves to the later timestamp, which is `7`. The third
+pop takes the remaining frequency-2 entry for `5`, and the fourth compares
+three frequency-1 entries, where the latest timestamp (`ts=5`) belongs to `4`.
+
+The four pops return `5, 7, 5, 4`, matching the expected Output
+`[null, null, null, null, null, null, null, 5, 7, 5, 4]` for the pop calls.
+
+#### Solution
+
+The code is the walkthrough's entry bookkeeping handed to `heapq`.
 
 ```python
 import heapq
@@ -288,16 +447,6 @@ class FreqStack:
         self.freq_count[val] -= 1
         return val
 ```
-
-#### Approach
-
-This solution lets a **[priority queue](https://en.wikipedia.org/wiki/Priority_queue) (max heap)** do the priority work. Each push records an entry keyed by `(-frequency, -timestamp, val)`, so the heap always surfaces the element with the highest current frequency, breaking ties toward the most recent push.
-
-1. On push, increment the element's frequency and a global timestamp counter, then push the tuple `(-frequency, -timestamp, val)`.
-2. On pop, take the heap's top tuple. Because each push records the frequency the element had *at that moment*, the top entry is always the live winner; no stale entries can outrank it.
-3. Decrement the popped element's frequency so future comparisons stay accurate.
-
-The negated frequency and timestamp turn Python's min-heap into a max-heap that prefers higher frequency first, then later pushes.
 
 #### Time and Space Complexity Analysis
 

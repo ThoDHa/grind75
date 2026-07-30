@@ -47,33 +47,42 @@ A **subarray** is a contiguous part of an array.
 
 If you have figured out the `O(n)` solution, try coding another solution using the **divide and conquer approach**, which is more subtle.
 
+## Deriving the Solution
+
+A subarray is fixed by its two endpoints, so the literal search enumerates pairs
+of endpoints and is quadratic. Every faster solution replaces one endpoint with a
+quantity that can be carried through a single left-to-right scan.
+
+1. **Start literal.** Enumerate every `(start, end)` pair, carrying a running sum
+   so each extension costs constant work. Correct but `O(n^2)`: see
+   [Brute Force](#brute-force).
+2. **Spot the waste.** The best subarray ending at index `i` either extends the
+   best one ending at `i - 1` or starts fresh at `nums[i]`; the brute force
+   relearns that fact from scratch for every start index.
+3. **Carry it.** Keep just two quantities per step, the best sum ending here and
+   the best sum seen anywhere, and the scan becomes `O(n)`. Held as two scalars
+   this is [Kadane's Algorithm](#kadanes-algorithm); held as an explicit array it
+   is [Dynamic Programming with Explicit Table](#dynamic-programming-with-explicit-table).
+4. **Reformulate with prefixes.** The sum of `nums[i..j]` is a difference of two
+   prefix sums, so maximizing a subarray ending at `j` means subtracting the
+   smallest earlier prefix: the same `O(n)` through a different lens: see
+   [Prefix-Sum Minimum](#prefix-sum-minimum).
+5. **Answer the follow-up.** Splitting the array in half forces the best subarray
+   to lie entirely left, entirely right, or across the middle, giving an
+   `O(n log n)` recursion: see [Divide and Conquer](#divide-and-conquer).
+6. **Lean on the library.** Kadane's recurrence is a scan, and
+   `itertools.accumulate` is the standard library's scan primitive: see
+   [Library One-Liner with `itertools.accumulate`](#library-one-liner-with-itertoolsaccumulate).
+
 ## Solutions
 
 ### Brute Force
 
-```python
-from typing import List
+#### Derivation
 
-
-class Solution:
-    def maxSubArray(self, nums: List[int]) -> int:
-        n = len(nums)
-        best = nums[0]
-
-        for start in range(n):
-            # Grow the subarray that begins at `start` one element at a time,
-            # carrying the running sum so each new end is constant work.
-            current = 0
-            for end in range(start, n):
-                current += nums[end]
-                best = max(best, current)
-
-        return best
-```
-
-#### Approach
-
-The most direct idea is to consider every possible contiguous subarray, sum it, and keep the largest sum found. A subarray is fixed by its start and end indices, so two nested loops enumerate all of them.
+The most direct idea is to consider every possible contiguous subarray, sum it,
+and keep the largest sum found. A subarray is fixed by its start and end indices,
+so two nested loops enumerate all of them.
 
 1. Initialize `best` to `nums[0]` so the answer is valid even when every number is negative.
 2. For each start index, reset a `current` running sum to `0`.
@@ -81,24 +90,8 @@ The most direct idea is to consider every possible contiguous subarray, sum it, 
 4. Update `best` with the largest sum seen at any `(start, end)` pair.
 5. Return `best` after all pairs are examined.
 
-Carrying the running sum across the inner loop avoids re-adding the same prefix for every end, which keeps the work quadratic rather than cubic.
-
-#### Time and Space Complexity Analysis
-
-##### Time Complexity: `O(n^2)`
-
-The outer loop fixes each of the `n` start indices, and the inner loop extends to the end of the array, so the total number of `(start, end)` pairs is on the order of `n^2`, each handled in constant time.
-
-##### Space Complexity: `O(1)`
-
-Only the `best` and `current` scalars are tracked, regardless of input size.
-
-#### Key Insights
-
-- Enumerates the entire search space directly, making correctness obvious without any clever observation.
-- Reusing the running `current` sum is the one optimization that drops a naive `O(n^3)` re-sum down to `O(n^2)`.
-- Seeding `best` with `nums[0]` rather than `0` is what handles the all-negative case correctly.
-- Too slow for the upper constraint of `10^5` elements, which motivates the linear approaches below.
+Carrying the running sum across the inner loop avoids re-adding the same prefix
+for every end, which keeps the work quadratic rather than cubic.
 
 #### Walkthrough
 
@@ -125,7 +118,10 @@ When `start` moves to a new index, `current` resets to `0` before the first `end
 
 After all pairs are examined, the loop returns `best = 4`, which matches the expected sum of the best subarray for `[-2, 1, -3, 4]`.
 
-### Kadane's Algorithm
+#### Solution
+
+The code is the walkthrough's double loop: fix `start`, grow `end`, carry
+`current`.
 
 ```python
 from typing import List
@@ -133,17 +129,57 @@ from typing import List
 
 class Solution:
     def maxSubArray(self, nums: List[int]) -> int:
-        current_sum = nums[0]
-        max_sum = nums[0]
+        n = len(nums)
+        best = nums[0]
 
-        for i in range(1, len(nums)):
-            # Extend the previous subarray, or start fresh at nums[i].
-            # Starting fresh wins exactly when current_sum is negative.
-            current_sum = max(nums[i], current_sum + nums[i])
-            max_sum = max(max_sum, current_sum)
+        for start in range(n):
+            # Grow the subarray that begins at `start` one element at a time,
+            # carrying the running sum so each new end is constant work.
+            current = 0
+            for end in range(start, n):
+                current += nums[end]
+                best = max(best, current)
 
-        return max_sum
+        return best
 ```
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n^2)`
+
+The outer loop fixes each of the `n` start indices, and the inner loop extends to the end of the array, so the total number of `(start, end)` pairs is on the order of `n^2`, each handled in constant time.
+
+##### Space Complexity: `O(1)`
+
+Only the `best` and `current` scalars are tracked, regardless of input size.
+
+#### Key Insights
+
+- Enumerates the entire search space directly, making correctness obvious without any clever observation.
+- Reusing the running `current` sum is the one optimization that drops a naive `O(n^3)` re-sum down to `O(n^2)`.
+- Seeding `best` with `nums[0]` rather than `0` is what handles the all-negative case correctly.
+- Too slow for the upper constraint of `10^5` elements, which motivates the linear approaches below.
+
+### Kadane's Algorithm
+
+#### Derivation
+
+The brute force spends its time relearning: the sums it accumulates for one start
+index tell it nothing about the next, so every start pays for a fresh sweep. The
+repair comes from asking a narrower question: what is the largest sum of a
+subarray that ends exactly at index `i`? That single quantity is cheap to carry
+forward, and the overall answer is its maximum over every `i`.
+[Kadane's algorithm](https://en.wikipedia.org/wiki/Maximum_subarray_problem)
+scans the array once while tracking two quantities: `current_sum`, the largest
+sum of any subarray that ends at the current index, and `max_sum`, the largest
+sum seen anywhere so far.
+
+1. Initialize both `current_sum` and `max_sum` to `nums[0]`, since the answer must contain at least one element.
+2. For each subsequent element, decide whether to extend the running subarray or begin a new one at the current element: `current_sum = max(nums[i], current_sum + nums[i])`.
+3. Update `max_sum` with the best `current_sum` observed.
+4. Return `max_sum` after the single pass.
+
+The decision at step 2 is correct because a subarray ending at index `i` either stands alone (`nums[i]`) or extends the best subarray ending at `i - 1`. Any negative prefix can only hurt, so the algorithm discards it by restarting.
 
 #### Recurrence
 
@@ -181,16 +217,55 @@ right edge. `current_sum` carries \(\text{end}[i]\) and `max_sum` carries the
 running outer maximum, so Kadane's is this pair of formulas with the array
 collapsed to two scalars.
 
-#### Approach
+#### Walkthrough
 
-[Kadane's algorithm](https://en.wikipedia.org/wiki/Maximum_subarray_problem) scans the array once while tracking two quantities: `current_sum`, the largest sum of any subarray that ends at the current index, and `max_sum`, the largest sum seen anywhere so far.
+Let us run the scan by hand on Example 1: `nums = [-2,1,-3,4,-1,2,1,-5,4]`. Both
+`current_sum` and `max_sum` start at `nums[0] = -2`. At each later index the
+decision `max(nums[i], current_sum + nums[i])` either extends the running
+subarray or restarts it at `nums[i]`:
 
-1. Initialize both `current_sum` and `max_sum` to `nums[0]`, since the answer must contain at least one element.
-2. For each subsequent element, decide whether to extend the running subarray or begin a new one at the current element: `current_sum = max(nums[i], current_sum + nums[i])`.
-3. Update `max_sum` with the best `current_sum` observed.
-4. Return `max_sum` after the single pass.
+```text
+i=0  nums[0]=-2   current_sum = -2               max_sum = -2   both seeded
+i=1  nums[1]= 1   max( 1, -2+1) =  1   restart   max_sum =  1
+i=2  nums[2]=-3   max(-3,  1-3) = -2   extend    max_sum =  1
+i=3  nums[3]= 4   max( 4, -2+4) =  4   restart   max_sum =  4
+i=4  nums[4]=-1   max(-1,  4-1) =  3   extend    max_sum =  4
+i=5  nums[5]= 2   max( 2,  3+2) =  5   extend    max_sum =  5
+i=6  nums[6]= 1   max( 1,  5+1) =  6   extend    max_sum =  6
+i=7  nums[7]=-5   max(-5,  6-5) =  1   extend    max_sum =  6
+i=8  nums[8]= 4   max( 4,  1+4) =  5   extend    max_sum =  6
+```
 
-The decision at step 2 is correct because a subarray ending at index `i` either stands alone (`nums[i]`) or extends the best subarray ending at `i - 1`. Any negative prefix can only hurt, so the algorithm discards it by restarting.
+The two restarts happen exactly where the carried sum has turned negative: at
+`i=1` the prefix `-2` would only hurt, and at `i=3` the carried `-2` is dropped
+in favor of starting at `4`. From there the run `4, -1, 2, 1` lifts
+`current_sum` to `6`, which `max_sum` records and later dips never erase.
+
+The scan returns `max_sum = 6`, the sum of `[4,-1,2,1]`, matching the expected
+Output for Example 1.
+
+#### Solution
+
+The code is the walkthrough's two columns kept as scalars: `current_sum` and
+`max_sum` updated once per element.
+
+```python
+from typing import List
+
+
+class Solution:
+    def maxSubArray(self, nums: List[int]) -> int:
+        current_sum = nums[0]
+        max_sum = nums[0]
+
+        for i in range(1, len(nums)):
+            # Extend the previous subarray, or start fresh at nums[i].
+            # Starting fresh wins exactly when current_sum is negative.
+            current_sum = max(nums[i], current_sum + nums[i])
+            max_sum = max(max_sum, current_sum)
+
+        return max_sum
+```
 
 #### Time and Space Complexity Analysis
 
@@ -210,6 +285,46 @@ Only two scalar accumulators are maintained regardless of input size.
 
 ### Dynamic Programming with Explicit Table
 
+#### Derivation
+
+Kadane's two scalars can feel like a trick until the recurrence behind them is
+written out in full. This formulation asks the same question, the best sum of a
+subarray ending at each index, but stores every intermediate answer in an array,
+making the [dynamic-programming](https://en.wikipedia.org/wiki/Dynamic_programming)
+structure explicit.
+
+1. Define `dp[i]` as the maximum sum of a subarray that ends at index `i`.
+2. Set the base case `dp[0] = nums[0]`.
+3. Apply the recurrence `dp[i] = max(nums[i], dp[i - 1] + nums[i])` left to right.
+4. The answer is `max(dp)`, since the best subarray must end at some index.
+
+#### Walkthrough
+
+Let us fill the table by hand on Example 1: `nums = [-2,1,-3,4,-1,2,1,-5,4]`.
+Each `dp[i]` is computed from `dp[i - 1]` by the recurrence:
+
+```text
+i=0  dp[0] = nums[0]      = -2
+i=1  dp[1] = max( 1, -2+1) =  1
+i=2  dp[2] = max(-3,  1-3) = -2
+i=3  dp[3] = max( 4, -2+4) =  4
+i=4  dp[4] = max(-1,  4-1) =  3
+i=5  dp[5] = max( 2,  3+2) =  5
+i=6  dp[6] = max( 1,  5+1) =  6
+i=7  dp[7] = max(-5,  6-5) =  1
+i=8  dp[8] = max( 4,  1+4) =  5
+```
+
+The finished table is `dp = [-2, 1, -2, 4, 3, 5, 6, 1, 5]`: entry by entry the
+same values `current_sum` took in the Kadane walkthrough, now all retained. The
+final answer is `max(dp) = 6`, at `dp[6]`, where the subarray `[4,-1,2,1]` ends,
+matching the expected Output for Example 1.
+
+#### Solution
+
+The code fills the walkthrough's `dp` array left to right, then takes its
+maximum.
+
 ```python
 from typing import List
 
@@ -226,15 +341,6 @@ class Solution:
 
         return max(dp)
 ```
-
-#### Approach
-
-This formulation makes the [dynamic-programming](https://en.wikipedia.org/wiki/Dynamic_programming) recurrence behind Kadane's algorithm explicit by storing every intermediate state in an array.
-
-1. Define `dp[i]` as the maximum sum of a subarray that ends at index `i`.
-2. Set the base case `dp[0] = nums[0]`.
-3. Apply the recurrence `dp[i] = max(nums[i], dp[i - 1] + nums[i])` left to right.
-4. The answer is `max(dp)`, since the best subarray must end at some index.
 
 #### Time and Space Complexity Analysis
 
@@ -253,6 +359,68 @@ The explicit `dp` array stores one value per element.
 - The base case `dp[0] = nums[0]` again guards the all-negative case.
 
 ### Divide and Conquer
+
+#### Derivation
+
+The follow-up asks for a different route entirely:
+[divide and conquer](https://en.wikipedia.org/wiki/Divide-and-conquer_algorithm).
+Split the array at its midpoint and ask where the best subarray can live. There
+are only three possibilities: entirely in the left half, entirely in the right
+half, or crossing the midpoint. The two halves are the same problem on smaller
+inputs, so recursion handles them; only the crossing case needs new work.
+
+1. Base case: a single element returns its own value.
+2. Split at `mid` and recursively solve the left and right halves with `divide`.
+3. Compute the best subarray that crosses `mid` with `max_crossing_sum`, which
+   expands outward from the midpoint in both directions and adds the best left
+   reach (`left_sum`) to the best right reach (`right_sum`).
+4. Return the maximum of `left_max`, `right_max`, and `cross_max`.
+
+The crossing computation is the key piece: the best crossing subarray is forced to include `nums[mid]` and `nums[mid + 1]`, so each side is found greedily by accumulating from the midpoint outward.
+
+#### Walkthrough
+
+Example 1's nine elements spawn a recursion tree too large to trace by hand, so
+this walkthrough uses a smaller tailored array that still exercises every case:
+`nums = [-2, 1, -3, 4]`, whose best subarray is `[4]` with sum `4`. Indentation
+below follows the recursion; each `divide(left, right)` splits at `mid` and
+combines three candidates:
+
+```text
+divide(0, 3)  mid = 1
+  divide(0, 1)  mid = 0
+    divide(0, 0) -> nums[0] = -2                        single element
+    divide(1, 1) -> nums[1] =  1                        single element
+    max_crossing_sum(0, 0, 1):
+      leftward from mid=0:    current = -2   left_sum  = -2
+      rightward from mid+1=1: current =  1   right_sum =  1
+      cross_max = -2 + 1 = -1
+    -> max(-2, 1, -1) = 1
+  divide(2, 3)  mid = 2
+    divide(2, 2) -> nums[2] = -3                        single element
+    divide(3, 3) -> nums[3] =  4                        single element
+    max_crossing_sum(2, 2, 3):
+      leftward from mid=2:    current = -3   left_sum  = -3
+      rightward from mid+1=3: current =  4   right_sum =  4
+      cross_max = -3 + 4 = 1
+    -> max(-3, 4, 1) = 4
+  max_crossing_sum(0, 1, 3):
+    leftward from mid=1:    sums 1, then 1+(-2) = -1    left_sum  = 1
+    rightward from mid+1=2: sums -3, then -3+4  =  1    right_sum = 1
+    cross_max = 1 + 1 = 2
+  -> max(1, 4, 2) = 4
+```
+
+Each crossing scan is forced through the midpoint: it accumulates leftward from
+`mid` keeping the best prefix, accumulates rightward from `mid + 1` keeping the
+best suffix, and adds the two. The winning candidate at the top level is
+`right_max = 4`, from the single-element subarray `[4]`, so `divide(0, 3)`
+returns `4`, the expected answer for `[-2, 1, -3, 4]`.
+
+#### Solution
+
+The code is the walkthrough's recursion: `divide` splits at `mid`, and
+`max_crossing_sum` expands outward from the midpoint.
 
 ```python
 from typing import List
@@ -289,17 +457,6 @@ class Solution:
         return divide(0, len(nums) - 1)
 ```
 
-#### Approach
-
-The [divide-and-conquer](https://en.wikipedia.org/wiki/Divide-and-conquer_algorithm) solution (requested by the follow-up) splits the array and observes that the maximum subarray falls into exactly one of three categories.
-
-1. Base case: a single element returns its own value.
-2. Split at `mid` and recursively solve the left and right halves.
-3. Compute the best subarray that crosses `mid` by expanding outward from the midpoint in both directions and summing the two best halves.
-4. Return the maximum of the left, right, and crossing results.
-
-The crossing computation is the key piece: the best crossing subarray is forced to include `nums[mid]` and `nums[mid + 1]`, so each side is found greedily by accumulating from the midpoint outward.
-
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(n log n)`
@@ -317,6 +474,52 @@ The recursion stack reaches a depth proportional to the height of the balanced s
 - It is asymptotically slower than Kadane's, but it illustrates the paradigm and parallelizes naturally across the independent halves.
 
 ### Prefix-Sum Minimum
+
+#### Derivation
+
+A different reformulation reaches linear time without Kadane's restart insight.
+The sum of the subarray `nums[i..j]` equals `prefix[j] - prefix[i - 1]`, a
+difference of two [prefix sums](https://en.wikipedia.org/wiki/Prefix_sum). To
+maximize that difference while ending at index `j`, subtract the smallest prefix
+sum seen before `j`.
+
+1. Maintain a running `prefix` sum and `min_prefix`, the smallest prefix sum seen at any earlier boundary.
+2. At each element, the best subarray ending here is `prefix - min_prefix`; update `best` with it.
+3. Update `min_prefix` after using it, so the boundary is always strictly before the current end.
+4. Return `best`.
+
+Seeding `min_prefix = 0` represents the empty prefix before the array starts, which lets the subarray begin at index `0`.
+
+#### Walkthrough
+
+Let us run the pass by hand on Example 1: `nums = [-2,1,-3,4,-1,2,1,-5,4]`,
+starting from `prefix = 0`, `min_prefix = 0`, `best = -inf`. Each line adds one
+element to `prefix`, measures the gap back to `min_prefix`, and only then lets
+`min_prefix` absorb the new `prefix`:
+
+```text
+x=-2  prefix=-2   best = max(-inf, -2-0)   = -2    min_prefix: 0 -> -2
+x= 1  prefix=-1   best = max(-2, -1-(-2))  =  1    min_prefix stays -2
+x=-3  prefix=-4   best stays 1  (-4-(-2) = -2)     min_prefix: -2 -> -4
+x= 4  prefix= 0   best = max(1,  0-(-4))   =  4    min_prefix stays -4
+x=-1  prefix=-1   best stays 4  (-1-(-4) =  3)
+x= 2  prefix= 1   best = max(4,  1-(-4))   =  5
+x= 1  prefix= 2   best = max(5,  2-(-4))   =  6
+x=-5  prefix=-3   best stays 6  (-3-(-4) =  1)
+x= 4  prefix= 1   best stays 6  ( 1-(-4) =  5)
+```
+
+After the third element `min_prefix` settles at `-4`, the prefix sum just before
+index `3`, and never falls further. The best gap is reached at the seventh
+element: `prefix = 2` minus `min_prefix = -4` gives `6`, which is exactly the sum
+of `nums[3..6] = [4,-1,2,1]`, the subarray between those two prefix boundaries.
+
+The pass returns `best = 6`, matching the expected Output for Example 1.
+
+#### Solution
+
+The code is the walkthrough's single pass: update `prefix`, take the gap, then
+lower `min_prefix`.
 
 ```python
 from typing import List
@@ -336,17 +539,6 @@ class Solution:
         return best
 ```
 
-#### Approach
-
-The sum of the subarray `nums[i..j]` equals `prefix[j] - prefix[i - 1]`. To maximize it while ending at index `j`, subtract the smallest prefix sum seen before `j`.
-
-1. Maintain a running `prefix` sum and `min_prefix`, the smallest [prefix sum](https://en.wikipedia.org/wiki/Prefix_sum) seen at any earlier boundary.
-2. At each element, the best subarray ending here is `prefix - min_prefix`; update `best` with it.
-3. Update `min_prefix` after using it, so the boundary is always strictly before the current end.
-4. Return `best`.
-
-Seeding `min_prefix = 0` represents the empty prefix before the array starts, which lets the subarray begin at index `0`.
-
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(n)`
@@ -365,6 +557,47 @@ Only three scalars are tracked.
 
 ### Library One-Liner with `itertools.accumulate`
 
+#### Derivation
+
+Once Kadane's recurrence is in hand, the remaining code is a left-to-right scan,
+and Python already ships one.
+[`itertools.accumulate`](https://docs.python.org/3/library/itertools.html)
+carries Kadane's recurrence as its binary combiner, producing the stream of
+best-sums-ending-here, and `max` selects the overall best.
+
+1. The accumulator starts at `nums[0]` (the first element passes through unchanged).
+2. Each step applies `max(x, acc + x)`, exactly the Kadane decision to extend or restart.
+3. `max(...)` over the resulting iterable is the answer.
+
+#### Walkthrough
+
+Here the technique being traced is the `accumulate` scan itself: what stream of
+values the combiner emits on Example 1, `nums = [-2,1,-3,4,-1,2,1,-5,4]`. The
+accumulator `acc` starts at the first element, and every later element `x`
+yields `max(x, acc + x)`:
+
+```text
+acc = -2                    first element passes through
+max( 1, -2+1) -> acc =  1
+max(-3,  1-3) -> acc = -2
+max( 4, -2+4) -> acc =  4
+max(-1,  4-1) -> acc =  3
+max( 2,  3+2) -> acc =  5
+max( 1,  5+1) -> acc =  6
+max(-5,  6-5) -> acc =  1
+max( 4,  1+4) -> acc =  5
+```
+
+The emitted stream is `[-2, 1, -2, 4, 3, 5, 6, 1, 5]`: the same values
+`current_sum` took in the Kadane walkthrough and `dp` held in the table
+walkthrough. The outer `max` consumes the stream and returns `6`, matching the
+expected Output for Example 1.
+
+#### Solution
+
+The code hands the walkthrough's combiner to `itertools.accumulate` and takes
+the maximum of the stream.
+
 ```python
 import itertools
 from typing import List
@@ -374,14 +607,6 @@ class Solution:
     def maxSubArray(self, nums: List[int]) -> int:
         return max(itertools.accumulate(nums, lambda acc, x: max(x, acc + x)))
 ```
-
-#### Approach
-
-[`itertools.accumulate`](https://docs.python.org/3/library/itertools.html) carries Kadane's recurrence as its binary combiner, producing the stream of best-sums-ending-here, and `max` selects the overall best.
-
-1. The accumulator starts at `nums[0]` (the first element passes through unchanged).
-2. Each step applies `max(x, acc + x)`, exactly the Kadane decision to extend or restart.
-3. `max(...)` over the resulting iterable is the answer.
 
 #### Time and Space Complexity Analysis
 
@@ -439,7 +664,7 @@ class Solution:
 
 ### Optimization Notes
 
-- The brute force already carries a running sum to avoid re-adding prefixes, which is what keeps it `O(n^2)` instead of `O(n^3)`; the linear approaches below collapse it further by reusing the best subarray ending at the previous index.
+- The brute force already carries a running sum to avoid re-adding prefixes, which is what keeps it `O(n^2)` instead of `O(n^3)`; the linear approaches collapse it further by reusing the best subarray ending at the previous index.
 - Kadane's algorithm and the explicit DP table are the same recurrence; the former simply compresses the table to one rolling variable.
 - Initializing accumulators to `nums[0]` (rather than `0`) is what makes the all-negative case correct across the linear-scan variants.
 - The divide-and-conquer halves are independent and could be evaluated in parallel for very large arrays.

@@ -54,9 +54,66 @@ merging them into one sorted list:
 - `lists[i]` is sorted in **ascending** order.
 - The sum of `lists[i].length` will not exceed `10^4`.
 
+## Deriving the Solution
+
+All k inputs are already sorted, so the next node of the merged list is always
+the smallest of the k current heads. Every solution below either speeds up
+finding that minimum or reorganizes the k-way merge into balanced two-way
+merges.
+
+1. **Start literal.** Keep one cursor per list and scan all k of them for the
+   minimum before emitting each node: `O(N × k)`: see
+   [Repeated Minimum Scan](#repeated-minimum-scan).
+2. **Reuse a known tool.** Merging two sorted lists is a solved problem, so fold
+   the lists into an accumulated result one at a time. Simpler code, but the
+   accumulator is re-walked on every merge, so the cost stays `O(N × k)`: see
+   [Sequential Merge](#sequential-merge).
+3. **Balance the merging.** The waste is the ever-longer accumulator. Merging
+   the lists in pairs halves their count each round, so every node takes part in
+   only `log k` merges: `O(N log k)`, entirely from scratch: see
+   [Divide and Conquer](#divide-and-conquer).
+4. **Or fix the scan directly.** Replace the linear minimum search of step 1
+   with a min-heap of the k current heads: each pop and push costs `O(log k)`,
+   reaching the same `O(N log k)` via the library: see [Min-Heap](#min-heap).
+
 ## Solutions
 
 ### Repeated Minimum Scan
+
+#### Derivation
+
+The most direct idea is the [greedy](https://en.wikipedia.org/wiki/Greedy_algorithm) one: at every step, the next node of the merged list must be the smallest of the k current heads. Hold one cursor per list and find that minimum by scanning all cursors by hand, no sort and no heap. Append it, advance only the list it came from, and repeat until every cursor is `None`.
+
+1. Copy the list heads into a `heads` array of live cursors, one per input list.
+2. Scan all cursors and record the index of the smallest non-`None` head.
+3. If no live cursor remains, stop; otherwise append that node and advance its cursor.
+4. Terminate the merged list with `tail.next = None` so no stale link survives from a reused node.
+
+#### Walkthrough
+
+Let us watch the Repeated Minimum Scan run on Example 1: `lists = [[1,4,5],[1,3,4],[2,6]]`, expected output `[1,1,2,3,4,4,5,6]`.
+
+The `heads` array holds one live cursor per list, starting at each list's first node: `[1, 1, 2]`. Each step scans those cursors for the smallest value, appends that node to the merged tail, and advances only the cursor it came from. When two cursors tie (like the two leading `1`s), the scan keeps the first one it found because the test is a strict `node.val < heads[min_idx].val`, so the lower index wins.
+
+Each row below shows the cursor values at the start of the step (`None` marks an exhausted list), which index the scan picks, and the value emitted:
+
+| Step | `heads` (cursor values) | `min_idx` | Emitted | Merged so far |
+|------|-------------------------|-----------|---------|---------------|
+| 1 | `[1, 1, 2]` | 0 | `1` | `1` |
+| 2 | `[4, 1, 2]` | 1 | `1` | `1,1` |
+| 3 | `[4, 3, 2]` | 2 | `2` | `1,1,2` |
+| 4 | `[4, 3, 6]` | 1 | `3` | `1,1,2,3` |
+| 5 | `[4, 4, 6]` | 0 | `4` | `1,1,2,3,4` |
+| 6 | `[5, 4, 6]` | 1 | `4` | `1,1,2,3,4,4` |
+| 7 | `[5, None, 6]` | 0 | `5` | `1,1,2,3,4,4,5` |
+| 8 | `[None, None, 6]` | 2 | `6` | `1,1,2,3,4,4,5,6` |
+
+After step 8 every cursor is `None`, so the next scan returns `min_idx == -1` and the loop breaks. The function sets `tail.next = None` and returns `dummy.next`, the head of `1->1->2->3->4->4->5->6`, which matches the expected Output `[1,1,2,3,4,4,5,6]`.
+
+#### Solution
+
+The code is the walkthrough's loop: scan `heads` for `min_idx`, splice that
+node onto `tail`, and advance one cursor.
 
 ```python
 # Definition for singly-linked list.
@@ -93,15 +150,6 @@ class Solution:
         return dummy.next
 ```
 
-#### Approach
-
-The most direct idea is the [greedy](https://en.wikipedia.org/wiki/Greedy_algorithm) one: at every step, the next node of the merged list must be the smallest of the k current heads. Hold one cursor per list and find that minimum by scanning all cursors by hand, no sort and no heap. Append it, advance only the list it came from, and repeat until every cursor is `None`.
-
-1. Copy the list heads into a `heads` array of live cursors, one per input list.
-2. Scan all cursors and record the index of the smallest non-`None` head.
-3. If no live cursor remains, stop; otherwise append that node and advance its cursor.
-4. Terminate the merged list with `tail.next = None` so no stale link survives from a reused node.
-
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(N × k)`
@@ -118,28 +166,66 @@ The `heads` cursor array holds k entries. Result nodes are spliced from the inpu
 - Reuses the existing input nodes by relinking them, so the only extra space is the k-entry cursor array.
 - The `O(k)` scan per emitted node is exactly the work the heap and divide-and-conquer approaches later replace with `O(log k)` per node.
 
+### Sequential Merge
+
+#### Derivation
+
+The minimum scan builds its machinery from nothing, yet merging two sorted
+lists is already a solved problem: the classic two-pointer
+[merge](https://en.wikipedia.org/wiki/Merge_algorithm) splices the smaller head
+onto a growing tail until one list empties. So ask: can that known tool be
+reused as-is? It can, by folding the k lists into an accumulated result one at
+a time:
+
+1. Return `None` immediately when `lists` is empty.
+2. Write `merge_two_lists(l1, l2)`: a `dummy` head and a `current` tail pointer;
+   while both lists are non-empty, splice the smaller of `l1` and `l2` onto
+   `current` and advance that list; when one empties, attach the survivor with
+   `current.next = l1 or l2`.
+3. Seed `result = lists[0]` and merge each remaining list into it:
+   `result = merge_two_lists(result, lists[i])` for `i` from `1` to `k - 1`.
+
+The simplicity has a cost: `result` grows toward length `N`, and every one of
+its nodes is re-walked during each later merge. Early nodes are compared over
+and over, which is the flaw the pairing scheme in the next approach removes.
+
 #### Walkthrough
 
-Let us watch the Repeated Minimum Scan run on Example 1: `lists = [[1,4,5],[1,3,4],[2,6]]`, expected output `[1,1,2,3,4,4,5,6]`.
+Let us fold the lists of Example 1 one at a time: `lists = [[1,4,5],[1,3,4],[2,6]]`.
+The first merge combines `result = 1->4->5` with `1->3->4`. Each line shows the
+two current heads, the comparison, and the merged prefix behind `current`:
 
-The `heads` array holds one live cursor per list, starting at each list's first node: `[1, 1, 2]`. Each step scans those cursors for the smallest value, appends that node to the merged tail, and advances only the cursor it came from. When two cursors tie (like the two leading `1`s), the scan keeps the first one it found because the test is a strict `node.val < heads[min_idx].val`, so the lower index wins.
+```text
+merge_two_lists(1->4->5, 1->3->4):
+  l1=1  l2=1    1 <= 1   splice l1's 1    merged: 1                l1 = 4->5
+  l1=4  l2=1    4 >  1   splice l2's 1    merged: 1->1             l2 = 3->4
+  l1=4  l2=3    4 >  3   splice l2's 3    merged: 1->1->3          l2 = 4
+  l1=4  l2=4    4 <= 4   splice l1's 4    merged: 1->1->3->4       l1 = 5
+  l1=5  l2=4    5 >  4   splice l2's 4    merged: 1->1->3->4->4    l2 = None
+  l2 empty: current.next = l1   ->   result = 1->1->3->4->4->5
+```
 
-Each row below shows the cursor values at the start of the step (`None` marks an exhausted list), which index the scan picks, and the value emitted:
+The tie at `4 <= 4` keeps the node from `l1`, the accumulated result, preserving
+stability. The second merge folds in the last list, `2->6`, re-walking the
+six-node accumulator that the first merge produced:
 
-| Step | `heads` (cursor values) | `min_idx` | Emitted | Merged so far |
-|------|-------------------------|-----------|---------|---------------|
-| 1 | `[1, 1, 2]` | 0 | `1` | `1` |
-| 2 | `[4, 1, 2]` | 1 | `1` | `1,1` |
-| 3 | `[4, 3, 2]` | 2 | `2` | `1,1,2` |
-| 4 | `[4, 3, 6]` | 1 | `3` | `1,1,2,3` |
-| 5 | `[4, 4, 6]` | 0 | `4` | `1,1,2,3,4` |
-| 6 | `[5, 4, 6]` | 1 | `4` | `1,1,2,3,4,4` |
-| 7 | `[5, None, 6]` | 0 | `5` | `1,1,2,3,4,4,5` |
-| 8 | `[None, None, 6]` | 2 | `6` | `1,1,2,3,4,4,5,6` |
+```text
+merge_two_lists(1->1->3->4->4->5, 2->6):
+  1 <= 2  splice 1     1 <= 2  splice 1     3 > 2  splice 2
+  3 <= 6  splice 3     4 <= 6  splice 4     4 <= 6  splice 4
+  5 <= 6  splice 5     l1 empty: attach 6
+  result = 1->1->2->3->4->4->5->6
+```
 
-After step 8 every cursor is `None`, so the next scan returns `min_idx == -1` and the loop breaks. The function sets `tail.next = None` and returns `dummy.next`, the head of `1->1->2->3->4->4->5->6`, which matches the expected Output `[1,1,2,3,4,4,5,6]`.
+That re-walk is the approach's weakness in miniature: nodes `1, 1, 3` were
+already compared in the first merge and are compared again here. The final
+`result` is `1->1->2->3->4->4->5->6`, matching the expected Output
+`[1,1,2,3,4,4,5,6]`.
 
-### Sequential Merge
+#### Solution
+
+The code is the walkthrough generalized: `merge_two_lists` does each splice,
+and the loop folds every list into `result`.
 
 ```python
 # Definition for singly-linked list.
@@ -181,10 +267,6 @@ class Solution:
         return result
 ```
 
-#### Approach
-
-This solution **sequentially [merges](https://en.wikipedia.org/wiki/Merge_algorithm)** each list with the accumulated result. While simple to implement, it's less efficient because earlier nodes are processed multiple times as the result list grows.
-
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(N × k)`
@@ -203,53 +285,23 @@ Uses constant extra space, only manipulating pointers.
 
 ### Divide and Conquer
 
-```python
-# Definition for singly-linked list.
-# class ListNode:
-#     def __init__(self, val=0, next=None):
-#         self.val = val
-#         self.next = next
+#### Derivation
 
-class Solution:
-    def mergeKLists(self, lists: List[Optional[ListNode]]) -> Optional[ListNode]:
-        """
-        Divide and conquer approach - merge pairs recursively
-        """
-        if not lists:
-            return None
+Sequential Merge is slow because its merges are lopsided: the accumulator keeps
+growing while each incoming list stays short, so early nodes are re-walked on
+every later merge. The repair is to keep every merge between lists of similar
+length. Merge the lists in pairs, [divide and conquer](https://en.wikipedia.org/wiki/Divide-and-conquer_algorithm)
+style: one round turns k lists into `⌈k/2⌉` longer ones, the next round halves
+that again, and after `log k` rounds a single list remains. Each node is touched
+once per round, never once per list:
 
-        def merge_two_lists(l1, l2):
-            """Merge two sorted linked lists"""
-            dummy = ListNode(0)
-            current = dummy
-
-            while l1 and l2:
-                if l1.val <= l2.val:
-                    current.next = l1
-                    l1 = l1.next
-                else:
-                    current.next = l2
-                    l2 = l2.next
-                current = current.next
-
-            # Attach remaining nodes
-            current.next = l1 or l2
-            return dummy.next
-
-        # Divide and conquer
-        while len(lists) > 1:
-            merged_lists = []
-
-            # Merge pairs of lists
-            for i in range(0, len(lists), 2):
-                l1 = lists[i]
-                l2 = lists[i + 1] if i + 1 < len(lists) else None
-                merged_lists.append(merge_two_lists(l1, l2))
-
-            lists = merged_lists
-
-        return lists[0] if lists else None
-```
+1. Return `None` immediately when `lists` is empty.
+2. While more than one list remains, walk `lists` two at a time: merge
+   `lists[i]` with `lists[i + 1]` using the same two-pointer `merge_two_lists`
+   helper as the Sequential Merge, guarding the odd tail with
+   `lists[i + 1] if i + 1 < len(lists) else None`.
+3. Collect the round's outputs in `merged_lists` and replace `lists` with it.
+4. When one list remains, return it.
 
 #### Cost Recurrence
 
@@ -299,9 +351,77 @@ sum over i = 1 to k of O(i * N / k) = O(N * k)
 The growing prefix is what makes it quadratic in `k`. Pairwise merging keeps
 each node in exactly \(\log k\) merges instead of up to \(k\).
 
-#### Approach
+#### Walkthrough
 
-This solution uses **[divide and conquer](https://en.wikipedia.org/wiki/Divide-and-conquer_algorithm)** by repeatedly merging pairs of lists until only one remains. The key insight is that merging k lists can be reduced to log(k) levels of pairwise merges, which is more efficient than sequential merging.
+Let us run the rounds on Example 1: `lists = [[1,4,5],[1,3,4],[2,6]]`, so
+`k = 3`. Each round pairs the lists off and calls `merge_two_lists` on each
+pair; the odd list out merges against `None`, which returns it unchanged:
+
+```text
+round 1   pair (1->4->5, 1->3->4)  ->  1->1->3->4->4->5
+          pair (2->6, None)        ->  2->6              odd list, merged with None
+          lists = [1->1->3->4->4->5, 2->6]
+round 2   pair (1->1->3->4->4->5, 2->6)  ->  1->1->2->3->4->4->5->6
+          lists = [1->1->2->3->4->4->5->6]
+```
+
+Each pairwise merge is the splice loop traced step by step in the Sequential
+Merge walkthrough; only the pairing schedule differs. After round 2 a single
+list remains, so the `while` loop exits and `lists[0]` is returned:
+`1->1->2->3->4->4->5->6`, matching the expected Output `[1,1,2,3,4,4,5,6]`.
+
+#### Solution
+
+The code is the walkthrough's rounds: an outer `while` that pairs off `lists`,
+with `merge_two_lists` doing each splice.
+
+```python
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
+
+class Solution:
+    def mergeKLists(self, lists: List[Optional[ListNode]]) -> Optional[ListNode]:
+        """
+        Divide and conquer approach - merge pairs recursively
+        """
+        if not lists:
+            return None
+
+        def merge_two_lists(l1, l2):
+            """Merge two sorted linked lists"""
+            dummy = ListNode(0)
+            current = dummy
+
+            while l1 and l2:
+                if l1.val <= l2.val:
+                    current.next = l1
+                    l1 = l1.next
+                else:
+                    current.next = l2
+                    l2 = l2.next
+                current = current.next
+
+            # Attach remaining nodes
+            current.next = l1 or l2
+            return dummy.next
+
+        # Divide and conquer
+        while len(lists) > 1:
+            merged_lists = []
+
+            # Merge pairs of lists
+            for i in range(0, len(lists), 2):
+                l1 = lists[i]
+                l2 = lists[i + 1] if i + 1 < len(lists) else None
+                merged_lists.append(merge_two_lists(l1, l2))
+
+            lists = merged_lists
+
+        return lists[0] if lists else None
+```
 
 #### Time and Space Complexity Analysis
 
@@ -320,6 +440,55 @@ Each merging round allocates a `merged_lists` array holding up to `⌈k/2⌉` li
 - This matches the heap approach at `O(N log k)` time with the same `O(k)` extra space (the per-round array of merged heads), while staying entirely library-free, making it the strongest all-around choice.
 
 ### Min-Heap
+
+#### Derivation
+
+The Repeated Minimum Scan already emits nodes in the right order; its only cost
+is the `O(k)` scan per node to find the smallest current head. A
+[min-heap](https://en.wikipedia.org/wiki/Heap_(data_structure)) (priority
+queue) is the data structure built for exactly that job: it hands back the
+minimum of k candidates in `O(log k)` and accepts a replacement in `O(log k)`.
+Keep one candidate per list in the heap and the merge falls out:
+
+1. Push `(head.val, i, head)` for each non-empty list. The list index `i` in
+   the middle breaks ties between equal values, so the heap never has to
+   compare `ListNode` objects, which are not orderable.
+2. Pop the smallest tuple `(val, list_idx, node)` and splice `node` onto
+   `current`.
+3. When the popped node has a successor, push
+   `(node.next.val, list_idx, node.next)` so its list stays represented by
+   exactly one candidate.
+4. When the heap empties, every node has been spliced; return `dummy.next`.
+
+#### Walkthrough
+
+Here the heap itself is the technique, so the trace follows its contents on
+Example 1: `lists = [[1,4,5],[1,3,4],[2,6]]`. Entries are shown as
+`(val, list_idx)`, listed in priority order; each step pops the minimum,
+splices its node, and pushes the popped node's successor when one exists:
+
+```text
+init: push (1,0), (1,1), (2,2)           heap = [(1,0), (1,1), (2,2)]
+pop (1,0)  splice 1   push (4,0)         heap = [(1,1), (2,2), (4,0)]
+pop (1,1)  splice 1   push (3,1)         heap = [(2,2), (3,1), (4,0)]
+pop (2,2)  splice 2   push (6,2)         heap = [(3,1), (4,0), (6,2)]
+pop (3,1)  splice 3   push (4,1)         heap = [(4,0), (4,1), (6,2)]
+pop (4,0)  splice 4   push (5,0)         heap = [(4,1), (5,0), (6,2)]
+pop (4,1)  splice 4   list 1 exhausted   heap = [(5,0), (6,2)]
+pop (5,0)  splice 5   list 0 exhausted   heap = [(6,2)]
+pop (6,2)  splice 6   list 2 exhausted   heap = []
+```
+
+The tie-break shows up twice: `(1,0)` pops before `(1,1)`, and `(4,0)` before
+`(4,1)`, because tuple comparison falls through to the list index when values
+are equal. The heap never holds more than `k = 3` entries even as all eight
+nodes flow through it. With the heap empty, the loop ends and `dummy.next` is
+`1->1->2->3->4->4->5->6`, matching the expected Output `[1,1,2,3,4,4,5,6]`.
+
+#### Solution
+
+The code is the walkthrough's pop-splice-push cycle, with `heapq` maintaining
+the priority order shown on the right.
 
 ```python
 # Definition for singly-linked list.
@@ -361,10 +530,6 @@ class Solution:
 
         return dummy.next
 ```
-
-#### Approach
-
-This solution uses a **[min-heap](https://en.wikipedia.org/wiki/Heap_(data_structure)) (priority queue)** to always select the node with the smallest value from all available list heads. It replaces the brute force's linear `O(k)` minimum scan with an `O(log k)` heap pop, maintaining k active candidates and efficiently finding the minimum at each step.
 
 #### Time and Space Complexity Analysis
 

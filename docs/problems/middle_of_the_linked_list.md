@@ -39,35 +39,36 @@ If there are two middle nodes, return the second middle node.
 - The number of nodes in the list is in the range `[1, 100]`.
 - `1 <= Node.val <= 100`
 
+## Deriving the Solution
+
+The middle node is the one at index `n // 2` (numbering from `0`), where the
+floor division picks the second of the two middles when `n` is even, exactly as
+the problem requires. Every solution is a way of landing on that index without
+being told `n` up front.
+
+1. **Measure, then walk.** Traverse once to learn the length `count`, then walk
+   `count // 2` steps from the head again. Two passes over the list: see
+   [Count and Find](#count-and-find).
+2. **Spot the waste.** The second pass re-reads nodes the first pass just
+   visited, and the only thing the first pass hands over is a single number
+   that is immediately halved.
+3. **Fold the passes together.** Halving a distance can be done by speed
+   instead of arithmetic: a pointer moving half as fast covers half the ground.
+   Send two pointers in one pass, `fast` at two nodes per step doing the
+   measuring and `slow` at one node per step doing the walking; when `fast`
+   runs out of list, `slow` stands on index `n // 2`: see
+   [Fast and Slow Pointers](#fast-and-slow-pointers).
+
 ## Solutions
 
 ### Count and Find
 
-```python
-# Definition for singly-linked list.
-# class ListNode:
-#     def __init__(self, val=0, next=None):
-#         self.val = val
-#         self.next = next
-class Solution:
-    def middleNode(self, head: Optional[ListNode]) -> Optional[ListNode]:
-        count = 0
-        current = head
-        while current:
-            count += 1
-            current = current.next
+#### Derivation
 
-        middle = count // 2
-        current = head
-        for _ in range(middle):
-            current = current.next
-        return current
-```
-
-#### Approach
-
-The most direct way to find the middle is to first learn how long the list is,
-then walk back to the midpoint. This takes two passes:
+The question this approach asks is the literal one: which index holds the
+middle, and how do I reach it? The index is `count // 2`, so the plan is to
+first learn how long the list is, then walk back to the midpoint. This takes
+two passes:
 
 1. First pass: traverse the entire list, counting the nodes into `count`.
 2. Compute the middle index as `count // 2`.
@@ -79,28 +80,9 @@ node. For an even-length list, integer division biases toward the higher index,
 so the second of the two middle nodes is returned, which matches the required
 behavior.
 
-#### Time and Space Complexity Analysis
-
-##### Time Complexity: `O(n)`
-
-We traverse the list once to count and once more to reach the middle, giving
-`2n` steps, which is `O(n)`.
-
-##### Space Complexity: `O(1)`
-
-Only a counter and a pointer are kept, regardless of the input size.
-
-#### Key Insights
-
-- Counting first removes all guesswork: once the length is known, the midpoint is
-  a plain index calculation.
-- `count // 2` cleanly yields the second middle node for even-length lists, so no
-  special casing is needed.
-- The approach is easy to reason about, but it reads the list twice.
-
 #### Walkthrough
 
-Let us trace the first solution, Count and Find, on Example 1: `head = [1,2,3,4,5]`.
+Let us trace Count and Find on Example 1: `head = [1,2,3,4,5]`.
 
 **First pass: counting the nodes.** Start with `count = 0` and `current = head`
 (the node holding `1`). The loop advances `current` one node at a time, adding
@@ -131,7 +113,10 @@ After `2` steps, `current` points at node `3`. The function returns this node,
 and since a returned node carries the rest of the list with it, the result is
 `[3,4,5]`, which matches the expected Output.
 
-### Fast and Slow Pointers
+#### Solution
+
+The code is the two passes from the walkthrough written down: the counting
+loop, the halving, and the walk.
 
 ```python
 # Definition for singly-linked list.
@@ -141,12 +126,63 @@ and since a returned node carries the rest of the list with it, the result is
 #         self.next = next
 class Solution:
     def middleNode(self, head: Optional[ListNode]) -> Optional[ListNode]:
-        slow = fast = head
-        while fast and fast.next:
-            slow = slow.next
-            fast = fast.next.next
-        return slow
+        count = 0
+        current = head
+        while current:
+            count += 1
+            current = current.next
+
+        middle = count // 2
+        current = head
+        for _ in range(middle):
+            current = current.next
+        return current
 ```
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n)`
+
+We traverse the list once to count and once more to reach the middle, giving
+`2n` steps, which is `O(n)`.
+
+##### Space Complexity: `O(1)`
+
+Only a counter and a pointer are kept, regardless of the input size.
+
+#### Key Insights
+
+- Counting first removes all guesswork: once the length is known, the midpoint is
+  a plain index calculation.
+- `count // 2` cleanly yields the second middle node for even-length lists, so no
+  special casing is needed.
+- The approach is easy to reason about, but it reads the list twice.
+
+### Fast and Slow Pointers
+
+#### Derivation
+
+Count and Find pays for its clarity with a second pass: the walk re-reads nodes
+the count just visited, and the entire first pass exists only to produce a
+number that is immediately halved. The repair is to notice that halving can be
+done by speed instead of arithmetic. A pointer moving at half the speed of
+another covers half the distance, so the "measuring" and the "walking" can
+happen simultaneously in a single pass. This is the
+[fast-and-slow pointer technique](https://www.geeksforgeeks.org/dsa/two-pointers-technique/) (also known as the
+"tortoise and hare"). Both pointers start at `head`:
+
+1. Advance `slow` by one node and `fast` by two nodes on each iteration.
+2. Continue while `fast` and `fast.next` are both non-null, so `fast` always has
+   two nodes available to step over.
+3. When `fast` runs off the end, `slow` has covered exactly half the distance and
+   sits on the middle node.
+
+Because `fast` travels at twice the speed of `slow`, `fast` sits at index `2k`
+whenever `slow` sits at index `k`, so the loop exits with `slow` at index
+`n // 2` for both parities: the central node when `n` is odd, and the second of
+the two middle nodes when `n` is even. The Invariant below states that formally,
+along with why the guard has to be `fast and fast.next` rather than
+`fast.next and fast.next.next`, which would return the first middle instead.
 
 #### Invariant
 
@@ -193,23 +229,56 @@ whenever \(n\) is even, leaving `slow` at \(\lceil n/2 \rceil - 1\): index \(2\)
 for \(n = 6\), the *first* middle. Identical loop body, wrong node, and nothing
 else in the code would flag it.
 
-#### Approach
+#### Walkthrough
 
-This solution uses the [fast-and-slow pointer technique](https://www.geeksforgeeks.org/dsa/two-pointers-technique/) (also known as the
-"tortoise and hare"). Both pointers start at `head`:
+Let us run both pointers on Example 1: `head = [1,2,3,4,5]`, so `n = 5`. Both
+`slow` and `fast` start at node `1`. Each iteration moves `slow` one node and
+`fast` two, and the loop continues only while `fast` and `fast.next` are both
+non-null:
 
-1. Advance `slow` by one node and `fast` by two nodes on each iteration.
-2. Continue while `fast` and `fast.next` are both non-null, so `fast` always has
-   two nodes available to step over.
-3. When `fast` runs off the end, `slow` has covered exactly half the distance and
-   sits on the middle node.
+```text
+start        slow = node 1   fast = node 1    fast.next = node 2, enter loop
+iteration 1  slow = node 2   fast = node 3    fast.next = node 4, continue
+iteration 2  slow = node 3   fast = node 5    fast.next = None, stop
+```
 
-Because `fast` travels at twice the speed of `slow`, `fast` sits at index `2k`
-whenever `slow` sits at index `k`, so the loop exits with `slow` at index
-`n // 2` for both parities: the central node when `n` is odd, and the second of
-the two middle nodes when `n` is even. The Invariant above states that formally,
-along with why the guard has to be `fast and fast.next` rather than
-`fast.next and fast.next.next`, which would return the first middle instead.
+`fast` has landed on the last node (the odd-`n` exit: the guard fails on
+`fast.next`), and `slow` sits at index `2 = 5 // 2`, node `3`. Returning that
+node yields `[3,4,5]`, the expected Output for Example 1.
+
+Example 2, `head = [1,2,3,4,5,6]` with `n = 6`, shows the guard's other exit:
+
+```text
+start        slow = node 1   fast = node 1    fast.next = node 2, enter loop
+iteration 1  slow = node 2   fast = node 3    fast.next = node 4, continue
+iteration 2  slow = node 3   fast = node 5    fast.next = node 6, continue
+iteration 3  slow = node 4   fast = None      guard fails on fast, stop
+```
+
+This time `fast` steps past the end entirely (the even-`n` exit: the guard
+fails on `fast` itself), and `slow` sits at index `3 = 6 // 2`, node `4`: the
+second of the two middles. Returning it yields `[4,5,6]`, the expected Output
+for Example 2.
+
+#### Solution
+
+The code is the two-speed walk from the trace: one loop, two pointers, and the
+guard that decides which middle survives.
+
+```python
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
+class Solution:
+    def middleNode(self, head: Optional[ListNode]) -> Optional[ListNode]:
+        slow = fast = head
+        while fast and fast.next:
+            slow = slow.next
+            fast = fast.next.next
+        return slow
+```
 
 #### Time and Space Complexity Analysis
 

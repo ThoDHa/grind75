@@ -37,56 +37,53 @@ The majority element is the element that appears more than `⌊n / 2⌋` times. 
 
 - Could you solve the problem in linear time and in `O(1)` space?
 
+## Deriving the Solution
+
+The guarantee that one value fills more than `⌊n / 2⌋` positions is stronger than
+"most frequent", and every solution below leans on it: either by counting until
+some value crosses the threshold, or by exploiting the fact that more than half
+the positions belong to a single value.
+
+1. **Start literal.** The definition is itself a test: pick each value as a
+   candidate, rescan the array to count its occurrences, and return the first
+   one whose count exceeds `n // 2`. Correct, but every candidate pays a full
+   scan, `O(n^2)` in total: see [Brute Force](#brute-force).
+2. **Count everything at once.** The rescans keep recounting the same values.
+   A single pass with a per-value counter dictionary tallies every value
+   simultaneously; the majority is then the key carrying the largest count.
+   That is linear time, but the dictionary costs `O(n)` extra space: see
+   [Hash Map](#hash-map).
+3. **Let position do the counting.** Sorting clusters equal values into runs,
+   and a run longer than half the array must cover the middle index, so
+   `nums[n // 2]` is the answer with no counting at all. The extra structure
+   disappears, but the sort costs `O(n log n)` and mutates the input: see
+   [Sorting](#sorting).
+4. **Cancel instead of count.** The follow-up demands linear time and `O(1)`
+   space, so full tallies are off the table. Pair each non-majority occurrence
+   against one majority occurrence and discard both: a strict majority can
+   never be fully cancelled, so whatever survives the pairing is the answer.
+   One pass, two variables: see
+   [Boyer-Moore Voting Algorithm](#boyer-moore-voting-algorithm).
+5. **Or let the library count.** The hash-map idea is exactly what
+   `collections.Counter` implements, collapsing the counting solution to one
+   line at the same `O(n)` time and space: see [Counter](#counter).
+
 ## Solutions
 
 ### Brute Force
 
-```python
-from typing import List
-
-
-class Solution:
-    def majorityElement(self, nums: List[int]) -> int:
-        n = len(nums)
-        for candidate in nums:
-            count = 0
-            for num in nums:
-                if num == candidate:
-                    count += 1
-            if count > n // 2:
-                return candidate
-        return nums[0]
-```
-
-#### Approach
+#### Derivation
 
 The most direct idea follows straight from the definition: the majority element
-is the one appearing more than `⌊n / 2⌋` times, so try each value and count its
-occurrences by hand. The steps:
+is the one appearing more than `⌊n / 2⌋` times, so ask each value "is it you?"
+and answer by counting its occurrences by hand. No observation is needed beyond
+transcribing the problem statement. The steps:
 
-1. For each candidate value in the array, scan the whole array and tally how many
-   times that value appears.
-2. As soon as a candidate's tally exceeds `n // 2`, return it.
+1. For each `candidate` value in the array, scan the whole array and tally in
+   `count` how many times that value appears.
+2. As soon as a candidate's `count` exceeds `n // 2`, return it.
 3. The trailing `return nums[0]` only satisfies the type signature; the guarantee
    that a majority exists means one candidate always wins first.
-
-#### Time and Space Complexity Analysis
-
-##### Time Complexity: `O(n^2)`
-
-For each of the `n` candidates, an inner pass scans all `n` elements to count
-matches, giving `n * n` work in the worst case.
-
-##### Space Complexity: `O(1)`
-
-Only the scalar `count` and `n` are tracked; no structure grows with the input.
-
-#### Key Insights
-
-- Transcribes the problem definition literally: count each value, return the one
-  over half.
-- Requires no extra data structures, but pays a quadratic price for it.
-- A natural starting point that every later approach exists to speed up.
 
 #### Walkthrough
 
@@ -106,7 +103,92 @@ threshold of `1`, so the function returns immediately. The loop never reaches th
 
 The returned value is `3`, which matches the expected Output of `3`.
 
+#### Solution
+
+The code is the nested tally from the walkthrough: an outer candidate loop and an
+inner counting pass.
+
+```python
+from typing import List
+
+
+class Solution:
+    def majorityElement(self, nums: List[int]) -> int:
+        n = len(nums)
+        for candidate in nums:
+            count = 0
+            for num in nums:
+                if num == candidate:
+                    count += 1
+            if count > n // 2:
+                return candidate
+        return nums[0]
+```
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n^2)`
+
+For each of the `n` candidates, an inner pass scans all `n` elements to count
+matches, giving `n * n` work in the worst case.
+
+##### Space Complexity: `O(1)`
+
+Only the scalar `count` and `n` are tracked; no structure grows with the input.
+
+#### Key Insights
+
+- Transcribes the problem definition literally: count each value, return the one
+  over half.
+- Requires no extra data structures, but pays a quadratic price for it.
+- A natural starting point that every later approach exists to speed up.
+
 ### Hash Map
+
+#### Derivation
+
+The Brute Force wastes its time recounting: every candidate triggers a fresh scan
+over values the previous scans already visited. One pass can count every value at
+the same time by keeping a per-value tally in a
+[dictionary](https://en.wikipedia.org/wiki/Hash_table); the majority is then
+whichever key carries the highest count. Because the majority element appears more
+than `⌊n / 2⌋` times, its count strictly exceeds every other count, so the
+maximum-count value is guaranteed to be the answer. The steps:
+
+1. Walk the array once, incrementing `counts[num]` for each value.
+2. Walk `counts` once, tracking in `majority` the key whose count is largest.
+3. Return `majority`.
+
+#### Walkthrough
+
+Let us count Example 2 by hand: `nums = [2,2,1,1,1,2,2]`. The first pass grows
+`counts` one element at a time:
+
+```text
+num = 2    counts = {2: 1}
+num = 2    counts = {2: 2}
+num = 1    counts = {2: 2, 1: 1}
+num = 1    counts = {2: 2, 1: 2}
+num = 1    counts = {2: 2, 1: 3}
+num = 2    counts = {2: 3, 1: 3}
+num = 2    counts = {2: 4, 1: 3}
+```
+
+The second pass selects the maximum. `majority` starts as `nums[0] = 2`, and each
+entry of `counts` challenges it:
+
+```text
+entry (2, 4)   4 > counts[2] = 4 ?  no   majority stays 2
+entry (1, 3)   3 > counts[2] = 4 ?  no   majority stays 2
+```
+
+The first comparison pits the current majority against itself, which the strict
+`>` correctly rejects, and `1` cannot beat a count of `4`. The function returns
+`2`, matching the expected Output of `2`.
+
+#### Solution
+
+The code is the two passes from the walkthrough: tally, then select.
 
 ```python
 from typing import List
@@ -124,19 +206,6 @@ class Solution:
                 majority = num
         return majority
 ```
-
-#### Approach
-
-Count how many times each value appears, then return whichever value carries the
-highest count. The steps:
-
-1. Walk the array once, incrementing a per-value counter in a [dictionary](https://en.wikipedia.org/wiki/Hash_table).
-2. Walk the dictionary once, tracking the value whose count is largest.
-3. Return that value.
-
-Because the majority element appears more than `⌊n / 2⌋` times, its count strictly
-exceeds every other count, so the maximum-count value is guaranteed to be the
-answer.
 
 #### Time and Space Complexity Analysis
 
@@ -158,22 +227,22 @@ stores up to `n` key-value pairs.
 
 ### Boyer-Moore Voting Algorithm
 
-```python
-from typing import List
+#### Derivation
 
+The Hash Map is linear in time but not in the sense the follow-up wants: it
+stores a count for every distinct value, `O(n)` space. The question becomes: can
+the majority be found without remembering any counts at all? The observation
+that answers it is cancellation. Discard one occurrence of the majority together
+with one occurrence of anything else, and the majority is still the majority of
+what remains; conceptually,
+[each non-majority value cancels out one majority value](https://en.wikipedia.org/wiki/Boyer%E2%80%93Moore_majority_vote_algorithm).
+Since the majority element appears more than `⌊n / 2⌋` times, it cannot be fully
+cancelled and must survive to the end. Tracking that pairing needs only a single
+`candidate` and a running `count` of its un-cancelled surplus. The steps:
 
-class Solution:
-    def majorityElement(self, nums: List[int]) -> int:
-        count = 0
-        candidate = None
-
-        for num in nums:
-            if count == 0:
-                candidate = num
-            count += 1 if num == candidate else -1
-
-        return candidate
-```
+1. When `count` is zero, adopt the current value as the new `candidate`.
+2. Increment `count` when `num` matches the candidate, decrement it otherwise.
+3. After the pass, the surviving `candidate` is the majority element.
 
 #### Invariant
 
@@ -219,18 +288,52 @@ The strictness matters. With exactly \(n/2\) occurrences the guarantee fails:
 `[1,1,2,2]` cancels to `count == 0` and returns whichever value came last, which
 is why the problem states *more than* \(\lfloor n/2 \rfloor\).
 
-#### Approach
+#### Walkthrough
 
-Maintain a single `candidate` and a running `count`. The steps:
+Let us run the vote on Example 2: `nums = [2,2,1,1,1,2,2]`. Each line shows one
+element's effect on `candidate` and `count`:
 
-1. When `count` is zero, adopt the current value as the new `candidate`.
-2. Increment `count` when the current value matches the candidate, decrement it
-   otherwise.
-3. After the pass, the surviving `candidate` is the majority element.
+```text
+start      candidate = None   count = 0
+num = 2    count == 0 -> adopt candidate = 2, count = 1
+num = 2    match     -> count = 2
+num = 1    mismatch  -> count = 1
+num = 1    mismatch  -> count = 0     prefix fully cancelled
+num = 1    count == 0 -> adopt candidate = 1, count = 1
+num = 2    mismatch  -> count = 0     prefix fully cancelled
+num = 2    count == 0 -> adopt candidate = 2, count = 1
+```
 
-Conceptually, [each non-majority value cancels out one majority value](https://en.wikipedia.org/wiki/Boyer%E2%80%93Moore_majority_vote_algorithm). Since the
-majority element appears more than `⌊n / 2⌋` times, it cannot be fully cancelled
-and remains as the final candidate.
+Notice the majority temporarily loses the candidacy: after the run of `1`s the
+first four elements have cancelled out completely (`count == 0`), so `1` is
+adopted. That is safe precisely because a zeroed prefix carries no information:
+the majority of the remaining suffix `[2, 2]` is still `2`, which reclaims the
+candidacy on the final adoption and ends the pass with `count = 1`.
+
+The surviving `candidate` is `2`, which the function returns, matching the
+expected Output of `2`.
+
+#### Solution
+
+The code is the adopt-and-vote loop from the walkthrough: one branch to adopt,
+one line to vote.
+
+```python
+from typing import List
+
+
+class Solution:
+    def majorityElement(self, nums: List[int]) -> int:
+        count = 0
+        candidate = None
+
+        for num in nums:
+            if count == 0:
+                candidate = num
+            count += 1 if num == candidate else -1
+
+        return candidate
+```
 
 #### Time and Space Complexity Analysis
 
@@ -250,6 +353,46 @@ Only two scalar variables are used, regardless of input size.
 
 ### Sorting
 
+#### Derivation
+
+Instead of counting occurrences, let position reveal the majority.
+[Sorting](https://en.wikipedia.org/wiki/Sorting_algorithm) gathers all copies of
+each value into one contiguous run, and a run holding more than half the
+positions must cover the center of the array: slide it as far left or as far
+right as it will go, and it still contains index `len(nums) // 2`. The steps:
+
+1. Sort `nums` in place.
+2. Return `nums[len(nums) // 2]`, the element at the middle index.
+
+#### Walkthrough
+
+Let us apply this to Example 2: `nums = [2,2,1,1,1,2,2]`, where `n = 7` and the
+middle index is `len(nums) // 2 = 3`:
+
+```text
+nums (input)    [2, 2, 1, 1, 1, 2, 2]
+nums.sort()     [1, 1, 1, 2, 2, 2, 2]
+index            0  1  2  3  4  5  6
+nums[3] = 2
+```
+
+Why the middle index is always safe: the four `2`s form one contiguous run after
+sorting, and a run of `4 > 7 // 2` elements cannot avoid index `3` no matter
+where it sits:
+
+```text
+run leftmost    [2, 2, 2, 2, 1, 1, 1]   run covers indices 0-3, includes 3
+run rightmost   [1, 1, 1, 2, 2, 2, 2]   run covers indices 3-6, includes 3
+```
+
+Either extreme placement (and every position in between) straddles the center,
+so `nums[3]` must be the majority value. The function returns `2`, matching the
+expected Output of `2`.
+
+#### Solution
+
+The code is the two lines the walkthrough justifies: sort, then read the middle.
+
 ```python
 from typing import List
 
@@ -259,12 +402,6 @@ class Solution:
         nums.sort()
         return nums[len(nums) // 2]
 ```
-
-#### Approach
-
-[Sort](https://en.wikipedia.org/wiki/Sorting_algorithm) the array and return the middle element. Any value occupying more than half
-the positions must straddle the center index after sorting, so the element at
-index `len(nums) // 2` is always the majority element.
 
 #### Time and Space Complexity Analysis
 
@@ -285,6 +422,41 @@ An in-place sort uses `O(1)` auxiliary space; sorts that allocate a copy use
 
 ### Counter
 
+#### Derivation
+
+The Hash Map solution hand-writes machinery the standard library already ships:
+[`Counter`](https://docs.python.org/3/library/collections.html#collections.Counter)
+tallies frequencies in one pass, and its `most_common(1)` method performs the
+maximum-count selection. The whole solution collapses to a single expression.
+The steps:
+
+1. Build `Counter(nums)`, tallying every value in one pass.
+2. Call `.most_common(1)` to obtain the single highest-frequency
+   `(value, count)` pair.
+3. Take `[0][0]`, the value from that pair, and return it.
+
+#### Walkthrough
+
+Let us trace what the one-liner does internally on Example 1: `nums = [3,2,3]`.
+`Counter(nums)` builds the same per-value tally the Hash Map builds by hand:
+
+```text
+num = 3    counter holds {3: 1}
+num = 2    counter holds {3: 1, 2: 1}
+num = 3    counter holds {3: 2, 2: 1}
+
+most_common(1)  -> [(3, 2)]     the largest count is 2, held by 3
+[0][0]          -> 3            first pair, first component
+```
+
+`most_common(1)` scans the tally once for the largest count rather than sorting
+all entries, and indexing `[0][0]` unwraps the value from the returned pair. The
+expression evaluates to `3`, matching the expected Output of `3`.
+
+#### Solution
+
+The code compresses the walkthrough's tally and selection into one expression.
+
 ```python
 from collections import Counter
 from typing import List
@@ -294,12 +466,6 @@ class Solution:
     def majorityElement(self, nums: List[int]) -> int:
         return Counter(nums).most_common(1)[0][0]
 ```
-
-#### Approach
-
-Let the standard library do the counting. [`Counter`](https://docs.python.org/3/library/collections.html#collections.Counter)`(nums)` tallies frequencies in
-one pass, and `most_common(1)` returns the single highest-frequency `(value,
-count)` pair, from which we take the value.
 
 #### Time and Space Complexity Analysis
 

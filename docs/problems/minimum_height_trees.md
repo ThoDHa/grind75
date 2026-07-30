@@ -47,50 +47,37 @@ The **height** of a rooted tree is the number of edges on the longest downward p
 - All the pairs `(ai, bi)` are distinct.
 - The given input is **guaranteed** to be a tree and there will be **no repeated** edges.
 
+## Deriving the Solution
+
+The roots that minimize height are the *centroids* of the tree: the one or two
+nodes that sit at the exact middle of its longest path. Each solution below is
+a different level of commitment to that fact, from ignoring it entirely to
+exploiting it directly.
+
+1. **Start literal.** Measure the height from every candidate root with a BFS
+   and keep the minimizers. Each BFS costs `O(n)` and there are `n` of them,
+   `O(n^2)` in total: see
+   [Brute Force BFS From Every Root](#brute-force-bfs-from-every-root).
+2. **Spot the structure.** The `n` traversals treat every root as equally
+   promising, but they are not: a root near one end of the tree's longest path
+   is far from the other end, so only the middle of that path can win. A tree
+   has exactly one or two such centroids, so the answer can be located without
+   measuring every candidate.
+3. **Peel toward the center.** Remove all current leaves, layer by layer: each
+   round strips one node from both ends of every longest path, so the survivors
+   once 1 or 2 nodes remain are exactly the centroids. Every node and edge is
+   handled once, so this is linear: see
+   [Leaf-Trimming BFS](#leaf-trimming-bfs).
+4. **Or walk straight to the middle.** Instead of shrinking the tree around the
+   center, find one longest path explicitly (two BFS passes locate a diameter)
+   and read off its middle one or two nodes. Also linear: see
+   [Diameter Midpoint via Two BFS Passes](#diameter-midpoint-via-two-bfs-passes).
+
 ## Solutions
 
 ### Brute Force BFS From Every Root
 
-```python
-from typing import List
-
-
-from collections import defaultdict, deque
-
-
-class Solution:
-    def findMinHeightTrees(self, n: int, edges: List[List[int]]) -> List[int]:
-        # A single node has height 0 and is the only possible root.
-        if n == 1:
-            return [0]
-
-        # Build an undirected adjacency list.
-        adj = defaultdict(list)
-        for a, b in edges:
-            adj[a].append(b)
-            adj[b].append(a)
-
-        def height_from(root: int) -> int:
-            # BFS layer by layer; the depth of the last layer is the height.
-            seen = {root}
-            queue = deque([root])
-            depth = -1
-            while queue:
-                depth += 1
-                for _ in range(len(queue)):
-                    node = queue.popleft()
-                    for nxt in adj[node]:
-                        if nxt not in seen:
-                            seen.add(nxt)
-                            queue.append(nxt)
-            return depth
-
-        heights = [height_from(root) for root in range(n)]
-        best = min(heights)
-        return [root for root in range(n) if heights[root] == best]
-```
-
-#### Approach
+#### Derivation
 
 The problem asks directly for the roots that minimize tree height, so the most
 literal solution is to compute that height for every candidate root and keep the
@@ -107,29 +94,6 @@ minimizers.
 This is the definition translated straight into code. It is easy to reason about
 and trivially correct, but it pays for that simplicity by re-traversing the whole
 tree once per node.
-
-#### Time and Space Complexity Analysis
-
-##### Time Complexity: `O(n^2)`
-
-Each BFS visits all `n` nodes and `n - 1` edges, costing `O(n)`. Running one BFS
-per root multiplies that by `n`, giving `O(n^2)`. For `n` up to `2 * 10^4` this
-is on the order of `4 * 10^8` operations, which is too slow for the largest
-inputs but fine for understanding the problem.
-
-##### Space Complexity: `O(n)`
-
-The adjacency list stores `2(n - 1)` endpoints, and each BFS uses a `seen` set and
-a queue holding at most `O(n)` nodes. The `heights` array adds another `O(n)`.
-
-#### Key Insights
-
-- The height of a rooted tree equals the number of BFS layers minus one, so a
-  single level-order traversal yields it without any extra bookkeeping.
-- Multiple roots can tie for the minimum height, so the answer is collected as
-  every root matching `best`, not just the first one found.
-- This approach never exploits the structure of a tree beyond connectivity, which
-  is exactly why it is quadratic and motivates the leaf-trimming refinement.
 
 #### Walkthrough
 
@@ -173,7 +137,132 @@ Collecting the results gives `heights = [2, 1, 2, 2]`. Then `best = min(heights)
 and we keep every root whose height equals `best`. Only index `1` qualifies, so we
 return `[1]`, which matches the expected Output.
 
+#### Solution
+
+The code is the walkthrough written down: one layered BFS per root, then a
+sweep for the minimizers.
+
+```python
+from typing import List
+
+
+from collections import defaultdict, deque
+
+
+class Solution:
+    def findMinHeightTrees(self, n: int, edges: List[List[int]]) -> List[int]:
+        # A single node has height 0 and is the only possible root.
+        if n == 1:
+            return [0]
+
+        # Build an undirected adjacency list.
+        adj = defaultdict(list)
+        for a, b in edges:
+            adj[a].append(b)
+            adj[b].append(a)
+
+        def height_from(root: int) -> int:
+            # BFS layer by layer; the depth of the last layer is the height.
+            seen = {root}
+            queue = deque([root])
+            depth = -1
+            while queue:
+                depth += 1
+                for _ in range(len(queue)):
+                    node = queue.popleft()
+                    for nxt in adj[node]:
+                        if nxt not in seen:
+                            seen.add(nxt)
+                            queue.append(nxt)
+            return depth
+
+        heights = [height_from(root) for root in range(n)]
+        best = min(heights)
+        return [root for root in range(n) if heights[root] == best]
+```
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n^2)`
+
+Each BFS visits all `n` nodes and `n - 1` edges, costing `O(n)`. Running one BFS
+per root multiplies that by `n`, giving `O(n^2)`. For `n` up to `2 * 10^4` this
+is on the order of `4 * 10^8` operations, which is too slow for the largest
+inputs but fine for understanding the problem.
+
+##### Space Complexity: `O(n)`
+
+The adjacency list stores `2(n - 1)` endpoints, and each BFS uses a `seen` set and
+a queue holding at most `O(n)` nodes. The `heights` array adds another `O(n)`.
+
+#### Key Insights
+
+- The height of a rooted tree equals the number of BFS layers minus one, so a
+  single level-order traversal yields it without any extra bookkeeping.
+- Multiple roots can tie for the minimum height, so the answer is collected as
+  every root matching `best`, not just the first one found.
+- This approach never exploits the structure of a tree beyond connectivity, which
+  is exactly why it is quadratic and motivates the leaf-trimming refinement.
+
 ### Leaf-Trimming BFS
+
+#### Derivation
+
+The brute force is quadratic because it measures every candidate, yet almost
+every candidate is doomed from the start: a root near one end of the tree's
+longest path is far from the other end. The roots that minimize height are the
+*centroids* of the tree, the nodes that sit in the middle of its longest path,
+and a tree always has exactly one or two of them. So instead of measuring, we
+locate the centroids directly by repeatedly trimming the outermost layer of
+leaves, which is [topological sorting](https://en.wikipedia.org/wiki/Topological_sorting) specialized to an
+undirected tree.
+
+1. Handle the tiny cases: if `n <= 2`, every node is a valid root, so return all
+   of them.
+2. Build an adjacency set for each node so leaf removal is `O(1)`.
+3. Collect all current leaves (nodes of degree 1) into a queue.
+4. Peel one full layer of leaves at a time. Removing a leaf decrements its
+   neighbor's degree; a neighbor that drops to degree 1 becomes a leaf in the
+   next layer.
+5. Stop when 2 or fewer nodes remain. Those survivors are the centroids and thus
+   the MHT roots.
+
+Trimming layer by layer shrinks the tree symmetrically from both ends of its
+longest path. The last nodes standing are the midpoints of that path, which is
+precisely where a root minimizes the maximum distance to any leaf.
+
+#### Walkthrough
+
+Let us peel Example 2 by hand: `n = 6` and
+`edges = [[3,0],[3,1],[3,2],[3,4],[5,4]]`, expected output `[3,4]`. Since
+`n > 2`, we build the adjacency sets and read off each node's degree as
+`len(adj[node])`; the degree-1 nodes seed the `leaves` queue:
+
+```text
+degrees      node:    0  1  2  3  4  5
+             degree:  1  1  1  4  2  1     leaves = [0, 1, 2, 5], remaining = 6
+
+peel layer 1            layer_size = 4, remaining 6 -> 2
+  remove 0   adj[3] loses 0, degree 4 -> 3
+  remove 1   adj[3] loses 1, degree 3 -> 2
+  remove 2   adj[3] loses 2, degree 2 -> 1   node 3 becomes a leaf, enqueued
+  remove 5   adj[4] loses 5, degree 2 -> 1   node 4 becomes a leaf, enqueued
+             leaves = [3, 4]
+
+loop check   remaining = 2, not > 2 -> stop
+```
+
+One layer strips all four outer leaves at once. Node `3` loses three neighbors
+but only drops to degree 1 (becoming a leaf) when its last outer leaf `2` is
+removed; node `4` becomes a leaf as soon as `5` goes. The loop then halts
+because `remaining = 2`, and the queue's survivors are the two centroids.
+`list(leaves)` returns `[3, 4]`, matching the expected Output: the two
+midpoints of the longest path `0-3-4-5` (or `1-3-4-5`, or `2-3-4-5`).
+
+#### Solution
+
+The code is the peeling loop from the trace: a degree-1 queue, one
+`layer_size` ring per round, and a stop at two survivors.
 
 ```python
 from typing import List
@@ -214,29 +303,6 @@ class Solution:
         return list(leaves)
 ```
 
-#### Approach
-
-The roots that minimize tree height are the *centroids* of the tree, the nodes
-that sit in the middle of its longest path. A tree always has exactly one or two
-centroids, and a brute-force "try every root and BFS" approach would cost
-`O(n^2)`. Instead we find the centroids directly by repeatedly trimming the
-outermost layer of leaves, which is [topological sorting](https://en.wikipedia.org/wiki/Topological_sorting) specialized to an
-undirected tree.
-
-1. Handle the tiny cases: if `n <= 2`, every node is a valid root, so return all
-   of them.
-2. Build an adjacency set for each node so leaf removal is `O(1)`.
-3. Collect all current leaves (nodes of degree 1) into a queue.
-4. Peel one full layer of leaves at a time. Removing a leaf decrements its
-   neighbor's degree; a neighbor that drops to degree 1 becomes a leaf in the
-   next layer.
-5. Stop when 2 or fewer nodes remain. Those survivors are the centroids and thus
-   the MHT roots.
-
-Trimming layer by layer shrinks the tree symmetrically from both ends of its
-longest path. The last nodes standing are the midpoints of that path, which is
-precisely where a root minimizes the maximum distance to any leaf.
-
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(n)`
@@ -265,6 +331,76 @@ holds at most `O(n)` nodes at once.
   neighbor an O(1) operation instead of a linear scan.
 
 ### Diameter Midpoint via Two BFS Passes
+
+#### Derivation
+
+The leaf-trimming approach closes in on the middle of the tree's longest path
+implicitly, from all sides at once. This approach takes the same observation
+literally: find the longest path (the *diameter*) explicitly, then return its
+middle one or two nodes.
+
+1. Handle the tiny cases: if `n <= 2`, every node is a valid root, so return all
+   of them.
+2. Build an undirected adjacency list.
+3. Run a BFS from any node (node 0 works). The farthest node it reaches, `u`, is
+   guaranteed to be one endpoint of a diameter.
+4. Run a second BFS from `u`, recording each node's parent. The farthest node it
+   reaches, `v`, is the opposite endpoint, and the parent links trace the
+   diameter path between them.
+5. Walk the parent links from `v` back to `u` to reconstruct the path, then
+   return its middle node (odd number of path nodes) or middle two nodes (even).
+
+Why the midpoint is optimal: whichever node is chosen as root, its height is at
+least the distance to the farther of `u` and `v`, and those two distances sum to
+at least the diameter `d`. So every root has height at least `ceil(d / 2)`, and
+only a node sitting at the exact center of a diameter path achieves that bound.
+This is the same answer the leaf-trimming solution converges to; trimming closes
+in on the center implicitly from all sides, while this version walks straight to
+it along one longest path.
+
+#### Walkthrough
+
+Let us run both passes on Example 2: `n = 6` and
+`edges = [[3,0],[3,1],[3,2],[3,4],[5,4]]`, expected output `[3,4]`. Building
+the adjacency list in edge order gives `adj[3] = [0, 1, 2, 4]`,
+`adj[4] = [3, 5]`, and single-entry lists for the leaves. BFS pops nodes in
+nondecreasing distance order, so `last`, the final node popped, is a farthest
+node from the start:
+
+```text
+first BFS    bfs_farthest(0)
+  pop 0      enqueue 3
+  pop 3      enqueue 1, 2, 4
+  pop 1
+  pop 2
+  pop 4      enqueue 5
+  pop 5      queue empty -> last = 5         u = 5, a diameter endpoint
+
+second BFS   bfs_farthest(5), recording parents
+  pop 5      enqueue 4                       parent[4] = 5
+  pop 4      enqueue 3                       parent[3] = 4
+  pop 3      enqueue 0, 1, 2                 parent[0] = parent[1] = parent[2] = 3
+  pop 0
+  pop 1
+  pop 2      queue empty -> last = 2         v = 2, the opposite endpoint
+
+path         node = 2 -> 3 -> 4 -> 5 -> -1   walk parent links from v
+             path = [2, 3, 4, 5]
+
+midpoint     length = 4, even
+             return [path[1], path[2]] = [3, 4]
+```
+
+The first BFS climbs out of node `0` and ends farthest away at `u = 5`. The
+second BFS from `5` ends at `v = 2`, and its parent links spell out the
+diameter `2-3-4-5` (three edges, so `d = 3`). The path holds an even number of
+nodes, so its two middle nodes `3` and `4` are both centers, and the function
+returns `[3, 4]`, matching the expected Output and the leaf-trimming result.
+
+#### Solution
+
+The code is the trace in three acts: two `bfs_farthest` calls, the parent walk,
+and the parity split on the path length.
 
 ```python
 from typing import List
@@ -322,32 +458,6 @@ class Solution:
             return [path[length // 2]]
         return [path[length // 2 - 1], path[length // 2]]
 ```
-
-#### Approach
-
-The leaf-trimming section observed that the MHT roots sit in the middle of the
-tree's longest path. This approach takes that observation literally: find the
-longest path (the *diameter*) explicitly, then return its middle one or two
-nodes.
-
-1. Handle the tiny cases: if `n <= 2`, every node is a valid root, so return all
-   of them.
-2. Build an undirected adjacency list.
-3. Run a BFS from any node (node 0 works). The farthest node it reaches, `u`, is
-   guaranteed to be one endpoint of a diameter.
-4. Run a second BFS from `u`, recording each node's parent. The farthest node it
-   reaches, `v`, is the opposite endpoint, and the parent links trace the
-   diameter path between them.
-5. Walk the parent links from `v` back to `u` to reconstruct the path, then
-   return its middle node (odd number of path nodes) or middle two nodes (even).
-
-Why the midpoint is optimal: whichever node is chosen as root, its height is at
-least the distance to the farther of `u` and `v`, and those two distances sum to
-at least the diameter `d`. So every root has height at least `ceil(d / 2)`, and
-only a node sitting at the exact center of a diameter path achieves that bound.
-This is the same answer the leaf-trimming solution converges to; trimming closes
-in on the center implicitly from all sides, while this version walks straight to
-it along one longest path.
 
 #### Time and Space Complexity Analysis
 

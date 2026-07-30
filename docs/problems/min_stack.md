@@ -52,9 +52,84 @@ minStack.getMin(); // return -2
 - Methods `pop`, `top` and `getMin` operations will always be called on **non-empty** stacks.
 - At most `3 * 10^4` calls will be made to `push`, `pop`, `top`, and `getMin`.
 
+## Deriving the Solution
+
+On a plain stack, `push`, `pop`, and `top` are already constant time; the whole
+problem is `getMin`, which must stay `O(1)` even after arbitrary pops. Every
+fast solution below answers the same way: record, at push time, what the
+minimum is at each height of the stack, so that popping automatically
+re-exposes an older minimum.
+
+1. **Start literal.** Keep one stack of values and compute the minimum on
+   demand by scanning every element. Correct, but `getMin` costs `O(n)`, which
+   the problem statement forbids: see [Brute Force](#brute-force).
+2. **Spot the redo.** The scan recomputes a value that was already known: the
+   minimum changes only when a smaller value is pushed or when the entry that
+   set it is popped. Between those events, every `getMin` re-derives the same
+   number from scratch.
+3. **Cache it at push.** Store alongside each entry the minimum of the stack up
+   to and including that entry. `getMin` becomes a top-of-stack read, and `pop`
+   restores the older minimum for free, because it already sits one entry down.
+   The same idea wears two costumes: value and cached minimum bundled as a
+   tuple, in [Single Stack of Pairs](#single-stack-of-pairs), or kept in a
+   parallel minimum stack, in [Two Stacks](#two-stacks).
+4. **Shrink the cache.** One extra integer per element is mostly redundant,
+   since the cached minimum rarely changes. Encode only the changes into the
+   stored numbers themselves with reversible arithmetic, leaving one integer
+   per element plus a single variable: see
+   [Single Stack with Encoded Minimum](#single-stack-with-encoded-minimum).
+
 ## Solutions
 
 ### Brute Force
+
+#### Derivation
+
+The most direct idea ignores the `O(1)` requirement at first and asks: what is
+the simplest structure that answers all four calls correctly? A single plain
+[stack](https://en.wikipedia.org/wiki/Stack_(abstract_data_type)) of values suffices. `push`, `pop`, and `top` are trivial list
+operations. For `getMin`, with no extra bookkeeping, the only option is to walk
+every element and track the smallest one seen.
+
+1. Store pushed values in a single list used as a stack.
+2. `push` appends, `pop` removes the last element, and `top` reads the last
+   element.
+3. `getMin` linearly scans the entire stack, comparing each value against a
+   running smallest, and returns the smallest found.
+
+This is correct and simple to reason about, but `getMin` does `O(n)` work,
+which violates the problem's `O(1)` requirement.
+
+#### Walkthrough
+
+Let us watch the Brute Force code run on Example 1, calling each method in order
+on a fresh `MinStack`. After `__init__`, `self.stack` is the empty list `[]`.
+The table shows `self.stack` after each call, plus what the call returns (`push`
+and `pop` return nothing, shown as `None`).
+
+| Call | What runs | `self.stack` after | Returns |
+|------|-----------|--------------------|---------|
+| `push(-2)` | `append(-2)` | `[-2]` | `None` |
+| `push(0)` | `append(0)` | `[-2, 0]` | `None` |
+| `push(-3)` | `append(-3)` | `[-2, 0, -3]` | `None` |
+| `getMin()` | scan `[-2, 0, -3]` | `[-2, 0, -3]` | `-3` |
+| `pop()` | `pop()` removes last | `[-2, 0]` | `None` |
+| `top()` | read `stack[-1]` | `[-2, 0]` | `0` |
+| `getMin()` | scan `[-2, 0]` | `[-2, 0]` | `-2` |
+
+The two `getMin` calls are where the scan happens. Trace the first one: it sets
+`smallest = stack[0] = -2`, then walks the list. `-2 < -2` is false, `0 < -2` is
+false, `-3 < -2` is true so `smallest` becomes `-3`, and `-3` is returned. The
+second `getMin` runs on the shorter list `[-2, 0]`: `smallest` starts at `-2`,
+`0 < -2` is false, so it stays `-2` and returns `-2`.
+
+Collecting every return value in order gives `[null, null, null, null, -3, null,
+0, -2]`, which matches the example's expected Output.
+
+#### Solution
+
+The code is the table above written down: three one-line list operations plus
+the scanning loop inside `getMin`.
 
 ```python
 class MinStack:
@@ -88,24 +163,6 @@ class MinStack:
 # param_4 = obj.getMin()
 ```
 
-#### Approach
-
-The most direct idea ignores the `O(1)` requirement at first and keeps a single
-plain [stack](https://en.wikipedia.org/wiki/Stack_(abstract_data_type)) of values. `push`, `pop`, and `top` are trivial list operations.
-For `getMin`, with no extra bookkeeping, the only option is to walk every
-element and track the smallest one seen.
-
-1. Store pushed values in a single list used as a stack.
-2. `push` appends, `pop` removes the last element, and `top` reads the last
-   element.
-3. `getMin` linearly scans the entire stack, comparing each value against a
-   running smallest, and returns the smallest found.
-
-This is correct and simple to reason about, but `getMin` does `O(n)` work, which
-violates the problem's `O(1)` requirement. Tracing Example 1, after pushing
-`-2`, `0`, `-3`, the scan over `[-2, 0, -3]` returns `-3`; after popping `-3`,
-the scan over `[-2, 0]` returns `-2`. Correct, just slow.
-
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(1)` for push/pop/top, `O(n)` for getMin
@@ -125,33 +182,54 @@ A single list stores the `n` pushed values with no auxiliary structure.
 - Every later solution removes the `getMin` scan by caching the minimum as
   elements are pushed.
 
+### Single Stack of Pairs
+
+#### Derivation
+
+The Brute Force scan exists because, after a pop, nothing remembers what the
+minimum used to be, so it must be rediscovered from scratch. The repair is to
+make every entry remember it: store the minimum alongside each value, so each
+entry records what the minimum was when it sat on top. Popping then restores
+the older minimum automatically, because the entry underneath carries it.
+
+1. Store each pushed element as a pair `(val, current_min)`, where
+   `current_min` is the smaller of `val` and the minimum currently on top of
+   the stack.
+2. On `push`, look at the previous top's stored minimum (or use `val` itself
+   when the stack is empty) and record the new pair.
+3. On `pop`, simply discard the top pair; the entry now on top already carries
+   the correct minimum for the remaining elements.
+4. `top` returns the value field of the top pair, and `getMin` returns its
+   minimum field.
+
+Because each entry caches the minimum of the entire stack beneath it, removing
+the top never requires recomputation.
+
 #### Walkthrough
 
-Let us watch the Brute Force code run on Example 1, calling each method in order
-on a fresh `MinStack`. After `__init__`, `self.stack` is the empty list `[]`.
-The table shows `self.stack` after each call, plus what the call returns (`push`
-and `pop` return nothing, shown as `None`).
+Let us run the Example 1 sequence on a fresh `MinStack`, watching `self.stack`,
+now a list of `(val, current_min)` pairs:
 
-| Call | What runs | `self.stack` after | Returns |
-|------|-----------|--------------------|---------|
-| `push(-2)` | `append(-2)` | `[-2]` | `None` |
-| `push(0)` | `append(0)` | `[-2, 0]` | `None` |
-| `push(-3)` | `append(-3)` | `[-2, 0, -3]` | `None` |
-| `getMin()` | scan `[-2, 0, -3]` | `[-2, 0, -3]` | `-3` |
-| `pop()` | `pop()` removes last | `[-2, 0]` | `None` |
-| `top()` | read `stack[-1]` | `[-2, 0]` | `0` |
-| `getMin()` | scan `[-2, 0]` | `[-2, 0]` | `-2` |
+```text
+push(-2)   stack = [(-2, -2)]                      empty stack: current_min = -2
+push(0)    stack = [(-2, -2), (0, -2)]             min(0, -2) = -2
+push(-3)   stack = [(-2, -2), (0, -2), (-3, -3)]   min(-3, -2) = -3
+getMin()   -> -3                                   read stack[-1][1]
+pop()      stack = [(-2, -2), (0, -2)]             discard the top pair
+top()      -> 0                                    read stack[-1][0]
+getMin()   -> -2                                   read stack[-1][1]
+```
 
-The two `getMin` calls are where the scan happens. Trace the first one: it sets
-`smallest = stack[0] = -2`, then walks the list. `-2 < -2` is false, `0 < -2` is
-false, `-3 < -2` is true so `smallest` becomes `-3`, and `-3` is returned. The
-second `getMin` runs on the shorter list `[-2, 0]`: `smallest` starts at `-2`,
-`0 < -2` is false, so it stays `-2` and returns `-2`.
+The `pop` is where the caching pays off: discarding `(-3, -3)` exposes
+`(0, -2)`, whose second field already holds the minimum of the remaining
+elements, so the final `getMin` answers `-2` with a single lookup and no scan.
+The returns collected in order are `[null, null, null, null, -3, null, 0, -2]`,
+matching the expected Output.
 
-Collecting every return value in order gives `[null, null, null, null, -3, null,
-0, -2]`, which matches the example's expected Output.
+#### Solution
 
-### Single Stack of Pairs
+The code is the pair bookkeeping from the trace: `push` computes `current_min`,
+and the three reads index the top pair.
 
 ```python
 class MinStack:
@@ -182,26 +260,6 @@ class MinStack:
 # param_4 = obj.getMin()
 ```
 
-#### Approach
-
-The challenge is retrieving the minimum in `O(1)` even after arbitrary pops.
-A plain stack can hold the values, but the running minimum changes as elements
-are removed. The trick is to store the minimum alongside each value so every
-entry remembers what the minimum was when it sat on top.
-
-1. Store each pushed element as a pair `(val, current_min)`, where
-   `current_min` is the smaller of `val` and the minimum currently on top of
-   the stack.
-2. On `push`, look at the previous top's stored minimum (or use `val` itself
-   when the stack is empty) and record the new pair.
-3. On `pop`, simply discard the top pair; the entry now on top already carries
-   the correct minimum for the remaining elements.
-4. `top` returns the value field of the top pair, and `getMin` returns its
-   minimum field.
-
-Because each entry caches the minimum of the entire stack beneath it, removing
-the top never requires recomputation.
-
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(1)` per operation
@@ -224,6 +282,52 @@ which doubles the storage but remains linear in the number of elements.
   is only one container to push to and pop from.
 
 ### Two Stacks
+
+#### Derivation
+
+The pairs solution bundles two concerns into one tuple: the value the caller
+pushed and the bookkeeping minimum. This variant asks whether the two concerns
+read more clearly kept apart, and splits them into two separate stacks that
+move in lockstep: one holds the raw values, and the other tracks the running
+minimum so its top always equals the minimum of everything currently in the
+value stack.
+
+1. On `push`, append the value to the value stack. Then push the smaller of the
+   new value and the current top of the minimum stack (or the value itself when
+   the minimum stack is empty).
+2. On `pop`, pop both stacks together so they stay aligned.
+3. `top` returns the top of the value stack, and `getMin` returns the top of the
+   minimum stack.
+
+Because the minimum stack mirrors the value stack one-for-one, every pop exposes
+the correct minimum for the remaining elements without recomputation.
+
+#### Walkthrough
+
+Let us run the Example 1 sequence again, now watching both stacks. `self.mins`
+holds, at each height, the minimum of everything at or below that height in
+`self.stack`:
+
+```text
+push(-2)   stack = [-2]          mins = [-2]           first value is its own minimum
+push(0)    stack = [-2, 0]       mins = [-2, -2]       min(0, -2) = -2
+push(-3)   stack = [-2, 0, -3]   mins = [-2, -2, -3]   min(-3, -2) = -3
+getMin()   -> -3                                       read mins[-1]
+pop()      stack = [-2, 0]       mins = [-2, -2]       both stacks pop together
+top()      -> 0                                        read stack[-1]
+getMin()   -> -2                                       read mins[-1]
+```
+
+The two stacks always have the same height, and `mins` is exactly the second
+field of the pairs solution split into its own container: after the `pop`
+removes `-3` from both stacks, the top of `mins` is again `-2`, the minimum of
+what remains. The returns in order are `[null, null, null, null, -3, null, 0,
+-2]`, matching the expected Output.
+
+#### Solution
+
+The code is the lockstep bookkeeping from the trace: every `push` and `pop`
+touches both lists.
 
 ```python
 class MinStack:
@@ -258,22 +362,6 @@ class MinStack:
 # param_4 = obj.getMin()
 ```
 
-#### Approach
-
-This variant splits the two concerns into two separate stacks that move in
-lockstep: one holds the raw values, and the other tracks the running minimum so
-its top always equals the minimum of everything currently in the value stack.
-
-1. On `push`, append the value to the value stack. Then push the smaller of the
-   new value and the current top of the minimum stack (or the value itself when
-   the minimum stack is empty).
-2. On `pop`, pop both stacks together so they stay aligned.
-3. `top` returns the top of the value stack, and `getMin` returns the top of the
-   minimum stack.
-
-Because the minimum stack mirrors the value stack one-for-one, every pop exposes
-the correct minimum for the remaining elements without recomputation.
-
 #### Time and Space Complexity Analysis
 
 ##### Time Complexity: `O(1)` per operation
@@ -297,51 +385,44 @@ total storage is linear in the number of elements.
 
 ### Single Stack with Encoded Minimum
 
-```python
-class MinStack:
+#### Derivation
 
-    def __init__(self):
-        self.stack: list[int] = []
-        self.min: int = 0
+Both cached approaches above store an extra integer for every pushed element,
+even though the cached minimum rarely changes from one entry to the next. This
+variant keeps a single stack of plain integers plus one minimum variable, and
+encodes the history of the minimum directly into the stored numbers, so the
+only overhead beyond the values themselves is that one variable.
 
-    def push(self, val: int) -> None:
-        if not self.stack:
-            self.stack.append(val)
-            self.min = val
-        elif val < self.min:
-            # New minimum: store an encoded marker instead of the value.
-            # Since val < min, 2*val - min = val + (val - min) < val, so the
-            # stored entry is strictly below the new minimum (val). That is
-            # what lets pop and top recognize it as encoded later.
-            self.stack.append(2 * val - self.min)
-            self.min = val
-        else:
-            self.stack.append(val)
+1. Keep one stack and a `min` variable holding the current minimum.
+2. On `push`, if the value is at least the current minimum, store it as is. If
+   it is a new minimum, store the encoded value `2 * val - min` instead and set
+   `min = val`. Because `val < min`, the encoded number equals
+   `val + (val - min)`, which is strictly less than `val`: every encoded entry
+   sits strictly below the minimum that was current when it was pushed.
+3. On `pop`, compare the removed entry against `min`. A value below `min` can
+   only be an encoded "the minimum changed here" marker, so undo that change by
+   decoding the previous minimum: `2 * min - popped` expands to
+   `2 * val - (2 * val - old_min) = old_min`. A value at or above `min` is a
+   plain entry and leaves the minimum untouched.
+4. `top` applies the same test: a top entry below `min` is encoded, and the
+   real value it represents is the current minimum itself; otherwise the entry
+   is the value. `getMin` just returns the variable.
 
-    def pop(self) -> None:
-        popped = self.stack.pop()
-        if popped < self.min:
-            # Encoded entry: the minimum changed at this element, so restore
-            # the previous minimum. With popped = 2*val - old_min and
-            # min = val, 2*min - popped = 2*val - 2*val + old_min = old_min.
-            self.min = 2 * self.min - popped
+The invariant that makes this work is that no plain entry is ever below the
+current minimum while every encoded entry is strictly below it, so "stored entry
+is less than `min`" is an unambiguous signal that the entry encodes a minimum
+change. The Invariant below states that formally, along with why the encode and
+decode are inverses. Note that equal values are stored
+plainly (the test is a strict `<`), so repeated minima pop off without
+disturbing `min` until the entry that actually changed it is removed.
 
-    def top(self) -> int:
-        value = self.stack[-1]
-        # An encoded entry always represents the current minimum itself.
-        return self.min if value < self.min else value
-
-    def getMin(self) -> int:
-        return self.min
-
-
-# Your MinStack object will be instantiated and used as such:
-# obj = MinStack()
-# obj.push(val)
-# obj.pop()
-# param_3 = obj.top()
-# param_4 = obj.getMin()
-```
+One honest caveat: in Python this is fully correct because integers have
+arbitrary precision, so `2 * val - min` can never overflow. In fixed-width
+languages the doubling can exceed the integer range (with `val` near the 32-bit
+limits, `2 * val - min` needs a 64-bit type), so the trick demands a wider type
+or careful bounds analysis. That fragility is why the pairs and two-stack
+approaches are usually preferred in interviews unless the space follow-up is
+asked explicitly.
 
 #### Invariant
 
@@ -405,43 +486,78 @@ when popped = 2 * val - old_min and self.min == val:
 so `pop` restores the previous minimum exactly, and `top` reports `self.min`,
 which is the `val` the encoded entry stood for.
 
-#### Approach
+#### Walkthrough
 
-Both cached approaches above store an extra integer for every pushed element.
-This variant keeps a single stack of plain integers plus one minimum variable,
-and encodes the history of the minimum directly into the stored numbers, so the
-only overhead beyond the values themselves is that one variable.
+Example 1 exercises the encoding directly, because its third push is a new
+minimum. Watch `self.stack` and `self.min` through the sequence:
 
-1. Keep one stack and a `min` variable holding the current minimum.
-2. On `push`, if the value is at least the current minimum, store it as is. If
-   it is a new minimum, store the encoded value `2 * val - min` instead and set
-   `min = val`. Because `val < min`, the encoded number equals
-   `val + (val - min)`, which is strictly less than `val`: every encoded entry
-   sits strictly below the minimum that was current when it was pushed.
-3. On `pop`, compare the removed entry against `min`. A value below `min` can
-   only be an encoded "the minimum changed here" marker, so undo that change by
-   decoding the previous minimum: `2 * min - popped` expands to
-   `2 * val - (2 * val - old_min) = old_min`. A value at or above `min` is a
-   plain entry and leaves the minimum untouched.
-4. `top` applies the same test: a top entry below `min` is encoded, and the
-   real value it represents is the current minimum itself; otherwise the entry
-   is the value. `getMin` just returns the variable.
+```text
+push(-2)   stack = [-2]          min = -2   empty stack: store plainly, set min
+push(0)    stack = [-2, 0]       min = -2   0 >= min: store plainly
+push(-3)   stack = [-2, 0, -4]   min = -3   -3 < min: store 2*(-3) - (-2) = -4, min = -3
+getMin()   -> -3                            return min
+pop()      stack = [-2, 0]       min = -2   popped -4 < min: min = 2*(-3) - (-4) = -2
+top()      -> 0                             0 >= min: plain entry, return it
+getMin()   -> -2                            return min
+```
 
-The invariant that makes this work is that no plain entry is ever below the
-current minimum while every encoded entry is strictly below it, so "stored entry
-is less than `min`" is an unambiguous signal that the entry encodes a minimum
-change. The Invariant above states that formally, along with why the encode and
-decode are inverses. Note that equal values are stored
-plainly (the test is a strict `<`), so repeated minima pop off without
-disturbing `min` until the entry that actually changed it is removed.
+The value `-3` is never stored at all: the stack holds the marker `-4` in its
+place, strictly below the new minimum, exactly as the Invariant requires. When
+`pop` removes that marker, the test `-4 < -3` recognizes it as encoded and the
+decode `2 * (-3) - (-4)` restores the previous minimum `-2`. The returns in
+order are `[null, null, null, null, -3, null, 0, -2]`, matching the expected
+Output.
 
-One honest caveat: in Python this is fully correct because integers have
-arbitrary precision, so `2 * val - min` can never overflow. In fixed-width
-languages the doubling can exceed the integer range (with `val` near the 32-bit
-limits, `2 * val - min` needs a 64-bit type), so the trick demands a wider type
-or careful bounds analysis. That fragility is why the pairs and two-stack
-approaches are usually preferred in interviews unless the space follow-up is
-asked explicitly.
+#### Solution
+
+The code is the trace's three-way `push` branch plus the decode in `pop` and
+the classification test in `top`.
+
+```python
+class MinStack:
+
+    def __init__(self):
+        self.stack: list[int] = []
+        self.min: int = 0
+
+    def push(self, val: int) -> None:
+        if not self.stack:
+            self.stack.append(val)
+            self.min = val
+        elif val < self.min:
+            # New minimum: store an encoded marker instead of the value.
+            # Since val < min, 2*val - min = val + (val - min) < val, so the
+            # stored entry is strictly below the new minimum (val). That is
+            # what lets pop and top recognize it as encoded later.
+            self.stack.append(2 * val - self.min)
+            self.min = val
+        else:
+            self.stack.append(val)
+
+    def pop(self) -> None:
+        popped = self.stack.pop()
+        if popped < self.min:
+            # Encoded entry: the minimum changed at this element, so restore
+            # the previous minimum. With popped = 2*val - old_min and
+            # min = val, 2*min - popped = 2*val - 2*val + old_min = old_min.
+            self.min = 2 * self.min - popped
+
+    def top(self) -> int:
+        value = self.stack[-1]
+        # An encoded entry always represents the current minimum itself.
+        return self.min if value < self.min else value
+
+    def getMin(self) -> int:
+        return self.min
+
+
+# Your MinStack object will be instantiated and used as such:
+# obj = MinStack()
+# obj.push(val)
+# obj.pop()
+# param_3 = obj.top()
+# param_4 = obj.getMin()
+```
 
 #### Time and Space Complexity Analysis
 
