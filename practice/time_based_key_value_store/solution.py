@@ -16,7 +16,7 @@ from harness import NotSolved, pick_case, run_operations
 class TimeMap:
     def __init__(self) -> None:
         # Init empty state here (e.g. key -> history of timestamped values).
-        self.store: dict = {}
+        self.store: dict[str, list[tuple[int, str]]] = {}
 
     def set(self, key: str, value: str, timestamp: int) -> None:
         """State the time and space complexity of your approach, and explain why.
@@ -24,7 +24,9 @@ class TimeMap:
         Time:  O(?):
         Space: O(?):
         """
-        raise NotSolved
+
+        self.store.setdefault(key, [])
+        self.store[key].append((timestamp, value))
 
     def get(self, key: str, timestamp: int) -> str:
         """State the time and space complexity of your approach, and explain why.
@@ -32,7 +34,23 @@ class TimeMap:
         Time:  O(?):
         Space: O(?):
         """
-        raise NotSolved
+        if key not in self.store:
+            return ""
+
+        history = self.store[key]
+        left, right = 0, len(history)
+
+        while left < right:
+            mid = left + (right - left) // 2
+
+            if history[mid][0] <= timestamp:
+                left = mid + 1
+            else:
+                right = mid
+
+        if left == 0:
+            return ""
+        return history[left - 1][1]
 
 
 if __name__ == "__main__":
