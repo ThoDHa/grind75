@@ -10,6 +10,7 @@ name followed by its emails in sorted order (accounts in any order).
   uv run pytest accounts_merge/                # run the test sets
 """
 
+from collections import defaultdict
 from typing import List
 
 from harness import NotSolved, pick_case
@@ -22,7 +23,42 @@ class Solution:
         Time:  O(?):
         Space: O(?):
         """
-        raise NotSolved
+        graph = defaultdict(set)
+        owner = {}
+
+        for account in accounts:
+            name = account[0]
+            first = account[1]
+            for email in account[1:]:
+                owner[email] = name
+                graph[first].add(email)
+                graph[email].add(first)
+
+        visited = set()
+
+        def dfs(start: str) -> list:
+            stack = [start]
+            component = []
+
+            while stack:
+                email = stack.pop()
+                if email in visited:
+                    continue
+                visited.add(email)
+                component.append(email)
+                for neighbor in graph[email]:
+                    if neighbor not in visited:
+                        stack.append(neighbor)
+            return component
+
+        result = []
+        for email in graph:
+            if email not in visited:
+                component = dfs(email)
+
+                result.append([owner[email]] + sorted(component))
+
+        return result
 
 
 def _canon(accounts: List[List[str]]) -> List[List[str]]:
