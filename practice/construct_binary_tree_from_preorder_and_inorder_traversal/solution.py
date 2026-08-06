@@ -11,8 +11,7 @@ reconstruct and return the tree.
 
 from typing import List, Optional
 
-from harness import NotSolved, TreeNode, build_tree, tree_to_list, pick_case
-
+from harness import NotSolved, TreeNode, build_tree, pick_case, tree_to_list
 
 # Definition for a binary tree node.
 # class TreeNode:
@@ -29,7 +28,14 @@ class Solution:
         Time:  O(?):
         Space: O(?):
         """
-        raise NotSolved
+        if not preorder:
+            return None
+        root = TreeNode(preorder[0])
+        mid = inorder.index(root.val)
+
+        root.left = self.buildTree(preorder[1 : mid + 1], inorder[:mid])
+        root.right = self.buildTree(preorder[mid + 1 :], inorder[mid + 1 :])
+        return root
 
 
 if __name__ == "__main__":
