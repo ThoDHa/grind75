@@ -9,7 +9,7 @@ anagrams in `s`. You may return the answer in any order.
   uv run pytest find_all_anagrams_in_a_string/                # run the test sets
 """
 
-from typing import List
+from typing import Counter, List
 
 from harness import NotSolved, pick_case
 
@@ -21,7 +21,26 @@ class Solution:
         Time:  O(?):
         Space: O(?):
         """
-        raise NotSolved
+        s_length, p_length = len(s), len(p)
+
+        if p_length > s_length:
+            return []
+        need = Counter(p)
+        window = Counter(s[:p_length])
+
+        result = [0] if window == need else []
+
+        for i in range(p_length, s_length):
+            window[s[i]] += 1
+            leaving = s[i - p_length]
+            window[leaving] -= 1
+
+            if window[leaving] == 0:
+                del window[leaving]
+            if window == need:
+                result.append(i - p_length + 1)
+
+        return result
 
 
 if __name__ == "__main__":
