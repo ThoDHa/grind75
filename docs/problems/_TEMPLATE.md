@@ -96,6 +96,13 @@ ORDERING (by discoverability, not raw speed)
   - Later solutions are progressively more specialized: named algorithms and
     clever tricks you would have to learn or look up. The optimal solution
     usually lands last among the from-scratch approaches.
+  - A LIBRARY TIDY-UP OF AN EARLIER APPROACH RANKS BETWEEN THE TWO: after every
+    from-scratch solution, before any one-liner. This is the same algorithm with
+    only its bookkeeping handed to the standard library (`Counter` for a
+    hand-rolled tally, `functools.cache` for a hand-rolled memo dict, `bisect`
+    for a hand-written binary search, `itertools.accumulate` for a running-total
+    loop, `deque` for a `list.pop(0)` queue). The algorithm itself stays visible
+    on the page: only the bookkeeping moves.
   - PYTHONIC ONE-LINERS GO LAST, after every from-scratch approach, even when
     they look trivially simple. A solution that leans on a built-in or stdlib
     call to do the core work (`sorted(s) == sorted(t)`, `Counter(a) == Counter(b)`,
@@ -143,13 +150,28 @@ WALKTHROUGH
     only when it is genuinely the core of the technique being taught (sorting
     in Merge Intervals), never as a substitute for the real logic.
 
-LIBRARY-FREE REQUIREMENT
-  - If a solution leans on a library to do the CORE work (Counter, heapq, bisect,
-    itertools, OrderedDict, re, math), the file must ALSO include a from-scratch,
-    library-free solution (hand-written binary search instead of bisect,
-    hashmap + doubly linked list instead of OrderedDict, a 26-int count array
-    instead of Counter). The idiomatic containers `deque` and `defaultdict` do
-    NOT count as "the library doing the work" and may be used freely.
+LIBRARY COVERAGE (BOTH DIRECTIONS)
+  - Library first: if a solution leans on a library to do the CORE work (Counter,
+    heapq, bisect, itertools, OrderedDict, re, math), the file must ALSO include
+    a from-scratch, library-free solution (hand-written binary search instead of
+    bisect, hashmap + doubly linked list instead of OrderedDict, a 26-int count
+    array instead of Counter). The idiomatic containers `deque` and `defaultdict`
+    do NOT count as "the library doing the work" and may be used freely.
+  - From-scratch first: the converse holds too. If every solution is hand-rolled
+    and a stdlib helper would express one of them more cleanly, the file must
+    ALSO include that tidied version, ranked per ORDERING above. A `deque` or
+    `defaultdict` swap earns a section of its own only where the file
+    deliberately teaches the hand-rolled container first (as Flood Fill does with
+    `list.pop(0)`).
+  - To tell which kind of section a helper yields, ask whether it replaces the
+    ALGORITHM or only the BOOKKEEPING. Replacing bookkeeping gives a tidy-up.
+    Replacing the algorithm gives a one-liner, which still belongs, but last, and
+    only when the insight it evaluates is derived in full above it.
+  - Never present avoiding an import as a virtue in itself. "Import-free" and
+    "without any imported X" are not selling points: state the real trade instead
+    (no hashing, a tighter constant, no version floor). Calling an approach
+    library-free is legitimate only as one property inside a genuine trade-off,
+    and only in a file that does carry its library section.
 
 CODE
   - LeetCode style: `class Solution`, type hints, no Python 2 `(object)`. Keep
