@@ -22,7 +22,44 @@ class Solution:
         Time:  O(?):
         Space: O(?):
         """
-        raise NotSolved
+        visited = set()
+        (
+            rows,
+            cols,
+        ) = len(
+            board
+        ), len(board[0])
+        word_length = len(word)
+
+        def dfs(r: int, c: int, found_length: int) -> bool:
+            if found_length == word_length:
+                return True
+            if r < 0 or r >= rows:
+                return False
+            if c < 0 or c >= cols:
+                return False
+            if (r, c) in visited:
+                return False
+
+            if board[r][c] != word[found_length]:
+                return False
+
+            visited.add((r, c))
+
+            found = (
+                dfs(r + 1, c, found_length + 1)
+                or dfs(r - 1, c, found_length + 1)
+                or dfs(r, c + 1, found_length + 1)
+                or dfs(r, c - 1, found_length + 1)
+            )
+            visited.remove((r, c))
+            return found
+
+        for r in range(rows):
+            for c in range(cols):
+                if dfs(r, c, 0):
+                    return True
+        return False
 
 
 if __name__ == "__main__":
