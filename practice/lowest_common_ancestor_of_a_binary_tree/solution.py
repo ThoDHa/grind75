@@ -12,7 +12,6 @@ be a descendant of itself).
 
 from harness import NotSolved, TreeNode, build_tree, find_tree_node, pick_case
 
-
 # Definition for a binary tree node.
 # class TreeNode:
 #     def __init__(self, val=0, left=None, right=None):
@@ -30,7 +29,25 @@ class Solution:
         Time:  O(?):
         Space: O(?):
         """
-        raise NotSolved
+
+        return self.find(root, p, q)
+
+    def find(
+        self, root: "TreeNode", p: "TreeNode", q: "TreeNode"
+    ) -> Optional["TreeNode"]:
+        if root is None:
+            return
+
+        if root.val == p.val or root.val == q.val:
+            return root
+
+        left = self.find(root.left, p, q)
+        right = self.find(root.right, p, q)
+
+        if left and right:
+            return root
+
+        return left if left else right
 
 
 if __name__ == "__main__":
