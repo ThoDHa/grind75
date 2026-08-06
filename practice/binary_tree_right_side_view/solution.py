@@ -13,7 +13,6 @@ from typing import List, Optional
 
 from harness import NotSolved, TreeNode, build_tree, pick_case
 
-
 # Definition for a binary tree node.
 # class TreeNode:
 #     def __init__(self, val=0, left=None, right=None):
@@ -29,7 +28,20 @@ class Solution:
         Time:  O(?):
         Space: O(?):
         """
-        raise NotSolved
+
+        result = []
+
+        def traverse(node: Optional[TreeNode], depth: int) -> None:
+            if node is None:
+                return
+
+            if depth == len(result):
+                result.append(node.val)
+            traverse(node.right, depth + 1)
+            traverse(node.left, depth + 1)
+
+        traverse(root, 0)
+        return result
 
 
 if __name__ == "__main__":
