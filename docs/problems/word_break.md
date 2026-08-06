@@ -72,6 +72,12 @@ different way of exploring that reachability.
    substring per boundary pair. Walking a prefix tree character by character
    finds every word starting at a position in one descent and stops the
    moment no word can continue: see [Trie-Based DP](#trie-based-dp).
+6. **Let the library hold the cache.** The memoized form in step 3 spends five
+   lines declaring a dictionary, reading it on entry, and writing it on both
+   exits. Decorating the recursion with `functools.cache` deletes all five
+   while the boundary loop and the base case stay exactly as the brute force
+   wrote them: see
+   [Top-Down Memoization with functools.cache](#top-down-memoization-with-functoolscache).
 
 ## Solutions
 
@@ -589,6 +595,144 @@ The Trie stores all characters from all words, plus the O(n) DP array.
 - A single forward walk from position `i` discovers every word that starts at `i` at once, instead of testing each candidate length independently.
 - The early break on a missing child is the real win: once the current span is not a dictionary prefix, no longer span can be a word either.
 
+### Top-Down Memoization with functools.cache
+
+#### Derivation
+
+The recursion is the algorithm, and none of it changes here: the same scan over
+every word boundary from `start_index`, the same recursive call on each match,
+the same base case at `start_index == len(s)`. Only the bookkeeping moves.
+[`functools.cache`](https://docs.python.org/3/library/functools.html#functools.cache)
+wraps a function in an unbounded dictionary keyed on its arguments, consulting
+that dictionary before the body runs and storing the return value after, which
+is what the explicit `memo` did with `start_index`.
+
+The key is the one detail worth checking. `functools.cache` hashes the argument
+tuple, so every parameter must be hashable, and `wordDict` is a list. That is
+not a problem here because the state is a single integer position: `s` and
+`word_set` are fixed for the whole call and stay captured by the closure rather
+than passed down, so the cached function takes `start_index` alone. Rewriting
+the recursion to pass the remaining suffix or the dictionary as parameters would
+either enlarge the key needlessly or fail outright with
+`TypeError: unhashable type: 'list'`.
+
+1. Build `word_set = set(wordDict)` for constant-time membership tests.
+2. Decorate the inner `dp` with `@cache`, taking `start_index` as its only
+   parameter.
+3. Write the body as the brute force wrote it: return `True` at
+   `start_index == len(s)`, otherwise scan `end_index` upward and recurse on
+   `dp(end_index)` whenever `s[start_index:end_index]` is a dictionary word.
+4. Call `dp(0)`. Each of the `n + 1` positions runs the body at most once, and
+   every later arrival at a position is answered from the decorator's
+   dictionary.
+
+Five lines vanish: the `memo = {}` declaration, the two-line lookup, and the
+two stores on the success and failure paths. Defining `dp` inside `wordBreak`
+also keeps the cache per call, which matters more here than usual: the cached
+answers depend on `s` and `word_set`, so a cache surviving across calls would
+return another input's verdicts.
+
+#### Walkthrough
+
+Let us run the decorated recursion on Example 3: `s = "catsandog"`,
+`wordDict = ["cats","dog","sand","and","cat"]`, whose expected Output is
+`false`. The trace indents one level per call, noting whether the decorator ran
+the body or answered from its dictionary:
+
+```text
+dp(0)   s[0:]="catsandog"    miss: "cat" matches -> recurse
+  dp(3)   s[3:]="sandog"     miss: "sand" matches -> recurse
+    dp(7)   s[7:]="og"       miss: no word starts here
+    dp(7) -> False
+  dp(3) -> False
+dp(0)   continues            "cats" matches -> recurse
+  dp(4)   s[4:]="andog"      miss: "and" matches -> recurse
+    dp(7) -> False           ** cache hit, the body never runs **
+  dp(4) -> False
+dp(0) -> False
+```
+
+Position `7` is reached twice, once through `"cat" + "sand"` and once through
+`"cats" + "and"`. The first arrival scans `"o"` and `"og"`, finds no word, and
+returns `False`, which the decorator stores on the way out; the second arrival
+never enters the body at all. Asking the decorator afterwards confirms the
+shape of the search: `dp.cache_info()` reports `hits=1, misses=4` with four
+entries, one for each distinct position the search reached (`0`, `3`, `4`, and
+`7`). No boundary works anywhere, so `dp(0)` returns `False`, matching the
+expected Output for Example 3.
+
+#### Solution
+
+The brute force recursion unchanged, with one decorator line above it doing
+what the memo lookup and the two stores did.
+
+```python
+from functools import cache
+from typing import List
+
+
+class Solution:
+    def wordBreak(self, s: str, wordDict: List[str]) -> bool:
+        word_set = set(wordDict)
+
+        # start_index is an int, so @cache can hash it directly. s and
+        # word_set stay captured by the closure, keeping them out of the key.
+        @cache
+        def dp(start_index: int) -> bool:
+            # Base case: the whole string was consumed.
+            if start_index == len(s):
+                return True
+
+            # Try all possible words starting from current index
+            for end_index in range(start_index + 1, len(s) + 1):
+                current_word = s[start_index:end_index]
+
+                # If current word is in dictionary and rest can be segmented
+                if current_word in word_set and dp(end_index):
+                    return True
+
+            return False
+
+        return dp(0)
+```
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n³ + m×k)`
+
+The reachable states are unchanged: each of the `n` starting indices runs its
+body at most once, trying `O(n)` ending positions, and each candidate
+`s[start_index:end_index]` is sliced and hashed at a cost of up to `O(n)`
+because the slice length is not capped by the longest dictionary word, giving
+`O(n³)` for the search itself. Building `word_set` adds `O(m × k)`. The
+decorator's lookup hashes one small integer, which is `O(1)`, so it does not
+enter the bound. Capping the ending position at the maximum word length would
+tighten the search portion to `O(n² × k)` here exactly as it would for the
+hand-written memo.
+
+##### Space Complexity: `O(n + m×k)`
+
+The decorator's dictionary holds at most one entry per starting index, so `O(n)`,
+and the recursion stack reaches `O(n)` depth in the worst case. The word set
+contributes `O(m × k)`.
+
+#### Key Insights
+
+- Decorating the brute force recursion produces the memoized solution outright,
+  which shows how little of memoization is algorithm: the subproblem structure
+  was already there, and only the storage of answers was missing.
+- The suffix question depends on `start_index` alone, and that is exactly why a
+  cache keyed on the argument tuple works without adjustment: the subproblem
+  state and the function signature already coincide.
+- Hashability is the constraint to watch when reaching for `functools.cache`.
+  Keeping `s` and `word_set` in the closure keeps the key to one integer, while
+  a signature carrying `wordDict` would raise `TypeError` on the first call
+  because lists are unhashable.
+- Because the cached answers are only valid for one `s` and one dictionary, the
+  decorated function must be nested inside `wordBreak`. Decorating `wordBreak`
+  itself would also fail on the unhashable `wordDict`, and a module-level cached
+  helper would answer later calls with an earlier input's verdicts.
+
 ## Comparison of Solutions
 
 ### Time Complexity
@@ -598,6 +742,7 @@ The Trie stores all characters from all words, plus the O(n) DP array.
 - **Top-Down Memoization**: `O(n³ + m×k)` - Each of n starting indices is computed once, trying O(n) endings whose slices cost up to O(n) each, plus O(m×k) to build the set.
 - **Bottom-Up DP**: `O(n³ + m×k)` - The nested loop over positions is O(n²) and each uncapped substring slice costs up to O(n); building the word set takes O(m×k).
 - **Trie-Based DP**: `O(n² + m×k)` - Building the Trie takes O(m×k); the DP walk advances one character at a time with no slicing, so each (i, j) pair costs O(1).
+- **Top-Down Memoization with functools.cache**: `O(n³ + m×k)`, identical to the hand-written memo, since the decorator hashes one small integer per call and changes neither the state count nor the uncapped slicing.
 
 ### Space Complexity
 
@@ -606,6 +751,7 @@ The Trie stores all characters from all words, plus the O(n) DP array.
 - **Top-Down Memoization**: `O(n + m×k)` - O(n) for the memo cache and recursion stack, plus O(m×k) for the word set.
 - **Bottom-Up DP**: `O(n + m×k)` - O(n) for the DP array plus O(m×k) for the word set.
 - **Trie-Based DP**: `O(m×k + n)` - The Trie stores all characters from all words, plus the O(n) DP array.
+- **Top-Down Memoization with functools.cache**: `O(n + m×k)`, with O(n) for the decorator's dictionary and the recursion stack, plus O(m×k) for the word set.
 
 ### Trade-offs
 
@@ -614,6 +760,7 @@ The Trie stores all characters from all words, plus the O(n) DP array.
 - **Top-Down Memoization**: Intuitive recursion that only computes the states it needs, at the cost of recursion overhead.
 - **Bottom-Up DP**: Iterative with clear logic, though its uncapped substring slices make it `O(n³)` strict as written.
 - **Trie-Based DP**: Can provide early termination when the dictionary shares common prefixes, but has a more complex implementation.
+- **Top-Down Memoization with functools.cache**: The same recursion with five lines of dictionary handling deleted, at the cost of losing direct access to the table and of a hashability requirement on the arguments, which forces `s` and `word_set` into the closure.
 
 ### When to Use Each
 
@@ -622,6 +769,7 @@ The Trie stores all characters from all words, plus the O(n) DP array.
 - **Top-Down Memoization**: When recursive thinking feels more natural or for problems requiring path reconstruction.
 - **Bottom-Up DP (Recommended)**: Best for interviews: clear iterative logic, easily tightened with the max-word-length cap.
 - **Trie-Based DP**: For optimization when the dictionary is large and has many common prefixes.
+- **Top-Down Memoization with functools.cache**: The Pythonic default whenever the recursive framing is the one you want. Prefer it over the hand-written memo unless the point is to demonstrate how caching works, or unless the stored answers must be inspected or reused after the call returns.
 
 ### Optimization Notes
 
@@ -630,3 +778,5 @@ The Trie stores all characters from all words, plus the O(n) DP array.
 - Capping the inner loop by the maximum dictionary word length (no slice longer than the longest word can ever match) tightens the slicing approaches from `O(n³)` to `O(n² × k)`; the code shown does not apply this cap, but it is the standard follow-up optimization.
 - The bottom-up loop can break as soon as any valid split is found for position `i`, avoiding redundant work once `dp[i]` is established.
 - Avoid the brute-force recursion without memoization: its `O(2^n)` blowup comes purely from re-solving overlapping subproblems, which both DP variants eliminate.
+- `functools.cache` is the shortest route from the brute-force recursion to the memoized bound: it changes no states and no complexity, only which code performs the lookup and the store, so it costs nothing to prefer it over writing the dictionary out.
+- The max-word-length cap applies to the decorated recursion exactly as it does to the other slicing approaches, since the decorator only removes bookkeeping and leaves the boundary loop available to tighten.

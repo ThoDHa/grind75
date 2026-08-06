@@ -65,6 +65,12 @@ subset-sum question.
    of bits, so store it as one big integer: adding a number to every reachable
    sum at once becomes a single shift-and-OR. Same idea, machine-word speed:
    see [Bitmask DP](#bitmask-dp).
+6. **Let the library hold the cache.** Step 3 spends five lines declaring a
+   dictionary, reading it on entry, and writing it on exit. Decorating the
+   recursion with `functools.cache` deletes all five while the include/exclude
+   fork and the three base cases stay exactly as the brute force wrote them:
+   the same states, the same bound, less bookkeeping on the page, see
+   [Top-Down Memoization with functools.cache](#top-down-memoization-with-functoolscache).
 
 ## Solutions
 
@@ -306,8 +312,13 @@ call advances the index by one; the memo term dominates.
   dimension and `remaining` plays the capacity dimension of the classic `dp[i][s]`
   table, which the Bottom-Up DP fills exhaustively and this approach fills only where
   the search actually lands.
-- The hand-rolled dictionary makes the state key explicit and keeps the base cases
-  (`remaining == 0`, `remaining < 0`, index exhausted) identical to the Brute Force.
+- Writing the dictionary out by hand costs five lines of lookup and store, and
+  buys the ability to shape the key or inspect the table mid-run; when neither is
+  needed, `functools.cache` performs the identical lookup and store for free (see
+  [Top-Down Memoization with functools.cache](#top-down-memoization-with-functoolscache)).
+- The base cases (`remaining == 0`, `remaining < 0`, index exhausted) are
+  identical to the Brute Force, which is the sign that memoization added a cache
+  rather than a new algorithm.
 
 ### Bottom-Up DP
 
@@ -626,6 +637,136 @@ A single integer holding `target + 1` significant bits.
 - This is the most concise and fastest approach in Python, but it leans on
   big-integer bit tricks and is less transparent than the table.
 
+### Top-Down Memoization with functools.cache
+
+#### Derivation
+
+The recursion is the algorithm, and none of it changes here: the same
+include/exclude fork over the same `(index, remaining)` state, guarded by the
+same three base cases the Brute Force wrote. Only the bookkeeping moves.
+[`functools.cache`](https://docs.python.org/3/library/functools.html#functools.cache)
+wraps a function in an unbounded dictionary keyed on its arguments, consulting
+that dictionary before the body runs and storing the return value after, which
+is precisely what the explicit `memo` did with the `(i, remaining)` pair. Both
+arguments are integers, so they hash directly and the decorator builds the key
+without any help.
+
+1. Compute `total = sum(nums)`. If it is odd, return `False`.
+2. Set `target = total // 2`, exactly as every approach above does.
+3. Decorate the inner `search` with `@cache`, then write its body as the Brute
+   Force wrote it: `True` at `remaining == 0`, `False` at `remaining < 0` or an
+   exhausted index, and otherwise the include/exclude fork.
+4. Call `search(0, target)`. Each distinct `(i, remaining)` pair runs the body
+   once, and every repeat is answered from the decorator's dictionary before
+   the body is entered.
+
+Five lines vanish: the `memo = {}` declaration, the two-line lookup, and the
+two-line store. What remains on the page is the recursion and its base cases.
+Defining `search` inside `canPartition` also keeps the cache per call, so it is
+discarded with the frame and never grows across inputs; decorating a method
+instead would retain every entry for the process lifetime and pin `self` in
+memory along with them.
+
+#### Walkthrough
+
+Let us run the decorated recursion on Example 1: `nums = [1, 5, 11, 5]`. The
+total is `22`, which is even, so `target = 11` and the search starts at
+`search(0, 11)`. The trace indents one level per call, and each line records
+whether the decorator ran the body (a miss) or answered from its dictionary:
+
+```text
+search(i=0, remaining=11)         miss: include nums[0]=1
+  search(i=1, remaining=10)       miss: include nums[1]=5
+    search(i=2, remaining=5)      miss: include nums[2]=11 -> remaining=-6
+      search(i=3, remaining=-6)   miss -> False  (remaining < 0)
+      search(i=3, remaining=5)    miss: exclude nums[2], include nums[3]=5
+        search(i=4, remaining=0)  miss -> True   (remaining hit 0)
+      search(i=3, remaining=5)    -> True
+    search(i=2, remaining=5)      -> True
+  search(i=1, remaining=10)       -> True
+search(i=0, remaining=11)         -> True
+```
+
+Every call on this input is a first visit, because trying the include branch
+first walks straight to the subset `{1, 5, 5}` without ever backtracking into a
+state already solved. Asking the decorator confirms it:
+`search.cache_info()` reports `hits=0, misses=6` with six entries stored. Feed
+the same code the `nums = [2, 2, 2]` input from the Top-Down Memoization
+walkthrough and it reports `hits=2, misses=9`, one of those hits landing on the
+same `(2, 1)` state the explicit memo caught. The counts differ slightly from
+that section because the decorator wraps the whole body and therefore stores the
+base-case states too, which the hand-written memo returned before ever reaching
+its store. Here the call returns `True`, matching the expected Output `true` for
+Example 1.
+
+#### Solution
+
+The Brute Force recursion character for character, with one decorator line
+above it doing what the memo lookup and store did.
+
+```python
+from functools import cache
+from typing import List
+
+
+class Solution:
+    def canPartition(self, nums: List[int]) -> bool:
+        total = sum(nums)
+
+        # An odd total can never split into two equal halves.
+        if total % 2 != 0:
+            return False
+
+        target = total // 2
+
+        # @cache keys on (i, remaining), the same pair the memo dictionary
+        # stored, and both arguments are integers so they hash directly.
+        @cache
+        def search(i: int, remaining: int) -> bool:
+            if remaining == 0:
+                return True
+            if remaining < 0 or i == len(nums):
+                return False
+            # Include nums[i], or exclude it and move on.
+            return search(i + 1, remaining - nums[i]) or search(i + 1, remaining)
+
+        return search(0, target)
+```
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n × target)`
+
+The reachable states are unchanged: at most `(n + 1) × (target + 1)` distinct
+`(index, remaining)` pairs, each running its body once and doing `O(1)` work
+outside its two recursive calls. The decorator's lookup hashes a two-integer
+tuple, which is `O(1)`, so it replaces the manual `in memo` test at the same
+cost and leaves the bound untouched.
+
+##### Space Complexity: `O(n × target)`
+
+The decorator's dictionary holds one entry per computed state, up to
+`(n + 1) × (target + 1)` of them, and the recursion stack adds `O(n)` beneath
+it. The key is the same `(i, remaining)` tuple the manual memo built, so the
+per-entry footprint is effectively unchanged and the dictionary term dominates
+either way.
+
+#### Key Insights
+
+- Decorating the Brute Force recursion produces the memoized solution outright,
+  which shows how little of memoization is algorithm: the states, the fork, and
+  the base cases are all already present in the exponential version.
+- `functools.cache` requires hashable arguments, and this recursion passes two
+  integers, so it qualifies with nothing to work around. A recursion that
+  carried the candidate list itself would raise `TypeError` on the first call.
+- The cache is unbounded, which is the right choice here because the state space
+  is capped at `(n + 1) × (target + 1)` and the constraints bound `target` at
+  `100 × 200 / 2 = 10000`; `lru_cache(maxsize=...)` would only add eviction
+  bookkeeping and risk evicting states the search still needs.
+- Attaching the cache to a function nested inside `canPartition` keeps it
+  per call, so repeated calls on different inputs neither share stale entries nor
+  leak memory the way a decorated method would.
+
 ## Comparison of Solutions
 
 ### Time Complexity
@@ -635,6 +776,8 @@ A single integer holding `target + 1` significant bits.
 - **Bottom-Up DP**: `O(n × target)` - sweep the boolean array per number.
 - **Reachable Sum Set**: `O(n × target)` - iterate the bounded set per number.
 - **Bitmask DP**: `O(n × target / w)` - same class with a small bitwise constant factor.
+- **Top-Down Memoization with functools.cache**: `O(n × target)`, the same states
+  computed once each, with the decorator hashing a two-integer tuple per call.
 
 ### Space Complexity
 
@@ -643,6 +786,8 @@ A single integer holding `target + 1` significant bits.
 - **Bottom-Up DP**: `O(target)` - one boolean array.
 - **Reachable Sum Set**: `O(target)` - at most `target + 1` distinct sums.
 - **Bitmask DP**: `O(target)` - one integer of `target + 1` bits.
+- **Top-Down Memoization with functools.cache**: `O(n × target)`, the decorator's
+  dictionary plus the same `O(n)` recursion stack.
 
 ### Trade-offs
 
@@ -657,6 +802,10 @@ A single integer holding `target + 1` significant bits.
   carry more per-element overhead than a flat array.
 - The Bitmask DP approach is the fastest and most compact, at the cost of relying on
   big-integer bit manipulation that is harder to read.
+- The Top-Down Memoization with functools.cache approach is the same solution with
+  five lines of dictionary handling deleted, so the recursion stands alone on the
+  page. It gives up direct access to the table, which matters when the key needs
+  custom shaping or when the entries have to be inspected or reused after the call.
 
 ### When to Use Each
 
@@ -672,6 +821,11 @@ A single integer holding `target + 1` significant bits.
   sums stay sparse relative to `target`.
 - **Bitmask DP**: When performance matters most in Python and the bitwise idiom is
   acceptable.
+- **Top-Down Memoization with functools.cache**: The Pythonic default whenever the
+  recursive framing is the one you want. It reads as the plain recursion plus a
+  decorator, so reach for it over the hand-written memo unless the exercise is
+  specifically to demonstrate how caching works, or unless the state table itself
+  must be examined afterwards.
 
 ### Optimization Notes
 
@@ -687,3 +841,9 @@ A single integer holding `target + 1` significant bits.
   recurrence 0/1; an upward loop would silently solve the unbounded-knapsack variant.
 - The bitmask formulation is typically the fastest in practice because CPython
   performs the shift and OR on wide machine words rather than per-element Python loops.
+- `functools.cache` is the shortest route to the memoized bound: it changes no
+  states and no complexity, only which code performs the lookup and the store, so
+  it costs nothing to prefer it over writing the dictionary out.
+- Recursion depth stays within `n` (at most 200 under the constraints) in both
+  top-down forms, so neither needs `sys.setrecursionlimit`; a variant that
+  recursed once per unit of `remaining` rather than once per index would.

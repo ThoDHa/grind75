@@ -76,6 +76,12 @@ hands us.
    applied one interval at a time, peeling the head of the list per recursive
    call: elegant, but slicing makes it quadratic: see
    [Recursive Merge](#recursive-merge).
+6. **Let the library run the searches.** Those two boundary searches are the
+   textbook leftmost and rightmost flavors, and `bisect` ships both. Handing them
+   over deletes twelve lines of `lo`/`hi` loops, including the
+   `(lo + hi + 1) // 2` midpoint that is easy to get wrong, while the three-piece
+   reassembly stays exactly as it was: see
+   [Binary Search with bisect](#binary-search-with-bisect).
 
 ## Solutions
 
@@ -603,6 +609,139 @@ The recursion reaches depth `O(n)`, and each frame holds its own `intervals[1:]`
 - Not idiomatic here: list slicing and deep recursion make it costlier than the iterative passes.
 - Risks exceeding Python's default recursion limit at the upper constraint of `10^4` intervals.
 
+### Binary Search with bisect
+
+#### Derivation
+
+The two searches in
+[Binary Search for the Overlap Window](#binary-search-for-the-overlap-window)
+are not bespoke: they are the two standard flavors of boundary search, and
+[`bisect`](https://docs.python.org/3/library/bisect.html) ships both. What moves
+to the library is only the `lo`/`hi` narrowing, including the
+`(lo + hi + 1) // 2` midpoint whose upward rounding the hand-rolled version has
+to justify. What stays is everything that makes this problem this problem: the
+choice of which key each search runs over, the empty-window test, and the
+three-piece reassembly of prefix, merged interval, and suffix.
+
+The bridge is the `key` argument, added to `bisect` in Python 3.10. It lets a
+search read a derived value from each element instead of comparing elements
+directly, which is exactly what is needed here: one search must see each interval
+as its end, the other as its start. The two flavors then line up with the two
+edges:
+
+1. `bisect_left(intervals, newInterval[0], key=lambda iv: iv[1])` returns the
+   leftmost index whose end is not less than `newInterval[0]`. That is `first`,
+   the same value the hand-rolled leftmost search computes, since `bisect_left`
+   is defined to land before every entry equal to the target.
+2. `bisect_right(intervals, newInterval[1], key=lambda iv: iv[0])` returns the
+   first index whose start exceeds `newInterval[1]`, landing after every entry
+   equal to the target. Subtracting one gives `last`, the rightmost index whose
+   start is at or before `newInterval[1]`. The upward-rounding midpoint
+   disappears with the loop that needed it.
+3. Test `first > last` for an empty window and slot `newInterval` in at index
+   `first` unchanged, exactly as before.
+4. Otherwise build `merged` from `min` of the starts at the window's left edge
+   and `max` of the ends at its right edge, and return the prefix, the merged
+   interval, and the suffix.
+
+The `left`/`right` distinction carries the endpoint-touching behavior for free.
+Using `bisect_left` on the ends keeps an interval ending exactly at
+`newInterval[0]` inside the window, and `bisect_right` on the starts keeps an
+interval starting exactly at `newInterval[1]` inside it, which is the same
+non-strict comparison the `>=` and `<=` tests spelled out by hand.
+
+#### Walkthrough
+
+Let us run both calls on Example 2:
+`intervals = [[1,2],[3,5],[6,7],[8,10],[12,16]]`, `newInterval = [4,8]`, `n = 5`.
+Each search sees the list through its own key, and both key sequences are
+ascending, which is what makes the searches valid:
+
+| index `i` | `0` | `1` | `2` | `3` | `4` |
+| --- | --- | --- | --- | --- | --- |
+| `intervals[i]` | `[1,2]` | `[3,5]` | `[6,7]` | `[8,10]` | `[12,16]` |
+| end key `iv[1]` | `2` | `5` | `7` | `10` | `16` |
+| start key `iv[0]` | `1` | `3` | `6` | `8` | `12` |
+
+```text
+first = bisect_left(ends = [2,5,7,10,16], 4)
+        2 < 4, and 5 is the first value not less than 4  ->  first = 1
+
+last  = bisect_right(starts = [1,3,6,8,12], 8) - 1
+        1, 3, 6, 8 are all <= 8; 12 is the first value above 8  ->  4 - 1 = 3
+
+first = 1 <= last = 3 -> window [1, 3] holds the overlapping intervals
+merged = [min(4, intervals[1][0] = 3), max(8, intervals[3][1] = 10)] = [3, 10]
+result = intervals[:1] + [[3,10]] + intervals[4:] = [[1,2],[3,10],[12,16]]
+```
+
+The `bisect_right` call is what handles the shared endpoint at `8`: the interval
+`[8,10]` starts exactly where `newInterval` ends, and landing to the right of
+equal values keeps it inside the window rather than excluding it. The window
+`[1, 3]` covers `[3,5]`, `[6,7]`, `[8,10]`, exactly the intervals the Explanation
+lists, and the assembled result `[[1,2],[3,10],[12,16]]` matches the expected
+Output of Example 2.
+
+#### Solution
+
+The same two boundaries and the same reassembly, with the searching delegated to
+the standard library.
+
+```python
+from bisect import bisect_left, bisect_right
+from typing import List
+
+
+class Solution:
+    def insert(self, intervals: List[List[int]], newInterval: List[int]) -> List[List[int]]:
+        # Leftmost index whose interval ends at or after newInterval starts.
+        first = bisect_left(intervals, newInterval[0], key=lambda iv: iv[1])
+        # Rightmost index whose interval starts at or before newInterval ends.
+        last = bisect_right(intervals, newInterval[1], key=lambda iv: iv[0]) - 1
+
+        if first > last:
+            # Empty window: nothing overlaps, newInterval slots in at index first.
+            return intervals[:first] + [newInterval] + intervals[first:]
+
+        merged = [
+            min(newInterval[0], intervals[first][0]),
+            max(newInterval[1], intervals[last][1]),
+        ]
+        return intervals[:first] + [merged] + intervals[last + 1:]
+```
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n)`
+
+The two `bisect` calls cost `O(log n)` comparisons each, the same as the
+hand-rolled searches, since `bisect` performs the identical halving. The `key`
+function adds one call per probe, so `O(log n)` extra calls in total. The return
+statement still slices the prefix and suffix into a new list, copying up to `n`
+interval references, and that copying dominates, leaving the bound at `O(n)`.
+
+##### Space Complexity: `O(n)`
+
+The result list built from the prefix slice, the merged interval, and the suffix
+slice holds up to `n + 1` intervals. `bisect` with a `key` evaluates the key on
+each probe without materializing a keys list, so the searches themselves stay
+constant space.
+
+#### Key Insights
+
+- The algorithm is untouched: the same two boundaries over the same two monotone
+  keys, which shows the predicate design is the real content and the `lo`/`hi`
+  narrowing was only bookkeeping.
+- The `key` argument is what makes `bisect` applicable to a list of intervals at
+  all. Without it the searches would need two separately materialized lists of
+  starts and ends, `O(n)` extra space and `O(n)` extra work to build.
+- Choosing `bisect_left` for the ends and `bisect_right` for the starts encodes
+  the endpoint-touching rule in the function names, replacing the `>=` and `<=`
+  tests and removing the `(lo + hi + 1) // 2` midpoint trap entirely.
+- The `- 1` after `bisect_right` is the one place to slip: `bisect` returns
+  insertion points, not matching indices, so a rightmost boundary is always the
+  insertion point minus one, and an empty window shows up as `last = -1`.
+
 ## Comparison of Solutions
 
 ### Time Complexity
@@ -612,6 +751,7 @@ The recursion reaches depth `O(n)`, and each frame holds its own `intervals[1:]`
 - **In-Place Modification**: `O(n^2)` worst case - each `pop(i)` shifts the entire tail of the list, so absorbing many overlapping intervals costs quadratic shifting.
 - **Binary Search for the Overlap Window**: `O(n)` - the two boundary searches take only `O(log n)`, but slicing the prefix and suffix into the result still copies up to `n` intervals.
 - **Recursive Merge**: `O(n^2)` - each interval is handled once, but the `intervals[1:]` copy at every level adds linear work per step.
+- **Binary Search with bisect**: `O(n)` - identical to the hand-rolled searches, since `bisect` halves the same way and the result slicing still copies up to `n` intervals.
 
 ### Space Complexity
 
@@ -620,6 +760,7 @@ The recursion reaches depth `O(n)`, and each frame holds its own `intervals[1:]`
 - **In-Place Modification**: `O(1)` - mutates the input list, ignoring input/output storage.
 - **Binary Search for the Overlap Window**: `O(n)` - builds the result from prefix, merged-window, and suffix copies.
 - **Recursive Merge**: `O(n^2)` worst case - `O(n)` recursion depth where each frame keeps its own `intervals[1:]` slice copy alive.
+- **Binary Search with bisect**: `O(n)` - the same prefix, merged-window, and suffix copies; the `key` argument avoids materializing separate lists of starts and ends.
 
 ### Trade-offs
 
@@ -628,6 +769,7 @@ The recursion reaches depth `O(n)`, and each frame holds its own `intervals[1:]`
 - In-Place Modification gains `O(1)` auxiliary space by mutating the input in place, giving up readability, a non-destructive contract, and the linear time bound (tail-shifting pops make the worst case quadratic).
 - Binary Search for the Overlap Window gains `O(log n)` comparison work and a reusable boundary-search technique, but the output rebuild keeps the overall bound at `O(n)`, so it offers no asymptotic advantage over the linear scan.
 - Recursive Merge gains an elegant declarative form but gives up practicality, risking recursion-depth limits on large inputs.
+- Binary Search with bisect gains roughly a dozen fewer lines and drops the midpoint-rounding trap, giving up the explicit narrowing that makes the boundary predicates visible on the page; it also requires Python 3.10 or later for the `key` argument.
 
 ### When to Use Each
 
@@ -636,6 +778,7 @@ The recursion reaches depth `O(n)`, and each frame holds its own `intervals[1:]`
 - **In-Place Modification**: When minimizing extra space is critical and mutating the input is acceptable.
 - **Binary Search for the Overlap Window**: When you want to practice boundary binary searches, or when the real question is locating or counting the overlapping intervals rather than rebuilding the list.
 - **Recursive Merge**: For academic interest or small inputs only.
+- **Binary Search with bisect**: The Pythonic form of the boundary search. Reach for it in real code, and write the hand-rolled loops instead when an interviewer wants the halving spelled out.
 
 ### Optimization Notes
 
@@ -645,3 +788,4 @@ The recursion reaches depth `O(n)`, and each frame holds its own `intervals[1:]`
 - Binary Search for the Overlap Window cuts the comparisons to `O(log n)` but not the copying; it becomes a genuine `O(log n)` algorithm only when the answer does not require rebuilding the list, such as counting or locating the overlapping intervals.
 - Every approach hinges on the same three regions: intervals strictly before, intervals overlapping (merged via `min` start and `max` end), and intervals strictly after.
 - Avoid the recursive variant for the upper constraint of `10^4` intervals, where deep recursion can exceed Python's default recursion limit.
+- [Binary Search with bisect](#binary-search-with-bisect) replaces the hand-rolled narrowing without changing either bound: `bisect_left` and `bisect_right` on keyed views of the ends and starts compute the same two boundaries, so the win is fewer lines and one fewer place to get the midpoint wrong, not a faster solution.

@@ -72,6 +72,11 @@ load-bearing in each of them.
    [Recursive BFS](#recursive-bfs), or with a first-in-first-out queue, in
    [Iterative BFS](#iterative-bfs). The queue variant hides a pitfall: `list.pop(0)`
    shifts every remaining element, degrading the pass to `O(n²)`.
+4. **Let the library hold the queue.** The wave order was already right; only the
+   container was wrong. Handing the queue to `deque` makes each dequeue `O(1)`
+   instead of `O(n)`, which repairs the pitfall rather than merely tidying the
+   code: the pass drops from `O(n²)` back to `O(n)` with a one-word change at the
+   dequeue site, see [Iterative BFS with Deque](#iterative-bfs-with-deque).
 
 ## Solutions
 
@@ -573,6 +578,143 @@ class Solution:
 - Without a proper queue implementation, the time complexity suffers
 - Using a list as a queue is inefficient due to the `O(n)` cost of `pop(0)`
 
+### Iterative BFS with Deque
+
+#### Derivation
+
+The Iterative BFS has the right traversal and the wrong container. Nothing about
+its wave order needs fixing: pixels still leave the queue in discovery order,
+each pixel is still examined once, and the recolor is still the only visited
+mark. The single defect is that a Python list stores its elements in one
+contiguous block, so removing the front element with `pop(0)` must slide every
+surviving element one slot left, an `O(n)` shift on every dequeue.
+
+[`collections.deque`](https://docs.python.org/3/library/collections.html#collections.deque)
+is a doubly linked sequence of blocks rather than one contiguous array, so it can
+detach an element from either end without touching the rest. Its `popleft` is
+`O(1)`, and that is the whole of the change: `deque([(sr, sc)])` in place of the
+list literal and `popleft()` in place of `pop(0)`. This is the one place on this
+page where the standard library moves the complexity class rather than leaving it
+alone. The traversal was already `O(n)` in pixel visits; the container was
+inflating it to `O(n²)`, and the swap restores the true `O(n)` BFS. The steps:
+
+1. Record `initial_color` and return early when it equals `color`; the recolor is
+   still the only visited mark, so this guard remains a termination requirement.
+2. Seed `queue = deque([(sr, sc)])` and cache `rows, cols`.
+3. While `queue` is non-empty, dequeue `r, c = queue.popleft()`. If the pixel is
+   in bounds and equals `initial_color`, set it to `color` and append the four
+   neighbors, in the order down, up, right, left.
+4. When the queue drains, return `image`.
+
+#### Walkthrough
+
+Let us run the deque on Example 1: `image = [[1,1,1],[1,1,0],[1,0,1]]`, `sr = 1`,
+`sc = 1`, `color = 2`. Since `initial_color = 1` differs from `2`, we seed
+`queue = deque([(1, 1)])`. One dequeued coordinate per line; `set 2` recolors and
+appends four neighbors, `skip` discards. Compare this trace line for line with
+the Iterative BFS trace above: it is identical, because `popleft` returns exactly
+what `pop(0)` returned, only without the shifting.
+
+```text
+popleft (1,1)   set 2   push (2,1)(0,1)(1,2)(1,0)    image [[1,1,1],[1,2,0],[1,0,1]]
+popleft (2,1)   skip    value 0, not 1
+popleft (0,1)   set 2   push (1,1)(-1,1)(0,2)(0,0)   image [[1,2,1],[1,2,0],[1,0,1]]
+popleft (1,2)   skip    value 0, not 1
+popleft (1,0)   set 2   push (2,0)(0,0)(1,1)(1,-1)   image [[1,2,1],[2,2,0],[1,0,1]]
+popleft (1,1)   skip    now 2, not 1
+popleft (-1,1)  skip    out of bounds
+popleft (0,2)   set 2   push (1,2)(-1,2)(0,3)(0,1)   image [[1,2,2],[2,2,0],[1,0,1]]
+popleft (0,0)   set 2   push (1,0)(-1,0)(0,1)(0,-1)  image [[2,2,2],[2,2,0],[1,0,1]]
+popleft (2,0)   set 2   push (3,0)(1,0)(2,1)(2,-1)   image [[2,2,2],[2,2,0],[2,0,1]]
+popleft (0,0)   skip    now 2, not 1
+popleft (1,1)   skip    now 2, not 1
+popleft (1,-1)  skip    out of bounds
+popleft (1,2)   skip    value 0, not 1
+popleft (-1,2)  skip    out of bounds
+popleft (0,3)   skip    out of bounds
+popleft (0,1)   skip    now 2, not 1
+popleft (1,0)   skip    now 2, not 1
+popleft (-1,0)  skip    out of bounds
+popleft (0,1)   skip    now 2, not 1
+popleft (0,-1)  skip    out of bounds
+popleft (3,0)   skip    out of bounds
+popleft (1,0)   skip    now 2, not 1
+popleft (2,1)   skip    value 0, not 1
+popleft (2,-1)  skip    out of bounds
+```
+
+The recolors arrive in the same waves as before: `(1,1)` at distance 0; `(0,1)`
+and `(1,0)` at distance 1; `(0,2)`, `(0,0)`, `(2,0)` at distance 2. What differs
+is invisible in the trace and visible in the clock: each of these 25 dequeues now
+costs constant time instead of shifting the queue's remaining entries. When the
+queue empties, the image is `[[2,2,2],[2,2,0],[2,0,1]]`, matching the expected
+Output.
+
+#### Solution
+
+The same dequeue loop as the Iterative BFS, with the queue delegated to the
+standard library.
+
+```python
+from collections import deque
+from typing import List
+
+
+class Solution:
+    def floodFill(self, image: List[List[int]], sr: int, sc: int, color: int) -> List[List[int]]:
+        initial_color = image[sr][sc]
+        if initial_color == color:
+            return image
+
+        rows, cols = len(image), len(image[0])
+        queue = deque([(sr, sc)])
+
+        while queue:
+            r, c = queue.popleft()  # O(1) dequeue, unlike list.pop(0)
+
+            if 0 <= r < rows and 0 <= c < cols and image[r][c] == initial_color:
+                image[r][c] = color
+
+                # Add all 4 neighbors to the queue
+                queue.append((r+1, c))  # Down
+                queue.append((r-1, c))  # Up
+                queue.append((r, c+1))  # Right
+                queue.append((r, c-1))  # Left
+
+        return image
+```
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n)`
+
+Each of the `n` pixels is recolored at most once and enqueues four neighbors, so
+the queue handles `O(n)` entries in total. Both `append` and `popleft` are `O(1)`
+on a deque, so no dequeue carries the `O(n)` shift that `list.pop(0)` performs.
+The total is linear, which is the bound the Iterative BFS aims for and misses.
+
+##### Space Complexity: `O(n)`
+
+The queue holds at most a constant multiple of the pixel count, since each
+recolored pixel contributes four entries. A deque carries slightly more per-entry
+overhead than a list because of its block structure, which does not change the
+bound.
+
+#### Key Insights
+
+- The algorithm is untouched: the dequeue order, the bounds-and-color test, and
+  the recolor-as-visited-mark are identical, which shows the `O(n²)` blowup was
+  never in the BFS but purely in the container holding it.
+- A deque is a linked sequence of blocks, so detaching the front element leaves
+  the remaining entries in place; a list must slide them, which is why `popleft`
+  is `O(1)` and `pop(0)` is `O(n)`.
+- This is the only approach on the page where reaching for the standard library
+  improves the asymptotic bound rather than only the line count, taking the pass
+  from `O(n²)` to `O(n)`.
+- Write `deque` reflexively whenever a queue is needed: the list version reads
+  almost identically, so the cost is invisible at the call site and only shows up
+  as a timeout on large inputs.
+
 ## Comparison of Solutions
 
 ### Time Complexity
@@ -581,6 +723,7 @@ class Solution:
 - **Iterative DFS**: `O(n)` - each pixel is pushed and popped a constant number of times with `O(1)` stack operations.
 - **Recursive BFS**: `O(n)` - each pixel is processed once across the level lists.
 - **Iterative BFS**: `O(n²)` - each pixel is visited once, but `list.pop(0)` costs `O(n)` per dequeue.
+- **Iterative BFS with Deque**: `O(n)` - the same wave-by-wave traversal, with `deque.popleft()` costing `O(1)` instead of `O(n)`.
 
 ### Space Complexity
 
@@ -588,6 +731,7 @@ class Solution:
 - **Iterative DFS**: `O(n)` - explicit stack bounded by the number of pixels.
 - **Recursive BFS**: `O(n)` - recursion depth plus level lists holding up to all pixels.
 - **Iterative BFS**: `O(n)` - queue bounded by the number of pixels.
+- **Iterative BFS with Deque**: `O(n)` - the same queue contents, held in a deque whose block structure costs marginally more per entry than a list.
 
 ### Trade-offs
 
@@ -595,17 +739,19 @@ class Solution:
 - Iterative DFS gives up brevity to gain an explicit stack that sidesteps recursion limits.
 - Recursive BFS gains a level-order traversal while keeping recursion, trading a slightly unusual structure for shallower recursion depth than DFS.
 - Iterative BFS gains the classic queue-based BFS shape but gives up performance, degrading to `O(n²)` because a list is used as a queue.
+- Iterative BFS with Deque gains back that lost performance for the price of one import, keeping the identical loop while restoring `O(n)`; it gives up nothing, which is why it is the version to write in practice.
 
 ### When to Use Each
 
 - **Recursive DFS**: When simplicity and readability matter and the grid is small enough that stack depth is not a concern.
 - **Iterative DFS**: When DFS traversal is desired but recursion limits must be avoided.
 - **Recursive BFS**: When level-order processing is wanted while keeping recursive logic.
-- **Iterative BFS**: When strict distance-ordered processing is needed, ideally with a real queue implementation.
+- **Iterative BFS**: Instructive as a demonstration of the list-as-queue pitfall; in real code prefer the deque form below.
+- **Iterative BFS with Deque**: The default whenever distance-ordered processing is wanted, and the shape to reuse for BFS on any grid or graph.
 
 ### Optimization Notes
 
 - For flood fill the recursive DFS is the common practical choice for its simplicity; iterative DFS is the safer pick when input size could exhaust the call stack.
 - The `initial_color == color` early return is essential in every variant; without it the BFS and DFS would loop forever since recolored pixels would still match the target.
-- The Iterative BFS approach's `O(n²)` cost comes entirely from `list.pop(0)`; swapping the list for `collections.deque` restores true `O(n)` BFS.
-- Given the small constraints (`m, n <= 50`), all four run fast enough, but the Iterative BFS approach's list-as-queue pattern is the pitfall to avoid in larger graph problems.
+- The Iterative BFS approach's `O(n²)` cost comes entirely from `list.pop(0)`; [Iterative BFS with Deque](#iterative-bfs-with-deque) makes that swap and restores true `O(n)` BFS, and it is the only change on this page that improves an approach's complexity class rather than its readability.
+- Given the small constraints (`m, n <= 50`), all five run fast enough, but the Iterative BFS approach's list-as-queue pattern is the pitfall to avoid in larger graph problems.

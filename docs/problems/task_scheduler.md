@@ -81,6 +81,11 @@ order to measure its length.
 4. **Automate the greedy pick.** Re-sorting all 26 counts each round only to take
    the largest few is exactly the work a max-heap avoids, surfacing the largest
    count in `O(log 26)` per pop: see [Max-Heap Simulation](#max-heap-simulation).
+5. **Hand the tally to the library.** Every approach above opens by building the
+   same frequency dictionary by hand, which is bookkeeping rather than algorithm.
+   `Counter(tasks)` does it in one call, leaving the greedy idle-frame arithmetic
+   fully explicit while deleting three lines from the shortest solution: see
+   [Greedy Math Formula with Counter](#greedy-math-formula-with-counter).
 
 ## Solutions
 
@@ -157,7 +162,8 @@ from typing import List
 
 class Solution:
     def leastInterval(self, tasks: List[str], n: int) -> int:
-        # Count each task's frequency without any imported counter.
+        # Tally each task's frequency; only the counts matter here, never
+        # which letter carries them.
         counts = {}
         for t in tasks:
             counts[t] = counts.get(t, 0) + 1
@@ -312,7 +318,8 @@ from typing import List
 
 class Solution:
     def leastInterval(self, tasks: List[str], n: int) -> int:
-        # Count each task's frequency without any imported counter.
+        # Tally frequencies: the formula reads only the peak count and how
+        # many tasks tie for it.
         counts = {}
         for t in tasks:
             counts[t] = counts.get(t, 0) + 1
@@ -410,7 +417,7 @@ from typing import List
 
 class Solution:
     def leastInterval(self, tasks: List[str], n: int) -> int:
-        # Count each task's frequency without any imported counter.
+        # Tally frequencies; the counts alone drive each round's greedy pick.
         counts = {}
         for t in tasks:
             counts[t] = counts.get(t, 0) + 1
@@ -463,8 +470,8 @@ letters), independent of `N`.
   `n + 1` distinct tasks.
 - The idle time is never placed explicitly; it emerges from padding non-final rounds
   to full width while letting the last round end early.
-- A plain dictionary replaces any imported counter, and the 26-letter alphabet keeps
-  every per-round operation constant.
+- The 26-letter alphabet caps `remaining` at 26 entries, so the per-round sort is a
+  constant cost no matter how long `tasks` grows.
 
 ### Max-Heap Simulation
 
@@ -532,7 +539,7 @@ from typing import List
 
 class Solution:
     def leastInterval(self, tasks: List[str], n: int) -> int:
-        # Count each task's frequency without any imported counter.
+        # Tally frequencies; only these counts are ever loaded into the heap.
         counts = {}
         for t in tasks:
             counts[t] = counts.get(t, 0) + 1
@@ -591,6 +598,112 @@ independent of `N`.
 - Breaking out when both the heap and survivors are empty avoids counting trailing
   idle slots in the final, partial cycle.
 
+### Greedy Math Formula with Counter
+
+#### Derivation
+
+Every solution above opens with the same three lines: an empty dictionary, a loop
+over `tasks`, and a `counts.get(t, 0) + 1` bump. That tally is bookkeeping, not
+algorithm, and
+[`Counter`](https://docs.python.org/3/library/collections.html#collections.Counter)
+does exactly it in one call. Applying it to the
+[Greedy Math Formula](#greedy-math-formula) leaves the greedy reasoning
+completely untouched: the peak frequency still pins down `max_freq - 1` gaps of
+width `n + 1`, the tied peak tasks still occupy the closing block, and
+`max(len(tasks), frame)` still resolves the idle-bound and task-bound cases. Only
+the counting loop moves off the page.
+
+1. Build `counts = Counter(tasks)`, which walks `tasks` once and returns a
+   frequency map keyed by task letter.
+2. Read `max_freq = max(counts.values())`, the frequency of the busiest task.
+3. Count how many tasks tie at that peak to get `max_count`.
+4. Compute the idle frame `(max_freq - 1) * (n + 1) + max_count` exactly as
+   before, keeping the arithmetic explicit rather than hiding it behind a helper.
+5. Return `max(len(tasks), frame)`.
+
+The keys never matter to the arithmetic, only the multiset of counts, so
+`Counter` is a drop-in for the dictionary with no change in behavior. A
+`Counter` also spares the reader from checking that the `get(t, 0)` default is
+right, a small correctness question that simply stops existing.
+
+#### Walkthrough
+
+Take Example 3, the case where one task dominates a field of singletons:
+`tasks = ["A","A","A","A","A","A","B","C","D","E","F","G"]`, `n = 2`. The single
+`Counter` call replaces the whole tally loop:
+
+```text
+counts    = Counter({A: 6, B: 1, C: 1, D: 1, E: 1, F: 1, G: 1})
+max_freq  = 6                          A repeats six times; nothing ties it
+max_count = 1                          only A reaches the peak
+frame     = (6 - 1) * (2 + 1) + 1      five gaps of width 3, closing block of 1
+          = 16
+answer    = max(12, 16) = 16           frame wins: idling is forced
+```
+
+The frame is the schedule `A -> B -> C -> A -> D -> E -> A -> F -> G -> A ->
+idle -> idle -> A -> idle -> idle -> A`: five `n + 1 = 3`-wide gaps anchored at
+`A`, then the closing block holding the single peak task. The six singletons fill
+only six of the ten non-anchor slots, so `frame - len(tasks) = 4` counts exactly
+the four idle units in that schedule. The result `16` matches Example 3's
+expected Output of `16`.
+
+#### Solution
+
+The same closed form as before, with the tally delegated to the standard library.
+
+```python
+from collections import Counter
+from typing import List
+
+
+class Solution:
+    def leastInterval(self, tasks: List[str], n: int) -> int:
+        counts = Counter(tasks)
+
+        max_freq = max(counts.values())
+        # How many distinct tasks share that peak frequency.
+        max_count = sum(1 for freq in counts.values() if freq == max_freq)
+
+        # Frame built around the most frequent task: (max_freq - 1) full gaps of
+        # width (n + 1), then the final block holding every peak task.
+        frame = (max_freq - 1) * (n + 1) + max_count
+
+        # If there are enough distinct tasks to fill every idle slot, no idling is
+        # needed and the answer is simply the number of tasks.
+        return max(len(tasks), frame)
+```
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(N)`
+
+Where `N` is the number of tasks. `Counter(tasks)` makes one pass over the input,
+and the two reads of `counts.values()` plus the arithmetic touch at most 26
+distinct counts, which is constant. Identical to the hand-rolled formula, with a
+smaller constant on the counting pass because `Counter` tallies in C rather than
+through a Python-level loop.
+
+##### Space Complexity: `O(1)`
+
+The `Counter` holds at most 26 keys (uppercase letters), independent of `N`. A
+hash table costs more per entry than a plain dictionary would, which does not
+move the bound.
+
+#### Key Insights
+
+- The greedy reasoning is untouched: `Counter` replaces only the tally, while the
+  `(max_freq - 1) * (n + 1) + max_count` frame stays spelled out on the page,
+  which is the whole point of the substitution.
+- Frequency counting is the single most repeated idiom in this problem, appearing
+  identically in all four hand-rolled solutions, so it is the obvious candidate to
+  hand to the library.
+- `Counter` is a `dict` subclass, so `counts.values()` and `max(...)` behave
+  exactly as they did over the plain dictionary, and no other line needs adapting.
+- The zero-key hazard that bites `Counter` in sliding-window problems cannot
+  arise here, because nothing is ever decremented: the counts are built once and
+  only read.
+
 ## Comparison of Solutions
 
 ### Time Complexity
@@ -604,6 +717,9 @@ independent of `N`.
   rounds, each sorting up to 26 counts.
 - **Max-Heap Simulation**: `O(N log 26)` because every task copy is popped and
   pushed once, each heap operation costing `O(log 26)`.
+- **Greedy Math Formula with Counter**: `O(N)`, the same single counting pass and
+  constant arithmetic as the hand-rolled formula, with `Counter` tallying in C
+  rather than through a Python-level loop.
 
 ### Space Complexity
 
@@ -612,8 +728,11 @@ independent of `N`.
 - **Greedy Math Formula**: `O(1)`, using a 26-entry dictionary.
 - **Greedy Round Simulation**: `O(1)`, using a 26-entry dictionary and list.
 - **Max-Heap Simulation**: `O(1)`, using a 26-entry heap and survivors list.
+- **Greedy Math Formula with Counter**: `O(1)`, using a 26-key `Counter`, which
+  carries more per-entry overhead than a plain dictionary without changing the
+  bound.
 
-All four use constant auxiliary space; the difference is in time and conceptual
+All five use constant auxiliary space; the difference is in time and conceptual
 complexity.
 
 ### Trade-offs
@@ -622,15 +741,18 @@ complexity.
   the problem statement literally. That makes it the easiest to trust, but it scans
   every idle unit, so it does the most redundant work.
 - The formula is a single expression with no loop over time, making it dramatically
-  faster, and like the brute force it leans on no library for its core work. It
-  requires the insight that the peak frequency alone determines the idle skeleton,
-  a leap that is harder to derive from scratch.
+  faster. It requires the insight that the peak frequency alone determines the idle
+  skeleton, a leap that is harder to derive from scratch.
 - The greedy round simulation collapses the timeline into `n + 1`-wide rounds,
   skipping the per-unit idle scan. It pays for this with a per-round sort and still
   traces the schedule round by round.
 - The max-heap simulation replaces the per-round sort with a heap, automating the
   greedy choice in `O(log 26)` per operation. It is the natural data-structure
   refinement of the round simulation while still tracing the schedule cycle by cycle.
+- The `Counter` formula keeps the closed form's runtime and its explicit idle-frame
+  arithmetic while shedding the four-line tally, so the only thing on the page is
+  the reasoning a reader has to check. The cost is an import and a hash table where
+  a plain dictionary would do, neither of which changes the complexity.
 
 ### When to Use Each
 
@@ -642,6 +764,11 @@ complexity.
   actual schedule, or when the greedy formula's derivation is not yet obvious.
 - **Max-Heap Simulation**: When you want the simulation's transparency but prefer a
   heap to express the greedy choice, a common interview-favored formulation.
+- **Greedy Math Formula with Counter**: The Pythonic default. Reach for it whenever
+  `collections` is available and readability is the deciding factor, since it is the
+  shortest form that still shows the idle-frame arithmetic in full. Fall back to the
+  hand-rolled dictionary only where an import is genuinely unavailable, such as a
+  restricted judge or a port to a language without an equivalent helper.
 
 ### Optimization Notes
 
@@ -650,10 +777,14 @@ complexity.
   `last_used` timestamp.
 - The formula is the key algorithmic optimization: recognizing that the most
   frequent task dictates the layout removes the need to simulate every time unit,
-  and it reaches that result with no library, only arithmetic.
+  collapsing an `O(N * (n + 1) * 26)` walk into constant arithmetic over 26 counts.
 - The greedy round simulation skips the per-unit idle scan by processing a full
   `n + 1`-wide round at a time, surfacing the greedy choice with a per-round sort.
 - The max-heap simulation is the structural optimization of the round simulation: a
   heap surfaces the most frequent task in `O(log 26)` instead of re-sorting each round.
-- All four solutions count frequencies with a plain dictionary, avoiding any
-  imported counter while keeping the 26-letter alphabet's operations constant.
+- Every solution spends one `O(N)` pass tallying frequencies and then works only
+  over the at-most-26 distinct counts, so the tally is the sole term in any of them
+  that actually scales with `N`.
+- Greedy Math Formula with Counter changes no arithmetic at all: `Counter(tasks)`
+  simply performs the tally in C rather than in a Python-level loop, which trims
+  the constant on that one linear pass.

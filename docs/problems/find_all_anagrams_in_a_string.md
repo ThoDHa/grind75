@@ -39,8 +39,9 @@ An **anagram** is a word or phrase formed by rearranging the letters of a differ
 
 A substring of `s` is an anagram of `p` exactly when it has length `k = len(p)`
 and the same letter counts: order never matters, only the frequency of each of
-the 26 lowercase letters. Both solutions compare fixed 26-slot count arrays;
-they differ in how much counting work each window position costs.
+the 26 lowercase letters. All three solutions compare letter counts; they differ
+in how much counting work each window position costs and in whether those counts
+are hand-rolled or borrowed from the standard library.
 
 1. **Start literal.** Try every width-`k` window of `s`: for each start index,
    count its letters from scratch and compare against `p`'s counts. Correct,
@@ -55,6 +56,12 @@ they differ in how much counting work each window position costs.
    collapses to the single test `matches == 26`. Every character enters and
    leaves once, making the scan `O(n)`: see
    [Sliding Window with Fixed-Size Count Array](#sliding-window-with-fixed-size-count-array).
+4. **Let the library hold the counts.** The slide itself does not care what
+   stores the frequencies. Handing them to `Counter` deletes the `need`
+   construction loop, the `ord` arithmetic, and the whole `matches` apparatus,
+   leaving a plain `window == need` test: markedly cleaner code for a slightly
+   larger constant factor, see
+   [Sliding Window with Counter](#sliding-window-with-counter).
 
 ## Solutions
 
@@ -149,9 +156,9 @@ class Solution:
 ##### Time Complexity: `O((n - k + 1) * k)`
 
 There are `n - k + 1` window positions, and each one fully recounts `k`
-characters before a constant 26-slot comparison. In the worst case (`k ≈ n / 2`)
-this is quadratic in `n`. Treating the per-window comparison as the dominant
-fixed cost, the bound can also be written as `O(n * 26)` when `k` is small.
+characters before a constant 26-slot comparison. Counting both parts gives
+`O((n - k + 1) * (k + 26))`, and the recount dominates once `k` exceeds the
+alphabet size. In the worst case (`k ≈ n / 2`) this is quadratic in `n`.
 
 ##### Space Complexity: `O(1)`
 
@@ -162,8 +169,9 @@ of input size. The `result` list is output, not auxiliary working space.
 
 - Anagram detection reduces to comparing character frequency counts, since order
   does not matter.
-- A fixed 26-slot array indexed by `ord(c) - ord('a')` replaces any imported
-  counter and compares in constant time.
+- A fixed 26-slot array indexed by `ord(c) - ord('a')` compares in constant time
+  and needs no hashing, though `Counter` expresses the same tally far more
+  briefly.
 - The inefficiency comes from discarding each window's count and rebuilding the
   next from scratch, ignoring that adjacent windows differ by only two
   characters.
@@ -346,8 +354,127 @@ auxiliary space.
   recount into `O(1)` per slide.
 - The `matches` counter avoids re-comparing all 26 slots each step: only the one
   or two slots that actually change can flip a letter's match status.
-- Indexing a 26-slot array by `ord(c) - ord('a')` removes the need for any
-  imported counter while keeping every operation constant time.
+- Indexing a 26-slot array by `ord(c) - ord('a')` keeps every count update
+  constant time with no hashing, which is what makes the extra `matches`
+  bookkeeping worth its lines.
+
+### Sliding Window with Counter
+
+#### Derivation
+
+The two previous solutions tally letters by hand because doing so keeps every
+operation constant time. Reaching for
+[`Counter`](https://docs.python.org/3/library/collections.html#collections.Counter)
+does not change the algorithm at all: the window still advances one character at
+a time, and each character still enters and leaves exactly once. What changes is
+the amount of machinery on the page. `Counter` builds a frequency map in a single
+call and compares two maps with `==`, so the `need` construction loop, the
+`ord(c) - ord('a')` arithmetic, and the entire `matches` apparatus all disappear,
+replaced by one dictionary comparison per window.
+
+1. If `p` is longer than `s`, return an empty list.
+2. Build `need = Counter(p)` and seed `window = Counter(s[:k])` from the first
+   window, recording index `0` when those two already agree.
+3. For each `i` from `k` to `n - 1`, increment the entering character `s[i]` and
+   decrement the leaving character `s[i - k]`.
+4. Delete any key whose count drops to zero. `Counter` equality is plain
+   dictionary equality, so a lingering `c: 0` entry keeps `window` unequal to
+   `need` even when the letters genuinely match.
+5. Test `window == need` after each slide, appending the start index `i - k + 1`
+   on a match.
+
+Step 4 is the one trap this version introduces. The count array can leave a slot
+sitting at zero harmlessly, because it compares fixed positions; a `Counter`
+compares key sets, so a zeroed key must be pruned rather than left behind.
+
+#### Walkthrough
+
+Run it on Example 1: `s = "cbaebabacd"`, `p = "abc"`, so `n = 10` and `k = 3`.
+`need` is `{a: 1, b: 1, c: 1}`, and `window` is seeded from `s[:3] = "cba"`,
+which already equals `need`, so `0` is recorded before the loop starts.
+
+Each row shows one iteration after both updates have been applied, noting the
+key deleted whenever a count reaches zero:
+
+| `i` | enters | leaves | `window` after | `== need`? |
+| --- | --- | --- | --- | --- |
+| `3` | `e` | `c` (key deleted) | `a:1, b:1, e:1` | no |
+| `4` | `b` | `b` | `a:1, b:1, e:1` | no |
+| `5` | `a` | `a` | `a:1, b:1, e:1` | no |
+| `6` | `b` | `e` (key deleted) | `a:1, b:2` | no |
+| `7` | `a` | `b` | `a:2, b:1` | no |
+| `8` | `c` | `a` | `a:1, b:1, c:1` | yes: append `6` |
+| `9` | `d` | `b` (key deleted) | `a:1, c:1, d:1` | no |
+
+At `i = 3` the leaving `c` takes its count to zero and the key is dropped;
+without that deletion `window` would read `a:1, b:1, c:0, e:1` and could never
+compare equal to `need` again, even once the letters lined up. At `i = 8` the
+window covers `s[6:9] = "bac"`, whose counts match `need` exactly, so the start
+index `8 - 3 + 1 = 6` is appended. The scan ends with `result = [0, 6]`, matching
+the expected Output `[0,6]`.
+
+#### Solution
+
+The same slide as before, with the counting delegated to the standard library.
+
+```python
+from collections import Counter
+from typing import List
+
+
+class Solution:
+    def findAnagrams(self, s: str, p: str) -> List[int]:
+        n, k = len(s), len(p)
+        if k > n:
+            return []
+
+        need = Counter(p)
+        window = Counter(s[:k])
+
+        result = [0] if window == need else []
+        for i in range(k, n):
+            window[s[i]] += 1
+            leaving = s[i - k]
+            window[leaving] -= 1
+            # Counter equality is dict equality, so a zeroed key must not linger.
+            if window[leaving] == 0:
+                del window[leaving]
+            if window == need:
+                result.append(i - k + 1)
+
+        return result
+```
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n * 26)`
+
+Every character still enters and leaves the window once, and each of those
+updates hashes a single character. The difference from the fixed-array version
+is the `window == need` test, which walks the keys of both counters instead of
+reading one integer. Since `s` and `p` hold only lowercase letters, that
+comparison spans at most 26 keys, so the bound is `O(n * 26)`. The alphabet is
+fixed, so this still reduces to `O(n)`, but with a visibly larger constant than
+the `matches == 26` test.
+
+##### Space Complexity: `O(1)`
+
+Each counter holds at most 26 keys no matter how long the input grows, so
+auxiliary space is bounded by the alphabet. The hash table carries more per-entry
+overhead than a plain 26-slot list, which does not affect the bound.
+
+#### Key Insights
+
+- The algorithm is untouched: only the container holding the frequencies differs,
+  which shows the sliding window is independent of how counts are stored.
+- Pruning zero-valued keys is a correctness requirement rather than tidiness,
+  because `Counter` equality is dictionary equality and `c: 0` is not the same as
+  an absent `c`.
+- Dropping `matches` trades a single-integer test for a map comparison per
+  window: identical complexity class, about a third fewer lines, a larger
+  constant.
+- This is the version worth writing first under interview pressure, with the
+  fixed-array form as the natural answer when asked to shave the constant.
 
 ## Comparison of Solutions
 
@@ -355,32 +482,44 @@ auxiliary space.
 
 - **Brute Force**: `O((n - k + 1) * k)` because each of the
   `n - k + 1` windows is recounted from scratch over `k` characters.
-- **Sliding Window**: `O(n)` because each character enters and leaves the window
-  exactly once with constant-time updates.
+- **Sliding Window with Fixed-Size Count Array**: `O(n)` because each character
+  enters and leaves the window exactly once with constant-time updates.
+- **Sliding Window with Counter**: `O(n * 26)`, the same linear scan carrying a
+  26-key map comparison at every window instead of a single integer test.
 
 ### Space Complexity
 
 - **Brute Force**: `O(1)`, using only fixed 26-slot arrays.
-- **Sliding Window**: `O(1)`, also using fixed 26-slot arrays plus a single
-  integer counter.
+- **Sliding Window with Fixed-Size Count Array**: `O(1)`, also using fixed
+  26-slot arrays plus a single integer counter.
+- **Sliding Window with Counter**: `O(1)`, two counters bounded at 26 keys each,
+  though a hash table costs more per entry than a plain list.
 
-Both approaches use constant auxiliary space; they differ only in time.
+All three use constant auxiliary space; they differ in time and in code volume.
 
 ### Trade-offs
 
 - The brute force is the easiest to reason about: build a count, compare, repeat.
   Its cost is the repeated work across overlapping windows, which becomes
   quadratic when `k` is a large fraction of `n`.
-- The sliding window adds the bookkeeping of incremental updates and a `matches`
-  counter, trading a little extra logic for a linear runtime that scales to the
-  largest allowed inputs.
+- The fixed-array sliding window adds the bookkeeping of incremental updates and
+  a `matches` counter, trading a little extra logic for a linear runtime that
+  scales to the largest allowed inputs.
+- The `Counter` sliding window keeps that linear runtime while cutting about a
+  third of the lines, paying for the brevity with hashing and a per-window map
+  comparison. It also introduces the one hazard the array version cannot have: a
+  zeroed key must be deleted or every later comparison fails.
 
 ### When to Use Each
 
 - **Brute Force**: Suitable when `s` is short, `p` is tiny, or clarity matters
   more than speed, such as a first pass or a teaching example.
-- **Sliding Window**: Preferred for any sizeable input and for the constraint
-  ceiling of `3 * 10^4`, where the quadratic approach risks being too slow.
+- **Sliding Window with Fixed-Size Count Array**: Preferred for any sizeable
+  input and for the constraint ceiling of `3 * 10^4`, where the quadratic
+  approach risks being too slow, and wherever the tightest constant matters.
+- **Sliding Window with Counter**: The Pythonic default. Reach for it when
+  readability outweighs a constant factor, and when writing the solution quickly
+  and correctly matters more than squeezing the inner loop.
 
 ### Optimization Notes
 
@@ -388,5 +527,6 @@ Both approaches use constant auxiliary space; they differ only in time.
   characters, so the count can be updated rather than rebuilt.
 - The `matches` counter is a second-level optimization: it replaces an `O(26)`
   full-array comparison per window with `O(1)` adjustments to a single integer.
-- Mapping letters to a fixed 26-slot array (via `ord(c) - ord('a')`) keeps the
-  solution import-free and makes every count operation constant time.
+- Mapping letters to a fixed 26-slot array (via `ord(c) - ord('a')`) removes both
+  the hashing and the import, at the cost of the `ord` arithmetic and the extra
+  `matches` bookkeeping that `Counter` hides.

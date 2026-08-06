@@ -51,6 +51,7 @@ The last move onto step `n` was either a single step from `n - 1` or a double st
 4. **Shrink the state.** Each `dp[i]` reads only the two entries below it, so two rolling variables replace the whole array: `O(1)` space: see [Space-Optimized DP](#space-optimized-dp).
 5. **Jump instead of walk.** The recurrence is linear with constant coefficients, so one step is a fixed matrix product and `n` steps are a matrix power, computable by repeated squaring in `O(log n)`: see [Matrix Exponentiation](#matrix-exponentiation).
 6. **Solve it outright.** The recurrence also admits a closed-form solution, Binet's formula, evaluated in `O(1)` floating-point arithmetic at the cost of precision: see [Closed-Form Formula](#closed-form-formula).
+7. **Hand the cache to the library.** Step 2 stacked two ideas: the recurrence, and a dictionary keeping it from redoing work. Only the recurrence is the algorithm, so decorating the Brute Force function with `functools.cache` deletes the three bookkeeping lines and leaves the recursion and its base cases untouched: see [Top-Down Memoization with functools.cache](#top-down-memoization-with-functoolscache).
 
 ## Solutions
 
@@ -195,7 +196,7 @@ class Solution:
 #### Key Insights
 
 - This problem follows the Fibonacci sequence pattern, so the recurrence is the Fibonacci recurrence
-- A plain dictionary makes the cache explicit, with no library call doing the memoization
+- Writing the dictionary out by hand shows the mechanism (check, compute, store) that a decorator would otherwise hide, which is worth seeing once; `functools.cache` collapses those same three lines and is the version to reach for afterwards, see [Top-Down Memoization with functools.cache](#top-down-memoization-with-functoolscache)
 - Memoization converts the exponential naive recursion into a linear-time solution
 - Top-down recursion expresses the relationship most directly, which makes it a natural step before deriving the iterative versions
 
@@ -541,6 +542,114 @@ class Solution:
 - This approach is theoretically the most efficient but may face floating-point precision issues
 - It's more of a mathematical curiosity than a practical solution for very large n
 
+### Top-Down Memoization with functools.cache
+
+#### Derivation
+
+The [Top-Down Memoization](#top-down-memoization) solution stacks two separate
+things: the Fibonacci recurrence, and a dictionary that stops the recursion from
+recomputing a step it has already answered. Only the first is the algorithm.
+The second is pure bookkeeping, and the standard library already implements it.
+Decorating the function with
+[`functools.cache`](https://docs.python.org/3/library/functools.html#functools.cache)
+attaches an unbounded cache keyed by the call's arguments, consulted before the
+body runs and filled with whatever the body returns, so the recurrence and its
+base cases stay on the page exactly as the Brute Force wrote them:
+
+1. Keep `climb(step)` verbatim from the Brute Force: return 1 when `step <= 1`,
+   otherwise return `climb(step - 1) + climb(step - 2)`
+2. Decorate it with `@cache`, so each distinct `step` runs the body at most once
+   and every later request for that step is answered from the cache
+3. Delete the three bookkeeping lines the decorator now owns: the `memo = {}`
+   declaration, the `if step in memo` lookup, and the `memo[step] = ...` store
+4. Because `climb` is defined inside `climbStairs`, each call builds a fresh
+   function object with a fresh cache, so nothing leaks between inputs; a
+   `@cache` on a method or a module-level function would instead live for the
+   whole process
+
+One behavioural difference follows from where the decorator sits. The
+hand-rolled version answers `step <= 1` before it ever consults `memo`, so the
+base cases are never stored; `@cache` wraps the entire body, so steps `0` and
+`1` are cached like any other step.
+
+#### Walkthrough
+
+Run it on Example 2, `n = 3`. The trace indents one level per call and notes
+whether the decorator ran the body or answered from the cache:
+
+```text
+climb(3)   miss, run the body
+  climb(2)   miss, run the body
+    climb(1) -> 1     base case, now cached under key 1
+    climb(0) -> 1     base case, now cached under key 0
+  climb(2) -> 2       1 + 1, cached under key 2
+  climb(1) -> 1       ** cache hit, the body does not run **
+climb(3) -> 3         2 + 1, cached under key 3
+```
+
+`climb(3)` needs both `climb(2)` and `climb(1)`. Resolving `climb(2)` first
+computes and caches `climb(1)`, so when `climb(3)` asks for `climb(1)` in its own
+right the decorator returns `1` immediately. The hand-rolled memo would have
+re-entered the function there, cheaply (it is a base case) but visibly, which is
+why that version needed `n = 4` before a hit appeared. The outer call returns
+`3`, matching the expected Output `3` for Example 2.
+
+#### Solution
+
+The Brute Force recursion, unchanged, with one decorator standing in for the
+memo dictionary.
+
+```python
+from functools import cache
+
+
+class Solution:
+    def climbStairs(self, n: int) -> int:
+        # The cache lives on this inner function object, which is rebuilt on
+        # every call, so results never carry over between inputs.
+        @cache
+        def climb(step: int) -> int:
+            # One empty path reaches step 0, and exactly one way reaches step 1
+            if step <= 1:
+                return 1
+
+            # The last move was either a single step from step - 1
+            # or a double step from step - 2
+            return climb(step - 1) + climb(step - 2)
+
+        return climb(n)
+```
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n)`
+
+- The cache admits each step from `0` to `n` into the body exactly once, and
+  each admission does one addition of two already-known values
+- Every other call is a dictionary lookup on a small integer key, which is
+  constant time, so the total is linear in `n`
+
+##### Space Complexity: `O(n)`
+
+- The decorator's cache holds one entry per distinct step, `n + 1` entries once
+  the base cases are counted, which the hand-rolled memo excluded
+- The recursion still descends to depth `n` before the first value returns, so
+  the stack matches the cache in order of growth
+
+#### Key Insights
+
+- The algorithm is untouched: the recurrence and both base cases read exactly as
+  they do in the Brute Force, which makes plain that memoization is an execution
+  strategy rather than a change to the recursion
+- `@cache` keys on the argument tuple, so it is a drop-in replacement only when
+  the arguments are hashable and the function is genuinely pure; `climb` reads
+  nothing but `step`, which is what licenses the substitution
+- Defining the cached function inside the method scopes the cache to a single
+  call, avoiding the stale-results and unbounded-growth hazards of decorating a
+  method or a module-level function
+- Use `functools.lru_cache(maxsize=...)` instead when the key space is unbounded
+  and eviction matters; `cache` is `lru_cache(maxsize=None)`, which never evicts
+
 ## Comparison of Solutions
 
 ### Time Complexity
@@ -551,6 +660,9 @@ class Solution:
 - **Space-Optimized DP**: `O(n)` - Same linear time requirement
 - **Matrix Exponentiation**: `O(log n)` - Repeated squaring halves the exponent each iteration
 - **Closed-Form Formula**: `O(1)` - Constant time calculation
+- **Top-Down Memoization with functools.cache**: `O(n)`: the same
+  one-computation-per-step bound, with the decorator's lookup standing in for the
+  hand-written one
 
 ### Space Complexity
 
@@ -560,6 +672,9 @@ class Solution:
 - **Space-Optimized DP**: `O(1)` - Uses only a constant amount of extra space
 - **Matrix Exponentiation**: `O(1)` - Holds two fixed-size 2x2 matrices; the iterative loop avoids recursion stack
 - **Closed-Form Formula**: `O(1)` - Uses only a constant amount of extra space
+- **Top-Down Memoization with functools.cache**: `O(n)`: cache plus recursion
+  stack, as above, with `n + 1` cache entries because the decorator stores the
+  base cases the hand-rolled memo skipped
 
 ### Trade-offs
 
@@ -569,6 +684,10 @@ class Solution:
 - **Space-Optimized DP** provides the best balance of simplicity and efficiency for most cases
 - **Matrix Exponentiation** beats every linear approach asymptotically and stays exact in integer arithmetic, but its per-step constant (a bundle of 2x2 multiplies) and extra code make it overkill at this problem's scale
 - **Closed-Form Formula** is theoretically most efficient but can have numerical precision issues
+- **Top-Down Memoization with functools.cache** keeps the recurrence and the
+  linear complexity of the hand-rolled version while cutting three lines of memo
+  plumbing, paying an import and giving up direct control over what the cache
+  keys on, how long it lives, and when it evicts
 
 ### When to Use Each
 
@@ -578,12 +697,18 @@ class Solution:
 - **Space-Optimized DP**: In most practical scenarios, efficient and easy to understand
 - **Matrix Exponentiation**: When n is huge (millions or more) or an exact answer is required beyond floating-point range, such as computing the count modulo a large prime
 - **Closed-Form Formula**: When absolute performance is critical and n is within the range of floating-point precision
+- **Top-Down Memoization with functools.cache**: The Pythonic default whenever
+  the recursive framing is the one worth showing. Prefer it over the hand-rolled
+  memo for readability, and fall back to the explicit dictionary when an
+  interviewer asks to see the caching mechanism itself or when the cache needs
+  custom keying, eviction, or a lifetime you control
 
 ### Optimization Notes
 
 - **Space-Optimized DP is the recommended choice**: it preserves the linear-time clarity of the tabulation approach while collapsing the DP array down to two rolling variables, giving `O(1)` space without sacrificing readability
 - The Brute Force is the from-scratch starting point; adding a cache to it is exactly what turns its `O(2^n)` time into the memoized `O(n)`
 - Top-Down Memoization reaches the same linear complexity, so prefer it when the recursive framing is clearer, but be mindful of Python's recursion limit for large n (the constraint here caps n at 45, well within bounds)
+- When the recursive framing is the one you want, write it as `@cache` on the Brute Force function rather than as a hand-rolled dictionary: the two have identical complexity, and the decorator removes the three lines where an off-by-one in the check-or-store logic could hide
 - A key implementation detail is the use of a `temp` variable when updating `prev` and `curr`: the old `curr` must be saved before it is overwritten, otherwise `prev` would advance incorrectly and break the Fibonacci recurrence
 - Avoid reaching for the Closed-Form Formula (Binet's formula) in production: although it is `O(1)`, raising the golden ratio to a power relies on floating-point arithmetic that accumulates rounding error and can return an off-by-one result for larger `n`
 - Matrix Exponentiation is the exact-arithmetic answer to that precision problem: it reaches `O(log n)` without ever leaving integers, so prefer it over Binet's formula whenever sub-linear time is genuinely needed; within this problem's `n <= 45` cap, though, the two-variable loop remains the pragmatic winner

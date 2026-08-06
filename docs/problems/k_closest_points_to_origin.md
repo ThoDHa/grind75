@@ -65,6 +65,11 @@ much ordering work they spend to isolate the `k` smallest keys.
    order; only the boundary between the `k` closest and everything else matters.
    Quicksort's partition step fixes exactly that boundary in `O(n)` average
    time: see [Quickselect](#quickselect).
+5. **Let the library run the bounded heap.** The capped heap of step 3 is a
+   standard shape, and `heapq.nsmallest` implements it given the same key,
+   absorbing the negation trick, the eviction test, and the `heapreplace` call
+   into one line: see
+   [Library One-Liner with `heapq.nsmallest`](#library-one-liner-with-heapqnsmallest).
 
 ## Solutions
 
@@ -457,6 +462,108 @@ is built: CPython's Timsort still allocates a temporary merge buffer of up to
 - Always key on squared distance; computing `sqrt` adds floating-point cost and
   rounding risk for no benefit to the ordering.
 
+### Library One-Liner with `heapq.nsmallest`
+
+#### Derivation
+
+The Max-Heap of Size K solution is a bounded-heap sweep: hold at most `k`
+candidates, keep the farthest of them reachable in constant time, and evict it
+the moment a closer point arrives.
+[`heapq.nsmallest`](https://docs.python.org/3/library/heapq.html#heapq.nsmallest)
+is that sweep, packaged. Handing it the same squared-distance key moves the
+entire mechanism into the library: the `-dist` negation that fakes a max-heap out
+of `heapq`, the "is the heap full yet" branch, the `-dist > heap[0][0]`
+comparison against the current farthest, the `heapreplace` call, and the
+comprehension that strips keys back off the survivors. What stays is the single
+decision the problem actually poses: rank points by `x*x + y*y`.
+
+1. Express the ranking as a `key` function, the same squared distance every
+   solution on this page uses.
+2. Call `heapq.nsmallest(k, points, key=...)`, which sweeps the points once
+   while maintaining a heap capped at `k` entries.
+3. Return the resulting list directly. `nsmallest` yields the original points
+   rather than key-decorated tuples, so there is nothing to unwrap.
+
+The result comes back in ascending distance order, which is more than the
+problem asks for (any order is accepted) and more than the raw bounded heap
+provided.
+
+#### Walkthrough
+
+Trace it on Example 2: `points = [[3,3],[5,-1],[-2,4]]`, `k = 2`, whose squared
+distances are `18`, `26`, and `20`. This is the same case the Max-Heap
+walkthrough traced, and `nsmallest` makes the same decisions in the same order,
+seeding the heap with the first `k` points and then testing each remaining point
+against the current farthest:
+
+```text
+seed     first k=2 points   heap holds keys 18 and 26, farthest 26 on top
+[-2,4]   key 20 < 26        replace the farthest: heap holds keys 18 and 20
+sort     survivors ordered  keys 18, 20 -> [[3,3], [-2,4]]
+```
+
+The seeding step fills the heap to its cap of `k = 2` with `[3,3]` (key `18`)
+and `[5,-1]` (key `26`), arranged so the largest key sits on top. The third point
+has key `20`, which is smaller than the top key `26`, so it displaces `[5,-1]`
+in one balanced operation, exactly the `heapreplace` the Max-Heap section
+performs by hand. CPython then sorts the two survivors by key before returning
+them, which is why the output is ordered while the hand-written heap's was not.
+
+The call returns `[[3,3],[-2,4]]`, matching Example 2's expected Output
+`[[3,3],[-2,4]]`.
+
+#### Solution
+
+The bounded-heap sweep, expressed as the key it ranks by.
+
+```python
+import heapq
+from typing import List
+
+
+class Solution:
+    def kClosest(self, points: List[List[int]], k: int) -> List[List[int]]:
+        # Squared distance preserves ordering and avoids a costly sqrt.
+        return heapq.nsmallest(
+            k, points, key=lambda p: p[0] * p[0] + p[1] * p[1]
+        )
+```
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n log k)`
+
+Each of the `n` points has its key computed once and is compared against the
+heap's largest key; only a point that wins that comparison pays for an
+`O(log k)` replacement, and the final sort of the `k` survivors adds
+`O(k log k)`. That is the bound while `k` is well below `n`. CPython does not
+hold to it at the extremes: it delegates to `min` when `k == 1`, and when `k`
+reaches `len(points)` it sorts the whole input instead, making the call
+`O(n log n)` exactly where a bounded heap would have stopped paying off anyway.
+
+##### Space Complexity: `O(k)`
+
+The heap holds `k` decorated triples of key, insertion order, and point, and the
+final sort runs over those same `k` entries. Nothing else scales with `n`, and
+the input list is never mutated, unlike Quickselect and Sort by Distance.
+
+#### Key Insights
+
+- This hides the bounded-heap mechanics that the Max-Heap of Size K section
+  teaches: the negated key that turns `heapq` into a max-heap, the full-heap
+  test, and the `heapreplace` eviction. Asked how `nsmallest` works, the earlier
+  section is the answer you should be able to write from scratch.
+- The one-liner is honest about cost only if you know the fallbacks: it is
+  `O(n log k)` for small `k`, but degrades to a full sort once `k` approaches
+  `n`, so it does not beat Sort by Distance in that regime.
+- `nsmallest` sorts its survivors before returning, so the output is in
+  ascending distance order rather than the arbitrary heap order of the manual
+  version. The problem accepts either, but tests that compare against an ordered
+  expectation will pass here and fail on the raw heap.
+- The `key` callable is evaluated exactly once per point, so there is no hidden
+  recomputation of the distance during heap comparisons, which is what keeps the
+  lambda cheap enough to leave inline.
+
 ## Comparison of Solutions
 
 ### Time Complexity
@@ -466,6 +573,7 @@ is built: CPython's Timsort still allocates a temporary merge buffer of up to
 - **Quickselect**: `O(n)` average, `O(n^2)` worst case - partial
   in-place selection.
 - **Sort by Distance**: `O(n log n)` - one comparison sort over all points.
+- **Library One-Liner with `heapq.nsmallest`**: `O(n log k)` - the same bounded-heap sweep, falling back to an `O(n log n)` sort when `k` reaches `len(points)`.
 
 ### Space Complexity
 
@@ -473,6 +581,7 @@ is built: CPython's Timsort still allocates a temporary merge buffer of up to
 - **Max-Heap of Size K**: `O(k)` - the heap holds at most `k` points.
 - **Quickselect**: `O(1)` - partitions the input in place.
 - **Sort by Distance**: `O(n)` - Timsort's merge buffer can hold up to `n/2` elements; "in place" only means no second list of points.
+- **Library One-Liner with `heapq.nsmallest`**: `O(k)` - `k` decorated triples of key, insertion order, and point, sorted in place at the end.
 
 ### Trade-offs
 
@@ -484,6 +593,9 @@ is built: CPython's Timsort still allocates a temporary merge buffer of up to
   worst case and reorders the original array.
 - Sorting is the shortest to write, but does full `O(n log n)` work even when `k`
   is tiny relative to `n`, and leans on the built-in sort to do the core selection.
+- `heapq.nsmallest` gets the heap's `O(n log k)` bound and its non-mutating
+  behaviour in one line, but pushes the selection mechanism out of sight, so it
+  demonstrates nothing about how the bounded heap works.
 
 ### When to Use Each
 
@@ -495,6 +607,10 @@ is built: CPython's Timsort still allocates a temporary merge buffer of up to
   speed is the priority, and mutating the input is acceptable.
 - **Sort by Distance**: When `n` is modest (as here, `n <= 10^4`) and the
   shortest correct code matters more than shaving the `log` factor.
+- **Library One-Liner with `heapq.nsmallest`**: The Pythonic default for
+  production code, where `k` is much smaller than `n` and the input must not be
+  reordered. In an interview, write it after the Max-Heap version, not instead
+  of it.
 
 ### Optimization Notes
 
@@ -504,3 +620,9 @@ is built: CPython's Timsort still allocates a temporary merge buffer of up to
   `k` is small, Quickselect reaches `O(n)` average by ordering only enough of the
   array to fix the `k`-th boundary, and Sort by Distance trades the extra `log`
   factor for the brevity of a built-in sort.
+- `heapq.nsmallest` reaches the heap's `O(n log k)` bound with a smaller constant
+  than the hand-written loop, because its comparison and eviction run in C rather
+  than in Python bytecode.
+- The one-liner's shortcuts matter when sizing it up: `k == 1` becomes a `min`
+  scan, and `k >= len(points)` becomes a full sort, so its advantage over Sort by
+  Distance exists only in the range where `k` is genuinely small.

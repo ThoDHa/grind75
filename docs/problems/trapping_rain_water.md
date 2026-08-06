@@ -55,6 +55,12 @@ form; they differ only in how the two wall heights are obtained.
    and walking inward from both ends always knows which side is smaller. Two
    pointers with two running maxima reach `O(n)` time and `O(1)` space: see
    [Two Pointers](#two-pointers).
+5. **Hand the sweeps to the library.** Both prefix-maximum loops are the same fold
+   of `max` over a sequence, which is what `itertools.accumulate` is for. Swapping
+   them out deletes the seeding, the index arithmetic, and the descending range,
+   while the `min(left_max[i], right_max[i]) - height[i]` summation stays written
+   out in full: see
+   [Prefix and Suffix Maximums with accumulate](#prefix-and-suffix-maximums-with-accumulate).
 
 ## Solutions
 
@@ -524,6 +530,132 @@ Only a fixed number of scalars are tracked regardless of input size.
 - Always moving the smaller-max side is what makes the local decision provably safe.
 - No auxiliary arrays are needed, beating the prefix/suffix approach on space.
 
+### Prefix and Suffix Maximums with accumulate
+
+#### Derivation
+
+The two sweeps in [Prefix and Suffix Maximums](#prefix-and-suffix-maximums) are
+both instances of one shape: seed an accumulator with the first element, then fold
+each next element into it with `max`. That fold is precisely
+[`itertools.accumulate`](https://docs.python.org/3/library/itertools.html#itertools.accumulate)
+with `max` as the binary operation. Substituting it changes nothing about the
+algorithm: `left_max` and `right_max` hold the same values they held before, and
+the water is still summed column by column with the explicit
+`min(left_max[i], right_max[i]) - height[i]`. What disappears is the index
+arithmetic, the manual seeding of `left_max[0]` and `right_max[n - 1]`, and the
+descending `range(n - 2, -1, -1)` that is easy to get wrong by one.
+
+1. Build `left_max = list(accumulate(height, max))`. `accumulate` yields the
+   running maximum of every prefix, which is the forward sweep verbatim.
+2. Build the suffix maxima by accumulating over `reversed(height)` and reversing
+   the result with `[::-1]`. Running maxima always flow left to right, so a suffix
+   maximum is a prefix maximum of the reversed array, read back in the original
+   order.
+3. Sum `min(left_max[i], right_max[i]) - height[i]` over every index, unchanged
+   from the hand-rolled version.
+
+The reversal is the one place this form asks something of the reader that the
+explicit loop did not. It buys a genuine simplification anyway: the backward loop
+it replaces carried both a descending range and a seeded final slot, two separate
+chances for an off-by-one.
+
+#### Walkthrough
+
+Let us build the arrays on Example 1: `height = [0,1,0,2,1,0,1,3,2,1,2,1]`. The
+forward `accumulate` gives the prefix maxima directly. For the suffix maxima, the
+middle row below shows what `accumulate(reversed(height), max)` produces, and the
+last row shows it after `[::-1]` puts it back in index order:
+
+```text
+height                          [0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1]
+left_max   accumulate(height)   [0, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 3]
+           accumulate(reversed) [1, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3]
+right_max  reversed back        [3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 1]
+```
+
+Reading the middle row right to left is the same as reading `right_max` left to
+right, which is what the trailing `[::-1]` performs. The tallest bar `3` sits at
+`i = 7`, so `right_max` is `3` for every index up to it and then falls away to the
+right. The summation pass applies the formula bar by bar:
+
+```text
+i=0    min(0, 3) - 0 = 0    trapped = 0
+i=1    min(1, 3) - 1 = 0    trapped = 0
+i=2    min(1, 3) - 0 = 1    trapped = 1
+i=3    min(2, 3) - 2 = 0    trapped = 1
+i=4    min(2, 3) - 1 = 1    trapped = 2
+i=5    min(2, 3) - 0 = 2    trapped = 4
+i=6    min(2, 3) - 1 = 1    trapped = 5
+i=7    min(3, 3) - 3 = 0    trapped = 5
+i=8    min(3, 2) - 2 = 0    trapped = 5
+i=9    min(3, 2) - 1 = 1    trapped = 6
+i=10   min(3, 2) - 2 = 0    trapped = 6
+i=11   min(3, 1) - 1 = 0    trapped = 6
+```
+
+Index `2` is capped by its own weak left wall, the `1` at `i = 1`, so it holds a
+single unit. Indices `4` through `6` sit in the wide dip between the `2` at
+`i = 3` and the `3` at `i = 7`, filling to the shorter of those walls for
+`1 + 2 + 1 = 4` units. Index `9` adds the last unit, banked behind the `2` at
+`i = 10`. The final `trapped = 6` matches Example 1's Output.
+
+#### Solution
+
+The same three passes, with the two running-max recurrences delegated to the
+standard library.
+
+```python
+from itertools import accumulate
+from typing import List
+
+
+class Solution:
+    def trap(self, height: List[int]) -> int:
+        # Running maximum of every prefix: the forward sweep, folded by max.
+        left_max = list(accumulate(height, max))
+        # A suffix maximum is a prefix maximum of the reversed array, so
+        # accumulate backwards and flip the result into index order.
+        right_max = list(accumulate(reversed(height), max))[::-1]
+
+        trapped = 0
+        for i in range(len(height)):
+            # Water above a bar rises to its shorter wall, minus the bar itself.
+            trapped += min(left_max[i], right_max[i]) - height[i]
+
+        return trapped
+```
+
+#### Time and Space Complexity Analysis
+
+##### Time Complexity: `O(n)`
+
+Still three linear passes: one `accumulate` forward, one `accumulate` backward
+plus its `[::-1]` copy, and one summation. The reversal and the slice each cost
+`O(n)` and fold into the same linear bound, and `accumulate` runs its `max` fold
+in C rather than through a Python-level loop.
+
+##### Space Complexity: `O(n)`
+
+Two arrays of size `n` hold the prefix and suffix maxima, exactly as the
+hand-rolled version allocates. The backward pass briefly holds one extra `n`-sized
+list, the pre-reversal accumulation, before `[::-1]` produces the final
+`right_max`, which leaves the bound at `O(n)`.
+
+#### Key Insights
+
+- A running maximum is a fold, so `accumulate(height, max)` is not a shortcut
+  around the recurrence but a direct spelling of it: `left_max[i] =
+  max(left_max[i - 1], height[i])` is what `accumulate` computes.
+- The trapping formula stays fully explicit. `accumulate` absorbs only how the wall
+  heights are obtained, which is exactly the part that was identical in both
+  directions and therefore the part worth factoring out.
+- `accumulate` seeds itself from the first element, so the manual `left_max[0]` and
+  `right_max[n - 1]` assignments and the `if n == 0` guard all become unnecessary:
+  an empty input yields empty arrays and a `trapped` of `0`.
+- Suffix maxima have no direct `accumulate` form, so the backward sweep costs a
+  `reversed` going in and a `[::-1]` coming out. That asymmetry is the honest price
+  of this version and the one line a reader must pause on.
+
 ## Comparison of Solutions
 
 ### Time Complexity
@@ -532,6 +664,8 @@ Only a fixed number of scalars are tracked regardless of input size.
 - **Prefix and Suffix Maximums**: `O(n)` - three linear passes.
 - **Monotonic Stack**: `O(n)` - each index is pushed and popped at most once.
 - **Two Pointers**: `O(n)` - single inward sweep.
+- **Prefix and Suffix Maximums with accumulate**: `O(n)`, the same three linear
+  passes, with the two folds and the reversal running in C.
 
 ### Space Complexity
 
@@ -539,6 +673,8 @@ Only a fixed number of scalars are tracked regardless of input size.
 - **Prefix and Suffix Maximums**: `O(n)` - two precomputed arrays.
 - **Monotonic Stack**: `O(n)` - the stack can hold every index for a decreasing map.
 - **Two Pointers**: `O(1)` - a handful of scalars.
+- **Prefix and Suffix Maximums with accumulate**: `O(n)`, the same two arrays,
+  plus one transient `n`-sized list before the backward result is reversed.
 
 ### Trade-offs
 
@@ -550,6 +686,10 @@ Only a fixed number of scalars are tracked regardless of input size.
   layers, which is the natural fit when a per-segment breakdown is wanted.
 - The Two Pointers approach achieves optimal constant space but relies on the subtler invariant
   that the smaller running max bounds its side's water level.
+- The accumulate variant keeps the prefix and suffix approach's transparency and its
+  `O(n)` space while removing the two most error-prone lines of it, the seeded final
+  slot and the descending range. It charges for that a `reversed` and a `[::-1]` on
+  the backward sweep, which is one idiom a reader has to recognize.
 
 ### When to Use Each
 
@@ -561,13 +701,25 @@ Only a fixed number of scalars are tracked regardless of input size.
   is useful, or to practice the broader monotonic-stack pattern.
 - **Two Pointers**: When memory is constrained or the interviewer asks
   for the optimal space solution.
+- **Prefix and Suffix Maximums with accumulate**: The Pythonic default whenever the
+  `O(n)` space is acceptable and readability is the deciding factor, since it states
+  both sweeps as the folds they are and leaves only the trapping formula to read.
+  Prefer the explicit loops when the reversal idiom would obscure things for the
+  audience, such as teaching the recurrence itself or porting to a language with no
+  equivalent helper.
 
 ### Optimization Notes
 
 - The Brute Force recomputes the same prefix and suffix maxima for every bar; the Prefix
   and Suffix Maximums approach caches them, dropping the time from `O(n^2)` to `O(n)`.
-- The three linear approaches differ only in space and in how the trapped water is
+- The four linear approaches differ only in space and in how the trapped water is
   accounted for (per column, per layer, or implicitly).
 - The Prefix and Suffix Maximums and Two Pointers solutions short-circuit on an empty
   input to avoid indexing errors, while the Monotonic Stack handles it naturally because
   the loop body never runs.
+- The accumulate variant needs no empty-input guard either: `accumulate` seeds itself
+  from the first element, so an empty `height` yields empty maxima arrays and the
+  summation loop never runs.
+- The accumulate variant is a constant-factor optimization rather than an asymptotic
+  one: both `max` folds and the reversal run in C instead of a Python-level loop,
+  while the summation stays interpreted.
