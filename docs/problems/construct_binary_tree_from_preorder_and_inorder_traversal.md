@@ -88,8 +88,10 @@ same problem, which dictates a recursion:
    `preorder[mid + 1:]`, form the right subtree.
 5. Recurse on each half and attach the results as `root.left` and `root.right`.
 
-This is the most direct reading of the definitions, and it stays library-free by
-using nothing more than list slicing and `index`.
+This is the most direct reading of the definitions, reaching for nothing beyond
+list slicing and `index`, and carrying no auxiliary structure at all. The price
+of that plainness is the repeated `index` scan and the fresh lists each level
+allocates, which the later approaches remove.
 
 #### Walkthrough
 
