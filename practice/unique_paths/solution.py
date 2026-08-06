@@ -19,7 +19,12 @@ class Solution:
         Time:  O(?):
         Space: O(?):
         """
-        raise NotSolved
+        dp = [1] * n
+
+        for i in range(1, m):
+            for j in range(1, n):
+                dp[j] += dp[j - 1]
+        return dp[n - 1]
 
 
 if __name__ == "__main__":
