@@ -23,7 +23,33 @@ class Solution:
         Time:  O(?):
         Space: O(?):
         """
-        raise NotSolved
+        result: List[List[int]] = []
+        candidates.sort()
+
+        def backtrack(index: int, remaining: int, current: List[int]):
+            if remaining == 0:
+                result.append(current[:])
+                return
+            if remaining < 0 or index >= len(candidates):
+                return
+
+            current.append(candidates[index])
+            backtrack(index, remaining - candidates[index], current)
+            current.pop()
+
+            backtrack(index + 1, remaining, current)
+
+        def dynamic():
+            dp: List[List[List[int]]] = [[] for _ in range(target + 1)]
+            dp[0] = [[]]
+
+            for candidate in candidates:
+                for x in range(candidate, target + 1):
+                    for combo in dp[x - candidate]:
+                        dp[x].append(combo + [candidate])
+            return dp[target]
+
+        return dynamic()
 
 
 if __name__ == "__main__":
