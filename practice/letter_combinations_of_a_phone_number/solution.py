@@ -9,6 +9,7 @@ number could represent (telephone keypad mapping). Return the answer in any orde
   uv run pytest letter_combinations_of_a_phone_number/              # run the test sets
 """
 
+from collections import deque
 from typing import List
 
 from harness import NotSolved, pick_case
@@ -21,7 +22,29 @@ class Solution:
         Time:  O(?):
         Space: O(?):
         """
-        raise NotSolved
+
+        if not digits:
+            return []
+        digit_to_letters = {
+            "2": "abc",
+            "3": "def",
+            "4": "ghi",
+            "5": "jkl",
+            "6": "mno",
+            "7": "pqrs",
+            "8": "tuv",
+            "9": "wxyz",
+        }
+
+        queue = deque([""])
+
+        for digit in digits:
+            letters = digit_to_letters[digit]
+            for _ in range(len(queue)):
+                current = queue.popleft()
+                for letter in letters:
+                    queue.append(current + letter)
+        return list(queue)
 
 
 if __name__ == "__main__":
