@@ -21,7 +21,20 @@ class Solution:
         Time:  O(?):
         Space: O(?):
         """
-        raise NotSolved
+        left, right = 0, len(height) - 1
+        max_area = 0
+
+        while left < right:
+            current_height = min(height[left], height[right])
+            max_area = max(max_area, (right - left) * current_height)
+
+            if height[left] <= height[right]:
+                while left < right and height[left] <= current_height:
+                    left += 1
+            else:
+                while left < right and height[right] <= current_height:
+                    right -= 1
+        return max_area
 
 
 if __name__ == "__main__":
