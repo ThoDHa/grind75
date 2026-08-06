@@ -21,7 +21,36 @@ class Solution:
         Time:  O(?):
         Space: O(?):
         """
-        raise NotSolved
+        total = sum(nums)
+        if total % 2 != 0:
+            return False
+        target = total // 2
+        memo = {}
+
+        def search(index: int, remaining: int) -> bool:
+            if remaining == 0:
+                return True
+            if remaining < 0 or index >= len(nums):
+                return False
+            if (index, remaining) in memo:
+                return memo[(index, remaining)]
+            result = search(index + 1, remaining - nums[index]) or search(
+                index + 1, remaining
+            )
+            memo[(index, remaining)] = result
+            return result
+
+        def bottom_up() -> bool:
+            dp = [False] * (target + 1)
+            dp[0] = True
+
+            for num in nums:
+                for s in range(target, num - 1, -1):
+                    if dp[s - num]:
+                        dp[s] = True
+            return dp[target]
+
+        return bottom_up()
 
 
 if __name__ == "__main__":
