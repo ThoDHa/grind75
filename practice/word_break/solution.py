@@ -22,7 +22,19 @@ class Solution:
         Time:  O(?):
         Space: O(?):
         """
-        raise NotSolved
+        dp = [False] * (len(s) + 1)
+        dp[0] = True
+        words = set(wordDict)
+
+        def bottom_up_memo():
+            for i in range(1, len(s) + 1):
+                for j in range(i):
+                    if dp[j] and s[j:i] in words:
+                        dp[i] = True
+                        break
+
+        bottom_up_memo()
+        return dp[len(s)]
 
 
 if __name__ == "__main__":
