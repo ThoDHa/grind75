@@ -517,3 +517,10 @@ dominated by the map.
   default recursion limit of `1000`. For such inputs, raise the limit with
   `sys.setrecursionlimit` or rewrite the construction iteratively with an
   explicit stack.
+- The hash map itself can be eliminated: advance a shared pointer through both
+  arrays and pass each subtree a *stop value* instead of index bounds. Build left
+  children from consecutive preorder values until the current inorder value
+  equals the subtree's stop value (the subtree root's value for a left child, the
+  inherited stop value for a right child), consuming one inorder position each
+  time a subtree closes. This keeps `O(n)` time with no auxiliary map, at the
+  cost of a distinctly subtler invariant than either hash map version.
