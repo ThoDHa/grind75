@@ -492,3 +492,4 @@ worst case.
 - In multi-source BFS, prefer `collections.deque` over a list so that dequeuing is `O(1)` rather than the `O(n)` cost of `list.pop(0)`.
 - The DP relies on processing order: the first pass fixes distances from the top and left, and the second pass corrects them using bottom and right neighbors, so both passes are required for correctness.
 - Avoid the per-1-cell BFS variant entirely; its `O((mn)^2)` cost guarantees Time Limit Exceeded on the largest constraints.
+- If mutating the input is acceptable, the multi-source BFS can skip the separate `dist` matrix entirely: mark every `1`-cell with a sentinel such as `-1` during seeding, then write each cell's distance directly into `mat` when the frontier reaches it (`mat[ni][nj] = mat[i][j] + 1`). The sentinel doubles as the visited check, cutting auxiliary space to the queue alone.
