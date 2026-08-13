@@ -9,6 +9,7 @@ be returned in any order.
   uv run python minimum_height_trees/solution.py   # debug one case (see CASE below)
   uv run pytest minimum_height_trees/              # run the test sets
 """
+from collections import defaultdict, deque
 
 from typing import List
 
@@ -22,8 +23,35 @@ class Solution:
         Time:  O(?):
         Space: O(?):
         """
-        raise NotSolved
 
+        if n <= 2:
+            return list(range(n))
+        adj = defaultdict(list)
+
+        for a, b in edges:
+            adj[a].append(b)
+            adj[b].append(a)
+
+        leaves = deque()
+
+        for node, neighbors in adj.items():
+            if len(neighbors) == 1:
+                leaves.append(node)
+
+        remaining = n
+        while remaining > 2:
+            
+            for _ in range(len(leaves)):
+                node = leaves.popleft()
+                remaining -= 1
+
+                if adj[node]:
+                    neighbor = adj[node].pop()
+                    adj[neighbor].remove(node)
+                    if len(adj[neighbor]) == 1:
+                           leaves.append(neighbor)
+        return list(leaves)
+                
 
 if __name__ == "__main__":
     # Debug playground: set a breakpoint in findMinHeightTrees above, then run this file.
