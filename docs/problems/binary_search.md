@@ -452,3 +452,4 @@ class Solution:
 - The linear scan is the discoverable baseline; the three logarithmic solutions all exploit the sorted order to discard half the candidates per step.
 - The hand-written binary searches compute `mid` as `left + (right - left) // 2` to avoid the integer overflow that `(left + right) // 2` can cause in fixed-width integer languages.
 - The iterative form is generally preferred over the recursive form in production because it avoids the call-stack growth and associated overhead.
+- A common variant runs the loop half-open over `[left, right)` with `while left < right`, shrinking with `right = mid` and `left = mid + 1`. That shape computes the *lower bound* (the first index with `nums[i] >= target`), which is exactly what `bisect_left` implements, and it generalizes cleanly to first-occurrence and last-occurrence searches where the closed-interval loop needs extra care.
