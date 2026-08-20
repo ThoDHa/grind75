@@ -10,6 +10,7 @@ by at least `n` units, idling when no task is available.
   uv run pytest task_scheduler/              # run the test sets
 """
 
+import heapq
 from typing import List
 
 from harness import NotSolved, pick_case
@@ -22,7 +23,33 @@ class Solution:
         Time:  O(?):
         Space: O(?):
         """
-        raise NotSolved
+
+        count = {}
+
+        for t in tasks:
+            count[t] = count.get(t, 0) + 1
+
+        heap = [-c for c in count.values()]
+        heapq.heapify(heap)
+        time = 0
+        while heap:
+            survivors = []
+            executed = 0
+            for _ in range(n + 1):
+                if heap:
+                    count = -heapq.heappop(heap) - 1
+                    executed += 1
+                    if count > 0:
+                        survivors.append(-count)
+            for s in survivors:
+                heapq.heappush(heap, s)
+
+            if heap:
+                time += n + 1
+            else:
+                time += executed
+
+        return time
 
 
 if __name__ == "__main__":
