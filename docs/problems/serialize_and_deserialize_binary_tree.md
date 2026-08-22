@@ -18,6 +18,8 @@ Design an algorithm to serialize and deserialize a binary tree. There is no rest
 
 ### Example 1
 
+![Serialize and Deserialize Binary Tree Example 1](assets/serialize_and_deserialize_binary_tree_example1.jpg)
+
 **Input:** root = `[1,2,3,null,null,4,5]`
 
 **Output:** `[1,2,3,null,null,4,5]`

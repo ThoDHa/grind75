@@ -18,6 +18,8 @@ The test cases are generated so that the answer will be less than or equal to `2
 
 ### Example 1
 
+![Unique Paths Example 1](assets/unique_paths_example1.png)
+
 **Input:** `m = 3`, `n = 7`
 
 **Output:** `28`

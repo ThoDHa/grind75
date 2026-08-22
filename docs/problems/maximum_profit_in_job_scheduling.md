@@ -18,6 +18,8 @@ If you choose a job that ends at time `X` you will be able to start another job 
 
 ### Example 1
 
+![Maximum Profit in Job Scheduling Example 1](assets/maximum_profit_in_job_scheduling_example1.png)
+
 **Input:** `startTime = [1,2,3,3]`, `endTime = [3,4,5,6]`, `profit = [50,10,40,70]`
 
 **Output:** `120`
@@ -26,6 +28,8 @@ If you choose a job that ends at time `X` you will be able to start another job 
 
 ### Example 2
 
+![Maximum Profit in Job Scheduling Example 2](assets/maximum_profit_in_job_scheduling_example2.png)
+
 **Input:** `startTime = [1,2,3,4,6]`, `endTime = [3,5,10,6,9]`, `profit = [20,20,100,70,60]`
 
 **Output:** `150`
@@ -33,6 +37,8 @@ If you choose a job that ends at time `X` you will be able to start another job 
 **Explanation:** The subset chosen is the first, fourth and fifth job. Profit obtained `150 = 20 + 70 + 60`.
 
 ### Example 3
+
+![Maximum Profit in Job Scheduling Example 3](assets/maximum_profit_in_job_scheduling_example3.png)
 
 **Input:** `startTime = [1,1,1]`, `endTime = [2,3,4]`, `profit = [5,6,4]`
 
