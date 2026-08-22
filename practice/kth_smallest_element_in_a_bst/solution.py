@@ -29,8 +29,23 @@ class Solution:
         Time:  O(?):
         Space: O(?):
         """
-        raise NotSolved
+        
+        stack: List[TreeNode] = []
+        current = root
+        count = 0
 
+        while current or stack:
+            while current:
+                stack.append(current)
+                current = current.left
+
+            current = stack.pop()
+            count += 1
+            
+            if count == k:
+                return current.val
+            current = current.right
+        return -1
 
 if __name__ == "__main__":
     # Debug playground: set a breakpoint in kthSmallest above, then run this file.
