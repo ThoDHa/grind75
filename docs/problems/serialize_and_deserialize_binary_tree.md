@@ -82,11 +82,12 @@ call reconstructs the tree uniquely by following the same preorder pattern.
 1. `serialize` runs `preorder(node)`: for a real node, append `str(node.val)` to
    `vals`, then recurse into `node.left` and `node.right`; for a missing node,
    append `"null"`. Join `vals` with commas.
-2. `deserialize` splits the string on commas into a single shared iterator
-   `vals_iter`.
-3. `build_tree` consumes one token per call via `next(vals_iter)`: a `"null"`
-   returns `None`; otherwise it creates a `TreeNode`, then fills `node.left` and
-   `node.right` with two recursive calls, in that order.
+2. `deserialize` splits the string on commas into the list `vals` and keeps a
+   single shared cursor `index`, starting at `0`.
+3. `build_tree` consumes one token per call: it reads `vals[index]`, advances
+   `index` by one, and returns `None` for a `"null"`; otherwise it creates a
+   `TreeNode`, then fills `node.left` and `node.right` with two recursive calls,
+   in that order.
 
 #### Walkthrough
 
@@ -110,21 +111,23 @@ preorder(1)        append "1"        vals = [1]
 
 Joining `vals` with commas gives the serialized string: `1,2,null,null,3,4,null,null,5,null,null`.
 
-**Deserialization.** `build_tree` reads tokens left to right from one shared iterator. Each call consumes exactly one token: a `"null"` returns `None`, otherwise it makes a node and recursively fills its left child, then its right. The same call tree rebuilds, consuming tokens in this order:
+**Deserialization.** `build_tree` reads tokens left to right through one shared cursor `index`. Each call consumes exactly one token (reads `vals[index]`, then bumps `index`): a `"null"` returns `None`, otherwise it makes a node and recursively fills its left child, then its right. The same call tree rebuilds, consuming tokens in this order:
 
-| Call | Token consumed | Result |
-| --- | --- | --- |
-| `build_tree()` | `1` | node `1`, now build its children |
-| `build_tree()` | `2` | node `2`, now build its children |
-| `build_tree()` | `null` | `2.left = None` |
-| `build_tree()` | `null` | `2.right = None`, node `2` complete |
-| `build_tree()` | `3` | node `3`, now build its children |
-| `build_tree()` | `4` | node `4`, now build its children |
-| `build_tree()` | `null` | `4.left = None` |
-| `build_tree()` | `null` | `4.right = None`, node `4` complete |
-| `build_tree()` | `5` | node `5`, now build its children |
-| `build_tree()` | `null` | `5.left = None` |
-| `build_tree()` | `null` | `5.right = None`, node `5` complete |
+| Call | `index` before | Token consumed | Result |
+| --- | --- | --- | --- |
+| `build_tree()` | 0 | `1` | node `1`, now build its children |
+| `build_tree()` | 1 | `2` | node `2`, now build its children |
+| `build_tree()` | 2 | `null` | `2.left = None` |
+| `build_tree()` | 3 | `null` | `2.right = None`, node `2` complete |
+| `build_tree()` | 4 | `3` | node `3`, now build its children |
+| `build_tree()` | 5 | `4` | node `4`, now build its children |
+| `build_tree()` | 6 | `null` | `4.left = None` |
+| `build_tree()` | 7 | `null` | `4.right = None`, node `4` complete |
+| `build_tree()` | 8 | `5` | node `5`, now build its children |
+| `build_tree()` | 9 | `null` | `5.left = None` |
+| `build_tree()` | 10 | `null` | `5.right = None`, node `5` complete |
+
+`index` ends at `11`, the length of `vals`: every token was consumed exactly once.
 
 The returned tree is exactly `[1,2,3,null,null,4,5]`, which matches the expected Output for Example 1.
 
@@ -158,7 +161,9 @@ class Codec:
     def deserialize(self, data):
         """Decodes string back to tree using preorder reconstruction"""
         def build_tree():
-            val = next(vals_iter)
+            nonlocal index
+            val = vals[index]
+            index += 1
             if val == "null":
                 return None
 
@@ -167,7 +172,8 @@ class Codec:
             node.right = build_tree()
             return node
 
-        vals_iter = iter(data.split(','))
+        vals = data.split(',')
+        index = 0
         return build_tree()
 ```
 
@@ -184,7 +190,7 @@ The serialized string (and the token list split from it) holds all `n` values pl
 #### Key Insights
 
 - Preorder traversal with explicit null markers captures both the values and the shape of the tree, so the original structure can be reconstructed uniquely without a second traversal.
-- Deserialization consumes tokens through a single shared iterator, so each recursive call advances the cursor exactly once and the left subtree is fully built before the right.
+- Deserialization consumes tokens through a single shared cursor `index`, so each recursive call advances it exactly once and the left subtree is fully built before the right.
 - Null markers are mandatory for a general binary tree; without them, distinct trees can produce the same value sequence and become indistinguishable.
 
 ### Level-Order BFS
