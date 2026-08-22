@@ -19,7 +19,42 @@ class Solution:
         Time:  O(?):
         Space: O(?):
         """
-        raise NotSolved
+        if len(s) < len(t):
+            return ""
+
+        t_count = {}
+
+        for c in t:
+            t_count[c] = t_count.get(c, 0) + 1
+        required = len(t_count)
+        formed = 0
+        left = right = 0
+        min_left = 0
+        min_len = float("inf")
+
+        window_count = {}
+        while right < len(s):
+            c = s[right]
+            window_count[c] = window_count.get(c, 0) + 1
+
+            if c in t_count and t_count[c] == window_count[c]:
+                formed += 1
+
+            while left <= right and formed == required:
+                c = s[left]
+                if right - left + 1 < min_len:
+                    min_len = right - left + 1
+                    min_left = left
+
+                # Remove character at left from window
+                window_count[c] -= 1
+                if c in t_count and window_count[c] < t_count[c]:
+                    formed -= 1
+
+                left += 1
+            right += 1
+
+        return "" if min_len == float("inf") else s[min_left : min_left + min_len]
 
 
 if __name__ == "__main__":
