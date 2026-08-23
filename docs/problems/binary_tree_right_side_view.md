@@ -22,6 +22,8 @@ Given the `root` of a binary tree, imagine yourself standing on the **right side
 
 ### Example 2
 
+![Binary Tree Right Side View Example 2](assets/binary_tree_right_side_view_example2.png)
+
 **Input:** `root = [1,null,3]`
 
 **Output:** `[1,3]`

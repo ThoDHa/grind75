@@ -14,6 +14,8 @@ Given `n` non-negative integers representing an elevation map where the width of
 
 ### Example 1
 
+![Trapping Rain Water Example 1](assets/trapping_rain_water_example1.png)
+
 **Input:** `height = [0,1,0,2,1,0,1,3,2,1,2,1]`
 
 **Output:** `6`
