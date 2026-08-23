@@ -505,14 +505,18 @@ phi**4   = 6.854101966249686           the dominant term
 psi**4   = 0.14589803375031551         the vanishing correction
 fibn     = 6.854101966249686 - 0.14589803375031551 = 6.70820393249937
 fibn / sqrt5 = 3.0000000000000004
-int(3.0000000000000004) = 3
+round(3.0000000000000004) = 3
 ```
 
-The quotient lands a hair above the exact value `3`, so truncating with `int` still yields the correct count; for much larger `n` this rounding luck runs out, which is the precision caveat noted below. The method returns `3`, matching the expected Output for Example 2.
+The quotient lands a hair above the exact value `3` this time, but floating-point
+error can just as easily land a hair *below* it, where truncation would return one
+too few. Rounding to the nearest integer absorbs the error in both directions,
+which is why the code uses `round` rather than `int`. The method returns `3`,
+matching the expected Output for Example 2.
 
 #### Solution
 
-The code is the evaluation from the walkthrough: two powers, one subtraction, one division, one truncation.
+The code is the evaluation from the walkthrough: two powers, one subtraction, one division, one rounding.
 
 ```python
 class Solution:
@@ -522,7 +526,7 @@ class Solution:
         # Fibonacci closed form formula (Binet's formula)
         sqrt5 = math.sqrt(5)
         fibn = ((1 + sqrt5) / 2) ** (n + 1) - ((1 - sqrt5) / 2) ** (n + 1)
-        return int(fibn / sqrt5)
+        return round(fibn / sqrt5)
 ```
 
 #### Time and Space Complexity Analysis

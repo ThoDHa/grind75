@@ -550,3 +550,12 @@ reconstructed path holds at most `n` nodes.
 - For correctness checks, the brute force result can be compared against the
   leaf-trimming and diameter-midpoint results on random trees; all three must
   agree on every input (up to ordering of the returned roots).
+- A fourth linear technique exists: rerooting DP. One post-order pass records
+  each node's two tallest downward child heights, then a pre-order pass pushes
+  the height seen *through the parent* down to each child (using the second-best
+  value when the child owns the best), giving every node's full height in
+  `O(n)`; the answers are the nodes whose height equals the minimum. It
+  generalizes to many "compute X for every root" problems, but both of its
+  passes are naturally recursive, so a Python version needs an explicit stack or
+  a raised recursion limit to survive a path-shaped tree at `n = 2 * 10^4`,
+  which is why the BFS-based solutions above are preferred here.

@@ -565,6 +565,11 @@ Space is bounded by the recursion depth, which equals the tree height.
   corrections.
 - The path that realizes the diameter bends at exactly one node, so each parent
   only ever extends one branch upward via `1 + max(left_h, right_h)`.
+- All four solutions recurse once per level, so a fully skewed tree near the
+  `10^4`-node limit overflows CPython's default recursion limit of `1000`. An
+  iterative post-order traversal with an explicit stack and a per-node
+  `(height, diameter)` map removes that risk; the pair-return version translates
+  to it most directly.
 
 The three single-pass solutions share identical asymptotic time and space behavior;
 the choice among them is primarily a matter of how state is managed.

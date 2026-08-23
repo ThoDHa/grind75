@@ -148,18 +148,23 @@ class Solution:
 
 #### Time and Space Complexity Analysis
 
-##### Time Complexity: `O(n)`
+##### Time Complexity: `O(n * H)`
 
-The traversal always visits all `n` nodes regardless of `k`, since it builds the complete sorted list before indexing into it.
+The traversal always visits all `n` nodes regardless of `k`, and the
+concatenation at each node copies every value already collected in its subtree.
+Summed over the tree that copying costs `O(n * H)`: `O(n log n)` when the tree
+is balanced, degrading to `O(n^2)` on a fully skewed tree. Appending each value
+to one shared list instead of concatenating (`values.append(node.val)` at the
+visit step) removes the copying and restores a true `O(n)`.
 
 ##### Space Complexity: `O(n)`
 
-The list holds all `n` node values, and the recursion stack adds `O(H)` for the tree height, which is dominated by the `O(n)` list.
+The final list holds all `n` node values, and the recursion stack adds `O(H)` for the tree height, which is dominated by the `O(n)` list.
 
 #### Key Insights
 
 - The BST property guarantees that an in-order traversal produces a sorted sequence, removing the need for an explicit sort.
-- Concatenating lists at every node (`inorder(left) + [val] + inorder(right)`) is the most readable form but creates many intermediate lists, making it the least efficient of the three approaches.
+- Concatenating lists at every node (`inorder(left) + [val] + inorder(right)`) is the most readable form but copies intermediate lists at every level; the standard `O(n)` variant appends into a single shared list instead.
 - The `k - 1` index conversion is the single place where the 1-indexed problem statement meets 0-indexed Python lists.
 
 ### Iterative In-Order Traversal
@@ -401,7 +406,7 @@ No stack or output list is used; the only extra storage is a constant number of 
 
 ### Time Complexity
 
-- **Recursive In-Order Traversal**: `O(n)` - Always processes all nodes
+- **Recursive In-Order Traversal**: `O(n * H)` as written - Always processes all nodes, and the per-node list concatenation copies subtree results; appending into one shared list brings it down to `O(n)`
 - **Iterative In-Order Traversal**: `O(H + k)` - Optimal for small k values
 - **Morris Traversal**: `O(n)` worst case - Stops at the kth node like the iterative version, with extra constant-factor threading work
 

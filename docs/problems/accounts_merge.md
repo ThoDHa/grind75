@@ -539,3 +539,4 @@ email, so auxiliary space is linear in the number of emails.
 - Union-find with path compression keeps the connectivity step near-linear, so for the largest inputs it edges out the explicit graph traversal.
 - Both approaches are dominated by the per-component sort in practice, so neither can drop below `O(N log K)` while emails must be returned in sorted order.
 - Linking each account's emails to a single representative (rather than all pairs) keeps edge count low in both solutions.
+- A common alternative unions *account indices* instead of email strings: map each email to the first account that mentioned it, and union the current account with that one on any repeat sighting. The forest then holds only `A` account nodes instead of `N` email nodes, and the merged name falls out of the account index directly, at the cost of one extra email-to-account map.

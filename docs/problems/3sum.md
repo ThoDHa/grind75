@@ -274,7 +274,9 @@ The function returns `[[-1, -1, 2], [-1, 0, 1]]`, matching the expected Output.
 #### Solution
 
 The code is the pointer trace written down: the sign of `current_sum` drives the
-pointers, and the skip loops fire only after a recorded triplet.
+pointers, and the skip loops fire only after a recorded triplet. Because the
+array is sorted, a positive `nums[i]` means every remaining number is positive
+too, so no further triplet can reach zero and the outer loop stops early.
 
 ```python
 from typing import List
@@ -287,6 +289,9 @@ class Solution:
         n = len(nums)
 
         for i in range(n - 2):
+            # Sorted array: once the fixed number is positive, no triplet can sum to 0
+            if nums[i] > 0:
+                break
             # Skip duplicate values for the first number
             if i > 0 and nums[i] == nums[i - 1]:
                 continue
@@ -337,7 +342,7 @@ class Solution:
 - **Two-pointer technique**: After fixing one element, the problem reduces to finding two numbers that sum to a target (similar to Two Sum II on sorted array)
 - **Duplicate handling is crucial**: The problem asks for unique triplets, so we must carefully skip duplicates at all three positions to avoid duplicate results
 - **Sorted array enables optimization**: Sorting allows us to use two pointers and also makes it easy to skip duplicates by comparing adjacent elements
-- **Early termination opportunity**: If the first number is positive, we can break early since all remaining numbers will also be positive (making sum impossible to be zero)
+- **Early termination**: The `nums[i] > 0` break fires as soon as the fixed number turns positive, since all remaining numbers are then positive too and no triplet can sum to zero. The strict `>` matters: breaking on `>= 0` would miss the all-zero triplet `[0, 0, 0]`
 
 ### Hash Set
 

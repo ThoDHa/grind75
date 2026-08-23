@@ -301,3 +301,7 @@ input size.
 - Using `float("inf")` as the initial minimum avoids a special case for the first
   element; an equivalent alternative is to seed `min_price = prices[0]` when the
   array is known to be non-empty.
+- The popular "two pointers" telling of this problem (a buy pointer that jumps
+  forward to the sell pointer whenever the price drops below it) is the running
+  minimum in disguise: the left pointer always rests on the minimum price seen
+  so far, so the two versions perform identical comparisons.
