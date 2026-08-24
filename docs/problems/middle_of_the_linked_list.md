@@ -4,7 +4,7 @@
 
 **Pattern:** [Two Pointers](../patterns/two_pointers/intuition.md)
 
-**Algorithm:** [Two-pointer technique](https://www.geeksforgeeks.org/dsa/two-pointers-technique/) · [Linked list](https://en.wikipedia.org/wiki/Linked_list)
+**Algorithm:** [Two-pointer technique](https://usaco.guide/silver/two-pointers) · [Linked list](https://en.wikipedia.org/wiki/Linked_list)
 
 **Practice:** [`practice/middle_of_the_linked_list/solution.py`](../../practice/middle_of_the_linked_list/solution.py)
 
@@ -168,7 +168,7 @@ number that is immediately halved. The repair is to notice that halving can be
 done by speed instead of arithmetic. A pointer moving at half the speed of
 another covers half the distance, so the "measuring" and the "walking" can
 happen simultaneously in a single pass. This is the
-[fast-and-slow pointer technique](https://www.geeksforgeeks.org/dsa/two-pointers-technique/) (also known as the
+[fast-and-slow pointer technique](https://usaco.guide/silver/two-pointers) (also known as the
 "tortoise and hare"). Both pointers start at `head`:
 
 1. Advance `slow` by one node and `fast` by two nodes on each iteration.

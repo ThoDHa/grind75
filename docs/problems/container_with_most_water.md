@@ -4,7 +4,7 @@
 
 **Pattern:** [Two Pointers](../patterns/two_pointers/intuition.md)
 
-**Algorithm:** [Two-pointer technique](https://www.geeksforgeeks.org/dsa/two-pointers-technique/)
+**Algorithm:** [Two-pointer technique](https://usaco.guide/silver/two-pointers)
 
 **Practice:** [`practice/container_with_most_water/solution.py`](../../practice/container_with_most_water/solution.py)
 
@@ -193,7 +193,7 @@ Only a few scalar variables are used regardless of input size.
 #### Derivation
 
 The brute force measures every pair even though most pairs cannot possibly win.
-The [two-pointer technique](https://www.geeksforgeeks.org/dsa/two-pointers-technique/)
+The [two-pointer technique](https://usaco.guide/silver/two-pointers)
 turns that observation into a discard rule. Look at the widest pair, the two
 end lines: its area is `width * min(height[left], height[right])`, capped by
 the shorter wall. Now ask what any other pair keeping that shorter wall could
@@ -291,7 +291,7 @@ The algorithm uses only a constant amount of extra space for variables (`left`, 
 
 #### Derivation
 
-The plain [two-pointer scan](https://www.geeksforgeeks.org/dsa/two-pointers-technique/)
+The plain [two-pointer scan](https://usaco.guide/silver/two-pointers)
 still advances one line at a time, even through lines its own discard argument
 has already condemned. After measuring a pair, the limiting wall is the shorter
 of the two, `current_height`. Any line on that side whose height is less than

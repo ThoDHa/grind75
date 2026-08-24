@@ -4,7 +4,7 @@
 
 **Pattern:** [Sliding Window](../patterns/sliding_window/intuition.md)
 
-**Algorithm:** [Sliding window](https://www.geeksforgeeks.org/dsa/window-sliding-technique/) · [Hash table](https://en.wikipedia.org/wiki/Hash_table)
+**Algorithm:** [Sliding window](https://usaco.guide/gold/sliding-window) · [Hash table](https://en.wikipedia.org/wiki/Hash_table)
 
 **Practice:** [`practice/longest_substring_without_repeating_characters/solution.py`](../../practice/longest_substring_without_repeating_characters/solution.py)
 
@@ -178,7 +178,7 @@ substring, bounded by both the string length and the size of the character set.
 
 The brute force's restart is the waste to remove: after a break, everything
 between the old anchor and the duplicate is duplicate-free and will be verified
-again anyway. Keep it. We maintain a [sliding window](https://www.geeksforgeeks.org/dsa/window-sliding-technique/) `[left, right]` whose characters are kept in a set,
+again anyway. Keep it. We maintain a [sliding window](https://usaco.guide/gold/sliding-window) `[left, right]` whose characters are kept in a set,
 guaranteeing the window never holds a duplicate. The `right` pointer expands the
 window one character at a time. Whenever the incoming character already lives in
 the window, we advance `left` one step at a time, removing each evicted
