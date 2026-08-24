@@ -13,7 +13,6 @@ from typing import Optional
 
 from harness import NotSolved, TreeNode, build_tree, pick_case, tree_to_list
 
-
 # Definition for a binary tree node.
 # class TreeNode:
 #     def __init__(self, val=0, left=None, right=None):
@@ -29,15 +28,41 @@ class Codec:
         Time:  O(?):
         Space: O(?):
         """
-        raise NotSolved
+
+        def traverse(root: Optional[TreeNode]) -> None:
+
+            if not root:
+                values.append("null")
+
+            else:
+                values.append(str(root.val))
+                traverse(root.left)
+                traverse(root.right)
+
+        values = []
+        traverse(root)
+        return ",".join(values)
 
     def deserialize(self, data: str) -> Optional[TreeNode]:
         """State the time and space complexity of your approach, and explain why.
-
         Time:  O(?):
         Space: O(?):
         """
-        raise NotSolved
+
+        def build_tree():
+            nonlocal index
+            value = values[index]
+            index += 1
+            if value == "null":
+                return None
+            node = TreeNode(int(value))
+            node.left = build_tree()
+            node.right = build_tree()
+            return node
+
+        values = data.split(",")
+        index = 0
+        return build_tree()
 
 
 if __name__ == "__main__":
