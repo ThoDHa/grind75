@@ -4,7 +4,7 @@
 
 **Pattern:** [Sliding Window](../patterns/sliding_window/intuition.md)
 
-**Algorithm:** [Sliding window](https://www.geeksforgeeks.org/dsa/window-sliding-technique/)
+**Algorithm:** [Sliding window](https://usaco.guide/gold/sliding-window)
 
 **Practice:** [`practice/find_all_anagrams_in_a_string/solution.py`](../../practice/find_all_anagrams_in_a_string/solution.py)
 
@@ -182,7 +182,7 @@ of input size. The `result` list is output, not auxiliary working space.
 
 The brute force discards each window's count and rebuilds the next from
 scratch, even though adjacent windows overlap heavily:
-[sliding one step](https://www.geeksforgeeks.org/dsa/window-sliding-technique/)
+[sliding one step](https://usaco.guide/gold/sliding-window)
 removes a single character on the left and adds a single character on the
 right. Rather than recounting, we maintain the window's 26-slot count
 incrementally and track a running `matches` value, the number of letters whose

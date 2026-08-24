@@ -4,7 +4,7 @@
 
 **Pattern:** [Monotonic Stack](../patterns/monotonic_stack/intuition.md)
 
-**Algorithm:** [Dynamic programming](https://en.wikipedia.org/wiki/Dynamic_programming) · [Monotonic stack](https://www.geeksforgeeks.org/introduction-to-monotonic-stack-data-structure-and-algorithm/) · [Two-pointer technique](https://www.geeksforgeeks.org/dsa/two-pointers-technique/)
+**Algorithm:** [Dynamic programming](https://en.wikipedia.org/wiki/Dynamic_programming) · [Monotonic stack](https://usaco.guide/gold/stacks) · [Two-pointer technique](https://usaco.guide/silver/two-pointers)
 
 **Practice:** [`practice/trapping_rain_water/solution.py`](../../practice/trapping_rain_water/solution.py)
 
@@ -327,7 +327,7 @@ Two arrays of size `n` store the prefix and suffix maxima.
 Both approaches so far account for water column by column, which forces each column
 to know its two walls. Flip the accounting: fill the water in horizontal layers, and
 settle each layer the moment its right wall arrives. The
-[stack](https://www.geeksforgeeks.org/introduction-to-monotonic-stack-data-structure-and-algorithm/)
+[stack](https://usaco.guide/gold/stacks)
 holds indices of bars whose heights are decreasing from bottom to top, so the top is
 always the most recent unresolved dip. When a bar taller than the stack top arrives,
 it acts as a right wall: the popped top becomes the `floor` of a basin, and the new
@@ -435,7 +435,7 @@ once before any pops occur.
 
 The prefix and suffix arrays store every wall height, yet the formula only ever
 consumes `min(left_max[i], right_max[i])`: the larger side is computed and then
-ignored. The [two-pointer method](https://www.geeksforgeeks.org/dsa/two-pointers-technique/)
+ignored. The [two-pointer method](https://usaco.guide/silver/two-pointers)
 exploits that slack. Walk inward from both ends carrying just two running maxima. If
 `left_max <= right_max`, the water level at the left pointer is already decided:
 some bar on the right reaches `right_max >= left_max`, so the true minimum at that

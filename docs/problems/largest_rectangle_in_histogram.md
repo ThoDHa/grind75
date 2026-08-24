@@ -4,7 +4,7 @@
 
 **Pattern:** [Monotonic Stack](../patterns/monotonic_stack/intuition.md)
 
-**Algorithm:** [Monotonic stack](https://www.geeksforgeeks.org/introduction-to-monotonic-stack-data-structure-and-algorithm/) · [Divide and conquer](https://en.wikipedia.org/wiki/Divide-and-conquer_algorithm)
+**Algorithm:** [Monotonic stack](https://usaco.guide/gold/stacks) · [Divide and conquer](https://en.wikipedia.org/wiki/Divide-and-conquer_algorithm)
 
 **Practice:** [`practice/largest_rectangle_in_histogram/solution.py`](../../practice/largest_rectangle_in_histogram/solution.py)
 
@@ -337,7 +337,7 @@ degrade to `O(n²)`. Step back to what each bar actually needs: the nearest
 strictly shorter bar on its left and on its right, since those two walls fix
 the widest rectangle at that bar's height. Both walls can be found for every
 bar in one left-to-right sweep with a
-**[monotonic stack](https://www.geeksforgeeks.org/introduction-to-monotonic-stack-data-structure-and-algorithm/)**
+**[monotonic stack](https://usaco.guide/gold/stacks)**
 of indices kept in increasing height order. While bars keep rising, nothing is
 resolved and indices are pushed. The moment the current bar `i` is shorter than
 the bar on top of the stack, that top bar has just met its right wall (`i`),

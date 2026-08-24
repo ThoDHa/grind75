@@ -4,7 +4,7 @@
 
 **Pattern:** [Sliding Window](../patterns/sliding_window/intuition.md)
 
-**Algorithm:** [Sliding window](https://www.geeksforgeeks.org/dsa/window-sliding-technique/) · [Two-pointer technique](https://www.geeksforgeeks.org/dsa/two-pointers-technique/) · [Hash table](https://en.wikipedia.org/wiki/Hash_table)
+**Algorithm:** [Sliding window](https://usaco.guide/gold/sliding-window) · [Two-pointer technique](https://usaco.guide/silver/two-pointers) · [Hash table](https://en.wikipedia.org/wiki/Hash_table)
 
 **Practice:** [`practice/minimum_window_substring/solution.py`](../../practice/minimum_window_substring/solution.py)
 
@@ -187,7 +187,7 @@ The Brute Force throws away everything it learns: the window starting at `i`
 and the window starting at `i + 1` overlap almost entirely, yet each validity
 check recounts from zero. The repair is to keep a single window and update its
 counts incrementally as the boundaries move, which is the
-**[sliding window technique](https://www.geeksforgeeks.org/dsa/window-sliding-technique/)** with two pointers. `right` expands
+**[sliding window technique](https://usaco.guide/gold/sliding-window)** with two pointers. `right` expands
 the window until it becomes valid; `left` then contracts it, because once valid,
 only shrinking can improve it, and each shrink step measures a candidate.
 

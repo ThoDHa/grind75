@@ -4,7 +4,7 @@
 
 **Pattern:** [Two Pointers](../patterns/two_pointers/intuition.md)
 
-**Algorithm:** [Two-pointer technique](https://www.geeksforgeeks.org/dsa/two-pointers-technique/) · [Sorting](https://en.wikipedia.org/wiki/Sorting_algorithm) · [Hash table](https://en.wikipedia.org/wiki/Hash_table)
+**Algorithm:** [Two-pointer technique](https://usaco.guide/silver/two-pointers) · [Sorting](https://en.wikipedia.org/wiki/Sorting_algorithm) · [Hash table](https://en.wikipedia.org/wiki/Hash_table)
 
 **Practice:** [`practice/3sum/solution.py`](../../practice/3sum/solution.py)
 
@@ -162,7 +162,7 @@ The brute force wastes its innermost loop searching for a value that is already
 fully determined: with `nums[i]` and `nums[j]` fixed, only `-(nums[i] + nums[j])`
 can complete the triplet. The question this approach asks is how to find pairs
 summing to a known target without scanning blindly, and the answer is the
-[two-pointer technique](https://www.geeksforgeeks.org/dsa/two-pointers-technique/)
+[two-pointer technique](https://usaco.guide/silver/two-pointers)
 on a sorted array: fix one number, then converge two pointers toward pairs that
 sum to the negative of the fixed number.
 

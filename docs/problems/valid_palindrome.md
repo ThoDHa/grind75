@@ -4,7 +4,7 @@
 
 **Pattern:** [Two Pointers](../patterns/two_pointers/intuition.md)
 
-**Algorithm:** [Two-pointer technique](https://www.geeksforgeeks.org/dsa/two-pointers-technique/)
+**Algorithm:** [Two-pointer technique](https://usaco.guide/silver/two-pointers)
 
 **Practice:** [`practice/valid_palindrome/solution.py`](../../practice/valid_palindrome/solution.py)
 
@@ -191,7 +191,7 @@ pointers marching toward each other from the ends of the cleaned list:
 
 1. Walk the input once, keeping only the characters for which `isalnum()` is
    true and converting each to lowercase. Collect them into a list `filtered`.
-2. Place a [`left` pointer](https://www.geeksforgeeks.org/dsa/two-pointers-technique/) at the start of `filtered` and a `right` pointer at the
+2. Place a [`left` pointer](https://usaco.guide/silver/two-pointers) at the start of `filtered` and a `right` pointer at the
    end.
 3. While `left < right`, compare the two characters. If they differ, the cleaned
    string is not a palindrome, so return `False`.
@@ -263,7 +263,7 @@ alphanumeric.
 
 The previous approach still pays `O(n)` memory for `filtered`, a buffer built
 only to be read once by the pointers. The repair is to filter on the fly:
-instead of materializing a cleaned string, the [pointers](https://www.geeksforgeeks.org/dsa/two-pointers-technique/) skip past non-alphanumeric
+instead of materializing a cleaned string, the [pointers](https://usaco.guide/silver/two-pointers) skip past non-alphanumeric
 characters as they advance over the original `s`, lowercasing only the two
 characters actually being compared:
 

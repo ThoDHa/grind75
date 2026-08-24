@@ -4,7 +4,7 @@
 
 **Pattern:** [Two Pointers](../patterns/two_pointers/intuition.md)
 
-**Algorithm:** [Dutch national flag problem](https://en.wikipedia.org/wiki/Dutch_national_flag_problem) · [Two-pointer technique](https://www.geeksforgeeks.org/dsa/two-pointers-technique/)
+**Algorithm:** [Dutch national flag problem](https://en.wikipedia.org/wiki/Dutch_national_flag_problem) · [Two-pointer technique](https://usaco.guide/silver/two-pointers)
 
 **Practice:** [`practice/sort_colors/solution.py`](../../practice/sort_colors/solution.py)
 

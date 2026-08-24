@@ -4,7 +4,7 @@
 
 **Pattern:** [Hashing & Frequency Counting](../patterns/hashing/intuition.md)
 
-**Algorithm:** [Hash table](https://en.wikipedia.org/wiki/Hash_table) · [Two-pointer technique](https://www.geeksforgeeks.org/dsa/two-pointers-technique/) · [Sorting](https://en.wikipedia.org/wiki/Sorting_algorithm)
+**Algorithm:** [Hash table](https://en.wikipedia.org/wiki/Hash_table) · [Two-pointer technique](https://usaco.guide/silver/two-pointers) · [Sorting](https://en.wikipedia.org/wiki/Sorting_algorithm)
 
 **Practice:** [`practice/two_sum/solution.py`](../../practice/two_sum/solution.py)
 
@@ -147,7 +147,7 @@ The brute force pays because its inner scan searches an unordered suffix by
 walking all of it. Give the values an order and the search collapses: in a sorted
 sequence, the smallest and largest remaining candidates sit at the two ends, and
 their sum can only be corrected in one direction. That is the
-[two pointers](https://www.geeksforgeeks.org/dsa/two-pointers-technique/)
+[two pointers](https://usaco.guide/silver/two-pointers)
 technique: if the pointed values sum to less than the target, the left pointer
 moves right to increase the sum; if they sum to more, the right pointer moves left
 to decrease it. When the sum matches, the pair is found.

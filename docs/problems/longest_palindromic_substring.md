@@ -302,7 +302,7 @@ length, like `"aba"`) or the gap between two characters (even length, like
 The idea is to try every possible center and expand outward as long as the
 characters on both sides match, recording the longest palindrome seen.
 
-1. Define a helper `expand(left, right)` that walks the [two pointers](https://www.geeksforgeeks.org/dsa/two-pointers-technique/) outward
+1. Define a helper `expand(left, right)` that walks the [two pointers](https://usaco.guide/silver/two-pointers) outward
    while they stay in bounds and `s[left] == s[right]`.
 2. When the loop stops, the pointers have overshot by one, so return
    `(left + 1, right - 1)` as the inclusive bounds of the matched palindrome.
