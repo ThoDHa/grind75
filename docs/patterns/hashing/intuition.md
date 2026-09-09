@@ -45,6 +45,56 @@ The key shift in thinking: *You're not searching the data, you're asking the dat
 
 ---
 
+## Under the Hood: Collisions, or What Backs the O(1) Promise
+
+Every constant-time claim above rests on one mechanism: turning a key into an **array index**. The key is fed through a hash function (`hash(key)` in Python), producing a number — `'Python'` might hash to `-539294296` while `'python'`, differing by a single bit, hashes to `1142331976`. That number picks the slot in an internal array where the entry lives. Lookup never scans the data; it computes the address and goes straight there.
+
+But there are infinitely many possible keys and only finitely many slots. Sooner or later, **two different keys will claim the same slot**. That is a *collision*, and hash map design is mostly the art of answering one question: *when two keys want the same slot, who stays and where does the other go?*
+
+### The Two Answers: Chaining and Open Addressing
+
+| Strategy | On collision | On lookup | Used by |
+|----------|--------------|-----------|---------|
+| **Separate chaining** | Each slot holds a list (or tree) of entries; the newcomer appends | Hash to the slot, then walk the chain comparing keys with `==` | Java `HashMap`, C++ `unordered_map` |
+| **Open addressing** | The newcomer probes onward for the next empty slot | Hash to the slot, then follow the same probe sequence until the key is found or an empty slot says "not here" | Python `dict` and `set` |
+
+CPython chose open addressing. When a slot is occupied, the next candidate index is derived from the upper bits of the hash (the "perturbation"), and each further probe mixes in more hash bits — so even keys with nearly identical hashes scatter to unrelated slots. The full scheme is documented in the comment atop [`Objects/dictobject.c`](https://github.com/python/cpython/blob/main/Objects/dictobject.c).
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│  Table of 8 slots.  hash("cat") % 8 = 3,  hash("dog") % 8 = 3    │
+├──────────────────────────────────────────────────────────────────┤
+│  Insert "cat" → slot 3 empty → stored at 3                       │
+│  Insert "dog" → slot 3 taken (collision!) → probe → slot 6 empty │
+│                  → stored at 6                                   │
+│                                                                  │
+│  Lookup "dog"  → slot 3: it's "cat", not equal → probe           │
+│                  → slot 6: "dog" == "dog" → found                │
+└──────────────────────────────────────────────────────────────────┘
+
+A collision is resolved, not overwritten: both keys survive, and
+equality — not just the hash — confirms the match on lookup.
+```
+
+### Why the Table Resizes (and Why Hashes Look Random)
+
+Two more mechanisms keep probes short:
+
+- **Load factor and resizing.** If the table filled up, every probe would crawl. CPython grows the array once it is about two-thirds full and re-scatters every entry, so the expected probe chain stays tiny. This is why O(1) holds for *average* lookups while each individual resize insert costs more.
+- **Hash randomization.** String hashes are salted with a per-process seed, so `hash("abc")` differs between runs. This is a security feature: without it, an attacker could pre-compute keys that all collide and flood the map with O(n) probes per operation (a *hash-flooding* denial-of-service).
+
+### The Contract That Makes It All Work
+
+Finding a slot is only half the job. A hash hit means *"same slot"*, never *"same key"* — the map must still confirm equality. This is why the `hash`/`==` contract exists:
+
+> If `a == b`, then `hash(a) == hash(b)`. Always. The reverse need not hold (that's a collision).
+
+It also explains why **keys must be immutable** (see Pitfall 3 below): if a key mutated after insertion, its hash would point somewhere it no longer lives — silently lost in the table, unfindable by any lookup.
+
+The worst case — every key colliding — degrades the map to O(n) per lookup, no better than the scan you were trying to avoid. The whole structure is engineered so that case essentially never happens by accident: good hashes scatter, collisions stay rare, and probes stay short.
+
+---
+
 ## The Mental Models
 
 Hashing problems wear four faces. Recognizing the face tells you what structure to reach for and what question to ask it.
