@@ -9,7 +9,7 @@ be returned in any order.
   uv run python minimum_height_trees/solution.py   # debug one case (see CASE below)
   uv run pytest minimum_height_trees/              # run the test sets
 """
-from collections import defaultdict, deque
+from collections import deque
 
 from typing import List
 
@@ -26,17 +26,13 @@ class Solution:
 
         if n <= 2:
             return list(range(n))
-        adj = defaultdict(list)
+        adj: List[List[int]] = [[] for _ in range(n)]
 
         for a, b in edges:
             adj[a].append(b)
             adj[b].append(a)
 
-        leaves = deque()
-
-        for node, neighbors in adj.items():
-            if len(neighbors) == 1:
-                leaves.append(node)
+        leaves = deque(node for node in range(n) if len(adj[node]) == 1)
 
         remaining = n
         while remaining > 2:
