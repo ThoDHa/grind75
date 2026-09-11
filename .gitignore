@@ -8,3 +8,6 @@ __pycache__/
 
 # Personal practice-progress state (see practice/progress.py)
 practice/.progress.json
+
+# Temporary git worktrees
+.worktrees/
