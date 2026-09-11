@@ -100,8 +100,10 @@ tree once per node.
 Let us trace the brute force solution on Example 1: `n = 4` and
 `edges = [[1,0],[1,2],[1,3]]`. The expected output is `[1]`.
 
-First we skip the `n == 1` guard (here `n` is 4) and build the adjacency list by
-adding both directions of every edge:
+First we skip the `n == 1` guard (here `n` is 4) and build the adjacency list: a
+preallocated array with one list per label, so `adj[node]` is a direct index and
+no hashing is involved (the labels run over exactly `0..n-1`). Both directions of
+every edge are added:
 
 - `[1,0]`: `adj[1] = [0]`, `adj[0] = [1]`
 - `[1,2]`: `adj[1] = [0, 2]`, `adj[2] = [1]`
@@ -146,7 +148,7 @@ sweep for the minimizers.
 from typing import List
 
 
-from collections import defaultdict, deque
+from collections import deque
 
 
 class Solution:
@@ -156,7 +158,7 @@ class Solution:
             return [0]
 
         # Build an undirected adjacency list.
-        adj = defaultdict(list)
+        adj = [[] for _ in range(n)]
         for a, b in edges:
             adj[a].append(b)
             adj[b].append(a)
