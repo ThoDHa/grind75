@@ -11,7 +11,11 @@ clever idea usually appears somewhere in the middle of running it.
 
 Restate it in your own words. Identify the input (its type and size from the
 **Constraints**), the output, and any rules. Vague understanding is the most
-common cause of wrong solutions, so do not skip this.
+common cause of wrong solutions, so do not skip this. In an interview this
+step is a dialogue, not solo reading: paraphrase the problem back and ask
+your questions before you assume. [The Coding Interview, Phase by
+Phase](interview_practices.md) runs every step of this method as that
+conversation.
 
 ### 2. Walk through the examples by hand
 
@@ -19,6 +23,12 @@ Take the provided examples and solve them yourself on paper, slowly. Notice
 *how* you arrived at the answer. Your own manual process is very often the
 algorithm in disguise. If the examples do not cover an edge case (empty input,
 a single element, all-equal values), invent one and solve it too.
+
+Draw what you are tracking while you do this. For trees, grids, linked lists,
+and graphs, a picture of the state after each step replaces paragraphs of
+confused reasoning: pointers you can see are easier to update than pointers
+you are holding in your head. Even for plain array problems, drawing the input
+mid-algorithm exposes structure that staring at the statement hides.
 
 ### 3. Write the brute force first
 
@@ -30,6 +40,15 @@ will eliminate. On every problem page in this guide, the first solution listed
 is deliberately the most direct baseline for exactly this reason: usually a
 brute force, sometimes named more specifically (Linear Scan, Simulation,
 Stack). Either way, it is always worth reading first.
+
+You do not need the whole solution in your head to start writing. Write the
+skeleton first: the few high-level steps, each translated into a call to a
+helper function that does not exist yet. For [Number of
+Islands](../problems/number_of_islands.md), the skeleton is "for each land
+cell not yet visited, count one island and flood-fill from it", with
+`flood_fill(grid, row, col)` as a placeholder. Then fill the helpers in one at
+a time. Each helper is a smaller problem than the whole, and a half-filled
+skeleton is still a working plan.
 
 ### 4. Find the wasted work
 
@@ -50,14 +69,20 @@ developed.
 Before coding, confirm your planned approach is fast enough. Look at the size of
 `n` in the **Constraints** and compare it to your approach's
 [Big-O](big_o.md). If `n` is 100,000 and your idea is `O(n²)`, stop and find a
-better one now, not after writing it.
+better one now, not after writing it. Once your idea clears the bar,
+[Optimizing a Working Solution](optimizing.md) is the checklist for pushing it
+further: the complexity floor, the redundant-work habits, and the space
+trades.
 
 ### 7. Code it, then test the edges
 
 Write the solution, then run it against the examples and the edge cases from
 step 2. The places solutions break are almost always the boundaries: empty
 input, one element, the first or last position, duplicates, and the largest
-allowed value.
+allowed value. In an interview, run these checks out loud and before
+announcing you are done: [the verify-and-test
+phase](interview_practices.md#5-verify-and-test) is this step performed
+visibly.
 
 ## Pattern recognition signals
 
@@ -92,8 +117,17 @@ moves:
 - Solve a smaller version of the problem first, then ask what changes as it
   grows.
 - Sort the input and see whether order makes the structure obvious.
+- Draw it. Set up the smallest example you can, step it by hand, and write
+  down exactly what you are tracking after every step.
 - Ask what you would store in a hash map to avoid a repeated search.
 - Look at your brute force again and attack the single most wasteful line.
 
 The goal of practice is not to memorize 75 solutions. It is to make these steps
 automatic, so that an unfamiliar problem becomes a familiar process.
+
+---
+
+*The draw-it-out and skeleton-decomposition moves are adapted from the Tech
+Interview Handbook's [Coding Interview
+Techniques](https://www.techinterviewhandbook.org/coding-interview-techniques/);
+the rest of the method is original to this project.*

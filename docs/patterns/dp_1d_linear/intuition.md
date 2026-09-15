@@ -272,6 +272,18 @@ if n <= 2:
 
 ---
 
+## Corner Cases
+
+- n = 0, 1, or 2: the base cases are the whole answer; the transition loop runs never or once
+- A single house or single element: include/exclude must still consider taking it
+- All-negative values (Kadane): restart-at-current keeps the least bad element, restart-at-zero returns 0; pick deliberately
+- Circular input of size one or two (House Robber II): the two-pass split degenerates; guard the empty half
+- Answer location: dp[n], max(dp), or the min of the last two entries; each problem plants it differently
+- State meaning: "best using 0..i" and "best ending at i" differ on almost every input; verify with a tiny case
+- Two-variable space optimization: assign the prev values as a tuple, or they clobber each other before use
+
+---
+
 ## The Circular Array Trick
 
 When first and last elements conflict (can't both be selected):

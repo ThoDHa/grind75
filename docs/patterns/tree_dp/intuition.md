@@ -220,10 +220,18 @@ Parent_state = f(left_state, right_state, node_val)
            nonlocal count
            ...  # state transitions from Pattern 3; count += 1 when placing a camera
 
-       if dfs(root) == 0:
-           count += 1  # Root needs a camera
-       return count
+        if dfs(root) == 0:
+            count += 1  # Root needs a camera
+        return count
 ```
+
+## Corner Cases
+
+- Empty tree: the null case defines each state's default
+- Single node: include versus exclude is just node value versus zero
+- All-negative values: clamping branches to zero versus forced inclusion changes the answer
+- Two-node tree: the smallest case where parent and child decisions interact
+- Chain shape (every node one child) versus star (root with many leaves): deep recursion versus wide fan-out
 
 ## Visual Summary
 

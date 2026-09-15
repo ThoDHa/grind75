@@ -275,6 +275,18 @@ Hashing costs O(n) extra space and gives unordered results. When the input is al
 
 ---
 
+## Corner Cases
+
+- Empty array or string: the map stays empty and every lookup misses; the empty result is a valid answer
+- Single element: no partner exists for a complement search; the map holds one entry
+- A pair made of an element and itself (x + x): two distinct occurrences are required, so check the complement before storing x
+- All elements identical: the counts pile into one key, and a value-to-index map keeps only the last index seen
+- Negative numbers and zero as keys or complements: perfectly legal keys, but sign slips hide in the arithmetic
+- Unhashable or composite keys (lists, pairs): canonicalize to a sorted tuple or a count tuple first
+- Case and formatting variants: "abc" and "ABC" are different keys unless normalized before counting
+
+---
+
 ## Practice Progression
 
 Master hashing through this sequence of Grind75 problems:

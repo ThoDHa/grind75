@@ -185,6 +185,18 @@ return result[::-1]  # Don't forget to reverse!
 
 ---
 
+## Corner Cases
+
+- Empty graph: zero items, trivially orderable
+- No edges: any node order is valid
+- Self-loop: a node that depends on itself is an immediate cycle
+- Cycle buried mid-graph: Kahn's processed count falls short of n; DFS meets a gray node again
+- Disconnected components: DFS must start from every unvisited node
+- Duplicate prerequisite pairs: the in-degree must not be counted twice
+- Single node: the order is the node itself
+
+---
+
 ## Practice Progression
 
 ### Level 1: Core Concept

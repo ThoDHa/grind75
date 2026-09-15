@@ -140,11 +140,11 @@ minutes.
 - Cache-aside with LRU fits perfectly: reads dominate, and immutable
   values mean invalidation is nearly a non-issue (only deletes/expiry
   invalidate).
-- Size it with the [80/20 logic](../../system_design/estimation.md#example-2-cache-sizing-with-the-8020-rule):
+- Size it with the [80/20 logic](../estimation.md#example-2-cache-sizing-with-the-8020-rule):
   even caching just the day's popular links (a few GB) absorbs most reads.
 - One link going viral is a *single hot key*: replicate that entry across
   cache nodes or in app-server local memory for a few seconds. Mention
-  [thundering herd](../../system_design/building_blocks.md#caching) on
+  [thundering herd](../building_blocks.md#caching) on
   expiry and the coalescing fix.
 
 ### 4. Does the database ever need sharding?
@@ -172,7 +172,7 @@ minutes.
 Deliberately left for you. Design each with the same method:
 
 - [ ] **Click analytics**: counting 10,000 clicks/s without writing to the
-  hot path (hint: a [queue](../../system_design/building_blocks.md#message-queues-and-streams)
+  hot path (hint: a [queue](../building_blocks.md#message-queues-and-streams)
   and batch aggregation).
 - [ ] **Expiration and cleanup**: TTLs, lazy deletion vs a sweeper job, and
   what a 410 response should look like.

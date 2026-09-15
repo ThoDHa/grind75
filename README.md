@@ -6,7 +6,7 @@ This repository is a structured study guide for algorithmic problem solving base
 
 ## How this repository is organized
 
-- The `main` branch is the study environment: problem statements, pattern guides, foundations, system design material, and the `practice/` workspace with unsolved stubs. Solution write-ups are deliberately absent here so you can attempt problems without spoilers.
+- The `main` branch is the study environment: problem statements, pattern guides, foundations, interview prep planning, system design material, and the `practice/` workspace with unsolved stubs. Solution write-ups are deliberately absent here so you can attempt problems without spoilers.
 - The `solutions` branch adds the full multi-approach solution write-ups to every problem page. The published site is built from it, so read solutions on the website (or that branch) when you are ready to compare answers.
 
 ## First time here?
@@ -19,7 +19,7 @@ New to algorithms or interview prep? Start with the [Foundations](docs/foundatio
 4. [How to Approach a Problem](docs/foundations/how_to_approach.md): a repeatable method from problem statement to working solution.
 5. [Glossary](docs/foundations/glossary.md): the jargon the guides lean on, defined in plain language.
 
-Then work the problems in order, reading each one's linked **Pattern** guide for the *why* behind the technique.
+Then work the problems in order, reading each one's linked **Pattern** guide for the *why* behind the technique. For the plan around the problems, how to budget your time, and what the non-coding rounds require, see the [Interview Prep](docs/interview_prep/index.md) section.
 
 ## Problem List
 
@@ -105,7 +105,7 @@ The canonical 75 problems in study order (for real progress tracking, use the [p
 
 Two bonus problems beyond the canonical 75 are also covered: [Binary Tree Maximum Path Sum](docs/problems/binary_tree_maximum_path_sum.md) (Hard) and [Maximum Frequency Stack](docs/problems/maximum_frequency_stack.md) (Hard).
 
-This 8-week schedule organizes the problems in increasing order of difficulty, with related problem types grouped together. Each week has a manageable number of problems, and earlier weeks focus on foundational concepts while later weeks tackle more advanced topics.
+The [8-week schedule](docs/interview_prep/study_plan.md#the-8-week-schedule) organizes the problems in increasing order of difficulty, with related problem types grouped together: each week places a manageable batch of problems, and earlier weeks focus on foundational concepts while later weeks tackle more advanced topics.
 
 ## Pattern Intuition
 

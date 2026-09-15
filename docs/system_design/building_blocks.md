@@ -157,6 +157,31 @@ pattern ("all messages for a conversation live on one shard").
 **The interview question this answers:** "This table gets 50,000 writes per
 second and holds 100 TB. Now what?"
 
+#### Consistent hashing
+
+The hash row's pain ("resharding moves nearly everything") has a standard
+fix, and interviewers probe for it by name. The problem with
+`hash(key) mod N` is the N: with ten shards, adding an eleventh remaps
+almost every key, so the "config change" becomes a full data migration.
+Consistent hashing removes N from the equation. Hash keys *and* nodes onto
+the same ring, and assign each key to the first node clockwise from its
+position. Adding a node now steals only the keys that fall between its
+counterclockwise neighbor and itself, carved from its clockwise
+neighbor's former range, about 1/N of the keyspace; removing a node hands
+its keys to the next one the same way. No global re-shuffle.
+
+One position per node still leaves the ring lumpy: random placement puts
+some nodes in charge of oversized arcs. Real deployments give each physical
+node many positions around the ring, called **virtual nodes**, which
+averages out the lump and lets a machine with twice the capacity appear
+twice as often and take twice the load. This is the mechanism inside
+Dynamo-style stores, distributed caches, and modern load balancers, and it
+is what makes the table's "~1/N of keys move" claim true in practice.
+
+**The interview question this answers:** "You said adding a shard only
+moves a fraction of the data. Why, and what happens without consistent
+hashing?"
+
 ## Message queues and streams
 
 A queue decouples the component that produces work from the one that does
@@ -282,6 +307,103 @@ metadata, not over your data path.
 **The interview question this answers:** "The primary dies. Who decides
 which replica takes over, and why can't two replicas both decide it's
 them?"
+
+## Advanced replication and coordination
+
+These blocks go one tier deeper than the replication basics under
+[Databases](#databases): what happens when there is no leader to replicate
+from, how to keep one logical write consistent across services, and whether
+to split the system into services at all. Interviewers reach for this tier
+at senior level, usually one block at a time.
+
+### Quorums and leaderless replication
+
+Single-leader replication concentrates every write through one node, which
+makes it a bottleneck to shard around and a node whose death pauses writes.
+**Leaderless** replication (Dynamo, Cassandra, Riak) drops the leader:
+clients write to several replicas at once, and **quorums** keep the copies
+coherent. With N replicas, each write must be acknowledged by W of them,
+and each read consults R of them. The algebra: keep W + R > N and every
+read overlaps at least one replica that took the write, so the freshest
+copy is among the answers and the reader picks it by version, with no
+leader and no synchronous coordination. Dynamo's classic
+configuration (N=3, W=2, R=2) tolerates one replica being down or slow on
+both the read and the write path.
+
+The knobs are a tunable consistency dial, and narrating that tradeoff is
+the point: W=N makes every read fresh but writes pay the slowest replica;
+W=1 flips the bill onto reads, which must then consult all N. The cost
+leaderless operation never escapes is conflict handling:
+two clients can write the same key to different replicas concurrently, and
+overlapping quorums do not impose a total order. The system must resolve
+this (last-write-wins timestamps or version vectors), and lagging
+replicas catch up through read repair and anti-entropy background sync,
+which is why these stores are eventually consistent by design rather than
+by accident.
+
+**The interview question this answers:** "You picked a database where any
+replica can accept writes. How do reads avoid stale data, and what happens
+when two clients write the same key at the same time?"
+
+### Two-phase commit vs sagas
+
+Once a logical write spans two services (an order touches orders,
+payments, and inventory), the question becomes how they commit together.
+
+**Two-phase commit (2PC)** is the direct answer: a coordinator asks every
+participant to *prepare* (apply the change but hold the locks), and only
+when all agree does it send *commit*. It is atomic, and the costs are why
+you rarely see it between services: locks are held across the entire
+prepare phase, one slow participant slows the whole transaction, and a
+coordinator that dies mid-flight leaves participants holding locks with no
+way to know the outcome. In practice you meet 2PC inside a single
+database's internals, not across a service mesh.
+
+**Sagas** are the practical answer between services: run each step as a
+local transaction, publish an event when it completes, and let the next
+service react. When a step fails, run **compensating transactions** for
+the steps already done: if payment succeeded but inventory reservation
+failed, refund. You give up atomicity and isolation across the whole flow
+and gain availability and independence, at the price of writing and
+testing compensation paths for every step.
+
+The interview-ready sentence: 2PC buys atomicity at the cost of
+availability and latency; sagas buy availability at the cost of
+application-managed cleanup. Choose by asking what an intermediate state
+costs the business: money movement wants atomic guarantees, order flow
+usually tolerates a refund.
+
+**The interview question this answers:** "Placing an order touches three
+services and the payment fails halfway through. What does your system
+do?"
+
+### Microservices vs the monolith
+
+This is an architecture tradeoff, and the strong answer names the forces
+on both sides instead of picking a fashion.
+
+- **The monolith:** one deployable, one database, in-process calls. Every
+  operation is a function call: fast, transactional, debuggable in a
+  single stack trace, with one pipeline to operate. It hurts when many
+  teams trip over a single deploy train, when one module's load profile
+  forces the whole system to scale together, and when a shared schema lets
+  every feature quietly couple to every other.
+- **Microservices:** each service deploys, scales, and fails on its own,
+  teams own their service end to end, and each service picks the storage
+  that fits its access pattern. The costs are everything this page has
+  taught you to fear: network calls where function calls used to be,
+  distributed transactions (sagas, above), partial-failure handling on
+  every hop, and an operational bill (service discovery, orchestration,
+  distributed tracing) paid from day one.
+
+The honest default for an interview sketch: a well-modularized monolith,
+splitting out a service only when a specific force justifies it, such as a
+distinct scaling profile, an independently shipping team, or a distinct
+availability requirement. "Six services because real systems have six
+services" is the boxes-without-numbers mistake wearing a different hat.
+
+**The interview question this answers:** "Why is this four services
+instead of one, and what breaks between them?"
 
 ## Rate limiting
 

@@ -224,6 +224,16 @@ if p[j-1] == s[i-1]:
 if p[j-2] == s[i-1]:
 ```
 
+## Corner Cases
+
+- One or both strings empty: the zero row and column are the base cases; edit distance is the other length, LCS is 0
+- Identical strings: the diagonal alone; LCS is the full length and edit distance is zero
+- No shared characters: LCS is 0; every cell comes from skip moves
+- Single-character strings: the smallest grid that still exercises both match and mismatch paths
+- All-one-character strings ("bbbb"): every substring is a palindrome; keep scanning for the longest True instead of stopping at the first
+- Palindrome spans of length 1 and 2: the length <= 2 short-circuit is what seeds the interval fill
+- Regex on an empty string or a pattern like "c*a*b": zero-use of each star must be explored, and the j-2 lookback assumes a character exists before the star
+
 ## Practice Progression
 
 Build string DP skill through this sequence:
