@@ -91,6 +91,33 @@ the natural place to note the primary access pattern ("messages are always
 fetched by conversation, newest first"), because that pattern picks your
 database indexes and partition keys in step 5.
 
+Four API-design practices each deserve one sentence in the sketch, and not
+more than that: step 3 has five minutes, and the sketch, not a spec, is the
+deliverable.
+
+- **Versioning.** Put `/v1/` in the paths from the start. Contracts change,
+  and a version prefix turns the first breaking change into a new path
+  instead of a coordinated migration.
+- **REST vs RPC.** Resource-oriented REST is the shared vocabulary of these
+  interviews and fits most systems; move to RPC-style method calls when the
+  operation is an action rather than a thing ("join conversation"), which
+  is why real systems usually mix both.
+- **Error contracts.** Return structured errors with status codes the
+  client can act on (400 for validation, 401/403 for auth, 429 with
+  `Retry-After` for rate limiting), never a 200 with an error string in the
+  body. The [rate limiter case study](case_studies/rate_limiter.md) works
+  out a full rejection contract.
+- **Idempotency keys.** For any write a client might retry, require a
+  client-generated key (`client_msg_id` in the
+  [chat case study](case_studies/chat_system.md)) so the retry is a no-op
+  instead of a duplicate. It is the same idempotency contract the message
+  queues section demands of consumers, pushed out to the API edge.
+
+For list endpoints, prefer cursor pagination over page numbers; the
+`?before=` cursor in the sketch above is its minimal form, and the
+[news feed case study](case_studies/news_feed.md) explains why cursors
+beat offsets.
+
 ### 4. High-level architecture
 
 Now draw. Start with the simplest thing that satisfies the requirements and

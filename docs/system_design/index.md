@@ -28,6 +28,33 @@ but not yet written.
 - **Communication.** The round is a conversation. Interviewers steer, and
   following their steering is graded.
 
+## Which of the four design interviews this trains
+
+"System design" names four different interview formats, and preparing for
+the wrong one is the quietest way to waste a prep weekend:
+
+- **Back end / distributed system design.** Architecture across servers and
+  datacenters: databases, caching, queues, replication, consistency, fault
+  tolerance. This is the format everything in this section trains: the
+  method, the estimation material, the building blocks, and the case
+  studies are all aimed at it.
+- **API design.** The system's contracts: endpoints, versioning, error
+  handling, idempotency. Our coverage is the transferable core, collected
+  in [step 3 of the method](method.md#3-api-and-data-model-sketch) rather
+  than as its own track.
+- **Object-oriented design.** Classes, relationships, interfaces, and
+  patterns in the small: parking lots, elevators, chess. Different canon,
+  different prep; NeetCode's free
+  [OOD course](https://neetcode.io/courses) is the starting point, not this
+  section.
+- **Front end system design.** Client application and UI component
+  architecture, out of scope for a LeetCode-based repo;
+  [GreatFrontEnd's Front End System Design Playbook](https://www.greatfrontend.com/front-end-system-design-playbook)
+  covers it properly.
+
+If your loop is the OOD or front end format instead, treat this section as
+background vocabulary and prepare from the pointers above.
+
 ## How this section is organized
 
 | Guide | What it gives you | Read it when |
@@ -95,3 +122,35 @@ the [roadmap](case_studies/index.md#roadmap-case-studies-not-yet-written)
 lists classics that are not yet written. If a topic you need is missing, the
 building blocks page plus the method are usually enough to attempt it
 yourself, which is better practice anyway.
+
+## Further resources
+
+This scaffold covers the method and the core vocabulary; when you want more
+depth, a second explanation, or a last-minute revision pass, these are the
+sources worth your time:
+
+- [System Design in a Hurry](https://www.hellointerview.com/learn/system-design/in-a-hurry/introduction)
+  (Hello Interview): the strongest free primer, covering delivery,
+  high-level concepts, and core technologies, with worked versions of the
+  classic questions. Use it to check our case studies against another
+  treatment of the same problem.
+- [System Design Primer](https://github.com/donnemartin/system-design-primer):
+  the most comprehensive free reference. Too long to read linearly under
+  time pressure; treat it as an encyclopedia.
+- *System Design Interview: An Insider's Guide, Second Edition* by Alex Xu
+  ([Amazon](https://www.amazon.com/System-Design-Interview-insiders-Second/dp/B08CMF2CQF)):
+  the standard book, beginner friendly, with step-by-step deep dives of
+  famous systems.
+- [System Design Cheatsheet](https://gist.github.com/vasanthk/485d1c25737e8e72759f)
+  (vasanthk's gist): brief and dense, positioned exactly where this section
+  has a gap: the revision pass the day before the interview.
+- [System Design Roadmap](https://roadmap.sh/system-design): a step-by-step
+  topic checklist with links, useful for auditing what you have and have
+  not covered.
+
+---
+
+*The interview-type taxonomy and the canonical question framing follow the
+[Tech Interview Handbook's system design guide](https://www.techinterviewhandbook.org/system-design/);
+all explanations, the method, the estimation material, and the case studies
+are original to this project.*
