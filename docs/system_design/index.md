@@ -117,7 +117,7 @@ all three.
 
 ## This section is growing
 
-The four case studies are scaffolded workthroughs with intentional gaps, and
+The five case studies are scaffolded workthroughs with intentional gaps, and
 the [roadmap](case_studies/index.md#roadmap-case-studies-not-yet-written)
 lists classics that are not yet written. If a topic you need is missing, the
 building blocks page plus the method are usually enough to attempt it

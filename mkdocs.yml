@@ -129,6 +129,7 @@ nav:
       - Rate Limiter: system_design/case_studies/rate_limiter.md
       - News Feed: system_design/case_studies/news_feed.md
       - Chat System: system_design/case_studies/chat_system.md
+      - Web Crawler: system_design/case_studies/web_crawler.md
   - Problems:
     - "Two Sum": problems/two_sum.md
     - "Valid Parentheses": problems/valid_parentheses.md
