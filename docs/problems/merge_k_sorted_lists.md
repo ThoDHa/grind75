@@ -241,7 +241,7 @@ from typing import List, Optional
 class Solution:
     def mergeKLists(self, lists: List[Optional[ListNode]]) -> Optional[ListNode]:
         """
-        Sequential merge - merge lists one by one
+        Sequential merge: merge lists one by one
         """
         if not lists:
             return None
@@ -391,7 +391,7 @@ from typing import List, Optional
 class Solution:
     def mergeKLists(self, lists: List[Optional[ListNode]]) -> Optional[ListNode]:
         """
-        Divide and conquer approach - merge pairs recursively
+        Divide and conquer approach: merge pairs recursively
         """
         if not lists:
             return None
