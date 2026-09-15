@@ -474,9 +474,11 @@ class Solution:
 
 Converting the strings to integers and back to binary takes linear time.
 
-##### Space Complexity: `O(1)` for computation, `O(max(n, m))` for output
+##### Space Complexity: `O(max(n, m))`
 
-The space needed for computation is constant, but the output size is proportional to the input sizes.
+The parsed integers hold one bit per input character, and the output string is
+proportional to the input sizes, so the built-in conversion stores linear space
+like every other approach here.
 
 #### Key Insights
 
@@ -500,7 +502,7 @@ The space needed for computation is constant, but the output size is proportiona
 - **Bit-by-bit**: `O(max(n, m))` - Padded strings and result
 - **Single-Loop**: `O(max(n, m))` - Result string only
 - **Bit Manipulation**: `O(max(n, m))` - The arbitrary-precision integers hold one bit per input bit, plus the output string
-- **Built-in Functions**: `O(max(n, m))` for output, `O(1)` for computation
+- **Built-in Functions**: `O(max(n, m))` - The parsed arbitrary-precision integers hold one bit per input bit, plus the output string
 
 ### Trade-offs
 

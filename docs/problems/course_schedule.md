@@ -54,7 +54,7 @@ only in how they hunt for that cycle.
 1. **Start literal.** Simulate a student: repeatedly take any course whose
    prerequisites are all finished, and stop when a full round takes nothing.
    Courses left over are trapped in a cycle. Correct, but each round re-checks
-   everything, costing `O(V * (V + E))`: see [Brute Force](#brute-force).
+   everything, costing `O(V^2 + V * E)`: see [Brute Force](#brute-force).
 2. **Spot the waste.** Every sweep re-examines prerequisites that have not
    changed since the last sweep; almost all of that checking is repeated
    verbatim.
@@ -166,7 +166,7 @@ class Solution:
 
 Each sweep is `O(V + E)` because it re-checks every course's full prerequisite
 list, and in the worst case only one course is taken per sweep, forcing up to
-`V` sweeps. That gives `O(V * (V + E))` overall, far more work than the linear
+`V` sweeps. That gives `O(V^2 + V * E)` overall, far more work than the linear
 methods below because the same prerequisites are re-examined every round.
 
 ##### Space Complexity: `O(V + E)`
