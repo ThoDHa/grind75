@@ -256,7 +256,6 @@ The code is the walkthrough's loop with `deque` as the queue: dequeue from the f
 #         self.left = left
 #         self.right = right
 from collections import deque
-
 from typing import Optional
 
 

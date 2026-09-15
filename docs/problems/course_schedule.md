@@ -481,7 +481,7 @@ all courses finishable  if and only if  completed == numCourses
 ```
 
 Each vertex enters the queue at most once (only on the decrement that brings it
-to zero) and each edge is relaxed exactly once, giving \(O(V + E)\).
+to zero) and each edge is relaxed exactly once, giving `O(V + E)`.
 
 #### Walkthrough
 
