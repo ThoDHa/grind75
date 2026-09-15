@@ -16,7 +16,7 @@ You encounter this pattern whenever:
 - The problem **describes a procedure** and asks for its outcome
 - There is **no obvious data structure or formula** that shortcuts the work
 - Correctness depends on **precise state tracking and boundary handling**, not on a flash of algorithmic insight
-- The difficulty lives in the **details**: edge cases, ordering, off-by-one errors
+- The difficulty lives in the **details**: corner cases, ordering, off-by-one errors
 
 The key realization: *You are not solving a puzzle. You are modeling a process. The challenge is fidelity, not cleverness.*
 
@@ -234,7 +234,7 @@ Whenever you accumulate digits or sums, the value can exceed the allowed range. 
 In digit-by-digit addition, the loop must continue while *either* string has digits remaining *or* the carry is nonzero. Stopping when the strings run out loses the leading `1` in cases like `1 + 1 = 10`.
 
 ### Pitfall 4: Edge Cases That Break the Setup
-Simulation lives and dies on edge cases. Always check:
+Simulation lives and dies on corner cases. Always check:
 - **Empty input**: zero-length string or matrix. Return the empty result without touching `matrix[0]`.
 - **Leading / trailing whitespace**: skip leading; treat trailing as a stop signal.
 - **Signs**: a lone `+` or `-` with no digits yields zero; two signs is invalid.
@@ -266,7 +266,7 @@ Master simulation through this sequence:
 
 2. **Add Binary**: Digit-by-digit processing with carry. Walk both strings right to left, sum with carry, and remember to emit the final carry. Trains careful state tracking and termination.
 
-3. **String to Integer (atoi)**: The parsing state machine. Skip whitespace, read an optional sign, consume digits, stop at the first non-digit, and clamp on overflow. The definitive exercise in precise phase handling and edge cases.
+3. **String to Integer (atoi)**: The parsing state machine. Skip whitespace, read an optional sign, consume digits, stop at the first non-digit, and clamp on overflow. The definitive exercise in precise phase handling and corner cases.
 
 Work them in this order: spiral builds boundary discipline, binary addition builds carry discipline, and atoi forces you to handle every messy edge at once.
 

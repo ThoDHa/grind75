@@ -27,7 +27,7 @@ The algorithm for `myAtoi(string s)` is as follows:
 
 ### Example 1
 
-**Input:** s = `"42"`
+**Input:** `s = "42"`
 
 **Output:** `42`
 
@@ -47,7 +47,7 @@ Since 42 is in the range `[-2^31, 2^31 - 1]`, the final result is 42.
 
 ### Example 2
 
-**Input:** s = `"   -42"`
+**Input:** `s = "   -42"`
 
 **Output:** `-42`
 
@@ -67,7 +67,7 @@ Since -42 is in the range `[-2^31, 2^31 - 1]`, the final result is -42.
 
 ### Example 3
 
-**Input:** s = `"4193 with words"`
+**Input:** `s = "4193 with words"`
 
 **Output:** `4193`
 

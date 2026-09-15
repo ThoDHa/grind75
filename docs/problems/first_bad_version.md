@@ -33,7 +33,7 @@ Then `4` is the first bad version.
 
 ## Constraints
 
-- `1 <= bad <= n <= 2³¹ - 1`
+- `1 <= bad <= n <= 2^31 - 1`
 
 ## Deriving the Solution
 

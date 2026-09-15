@@ -33,7 +33,7 @@ The canonical 75 problems in study order (for real progress tracking, use the [p
 | 󰄰 | [4](https://leetcode.com/problems/best-time-to-buy-and-sell-stock/) | [Best Time to Buy and Sell Stock](docs/problems/best_time_to_buy_and_sell_stock.md) | Easy | Array | 20 minutes |
 | 󰄰 | [5](https://leetcode.com/problems/valid-palindrome/) | [Valid Palindrome](docs/problems/valid_palindrome.md) | Easy | String | 15 minutes |
 | 󰄰 | [6](https://leetcode.com/problems/invert-binary-tree/) | [Invert Binary Tree](docs/problems/invert_binary_tree.md) | Easy | Tree | 15 minutes |
-| 󰄰 | [7](https://leetcode.com/problems/valid-anagram/) | [Valid Anagram](docs/problems/valid_anagram.md) | Easy | String | 15 Minutes |
+| 󰄰 | [7](https://leetcode.com/problems/valid-anagram/) | [Valid Anagram](docs/problems/valid_anagram.md) | Easy | String | 15 minutes |
 | 󰄰 | [8](https://leetcode.com/problems/binary-search/) | [Binary Search](docs/problems/binary_search.md) | Easy | Binary Search | 15 minutes |
 | 󰄰 | [9](https://leetcode.com/problems/flood-fill/) | [Flood Fill](docs/problems/flood_fill.md) | Easy | Graph, DFS | 20 minutes |
 | 󰄰 | [10](https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree/) | [Lowest Common Ancestor of a BST](docs/problems/lowest_common_ancestor_of_a_binary_search_tree.md) | Medium | Tree | 20 minutes |
@@ -117,7 +117,7 @@ Coding rounds are only half the interview loop. The [System Design section](docs
 
 ## Practice Workspace
 
-The [`practice/`](practice/) directory is a `pytest` workspace for solving the problems yourself rather than just reading them. Each problem has its own folder with a `solution.py` to implement, two test sets that mirror LeetCode's Run (the examples) and Submit (a full edge-case gauntlet), and a `__main__` block for stepping through a single case in a debugger. An unsolved `solution.py` raises `NotSolved` so its tests skip until you fill it in. A progress tracker (`practice/progress.py`) derives solved status from the test suite, records your confidence per problem, and maintains a spaced-repetition review queue. See [`practice/README.md`](practice/README.md) for setup and the full workflow.
+The [`practice/`](practice/) directory is a `pytest` workspace for solving the problems yourself rather than just reading them. Each problem has its own folder with a `solution.py` to implement, two test sets that mirror LeetCode's Run (the examples) and Submit (a full corner-case gauntlet), and a `__main__` block for stepping through a single case in a debugger. An unsolved `solution.py` raises `NotSolved` so its tests skip until you fill it in. A progress tracker (`practice/progress.py`) derives solved status from the test suite, records your confidence per problem, and maintains a spaced-repetition review queue. See [`practice/README.md`](practice/README.md) for setup and the full workflow.
 
 ## Creating a PDF with Pandoc
 

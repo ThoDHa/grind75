@@ -21,7 +21,7 @@ The seven groups double as a curriculum: later guides lean on the invariants of 
 | [Hashing & Frequency Counting](hashing/intuition.md) | Trading space for O(1) lookup, membership, and counting | Two Sum, Valid Anagram, Contains Duplicate, Ransom Note, Longest Palindrome, Majority Element |
 | [String](string/intuition.md) | A routing map: every string question is counting, framing, two ends, alignment, or parsing | Valid Palindrome, Valid Anagram, Longest Palindrome, Longest Substring w/o Repeats, Find All Anagrams, Minimum Window Substring |
 | [Stack](stack/intuition.md) | LIFO processing for nesting, matching, and expression evaluation | Valid Parentheses, Evaluate RPN, Basic Calculator |
-| [Simulation](simulation/intuition.md) | Modeling a described process directly, with care for boundaries and edge cases | Spiral Matrix, Add Binary, String to Integer (atoi) |
+| [Simulation](simulation/intuition.md) | Modeling a described process directly, with care for boundaries and corner cases | Spiral Matrix, Add Binary, String to Integer (atoi) |
 | [Data-Structure Design](design/intuition.md) | Composing primitive structures to meet operation complexity guarantees | Min Stack, Implement Queue using Stacks, LRU Cache, Maximum Frequency Stack |
 
 ## Array & Sequences

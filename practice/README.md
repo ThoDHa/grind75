@@ -3,7 +3,7 @@
 A `pytest` workspace for practicing the
 [Grind75](https://www.techinterviewhandbook.org/grind75) problems. Each problem
 gets a directory you solve in, debug through, and test. The canonical worked
-solutions are **not** kept here — they live in the matching
+solutions are **not** kept here: they live in the matching
 [`../docs/problems/<slug>.md`](../docs/problems) write-up, which each `solution.py`
 links to (and which links back), so you can go back and forth.
 
@@ -15,9 +15,9 @@ practice/
 ├── pyproject.toml        # uv project (pytest dependency)
 ├── pytest.ini            # makes `import harness` work from any test
 └── <problem_slug>/
-    ├── solution.py       # YOUR attempt — solve here; run it directly to debug a case
+    ├── solution.py       # YOUR attempt: solve here; run it directly to debug a case
     ├── cases.json        # simple cases: the LeetCode examples ("Run")
-    ├── cases_full.json   # full cases: the edge-case gauntlet ("Submit")
+    ├── cases_full.json   # full cases: the corner-case gauntlet ("Submit")
     └── test_<slug>.py    # runs your solution against both case sets
 ```
 
@@ -31,7 +31,7 @@ uv sync           # creates .venv and installs pytest
 ## The practice loop
 
 1. Open `<problem_slug>/solution.py`. The header links to the write-up at
-   `../../docs/problems/<slug>.md` — read the problem there.
+   `../../docs/problems/<slug>.md`: read the problem there.
 2. Implement the method.
 3. **Debug it inside the file.** Each `solution.py` has a `__main__` block that
    runs one case and prints input / expected / actual. Set a breakpoint in your
@@ -62,9 +62,9 @@ uv sync           # creates .venv and installs pytest
 | File | Marker | Role |
 |------|--------|------|
 | `cases.json` | `simple` | The example cases. Fast feedback while you iterate. |
-| `cases_full.json` | `full` | Examples **plus** a comprehensive edge-case gauntlet (empties, single elements, negatives, duplicates, boundary values, large inputs). |
+| `cases_full.json` | `full` | Examples **plus** a comprehensive corner-case gauntlet (empties, single elements, negatives, duplicates, boundary values, large inputs). |
 
-`cases_full.json` is a thorough edge-case suite built to each problem's
+`cases_full.json` is a thorough corner-case suite built to each problem's
 constraints. LeetCode's literal hidden tests are not public, but this set targets
 the same failure modes.
 

@@ -47,7 +47,7 @@ Poor reasons to switch:
 - "My solution feels clumsy in my current language." The clumsiness is almost
   never the language.
 
-Two edge cases worth knowing:
+Two corner cases worth knowing:
 
 - Some companies restrict the choice. Google, for example, only allows a
   fixed set of languages. Check before you commit.

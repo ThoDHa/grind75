@@ -508,7 +508,7 @@ Step k:    n/2^k candidates
 
 When n/2^k = 1:
     2^k = n
-    k = log₂(n)
+    k = log2(n)
 
 Total steps: O(log n)
 ```

@@ -37,6 +37,11 @@ From best to worst, the ones that appear in this guide:
 | `O(n²)` | Quadratic | For every item, you touch every item | Comparing every person in a room to every other |
 | `O(2ⁿ)` | Exponential | Each new item doubles the work | Trying every yes/no combination of `n` switches |
 
+A quick note on notation: prose math keeps its superscripts (`O(n²)`,
+`O(2ⁿ)`), while inline code and constraint blocks use the caret forms
+LeetCode prints (`2^31 - 1`, `2^k`). Text quoted from LeetCode is never
+altered.
+
 `O(1)` and `O(log n)` are excellent. `O(n)` and `O(n log n)` are the usual
 targets for a good solution. `O(n²)` is often the brute force you start from.
 `O(2ⁿ)` is usually only acceptable when `n` is tiny.
