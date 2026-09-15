@@ -25,7 +25,7 @@ Use the navigation sidebar (in canonical Grind75 order) or the table below.
 | [7](https://leetcode.com/problems/valid-anagram/) | [Valid Anagram](problems/valid_anagram.md) | Easy | String | 15 Minutes |
 | [8](https://leetcode.com/problems/binary-search/) | [Binary Search](problems/binary_search.md) | Easy | Binary Search | 15 minutes |
 | [9](https://leetcode.com/problems/flood-fill/) | [Flood Fill](problems/flood_fill.md) | Easy | Graph, DFS | 20 minutes |
-| [10](https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree/) | [Lowest Common Ancestor of a BST](problems/lowest_common_ancestor_of_a_binary_search_tree.md) | Easy | Tree | 20 minutes |
+| [10](https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree/) | [Lowest Common Ancestor of a BST](problems/lowest_common_ancestor_of_a_binary_search_tree.md) | Medium | Tree | 20 minutes |
 | [11](https://leetcode.com/problems/balanced-binary-tree/) | [Balanced Binary Tree](problems/balanced_binary_tree.md) | Easy | Tree | 15 minutes |
 | [12](https://leetcode.com/problems/linked-list-cycle/) | [Linked List Cycle](problems/linked_list_cycle.md) | Easy | Linked List | 20 minutes |
 | [13](https://leetcode.com/problems/implement-queue-using-stacks/) | [Implement Queue using Stacks](problems/implement_queue_using_stacks.md) | Easy | Stack | 20 minutes |

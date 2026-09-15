@@ -1,6 +1,6 @@
 # [Lowest Common Ancestor of a Binary Search Tree](https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree/)
 
-**Easy** | **20 minutes** | **Binary Search Tree, Tree, Recursion**
+**Medium** | **20 minutes** | **Binary Search Tree, Tree, Recursion**
 
 **Pattern:** [Tree Traversal](../patterns/tree/intuition.md)
 
