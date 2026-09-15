@@ -1,4 +1,4 @@
-"""LRU Cache — https://leetcode.com/problems/lru-cache/
+"""LRU Cache: https://leetcode.com/problems/lru-cache/
 
 Write-up & approaches: ../../docs/problems/lru_cache.md
 

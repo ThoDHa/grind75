@@ -1,4 +1,4 @@
-"""Merge k Sorted Lists — https://leetcode.com/problems/merge-k-sorted-lists/
+"""Merge k Sorted Lists: https://leetcode.com/problems/merge-k-sorted-lists/
 
 Write-up & approaches: ../../docs/problems/merge_k_sorted_lists.md
 

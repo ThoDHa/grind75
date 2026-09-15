@@ -1,4 +1,4 @@
-"""Tests for LRU Cache — your attempt (solution.py) against both case sets.
+"""Tests for LRU Cache: your attempt (solution.py) against both case sets.
 
 Each case is a LeetCode design-operation sequence (operations + arguments) that
 is replayed against your LRUCache via run_operations. cases.json (marker `simple`)

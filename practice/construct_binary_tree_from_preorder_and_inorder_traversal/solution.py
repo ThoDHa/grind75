@@ -1,4 +1,4 @@
-"""Construct Binary Tree from Preorder and Inorder Traversal — https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/
+"""Construct Binary Tree from Preorder and Inorder Traversal: https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/
 
 Write-up & approaches: ../../docs/problems/construct_binary_tree_from_preorder_and_inorder_traversal.md
 

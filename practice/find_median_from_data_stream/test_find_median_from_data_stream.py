@@ -1,4 +1,4 @@
-"""Tests for Find Median from Data Stream — your attempt (solution.py) against both case sets.
+"""Tests for Find Median from Data Stream: your attempt (solution.py) against both case sets.
 
 Each case is a LeetCode design-operation sequence (operations + arguments) that
 is replayed against your MedianFinder via run_operations. cases.json (marker

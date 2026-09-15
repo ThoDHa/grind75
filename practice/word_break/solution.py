@@ -1,4 +1,4 @@
-"""Word Break — https://leetcode.com/problems/word-break/
+"""Word Break: https://leetcode.com/problems/word-break/
 
 Write-up & approaches: ../../docs/problems/word_break.md
 

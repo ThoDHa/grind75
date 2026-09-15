@@ -1,4 +1,4 @@
-"""01 Matrix — https://leetcode.com/problems/01-matrix/
+"""01 Matrix: https://leetcode.com/problems/01-matrix/
 
 Write-up & approaches: ../../docs/problems/01_matrix.md
 

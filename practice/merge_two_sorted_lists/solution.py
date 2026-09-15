@@ -1,4 +1,4 @@
-"""Merge Two Sorted Lists — https://leetcode.com/problems/merge-two-sorted-lists/
+"""Merge Two Sorted Lists: https://leetcode.com/problems/merge-two-sorted-lists/
 
 Write-up & approaches: ../../docs/problems/merge_two_sorted_lists.md
 

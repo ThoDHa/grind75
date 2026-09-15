@@ -1,4 +1,4 @@
-"""Tests for Linked List Cycle — your attempt (solution.py) against both sets.
+"""Tests for Linked List Cycle: your attempt (solution.py) against both sets.
 
 Cases store the list as `[values, pos]` (pos = cycle-entry index, -1 = none) and
 are marshalled to a possibly cyclic ListNode here; a cyclic list is never

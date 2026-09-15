@@ -1,4 +1,4 @@
-"""Kth Smallest Element in a BST — https://leetcode.com/problems/kth-smallest-element-in-a-bst/
+"""Kth Smallest Element in a BST: https://leetcode.com/problems/kth-smallest-element-in-a-bst/
 
 Write-up & approaches: ../../docs/problems/kth_smallest_element_in_a_bst.md
 

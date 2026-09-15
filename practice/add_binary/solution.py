@@ -1,4 +1,4 @@
-"""Add Binary — https://leetcode.com/problems/add-binary/
+"""Add Binary: https://leetcode.com/problems/add-binary/
 
 Write-up & approaches: ../../docs/problems/add_binary.md
 

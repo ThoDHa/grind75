@@ -1,4 +1,4 @@
-"""Evaluate Reverse Polish Notation — https://leetcode.com/problems/evaluate-reverse-polish-notation/
+"""Evaluate Reverse Polish Notation: https://leetcode.com/problems/evaluate-reverse-polish-notation/
 
 Write-up & approaches: ../../docs/problems/evaluate_reverse_polish_notation.md
 

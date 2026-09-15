@@ -1,4 +1,4 @@
-"""Valid Parentheses — https://leetcode.com/problems/valid-parentheses/
+"""Valid Parentheses: https://leetcode.com/problems/valid-parentheses/
 
 Write-up & approaches: ../../docs/problems/valid_parentheses.md
 

@@ -1,4 +1,4 @@
-"""Maximum Profit in Job Scheduling — https://leetcode.com/problems/maximum-profit-in-job-scheduling/
+"""Maximum Profit in Job Scheduling: https://leetcode.com/problems/maximum-profit-in-job-scheduling/
 
 Write-up & approaches: ../../docs/problems/maximum_profit_in_job_scheduling.md
 

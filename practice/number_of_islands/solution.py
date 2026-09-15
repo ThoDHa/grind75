@@ -1,4 +1,4 @@
-"""Number of Islands — https://leetcode.com/problems/number-of-islands/
+"""Number of Islands: https://leetcode.com/problems/number-of-islands/
 
 Write-up & approaches: ../../docs/problems/number_of_islands.md
 

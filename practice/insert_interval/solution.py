@@ -1,4 +1,4 @@
-"""Insert Interval — https://leetcode.com/problems/insert-interval/
+"""Insert Interval: https://leetcode.com/problems/insert-interval/
 
 Write-up & approaches: ../../docs/problems/insert_interval.md
 

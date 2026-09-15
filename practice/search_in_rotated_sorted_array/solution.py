@@ -1,4 +1,4 @@
-"""Search in Rotated Sorted Array — https://leetcode.com/problems/search-in-rotated-sorted-array/
+"""Search in Rotated Sorted Array: https://leetcode.com/problems/search-in-rotated-sorted-array/
 
 Write-up & approaches: ../../docs/problems/search_in_rotated_sorted_array.md
 

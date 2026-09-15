@@ -1,4 +1,4 @@
-"""Minimum Height Trees — https://leetcode.com/problems/minimum-height-trees/
+"""Minimum Height Trees: https://leetcode.com/problems/minimum-height-trees/
 
 Write-up & approaches: ../../docs/problems/minimum_height_trees.md
 

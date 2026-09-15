@@ -1,4 +1,4 @@
-"""Minimum Window Substring — https://leetcode.com/problems/minimum-window-substring/
+"""Minimum Window Substring: https://leetcode.com/problems/minimum-window-substring/
 
 Write-up & approaches: ../../docs/problems/minimum_window_substring.md
 

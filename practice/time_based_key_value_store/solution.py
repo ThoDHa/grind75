@@ -1,4 +1,4 @@
-"""Time Based Key-Value Store — https://leetcode.com/problems/time-based-key-value-store/
+"""Time Based Key-Value Store: https://leetcode.com/problems/time-based-key-value-store/
 
 Write-up & approaches: ../../docs/problems/time_based_key_value_store.md
 

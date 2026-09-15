@@ -1,4 +1,4 @@
-"""Tests for Implement Trie (Prefix Tree) — your attempt (solution.py).
+"""Tests for Implement Trie (Prefix Tree): your attempt (solution.py).
 
 Each case is a LeetCode design-operation sequence: an `operations` list (first
 entry is the constructor), an `arguments` list aligned with it, and the

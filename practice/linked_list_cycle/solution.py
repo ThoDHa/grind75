@@ -1,4 +1,4 @@
-"""Linked List Cycle — https://leetcode.com/problems/linked-list-cycle/
+"""Linked List Cycle: https://leetcode.com/problems/linked-list-cycle/
 
 Write-up & approaches: ../../docs/problems/linked_list_cycle.md
 

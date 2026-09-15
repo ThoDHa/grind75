@@ -1,4 +1,4 @@
-"""Binary Tree Right Side View — https://leetcode.com/problems/binary-tree-right-side-view/
+"""Binary Tree Right Side View: https://leetcode.com/problems/binary-tree-right-side-view/
 
 Write-up & approaches: ../../docs/problems/binary_tree_right_side_view.md
 

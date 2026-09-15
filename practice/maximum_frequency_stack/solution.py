@@ -1,4 +1,4 @@
-"""Maximum Frequency Stack — https://leetcode.com/problems/maximum-frequency-stack/
+"""Maximum Frequency Stack: https://leetcode.com/problems/maximum-frequency-stack/
 
 Write-up & approaches: ../../docs/problems/maximum_frequency_stack.md
 

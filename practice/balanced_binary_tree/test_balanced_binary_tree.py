@@ -1,4 +1,4 @@
-"""Tests for Balanced Binary Tree — your attempt (solution.py) against both sets.
+"""Tests for Balanced Binary Tree: your attempt (solution.py) against both sets.
 
 Trees are stored in the case files as LeetCode level-order arrays (null = missing
 node) and marshalled to TreeNode here. The worked approaches live in

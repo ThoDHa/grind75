@@ -1,4 +1,4 @@
-"""Tests for Longest Substring Without Repeating Characters — your attempt
+"""Tests for Longest Substring Without Repeating Characters: your attempt
 (solution.py) against both case sets.
 
 cases.json (marker `simple`) is the "Run" set; cases_full.json (marker `full`) is

@@ -1,4 +1,4 @@
-"""Tests for Merge k Sorted Lists — your attempt (solution.py) against both sets.
+"""Tests for Merge k Sorted Lists: your attempt (solution.py) against both sets.
 
 Each list is stored in the case files as a plain value array; the array of arrays
 is marshalled into a list of ListNodes here. The worked approaches live in

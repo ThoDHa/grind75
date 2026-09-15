@@ -1,4 +1,4 @@
-"""Tests for Clone Graph — your attempt (solution.py) against both case sets.
+"""Tests for Clone Graph: your attempt (solution.py) against both case sets.
 
 Graphs are stored in the case files as LeetCode adjacency lists (1-indexed) and
 marshalled to GraphNode here. The cloned graph is serialized back to an adjacency

@@ -1,4 +1,4 @@
-"""Binary Tree Level Order Traversal — https://leetcode.com/problems/binary-tree-level-order-traversal/
+"""Binary Tree Level Order Traversal: https://leetcode.com/problems/binary-tree-level-order-traversal/
 
 Write-up & approaches: ../../docs/problems/binary_tree_level_order_traversal.md
 

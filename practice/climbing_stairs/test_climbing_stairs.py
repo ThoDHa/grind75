@@ -1,4 +1,4 @@
-"""Tests for Climbing Stairs — your attempt (solution.py) against both case sets.
+"""Tests for Climbing Stairs: your attempt (solution.py) against both case sets.
 
 The worked approaches live in ../../docs/problems/climbing_stairs.md.
 """

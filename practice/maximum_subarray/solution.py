@@ -1,4 +1,4 @@
-"""Maximum Subarray — https://leetcode.com/problems/maximum-subarray/
+"""Maximum Subarray: https://leetcode.com/problems/maximum-subarray/
 
 Write-up & approaches: ../../docs/problems/maximum_subarray.md
 

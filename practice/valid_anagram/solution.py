@@ -1,4 +1,4 @@
-"""Valid Anagram — https://leetcode.com/problems/valid-anagram/
+"""Valid Anagram: https://leetcode.com/problems/valid-anagram/
 
 Write-up & approaches: ../../docs/problems/valid_anagram.md
 

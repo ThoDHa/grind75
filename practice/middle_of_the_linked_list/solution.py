@@ -1,4 +1,4 @@
-"""Middle of the Linked List — https://leetcode.com/problems/middle-of-the-linked-list/
+"""Middle of the Linked List: https://leetcode.com/problems/middle-of-the-linked-list/
 
 Write-up & approaches: ../../docs/problems/middle_of_the_linked_list.md
 

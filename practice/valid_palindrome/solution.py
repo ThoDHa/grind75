@@ -1,4 +1,4 @@
-"""Valid Palindrome — https://leetcode.com/problems/valid-palindrome/
+"""Valid Palindrome: https://leetcode.com/problems/valid-palindrome/
 
 Write-up & approaches: ../../docs/problems/valid_palindrome.md
 

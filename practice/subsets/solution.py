@@ -1,4 +1,4 @@
-"""Subsets — https://leetcode.com/problems/subsets/
+"""Subsets: https://leetcode.com/problems/subsets/
 
 Write-up & approaches: ../../docs/problems/subsets.md
 

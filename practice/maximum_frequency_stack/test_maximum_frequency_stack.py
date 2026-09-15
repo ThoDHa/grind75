@@ -1,4 +1,4 @@
-"""Tests for Maximum Frequency Stack — your attempt (solution.py) against both case sets.
+"""Tests for Maximum Frequency Stack: your attempt (solution.py) against both case sets.
 
 Each case is a LeetCode design-operation sequence (operations + arguments) that
 is replayed against your FreqStack via run_operations. cases.json (marker `simple`)

@@ -1,4 +1,4 @@
-"""Maximum Depth of Binary Tree — https://leetcode.com/problems/maximum-depth-of-binary-tree/
+"""Maximum Depth of Binary Tree: https://leetcode.com/problems/maximum-depth-of-binary-tree/
 
 Write-up & approaches: ../../docs/problems/maximum_depth_of_binary_tree.md
 

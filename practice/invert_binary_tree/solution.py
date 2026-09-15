@@ -1,4 +1,4 @@
-"""Invert Binary Tree — https://leetcode.com/problems/invert-binary-tree/
+"""Invert Binary Tree: https://leetcode.com/problems/invert-binary-tree/
 
 Write-up & approaches: ../../docs/problems/invert_binary_tree.md
 

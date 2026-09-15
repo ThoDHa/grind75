@@ -1,4 +1,4 @@
-"""Implement Queue using Stacks — https://leetcode.com/problems/implement-queue-using-stacks/
+"""Implement Queue using Stacks: https://leetcode.com/problems/implement-queue-using-stacks/
 
 Write-up & approaches: ../../docs/problems/implement_queue_using_stacks.md
 

@@ -1,4 +1,4 @@
-"""Tests for Letter Combinations of a Phone Number — your attempt (solution.py).
+"""Tests for Letter Combinations of a Phone Number: your attempt (solution.py).
 
 cases.json (marker `simple`) is the "Run" set; cases_full.json (marker `full`) is
 the "Submit" gauntlet. The worked approaches live in

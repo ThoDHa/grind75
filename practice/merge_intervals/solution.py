@@ -1,4 +1,4 @@
-"""Merge Intervals — https://leetcode.com/problems/merge-intervals/
+"""Merge Intervals: https://leetcode.com/problems/merge-intervals/
 
 Write-up & approaches: ../../docs/problems/merge_intervals.md
 

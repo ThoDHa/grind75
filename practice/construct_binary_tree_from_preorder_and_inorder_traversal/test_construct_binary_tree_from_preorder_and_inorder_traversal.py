@@ -1,4 +1,4 @@
-"""Tests for Construct Binary Tree from Preorder and Inorder Traversal — your
+"""Tests for Construct Binary Tree from Preorder and Inorder Traversal: your
 attempt (solution.py) against both case sets.
 
 Trees are stored in the case files as preorder/inorder value arrays (inputs) and a

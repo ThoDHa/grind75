@@ -1,4 +1,4 @@
-"""Ransom Note — https://leetcode.com/problems/ransom-note/
+"""Ransom Note: https://leetcode.com/problems/ransom-note/
 
 Write-up & approaches: ../../docs/problems/ransom_note.md
 

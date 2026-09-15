@@ -1,4 +1,4 @@
-"""Find All Anagrams in a String — https://leetcode.com/problems/find-all-anagrams-in-a-string/
+"""Find All Anagrams in a String: https://leetcode.com/problems/find-all-anagrams-in-a-string/
 
 Write-up & approaches: ../../docs/problems/find_all_anagrams_in_a_string.md
 

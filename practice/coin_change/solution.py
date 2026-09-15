@@ -1,4 +1,4 @@
-"""Coin Change — https://leetcode.com/problems/coin-change/
+"""Coin Change: https://leetcode.com/problems/coin-change/
 
 Write-up & approaches: ../../docs/problems/coin_change.md
 

@@ -1,4 +1,4 @@
-"""Word Ladder — https://leetcode.com/problems/word-ladder/
+"""Word Ladder: https://leetcode.com/problems/word-ladder/
 
 Write-up & approaches: ../../docs/problems/word_ladder.md
 

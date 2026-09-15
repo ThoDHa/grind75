@@ -1,4 +1,4 @@
-"""Longest Palindromic Substring — https://leetcode.com/problems/longest-palindromic-substring/
+"""Longest Palindromic Substring: https://leetcode.com/problems/longest-palindromic-substring/
 
 Write-up & approaches: ../../docs/problems/longest_palindromic_substring.md
 

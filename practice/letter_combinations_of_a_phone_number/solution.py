@@ -1,4 +1,4 @@
-"""Letter Combinations of a Phone Number — https://leetcode.com/problems/letter-combinations-of-a-phone-number/
+"""Letter Combinations of a Phone Number: https://leetcode.com/problems/letter-combinations-of-a-phone-number/
 
 Write-up & approaches: ../../docs/problems/letter_combinations_of_a_phone_number.md
 

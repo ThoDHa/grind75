@@ -1,4 +1,4 @@
-"""Course Schedule — https://leetcode.com/problems/course-schedule/
+"""Course Schedule: https://leetcode.com/problems/course-schedule/
 
 Write-up & approaches: ../../docs/problems/course_schedule.md
 

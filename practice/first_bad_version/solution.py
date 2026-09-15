@@ -1,4 +1,4 @@
-"""First Bad Version — https://leetcode.com/problems/first-bad-version/
+"""First Bad Version: https://leetcode.com/problems/first-bad-version/
 
 Write-up & approaches: ../../docs/problems/first_bad_version.md
 

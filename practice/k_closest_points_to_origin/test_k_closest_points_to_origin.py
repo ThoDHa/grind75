@@ -1,4 +1,4 @@
-"""Tests for K Closest Points to Origin — your attempt (solution.py) against both sets.
+"""Tests for K Closest Points to Origin: your attempt (solution.py) against both sets.
 
 cases.json (marker `simple`) is the "Run" set; cases_full.json (marker `full`) is
 the "Submit" gauntlet. The worked approaches live in

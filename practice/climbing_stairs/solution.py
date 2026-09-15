@@ -1,4 +1,4 @@
-"""Climbing Stairs — https://leetcode.com/problems/climbing-stairs/
+"""Climbing Stairs: https://leetcode.com/problems/climbing-stairs/
 
 Write-up & approaches: ../../docs/problems/climbing_stairs.md
 

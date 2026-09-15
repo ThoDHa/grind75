@@ -1,4 +1,4 @@
-"""Partition Equal Subset Sum — https://leetcode.com/problems/partition-equal-subset-sum/
+"""Partition Equal Subset Sum: https://leetcode.com/problems/partition-equal-subset-sum/
 
 Write-up & approaches: ../../docs/problems/partition_equal_subset_sum.md
 
