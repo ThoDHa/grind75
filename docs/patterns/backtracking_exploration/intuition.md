@@ -987,6 +987,19 @@ def grid_search_template(grid, target):
 
 ---
 
+## Corner Cases
+
+- Empty candidate set (no nums, empty digit string): one empty configuration or an empty result list; the contract decides
+- k = 0 or k > n: combinations of nothing, or impossible sizes; the pruning bound must stay non-negative
+- A single element: the base case fires at depth one
+- All elements identical: the dedup rules do all the work; verify counts by hand on [1, 1, 2]
+- Target zero with reuse allowed: the empty path qualifies before any choice is made
+- Target below the smallest candidate: the sorted early exit prunes the entire first level
+- Boards with no solution (N-Queens with n = 2 or 3): return zero or empty, never an error
+- A 1×1 grid in word search: the start cell, the visit mark, and the restore all touch the same cell
+
+---
+
 ## The Backtracking Mantra
 
 > **Choose, Explore, Unchoose.**

@@ -17,12 +17,12 @@ left for you to work out. The gaps are the curriculum.
    [method's time budget](../method.md#the-time-budget) is your script.
 3. **Extend at least one.** Each study ends with an "extend this scaffold"
    checklist. Picking two or three items and designing them yourself,
-   writing the tradeoffs down, is worth more than reading all four studies
-   twice.
+   writing the tradeoffs down, is worth more than reading all five
+   studies twice.
 4. **Keep [Building Blocks](../building_blocks.md) open** the first time
    through. The studies name components without re-explaining them.
 
-## The four studies
+## The five studies
 
 Ordered by difficulty; each introduces concerns the previous one did not.
 
@@ -32,6 +32,7 @@ Ordered by difficulty; each introduces concerns the previous one did not.
 | [Rate Limiter](rate_limiter.md) | A deep dive on one [building block](../building_blocks.md#rate-limiting) | Algorithm choice, distributed counters, failing open vs closed |
 | [News Feed](news_feed.md) | The classic read-path problem | Fan-out on write vs read, the celebrity problem, feed ranking hooks |
 | [Chat System](chat_system.md) | Real-time, stateful connections | WebSockets, message ordering, delivery states, online presence |
+| [Web Crawler](web_crawler.md) | The canonical throughput problem: nobody waits for any single page | URL frontier and priority, Bloom-filter dedup, politeness and robots.txt, freshness scheduling |
 
 ## Roadmap: case studies not yet written
 
@@ -44,8 +45,6 @@ exactly the right exercise.
 - **Search typeahead / autocomplete**: prefix data structures
   ([tries](../../patterns/trie/intuition.md) at scale), precomputed top-k,
   extreme read QPS on tiny payloads.
-- **Web crawler**: politeness, frontier management, dedup at billions of
-  URLs, a naturally queue-shaped problem.
 - **Notification system**: multi-channel delivery (push, SMS, email),
   batching and rate limits per user, at-least-once plus idempotency in the
   wild.

@@ -628,6 +628,8 @@ def fast_slow(head):
     return False  # No cycle
 ```
 
+The [linked-list reversal guide](../linked_list_in_place_reversal/intuition.md) carries the full derivation: the gap-closing invariant, the midpoint parity, and Floyd's cycle-start.
+
 ### Dutch National Flag Template
 
 ```python
@@ -712,6 +714,17 @@ if i > 0 and nums[i] == nums[i-1]:
 ### Pitfall 4: Advancing Mid in Dutch Flag After High Swap
 
 When you swap `arr[mid]` with `arr[high]`, the new value at `mid` is unclassified. Don't advance `mid`. Examine it in the next iteration.
+
+---
+
+## Corner Cases
+
+- Empty array or single-element array: the loop body must never run
+- Unsorted input when the shape assumes sortedness: every exclusion proof is void
+- Two elements: left and right are adjacent; exactly one comparison happens
+- All elements equal: dedup skips (3Sum) and strict-versus-non-strict moves are exercised hardest
+- Nothing passes the keep-test: the writer never advances; the new length is 0
+- Cycle-free list under fast/slow: fast must hit null and stop, never loop
 
 ---
 

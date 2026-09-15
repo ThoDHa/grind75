@@ -6,7 +6,7 @@ This repository is a structured study guide for algorithmic problem solving base
 
 ## How this repository is organized
 
-- The `main` branch is the study environment: problem statements, pattern guides, foundations, system design material, and the `practice/` workspace with unsolved stubs. Solution write-ups are deliberately absent here so you can attempt problems without spoilers.
+- The `main` branch is the study environment: problem statements, pattern guides, foundations, interview prep planning, system design material, and the `practice/` workspace with unsolved stubs. Solution write-ups are deliberately absent here so you can attempt problems without spoilers.
 - The `solutions` branch adds the full multi-approach solution write-ups to every problem page. The published site is built from it, so read solutions on the website (or that branch) when you are ready to compare answers.
 
 ## First time here?
@@ -19,7 +19,7 @@ New to algorithms or interview prep? Start with the [Foundations](docs/foundatio
 4. [How to Approach a Problem](docs/foundations/how_to_approach.md): a repeatable method from problem statement to working solution.
 5. [Glossary](docs/foundations/glossary.md): the jargon the guides lean on, defined in plain language.
 
-Then work the problems in order, reading each one's linked **Pattern** guide for the *why* behind the technique.
+Then work the problems in order, reading each one's linked **Pattern** guide for the *why* behind the technique. For the plan around the problems, how to budget your time, and what the non-coding rounds require, see the [Interview Prep](docs/interview_prep/index.md) section.
 
 ## Problem List
 
@@ -36,7 +36,7 @@ The canonical 75 problems in study order (for real progress tracking, use the [p
 | 󰄰 | [7](https://leetcode.com/problems/valid-anagram/) | [Valid Anagram](docs/problems/valid_anagram.md) | Easy | String | 15 Minutes |
 | 󰄰 | [8](https://leetcode.com/problems/binary-search/) | [Binary Search](docs/problems/binary_search.md) | Easy | Binary Search | 15 minutes |
 | 󰄰 | [9](https://leetcode.com/problems/flood-fill/) | [Flood Fill](docs/problems/flood_fill.md) | Easy | Graph, DFS | 20 minutes |
-| 󰄰 | [10](https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree/) | [Lowest Common Ancestor of a BST](docs/problems/lowest_common_ancestor_of_a_binary_search_tree.md) | Easy | Tree | 20 minutes |
+| 󰄰 | [10](https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree/) | [Lowest Common Ancestor of a BST](docs/problems/lowest_common_ancestor_of_a_binary_search_tree.md) | Medium | Tree | 20 minutes |
 | 󰄰 | [11](https://leetcode.com/problems/balanced-binary-tree/) | [Balanced Binary Tree](docs/problems/balanced_binary_tree.md) | Easy | Tree | 15 minutes |
 | 󰄰 | [12](https://leetcode.com/problems/linked-list-cycle/) | [Linked List Cycle](docs/problems/linked_list_cycle.md) | Easy | Linked List | 20 minutes |
 | 󰄰 | [13](https://leetcode.com/problems/implement-queue-using-stacks/) | [Implement Queue using Stacks](docs/problems/implement_queue_using_stacks.md) | Easy | Stack | 20 minutes |
@@ -105,7 +105,7 @@ The canonical 75 problems in study order (for real progress tracking, use the [p
 
 Two bonus problems beyond the canonical 75 are also covered: [Binary Tree Maximum Path Sum](docs/problems/binary_tree_maximum_path_sum.md) (Hard) and [Maximum Frequency Stack](docs/problems/maximum_frequency_stack.md) (Hard).
 
-This 8-week schedule organizes the problems in increasing order of difficulty, with related problem types grouped together. Each week has a manageable number of problems, and earlier weeks focus on foundational concepts while later weeks tackle more advanced topics.
+The [8-week schedule](docs/interview_prep/study_plan.md#the-8-week-schedule) organizes the problems in increasing order of difficulty, with related problem types grouped together: each week places a manageable batch of problems, and earlier weeks focus on foundational concepts while later weeks tackle more advanced topics.
 
 ## Pattern Intuition
 

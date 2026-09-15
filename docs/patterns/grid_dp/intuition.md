@@ -208,6 +208,17 @@ for i in range(m): dp[i][0] = 1   # only downs
 
 ---
 
+## Corner Cases
+
+- Empty grid or grid of empty rows: return before allocating dp
+- 1x1 grid: the start is the end; the base case is the whole answer
+- Single row or single column: only straight-line base cases exist; the main loop never runs
+- Obstacle on the first row or column: those base cells become 0, not 1
+- Obstacle at the start or end cell: zero paths exist
+- Large grids with counting recurrences: path counts overflow fixed-width integers
+
+---
+
 ## Practice Progression
 
 The canonical entry point in the Grind75 set is **Unique Paths**, which asks you to count the monotone lattice paths across a grid using right-and-down moves. It is the purest expression of the additive recurrence and the ideal place to build the table-filling instinct. The Unique Paths problem page also covers the top-down memoized twin of the bottom-up fill, if recursion is the direction your intuition runs.

@@ -181,6 +181,79 @@ The key insight: **check availability BEFORE processing each group**.
 
 ---
 
+## Fast and Slow Pointers: The Other Pointer Dance
+
+Reversal rewires the train. A sibling family of linked-list problems asks a different question: *what is happening further down the track?* You could walk the train twice (once to count, once to stop at the right car), or you can send two travelers down the track at different speeds and let their spacing do the measuring.
+
+### The Invariant: The Gap Does the Measuring
+
+Slow moves one car per step; fast moves two. That single difference carries everything:
+
+- On a **straight track**, fast falls off the end while slow stands at the middle. Fast travels twice the distance, so slow has traveled exactly half.
+- On a **circular track**, fast eventually laps slow. Once both are inside the cycle, the gap closes by exactly one car per step (fast gains only 1, since slow is also moving). A finite cycle cannot dodge a gap that shrinks by one: a collision is inevitable.
+
+> **The promise**: whatever the problem asks for (a cycle, a midpoint, a cycle's entrance) can be read off the moment fast runs out of track or collides with slow. No counting pass, no extra memory, O(1) space.
+
+### Use 1: Cycle Detection (LC 141, Grind 75 #12)
+
+```python
+slow = fast = head
+while fast and fast.next:
+    slow = slow.next
+    fast = fast.next.next
+    if slow == fast:
+        return True    # fast lapped slow inside the cycle
+return False           # fast fell off the end: straight track
+```
+
+If a cycle exists, slow always enters it before fast exits the list, and from that moment the closing gap guarantees a meeting.
+
+### Use 2: Middle of the Linked List (LC 876, Grind 75 #22)
+
+Same dance, minus the comparison. When fast reaches the end, slow stands at the middle:
+
+```python
+slow = fast = head
+while fast and fast.next:
+    slow = slow.next
+    fast = fast.next.next
+return slow    # second-middle convention when the length is even
+```
+
+Watch the parity: with `while fast and fast.next`, an even-length list leaves slow on the **second** of the two middle nodes. If the first middle is wanted, loop on `while fast.next and fast.next.next` instead (guard the empty list first: this variant dereferences `fast.next` immediately).
+
+### Use 3: Floyd's Cycle Start
+
+Detecting the cycle is half the job; some problems want the node where the cycle begins. Phase 1 is the collision above. Phase 2 exploits the arithmetic of the meeting point:
+
+```
+head ──── a ────▶ cycle entrance ──── c ────▶ meeting point
+                     ▲                          │
+                     └──── n - c (loop is n) ───┘
+```
+
+Say the head is `a` steps before the entrance, and the pointers meet `c` steps past it. At the meeting:
+
+- slow has traveled `a + c`
+- fast has traveled `2(a + c)`, and fast's extra distance is whole laps: `2(a + c) = a + c + k·n`
+
+So `a + c = k·n`, which means `a = k·n - c`: the distance from head to the entrance equals the distance from the meeting point to the entrance, plus whole laps (which land on the same node). Two same-speed walkers starting from head and meeting point therefore converge exactly at the entrance:
+
+```python
+# meet = the collision node from Use 1
+slow = head
+while slow != meet:
+    slow = slow.next
+    meet = meet.next
+return slow    # the cycle start
+```
+
+### Why This Lives Next to Reversal
+
+The same discipline as the three-pointer dance: a fixed number of pointer variables, O(n) time, O(1) space, and an invariant you can state in one sentence. Fast/slow is the *measuring* counterpart of reversal's *rewiring*. The [Two Pointers guide](../two_pointers/intuition.md) lists the same shape among its six (Shape 3, the tortoise and the hare); this section is the full derivation.
+
+---
+
 ## Common Pitfalls & Fixes
 
 ### Pitfall 1: Losing the Next Node
@@ -226,6 +299,31 @@ segment_start.next = curr       # old head → after segment
 before_segment.next = prev      # before → new head
 ```
 
+### Pitfall 5: Advancing Fast Without Checking the Road Ahead
+```python
+# WRONG: fast.next.next dereferences before the loop rechecks
+while fast:
+    slow = slow.next
+    fast = fast.next.next   # Crashes when fast.next is null
+
+# FIXED
+while fast and fast.next:
+    slow = slow.next
+    fast = fast.next.next
+```
+
+---
+
+## Corner Cases
+
+- Empty list or single node: the loop bodies must be guarded so they simply never run
+- Two nodes: the smallest input that rotates all three pointers fully
+- Segment of one node (left == right) or a segment starting at the head (left == 1): only the head-starting case strictly requires the dummy node
+- A trailing k-group shorter than k: the availability check leaves it un-reversed and in order
+- A cycle that is the entire list (tail points at head): fast laps inside immediately and still collides with slow
+- Even-length midpoint: slow lands on the second middle; the alternate loop condition moves it to the first
+- Stepping fast twice per loop: fast.next.next is touched only after fast and fast.next both exist
+
 ---
 
 ## Complexity Guarantees
@@ -235,6 +333,7 @@ before_segment.next = prev      # before → new head
 | Full Reversal | O(N) | O(1) | Visit each node once |
 | Segment Reversal | O(N) | O(1) | Navigate + reverse subset |
 | K-Group Reversal | O(N) | O(1) | Each node: 1 count + 1 reverse |
+| Fast/Slow (cycle, midpoint, cycle start) | O(N) | O(1) | Fixed two-pointer gap |
 | Recursive Variants | O(N) | O(N) or O(N/k) | Call stack depth |
 
 The iterative versions are strictly O(1) space because we only use a fixed number of pointer variables, regardless of input size.
@@ -246,6 +345,8 @@ The iterative versions are strictly O(1) space because we only use a fixed numbe
 1. **Reverse Linked List (LC 206)**: the full three-pointer dance on the whole list. Master this first.
 2. **Reverse Linked List II (LC 92)**: segment reversal. Add the dummy node and the bookmark reconnection.
 3. **Reverse Nodes in k-Group (LC 25)**: repeated segment reversal, with an availability check before each group.
+4. **Linked List Cycle (LC 141, Grind 75 #12)**: fast/slow cycle detection; the lap-and-collide argument in action.
+5. **Middle of the Linked List (LC 876, Grind 75 #22)**: the same gap used as a measuring tape; when fast exits, slow stands at the middle.
 
 ---
 
@@ -258,6 +359,7 @@ When you see a linked list problem, ask:
 3. **"Swap adjacent pairs"?** → K-group with k=2
 4. **"Reverse between positions"?** → Segment reversal
 5. **"Reverse every k nodes"?** → K-group reversal
+6. **"Detect a cycle" or "find the middle"?** → Fast/slow pointers (the other pointer dance above)
 
 If yes to any, reach for the three-pointer technique!
 

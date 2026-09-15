@@ -186,6 +186,18 @@ merged[-1][1] = max(merged[-1][1], curr[1])
 
 ---
 
+## Corner Cases
+
+- Touching intervals ([1,2] and [2,3]): merging problems combine them, scheduling problems keep them apart; the boundary convention is the problem
+- Empty input or a single interval: the merge result is a copy of the input, not an error
+- Fully nested intervals ([2,3] inside [1,10]): extend with max(prev_end, curr_end), never a blind overwrite
+- Insert interval landing before the first, after the last, or spanning many: each of the three phases gets exercised
+- Zero-length intervals ([5,5]): legal endpoints; the overlap test must survive an empty span
+- Sorted versus unsorted input: insert problems get sortedness for free, merge problems must sort first
+- Intersecting two lists of very different lengths: pointers advance by the smaller end; either list can empty out first
+
+---
+
 ## Complexity Analysis Framework
 
 | Operation | Complexity | Reason |

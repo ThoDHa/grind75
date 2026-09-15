@@ -174,6 +174,18 @@ for eq in equations:
 
 ---
 
+## Corner Cases
+
+- All nodes, no edges: the count starts at n, and no two distinct nodes are connected until unions happen
+- A single node: one component, and find(x) returns x itself
+- Self-union and re-union of already-connected nodes: no-ops; the component count must not decrement
+- Redundant edges (LC 684): the first union reporting "already connected" is the cycle-forming edge
+- Labels that are strings or 1-indexed values: map to a dense 0..n-1 range or size the parent array n + 1
+- Duplicate edges in the input: the second copy lands on the no-op path
+- Edges arriving in path order: union by rank and path compression are what prevent the degenerate chain
+
+---
+
 ## Practice Progression
 
 ### Level 1: Core Concept

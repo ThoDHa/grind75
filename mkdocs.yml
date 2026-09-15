@@ -80,11 +80,21 @@ nav:
     - Recursion and the Call Stack: foundations/recursion.md
     - Data Structures in Pictures: foundations/data_structures.md
     - How to Approach a Problem: foundations/how_to_approach.md
+    - Optimizing a Working Solution: foundations/optimizing.md
+    - How You Are Scored: foundations/interview_rubrics.md
+    - The Coding Interview, Phase by Phase: foundations/interview_practices.md
     - Glossary: foundations/glossary.md
+  - Interview Prep:
+    - interview_prep/index.md
+    - Study Plan and Schedule: interview_prep/study_plan.md
+    - Choosing a Language: interview_prep/language.md
+    - Behavioral Interviews: interview_prep/behavioral.md
+    - Mock Interviews: interview_prep/mock_interviews.md
   - Patterns:
     - patterns/index.md
     - Fundamentals:
       - Hashing & Frequency Counting: patterns/hashing/intuition.md
+      - String: patterns/string/intuition.md
       - Stack: patterns/stack/intuition.md
       - Simulation: patterns/simulation/intuition.md
       - Data-Structure Design: patterns/design/intuition.md
@@ -128,6 +138,7 @@ nav:
       - Rate Limiter: system_design/case_studies/rate_limiter.md
       - News Feed: system_design/case_studies/news_feed.md
       - Chat System: system_design/case_studies/chat_system.md
+      - Web Crawler: system_design/case_studies/web_crawler.md
   - Problems:
     - "Two Sum": problems/two_sum.md
     - "Valid Parentheses": problems/valid_parentheses.md

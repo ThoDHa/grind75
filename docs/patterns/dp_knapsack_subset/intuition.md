@@ -205,6 +205,18 @@ for a in range(1, amount + 1):
 
 ---
 
+## Corner Cases
+
+- Odd total (partition) or odd target + total (Target Sum): impossible before any DP runs
+- Target zero: the empty selection is the one way; dp[0] must seed it, not default to False
+- Item heavier than the remaining capacity: the inner range is empty; skip cleanly, no index error
+- Amount no combination reaches (Coin Change): the sentinel stays at infinity and must convert to the problem's -1
+- Zero- or negative-valued items: unbounded reuse would never terminate; confirm inputs are strictly positive
+- A single item exactly matching the target: one item, one way
+- All items identical: 0/1 counts each copy once, unbounded counts every multiplicity; the variants visibly diverge
+
+---
+
 ## Practice Progression
 
 Master Knapsack/Subset DP through this sequence:

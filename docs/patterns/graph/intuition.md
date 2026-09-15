@@ -217,6 +217,18 @@ def dfs_iterative(start_r, start_c):
 
 ---
 
+## Corner Cases
+
+- Empty graph: zero nodes, zero edges
+- Single node with no edges: one component of size one
+- Disconnected graph: every node must be a traversal start, not just node 0
+- Cycles: visited marks are the only thing stopping infinite recursion or queue growth
+- Self-loops and parallel edges: harmless once visited checks come first
+- Isolated nodes (empty adjacency lists): still count toward the component total
+- Grid-as-graph with a single row or column
+
+---
+
 ## Practice Progression
 
 ### Level 1: Basic DFS/BFS (Master First!)

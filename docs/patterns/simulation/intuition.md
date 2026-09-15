@@ -247,6 +247,17 @@ A simulation that never updates its position loops forever. Every iteration must
 
 ---
 
+## Corner Cases
+
+- Empty input: zero-length string, empty matrix, or matrix of empty rows
+- Single element: a 1x1 matrix or one-character string must not fall through the loop guards
+- Input already in its final state: zero iterations, correct result
+- Walls adjacent after a shrink (spiral): mid-loop boundary re-checks before each walk
+- Values at the extremes: accumulation past 32-bit limits; a final carry beyond the top digit
+- Input at the grammar's edge (atoi): lone sign, sign with no digits, garbage after digits, leading zeros
+
+---
+
 ## Practice Progression
 
 Master simulation through this sequence:
