@@ -144,7 +144,7 @@ interviewers listen for it.
   recipient's gateway, RPC to it, it writes to the socket.
 - Gateway death drops ~100k connections at once: clients reconnect with
   jittered backoff (a reconnect stampede is a self-inflicted
-  [thundering herd](../../system_design/building_blocks.md#caching)), land
+  [thundering herd](../building_blocks.md#caching)), land
   on other gateways, re-register, and run sync (deep dive 3) to fill any
   gap. Design the failure path as the normal path: phones roam and drop
   connections constantly anyway.
@@ -220,7 +220,7 @@ interviewers listen for it.
   distribution, and which server features (search, previews) you must
   give up.
 - [ ] **Media messages**: presigned upload to
-  [object storage](../../system_design/building_blocks.md#object-storage),
+  [object storage](../building_blocks.md#object-storage),
   thumbnails in the message payload, CDN delivery.
 - [ ] **Typing indicators**: ephemeral, loss-tolerant, high-frequency:
   design the cheapest possible path and defend never persisting it.

@@ -51,7 +51,9 @@ The [problem list](../index.md) is ordered by increasing difficulty with
 related problem types grouped together, so the weeks derive straight from it:
 problems 1 through 30 in the first three weeks (ten each, while problems are
 short), then nine per week as they lengthen, ending with the nine hard
-problems in week 8. Every problem appears exactly once.
+problems in week 8. Every problem appears exactly once. The weekly schedule
+interleaves the [pattern groups](../patterns/index.md) in that problem order;
+to follow the pattern curriculum instead, read each group straight through.
 
 First-pass time is the sum of each problem's Time column: one clean attempt
 each. It is a lower bound, not the plan.

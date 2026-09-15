@@ -62,7 +62,7 @@ background vocabulary and prepare from the pointers above.
 | [The Interview Method](method.md) | A repeatable 6-step framework with a time budget for a 45-minute round | First: everything else plugs into it |
 | [Back-of-Envelope Estimation](estimation.md) | Latency numbers, powers of two, QPS and storage arithmetic, worked examples | Second: step 2 of the method depends on it |
 | [Building Blocks](building_blocks.md) | The component vocabulary: load balancers, caches, databases, queues, and the rest | Third, or as a reference while doing case studies |
-| [Case Studies](case_studies/index.md) | Four guided workthroughs (URL shortener, rate limiter, news feed, chat) with answers hidden behind collapsible blocks | Last: this is where the method becomes muscle memory |
+| [Case Studies](case_studies/index.md) | Five guided workthroughs (URL shortener, rate limiter, news feed, chat, web crawler) with answers hidden behind collapsible blocks | Last: this is where the method becomes muscle memory |
 
 ## A suggested study path
 
@@ -73,14 +73,14 @@ background vocabulary and prepare from the pointers above.
    hours, mostly practice).
 3. Read [Building Blocks](building_blocks.md) once end to end, then treat it
    as a reference (2 to 3 hours).
-4. Do the four [case studies](case_studies/index.md) *actively*: attempt each
+4. Do the five [case studies](case_studies/index.md) *actively*: attempt each
    prompt yourself before opening the collapsed answers, and finish the
    "extend this scaffold" checklist for at least one of them (2 to 3 hours
-   each, so 8 to 12 hours total).
+   each, so 10 to 15 hours total).
 5. Repeat a case study cold a week later, out loud, with a 45-minute timer.
    Talking through a design is a different skill from reading one.
 
-That is roughly 15 to 20 hours for a solid baseline. Senior-level depth comes
+That is roughly 15 to 22 hours for a solid baseline. Senior-level depth comes
 from extending the scaffolds and from reading about real systems, not from
 rereading these pages.
 

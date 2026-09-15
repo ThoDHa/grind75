@@ -44,7 +44,8 @@ interviewer's expectations for every round after it. Prepare about 90 seconds:
 
 Rehearse it aloud until it sounds like you talking, not a document being
 recited. It is the only answer you will give in every interview you ever take;
-the rehearsal cost is tiny.
+the rehearsal cost is tiny. For where this fits in the round itself, see
+[The Coding Interview, Phase by Phase](../foundations/interview_practices.md).
 
 ## The recurring question categories
 

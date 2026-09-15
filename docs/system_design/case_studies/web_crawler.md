@@ -53,13 +53,13 @@ Do each one on paper before expanding the answer.
 ??? note "Answer"
     Average page ≈ 200 KB of HTML: the write stream is 2,000/s × 200 KB ≈
     400 MB/s ≈ 3.2 Gbps sustained, ~8 Gbps at peak (the
-    [bandwidth math](../../system_design/estimation.md#bandwidth-math)).
+    [bandwidth math](../estimation.md#bandwidth-math)).
 
     5 × 10^9 × 2 × 10^5 B = 10^15 B = 1 PB of raw HTML per month;
     extracted text is ~10% of that: ~100 TB.
 
     Conclusion: petabyte-scale, append-only, rarely read back: textbook
-    [object storage](../../system_design/building_blocks.md#object-storage)
+    [object storage](../building_blocks.md#object-storage)
     with the metadata-pointer pattern; the extracted text is what the
     index searches.
 
@@ -117,7 +117,7 @@ size and time caps; the parser extracts text, outlinks, and a content
 hash. Blobs go to object storage, text to the index pipeline, each
 outlink runs past the dedup store, and unseen ones enter the frontier
 with a priority and a `next_crawl_at`. This is the
-[queue pattern](../../system_design/building_blocks.md#message-queues-and-streams)
+[queue pattern](../building_blocks.md#message-queues-and-streams)
 end to end, and the queue is not an optimization; it is the schedule.
 
 ## Step 5: Deep dives
@@ -133,10 +133,10 @@ Bullet sketches, not scripts. Practice expanding each into two spoken minutes.
   next (inlink counts, staleness: age × change rate), and **per-host
   queues** enforce politeness.
 - Shard the frontier by host
-  ([consistent hashing](../../system_design/building_blocks.md#consistent-hashing)):
+  ([consistent hashing](../building_blocks.md#consistent-hashing)):
   one shard owns a host's queue, budget, and in-flight count, so
   politeness needs no cross-node coordination. The
-  [sharding](../../system_design/building_blocks.md#sharding-partitioning)
+  [sharding](../building_blocks.md#sharding-partitioning)
   lesson with a twist: the natural key is the *host*, not the URL.
 - The frontier is not a buffer; it is the schedule: lose it and you
   re-crawl blind. It is durable, replicated state.
@@ -190,7 +190,7 @@ Bullet sketches, not scripts. Practice expanding each into two spoken minutes.
 - The URL store's consistency requirements are the loosest here: a lost
   record delays a re-crawl by a cycle, a duplicate wastes one fetch.
   That arithmetic justifies a cheap, eventually consistent store
-  ([leaderless, W=1](../../system_design/building_blocks.md#quorums-and-leaderless-replication))
+  ([leaderless, W=1](../building_blocks.md#quorums-and-leaderless-replication))
   over paying coordination for unneeded correctness.
 - Re-crawl scheduling is a freshness-versus-effort market: `next_crawl_at`
   follows each URL's observed change rate. Uniform re-crawling spends 10x

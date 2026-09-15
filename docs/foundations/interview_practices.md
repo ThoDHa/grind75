@@ -27,8 +27,10 @@ reaching minute forty with fifteen lines written and no test run.
 
 ## Before the round
 
-- Prepare a self-introduction of one to two minutes and two or three
-  questions to ask at the end.
+- Prepare a self-introduction of about 90 seconds, two minutes at the most,
+  and two or three questions to ask at the end;
+  [Behavioral Interviews](../interview_prep/behavioral.md) has the full
+  preparation method for both.
 - For a virtual round: quiet room, charged laptop, tested audio, and paper or
   a whiteboard app within reach for drawing.
 - For a phone screen: earphones, so both your hands are free to type.
@@ -37,7 +39,7 @@ reaching minute forty with fifteen lines written and no test run.
 
 ### 1. Introduce yourself
 
-Two minutes of background: who you are, what you have built, why you are
+About 90 seconds of background: who you are, what you have built, why you are
 here.
 
 **Do:** keep it under two minutes, sound like a person who wants to be there,

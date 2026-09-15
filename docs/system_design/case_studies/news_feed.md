@@ -175,7 +175,7 @@ spent on network to the phone, not on your backend.
   sorted-set feeds keyed by post timestamp make insertion idempotent
   and order-independent: at-least-once delivery plus an idempotent
   consumer, exactly as the
-  [queues block](../../system_design/building_blocks.md#message-queues-and-streams)
+  [queues block](../building_blocks.md#message-queues-and-streams)
   prescribes.
 
 ## Step 6: Wrap-up
@@ -199,7 +199,7 @@ spent on network to the phone, not on your backend.
 - [ ] **Likes and counters**: 1B+ like events/day on hot posts without
   serializing on one row (sharded counters, approximate counts).
 - [ ] **Media**: wire in
-  [object storage + CDN](../../system_design/building_blocks.md#object-storage)
+  [object storage + CDN](../building_blocks.md#object-storage)
   for images and video; what changes in the post write path?
 - [ ] **Follow/unfollow dynamics**: an unfollow should stop showing that
   author; when and where does the cached feed get corrected?
