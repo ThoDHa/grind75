@@ -272,6 +272,17 @@ def traverse_iterative(root):
 
 ---
 
+## Corner Cases
+
+- Empty tree (root is null): the base case every recursive solution needs
+- Single node: the root is also a leaf; depth and height conventions become visible
+- Fully skewed tree: height n; recursive solutions push the recursion limit
+- All nodes sharing one value: univalue paths and BST validation degenerate
+- Negative node values: max-path logic must be allowed to drop branches
+- Duplicate values in reconstruction problems: preorder plus inorder becomes ambiguous
+
+---
+
 ## Practice Progression
 
 ### Level 1: Basic Traversals (Master First!)

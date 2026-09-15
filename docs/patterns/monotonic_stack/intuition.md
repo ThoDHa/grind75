@@ -248,6 +248,18 @@ width = current_idx - left_boundary_idx - 1  # Excludes both boundaries
 
 ---
 
+## Corner Cases
+
+- Empty array: the stack never fills; every result stays at its default
+- Strictly increasing sequence: nothing pops until the end; the stack holds every index
+- Strictly decreasing sequence: each element resolves the one before it
+- All elements equal: strict versus non-strict comparison decides who resolves whom
+- Maximum at the last position: one arrival resolves the entire stack in a single run
+- Candidates still stacked at the end of input: the drain loop or sentinel must fire
+- Circular variant with one or two elements: modulo traversal must not double-count
+
+---
+
 ## The Template Skeleton
 
 Every monotonic stack solution follows this skeleton:

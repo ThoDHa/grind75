@@ -180,6 +180,18 @@ D covers the whole area down to the target's bottom-right corner. Subtracting B 
 
 ---
 
+## Corner Cases
+
+- Empty array: the prefix structure is just its seed value
+- Range spanning the whole array (start 0, end n-1): the classic off-by-one site
+- Single-element array: a range of exactly one
+- Target sum of 0: the query collides with the empty prefix; the {0: 1} seed is what keeps counts correct
+- All-negative or all-zero arrays: sliding-window shortcuts fail; prefix sum plus hash map still works
+- Very large values in fixed-width languages: prefix sums overflow even when individual elements fit
+- 2D grids with a single row or column: inclusion-exclusion terms degenerate
+
+---
+
 ## Practice Progression
 
 Master prefix sum through this sequence:

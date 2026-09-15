@@ -614,6 +614,19 @@ Python has arbitrary precision integers, so this isn't an issue, but it's a crit
 
 ---
 
+## Corner Cases
+
+- Empty array: the loop never runs; return the not-found value
+- Single element: exactly one predicate evaluation
+- Target at the first or last position: the boundary case every template variant must survive
+- Target absent (below all, above all, or inside a gap): verify the boundary before trusting it
+- All elements equal: the predicate is all-True or all-False; only the verification step is informative
+- Two-element array: the classic infinite-loop trap when mid updates are inconsistent
+- Rotated array with rotation of zero or n-1: the sorted-half logic must still hold
+- Fixed-width languages: mid computed as (left + right) / 2 can overflow
+
+---
+
 ## Practice Progression
 
 Master binary search through this sequence:

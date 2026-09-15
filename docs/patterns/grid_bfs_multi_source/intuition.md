@@ -197,6 +197,15 @@ if neighbor not in visited:
     queue.append(neighbor)
 ```
 
+## Corner Cases
+
+- No source cells: the queue starts empty; every cell keeps its default value
+- Every cell a source: all distances are 0 and the BFS loop should no-op
+- Single-cell grid: the cell is its own source at distance 0
+- Obstacles sealing off fresh cells (Rotting Oranges): the answer is -1, never the level count
+- Grid already fully rotten (no fresh cells): the answer is 0 minutes, before any level runs
+- Fresh cells but no rotten source: unreachable target state; return -1
+
 ## Practice
 
 1. **Rotting Oranges (LC 994)**: the propagation timer variant. All rotten oranges enter the queue at minute 0; count levels until no fresh orange remains.

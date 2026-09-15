@@ -85,6 +85,7 @@ nav:
     - patterns/index.md
     - Fundamentals:
       - Hashing & Frequency Counting: patterns/hashing/intuition.md
+      - String: patterns/string/intuition.md
       - Stack: patterns/stack/intuition.md
       - Simulation: patterns/simulation/intuition.md
       - Data-Structure Design: patterns/design/intuition.md

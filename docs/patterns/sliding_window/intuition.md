@@ -1063,6 +1063,18 @@ Both pointers only move forward → Each element enters the window once, exits o
 
 ---
 
+## Corner Cases
+
+- Empty sequence: no window forms; return the empty answer
+- Single element: one window of size 1; the loop must still record it
+- Fixed window longer than the sequence (pattern longer than the string): answer is "never", not an index error
+- k of 0 in at-most-K problems: the window can never grow; the answer is 0
+- All elements identical: every advance triggers a shrink; the Gatekeeper works at full speed
+- Sum or coverage never reached anywhere: return the "no answer" sentinel (0 or empty string), not a partial window
+- Negative numbers in the array: sum windows lose monotonicity; the pattern does not apply
+
+---
+
 ## The Pattern in One Sentence
 
 > *Sliding Window is the art of maintaining a valid contiguous view by advancing eagerly and retreating only when necessary.*

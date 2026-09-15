@@ -188,6 +188,18 @@ pq = [(0, start, 0)]  # (cost, node, stops_used)
 
 ---
 
+## Corner Cases
+
+- Source equals target: distance 0 before any edge is relaxed
+- Unreachable target: the distance stays at infinity; report the sentinel, not a partial path
+- Zero-weight edges mixed with positive ones: Dijkstra holds, plain BFS does not
+- Negative edge weights: Dijkstra is invalid; Bellman-Ford territory
+- All edges of equal weight: plain BFS is the entire algorithm
+- K-stops constraint with K = 0: only direct edges may be used
+- Self-loops and parallel edges: self-loops never help; the cheapest parallel edge wins
+
+---
+
 ## Practice Progression
 
 ### Level 1: Unweighted BFS
