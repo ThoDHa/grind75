@@ -209,6 +209,19 @@ heap[2] = new_value  # Heap property violated!
 
 ---
 
+## Corner Cases
+
+- k larger than the input size: a size-k heap never fills; the answer is all elements or undefined, not a crash
+- k of one, or k equal to n: the two degenerate shapes of top-k
+- Element exactly equal to the root at the k boundary: strict versus non-strict comparison decides whether it enters
+- All elements identical: no replacement ever fires; the first k occupy the heap
+- Pop or peek on an empty heap: the stream's very first call needs the guard
+- Two-heap median: sizes may differ by at most one; rebalance on every insert before reading the roots
+- Python max-heap via negation: negate on push and again on pop, with a tie-breaker for equal values
+- Scheduling intervals that touch at endpoints ([0,5] and [5,10]): one room or two depends on the boundary convention
+
+---
+
 ## Practice Progression
 
 ### Level 1: Basic Heap Operations (Master First!)

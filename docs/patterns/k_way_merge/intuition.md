@@ -184,6 +184,16 @@ for lst in lists[1:]:
 # RIGHT: Use heap O(N log K) or divide-and-conquer O(N log K)
 ```
 
+## Corner Cases
+
+- k = 0 or every list empty: the heap never fills; return the empty merge rather than crashing on arr[0]
+- Some lists empty: skip them at initialization instead of indexing into nothing (see Mistake 2)
+- k = 1: the heap is a passthrough; the whole single list still flows through it
+- Wildly unequal list lengths: short lists drain early; every successor push must guard the end of its list
+- Duplicate values across lists: the tie-breaker index orders the pops; nodes themselves must never be compared
+- In-place merge with m = 0 or n = 0 (LC 88): the backward merge copies only whichever side remains
+- Buffer longer than m + n (LC 88): the write pointer starts at m + n - 1, not at the array's final index
+
 ## Practice Progression
 
 Build the merge instinct in order of increasing K:

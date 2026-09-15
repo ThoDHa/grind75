@@ -261,6 +261,18 @@ return len(stack) == 0
 
 ---
 
+## Corner Cases
+
+- Empty input: vacuously balanced; the stack never grows and the final empty-check passes
+- A closer before any opener: the empty-pop guard must report invalid, not crash
+- Only openers or only closers: the leftover-at-end and pop-on-empty failure modes in isolation
+- Wrong-order nesting like ([)]: each closer finds its matching character somewhere, just not on top
+- Postfix expression with too few operands: an operator pops two values when fewer than two exist
+- Multi-digit numbers: tokenize before pushing, or "10" evaluates as 1 and 0
+- Deeply nested input: keep the matching iterative; deep recursion overflows the call stack this pattern replaces
+
+---
+
 ## Practice Progression
 
 Master the stack through this sequence of Grind75 problems:

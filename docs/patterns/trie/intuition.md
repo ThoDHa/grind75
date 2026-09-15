@@ -234,6 +234,18 @@ if not next_node.children and not next_node.word:
 
 ---
 
+## Corner Cases
+
+- Empty string: insert marks is_end on the root; search("") is true only then, startsWith("") is always true
+- Single-character words: the root's direct children hold the whole answer
+- Word equal to another's prefix ("app" when "apple" exists): search must check is_end; startsWith need not
+- Word extending another ("apple" after "app"): one path serves both, with an is_end mid-branch
+- Duplicate inserts: idempotent for a set, double-counting for a counter
+- Wildcard pattern longer than every stored word: the DFS starves at depth; each '.' must branch to all children
+- Word Search II finding a word twice: clear it at the node on first find (see Pitfall 3)
+
+---
+
 ## Practice Progression
 
 ### Level 1: Basic Operations

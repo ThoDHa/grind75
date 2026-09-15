@@ -238,6 +238,18 @@ Reaching for an array when the contract needs O(1) middle-deletion, or a list wh
 
 ---
 
+## Corner Cases
+
+- Capacity zero or one: eviction triggers immediately; get on an empty or evicted key must return the sentinel
+- put of an existing key: update the value and refresh recency without the size growing
+- MinStack pushing the same minimum twice: one pop must not lose it; the min stack records it per entry
+- Two-stack queue read when outbox is empty and inbox is full: the transfer path, distinct from both-empty
+- Interleaved mutation storms: every put, pop, and get touch must update every mirrored structure, or a later read lies
+- Frequency stack draining a layer: popping the last element of groups[maxfreq] must decrement maxfreq
+- Extreme sizes: one hundred thousand operations, not one of each; refill the outbox only when empty or the amortized bound breaks
+
+---
+
 ## Practice Progression
 
 Build mastery of design through this sequence:

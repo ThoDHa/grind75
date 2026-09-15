@@ -224,6 +224,18 @@ return candidate_start if total_surplus >= 0 else -1
 
 ---
 
+## Corner Cases
+
+- A zero you cannot stand on ([1, 0, 5]): the reachability check must fire before any later index is trusted
+- A zero you cannot get past versus a zero at the goal: [3, 2, 1, 0, 4] fails while [1, 0] succeeds; the goal position decides
+- All-zero or single-element jump arrays: the minimum sizes for the boundary logic
+- Gas station with negative total surplus: return -1; no candidate start can work
+- Cooldown of zero (Task Scheduler): no forced idle slots; the frame formula must collapse to the task count
+- Strictly decreasing ratings (Candy): the backward pass carries all the information
+- An empty side in sort-and-match: zero children or zero cookies means zero, not an error
+
+---
+
 ## Practice Progression
 
 Master Greedy Core through this sequence:

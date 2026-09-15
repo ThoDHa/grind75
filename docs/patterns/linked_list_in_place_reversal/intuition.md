@@ -312,6 +312,18 @@ while fast and fast.next:
 
 ---
 
+## Corner Cases
+
+- Empty list or single node: the loop bodies must be guarded so they simply never run
+- Two nodes: the smallest input that rotates all three pointers fully
+- Segment of one node (left == right) or a segment starting at the head (left == 1): only the head-starting case strictly requires the dummy node
+- A trailing k-group shorter than k: the availability check leaves it un-reversed and in order
+- A cycle that is the entire list (tail points at head): fast laps inside immediately and still collides with slow
+- Even-length midpoint: slow lands on the second middle; the alternate loop condition moves it to the first
+- Stepping fast twice per loop: fast.next.next is touched only after fast and fast.next both exist
+
+---
+
 ## Complexity Guarantees
 
 | Variant | Time | Space | Key Factor |
