@@ -121,6 +121,9 @@ node onto `tail`, and advance one cursor.
 #     def __init__(self, val=0, next=None):
 #         self.val = val
 #         self.next = next
+from typing import List, Optional
+
+
 
 class Solution:
     def mergeKLists(self, lists: List[Optional[ListNode]]) -> Optional[ListNode]:
@@ -233,6 +236,9 @@ and the loop folds every list into `result`.
 #     def __init__(self, val=0, next=None):
 #         self.val = val
 #         self.next = next
+from typing import List, Optional
+
+
 
 class Solution:
     def mergeKLists(self, lists: List[Optional[ListNode]]) -> Optional[ListNode]:
@@ -381,6 +387,9 @@ with `merge_two_lists` doing each splice.
 #     def __init__(self, val=0, next=None):
 #         self.val = val
 #         self.next = next
+from typing import List, Optional
+
+
 
 class Solution:
     def mergeKLists(self, lists: List[Optional[ListNode]]) -> Optional[ListNode]:
@@ -496,6 +505,9 @@ the priority order shown on the right.
 #     def __init__(self, val=0, next=None):
 #         self.val = val
 #         self.next = next
+from typing import List, Optional
+
+
 
 import heapq
 

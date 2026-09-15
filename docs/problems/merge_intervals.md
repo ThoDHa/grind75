@@ -118,6 +118,9 @@ The code is the walkthrough's fuse-and-restart loop, with `merged_something`
 recording whether a pass changed anything.
 
 ```python
+from typing import List
+
+
 class Solution:
     def merge(self, intervals: List[List[int]]) -> List[List[int]]:
         # Copy so the input is left untouched.
@@ -261,6 +264,9 @@ The code is the walkthrough's pass: sort, seed `merged`, then one
 overlap-or-append decision per interval.
 
 ```python
+from typing import List
+
+
 class Solution:
     def merge(self, intervals: List[List[int]]) -> List[List[int]]:
         if not intervals:
@@ -364,6 +370,9 @@ The code is the walkthrough's event loop: compare `starts[s]` against
 `ends[e]`, adjust `depth`, and emit a cluster whenever it returns to zero.
 
 ```python
+from typing import List
+
+
 class Solution:
     def merge(self, intervals: List[List[int]]) -> List[List[int]]:
         if not intervals:
@@ -477,6 +486,9 @@ The code is the walkthrough in three phases: the pair scan that builds `graph`,
 the stack-based `dfs`, and the min/max collapse per component.
 
 ```python
+from typing import List
+
+
 class Solution:
     def merge(self, intervals: List[List[int]]) -> List[List[int]]:
         if not intervals:

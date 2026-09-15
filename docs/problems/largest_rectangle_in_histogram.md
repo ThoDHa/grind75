@@ -110,6 +110,9 @@ After the final bar, `max_area = 10`, which matches the example's expected Outpu
 The code is the expansion from the walkthrough, run once per bar.
 
 ```python
+from typing import List
+
+
 class Solution:
     def largestRectangleArea(self, heights: List[int]) -> int:
         max_area = 0
@@ -203,6 +206,9 @@ The code is the walkthrough's double loop with `min_height` maintained
 incrementally as `j` grows.
 
 ```python
+from typing import List
+
+
 class Solution:
     def largestRectangleArea(self, heights: List[int]) -> int:
         max_area = 0
@@ -287,6 +293,9 @@ The code is the recursion from the walkthrough: scan for the minimum, then take
 the best of the three candidates.
 
 ```python
+from typing import List
+
+
 class Solution:
     def largestRectangleArea(self, heights: List[int]) -> int:
         def calculate_area(start: int, end: int) -> int:
@@ -417,6 +426,9 @@ Example 1's expected Output.
 The code is the walkthrough's push, pop-and-measure, and final flush.
 
 ```python
+from typing import List
+
+
 class Solution:
     def largestRectangleArea(self, heights: List[int]) -> int:
         stack = []  # indices of bars in increasing-height order

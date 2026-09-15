@@ -97,6 +97,9 @@ The code is the recursive definition written down: swap, then invert each subtre
 #         self.val = val
 #         self.left = left
 #         self.right = right
+from typing import Optional
+
+
 class Solution:
     def invertTree(self, root: Optional[TreeNode]) -> Optional[TreeNode]:
         if not root:
@@ -176,6 +179,9 @@ The code is the walkthrough's loop: pop, swap, push both children until the stac
 #         self.val = val
 #         self.left = left
 #         self.right = right
+from typing import Optional
+
+
 class Solution:
     def invertTree(self, root: Optional[TreeNode]) -> Optional[TreeNode]:
         if not root:
@@ -250,6 +256,9 @@ The code is the walkthrough's loop with `deque` as the queue: dequeue from the f
 #         self.left = left
 #         self.right = right
 from collections import deque
+
+from typing import Optional
+
 
 class Solution:
     def invertTree(self, root: Optional[TreeNode]) -> Optional[TreeNode]:
