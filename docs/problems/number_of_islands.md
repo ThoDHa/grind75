@@ -650,6 +650,7 @@ class UnionFind:
     def get_components(self):
         return self.components
 
+
 class Solution:
     def numIslands(self, grid: List[List[str]]) -> int:
         if not grid or not grid[0]:
@@ -663,6 +664,9 @@ class Solution:
         # Create Union-Find structure for all cells
         uf = UnionFind(rows * cols)
 
+        # Check right and down neighbors only (to avoid double processing)
+        directions = [(0, 1), (1, 0)]
+
         def get_index(row, col):
             """Convert 2D coordinates to 1D index"""
             return row * cols + col
@@ -673,8 +677,6 @@ class Solution:
                 if grid[row][col] == '0':
                     water_cells += 1
                 else:  # Land cell
-                    # Check right and down neighbors only (to avoid double processing)
-                    directions = [(0, 1), (1, 0)]  # right, down
                     current_idx = get_index(row, col)
 
                     for dr, dc in directions:

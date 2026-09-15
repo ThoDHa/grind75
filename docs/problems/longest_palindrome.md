@@ -234,7 +234,7 @@ class Solution:
 #### Key Insights
 
 - This approach elegantly tracks character pairs without explicit counting.
-- The set effectively serves as a "pairing station" - characters wait there until their pair arrives.
+- The set effectively serves as a "pairing station": characters wait there until their pair arrives.
 - The final check for a non-empty set determines if we can place one character at the center.
 - This solution is particularly intuitive for understanding the palindrome construction process.
 
