@@ -71,6 +71,9 @@ nav:
     - Recursion and the Call Stack: foundations/recursion.md
     - Data Structures in Pictures: foundations/data_structures.md
     - How to Approach a Problem: foundations/how_to_approach.md
+    - Optimizing a Working Solution: foundations/optimizing.md
+    - How You Are Scored: foundations/interview_rubrics.md
+    - The Coding Interview, Phase by Phase: foundations/interview_practices.md
     - Glossary: foundations/glossary.md
   - Patterns:
     - patterns/index.md

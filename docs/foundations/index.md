@@ -50,6 +50,28 @@ in-degree, amortized, and the rest) in one place for quick lookup.
    repeat. That repetition is the goal: patterns, not memorized solutions, are
    what let you solve problems you have never seen.
 
+### The study workflow: time-box your stuck moments
+
+The loop above has a failure mode: the one problem that eats an entire
+evening. Time-box it instead. A protocol that works:
+
+1. Attempt the problem on your own.
+2. Going nowhere? Draw it. Set up the smallest example you can and step
+   through it by hand, as in
+   [step 2 of the method](how_to_approach.md#2-walk-through-the-examples-by-hand).
+3. Still making no progress after 15 to 20 minutes? Read the solution. That
+   is not cheating; solutions are learning material. Budget 45 to 60 minutes
+   to understand one, starting from its first listed (baseline) solution. If
+   it is not making sense within that budget, move to an easier problem for
+   now and return to this one later.
+4. Re-solve the problems that were hard, from scratch, on a later day. The
+   spaced-repetition review queue described in [Practicing in this
+   repo](#practicing-in-this-repo) is exactly this mechanism.
+
+The pass signal to aim at is not "I have seen every problem once". It is
+rough but honest: if you can solve most mediums you have never seen before,
+within 20 to 25 minutes, you can probably pass most interviews.
+
 ## Practicing in this repo
 
 The [`practice/`](https://github.com/ThoDHa/grind75/tree/main/practice)
@@ -78,3 +100,9 @@ documents the commands and intervals.
 
 The point is not to finish fast. It is to build the mental models that make the
 next problem easier than the last.
+
+---
+
+*The time-boxed stuck protocol and the readiness heuristic follow [How to Use
+NeetCode Effectively](https://neetcode.io/courses/lessons/how-to-use-neetcode-effectively)
+on NeetCode; the rest of this page is original to this project.*
