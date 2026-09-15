@@ -75,6 +75,12 @@ nav:
     - How You Are Scored: foundations/interview_rubrics.md
     - The Coding Interview, Phase by Phase: foundations/interview_practices.md
     - Glossary: foundations/glossary.md
+  - Interview Prep:
+    - interview_prep/index.md
+    - Study Plan and Schedule: interview_prep/study_plan.md
+    - Choosing a Language: interview_prep/language.md
+    - Behavioral Interviews: interview_prep/behavioral.md
+    - Mock Interviews: interview_prep/mock_interviews.md
   - Patterns:
     - patterns/index.md
     - Fundamentals:
