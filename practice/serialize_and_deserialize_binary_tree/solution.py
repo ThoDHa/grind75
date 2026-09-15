@@ -1,4 +1,4 @@
-"""Serialize and Deserialize Binary Tree — https://leetcode.com/problems/serialize-and-deserialize-binary-tree/
+"""Serialize and Deserialize Binary Tree: https://leetcode.com/problems/serialize-and-deserialize-binary-tree/
 
 Write-up & approaches: ../../docs/problems/serialize_and_deserialize_binary_tree.md
 

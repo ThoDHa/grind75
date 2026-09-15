@@ -1,4 +1,4 @@
-"""Tests for Middle of the Linked List — your attempt (solution.py) against both sets.
+"""Tests for Middle of the Linked List: your attempt (solution.py) against both sets.
 
 Linked lists are stored in the case files as plain value arrays and marshalled to
 ListNode here. The result node is serialized back to a list (middle node to end)

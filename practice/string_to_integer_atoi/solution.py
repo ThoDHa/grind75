@@ -1,4 +1,4 @@
-"""String to Integer (atoi) — https://leetcode.com/problems/string-to-integer-atoi/
+"""String to Integer (atoi): https://leetcode.com/problems/string-to-integer-atoi/
 
 Write-up & approaches: ../../docs/problems/string_to_integer_atoi.md
 

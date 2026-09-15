@@ -1,4 +1,4 @@
-"""Longest Palindrome — https://leetcode.com/problems/longest-palindrome/
+"""Longest Palindrome: https://leetcode.com/problems/longest-palindrome/
 
 Write-up & approaches: ../../docs/problems/longest_palindrome.md
 

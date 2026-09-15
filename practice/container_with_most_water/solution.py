@@ -1,4 +1,4 @@
-"""Container With Most Water — https://leetcode.com/problems/container-with-most-water/
+"""Container With Most Water: https://leetcode.com/problems/container-with-most-water/
 
 Write-up & approaches: ../../docs/problems/container_with_most_water.md
 

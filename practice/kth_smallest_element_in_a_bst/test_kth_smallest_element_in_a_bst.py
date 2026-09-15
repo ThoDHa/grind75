@@ -1,4 +1,4 @@
-"""Tests for Kth Smallest Element in a BST — your attempt (solution.py) against both sets.
+"""Tests for Kth Smallest Element in a BST: your attempt (solution.py) against both sets.
 
 Trees are stored in the case files as LeetCode level-order arrays (null = missing)
 and marshalled to TreeNode here. The worked approaches live in

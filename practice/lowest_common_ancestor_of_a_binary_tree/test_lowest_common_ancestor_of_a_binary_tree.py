@@ -1,4 +1,4 @@
-"""Tests for Lowest Common Ancestor of a Binary Tree — your attempt (solution.py).
+"""Tests for Lowest Common Ancestor of a Binary Tree: your attempt (solution.py).
 
 Trees are stored in the case files as level-order value arrays plus the `p` and
 `q` target values; they are marshalled to TreeNodes here, and the target nodes are

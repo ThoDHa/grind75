@@ -1,4 +1,4 @@
-"""Binary Search — https://leetcode.com/problems/binary-search/
+"""Binary Search: https://leetcode.com/problems/binary-search/
 
 Write-up & approaches: ../../docs/problems/binary_search.md
 

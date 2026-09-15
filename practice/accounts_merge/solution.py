@@ -1,4 +1,4 @@
-"""Accounts Merge — https://leetcode.com/problems/accounts-merge/
+"""Accounts Merge: https://leetcode.com/problems/accounts-merge/
 
 Write-up & approaches: ../../docs/problems/accounts_merge.md
 

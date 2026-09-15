@@ -1,4 +1,4 @@
-"""Largest Rectangle in Histogram — https://leetcode.com/problems/largest-rectangle-in-histogram/
+"""Largest Rectangle in Histogram: https://leetcode.com/problems/largest-rectangle-in-histogram/
 
 Write-up & approaches: ../../docs/problems/largest_rectangle_in_histogram.md
 

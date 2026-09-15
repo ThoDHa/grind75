@@ -1,4 +1,4 @@
-"""Two Sum — https://leetcode.com/problems/two-sum/
+"""Two Sum: https://leetcode.com/problems/two-sum/
 
 Write-up & approaches: ../../docs/problems/two_sum.md
 

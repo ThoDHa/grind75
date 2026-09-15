@@ -98,7 +98,7 @@ or better answer, cutting the work without changing the result. A core move in
 
 **Sentinel**: a dummy node or boundary value added to remove special cases.
 [LRU Cache](../problems/lru_cache.md) uses sentinel head and tail nodes so that
-inserting and removing never has to check for the empty-list edge case.
+inserting and removing never has to check for the empty-list corner case.
 
 **Sliding window**: a moving range over a sequence whose two ends advance to
 keep a condition satisfied. See the

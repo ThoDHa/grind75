@@ -1,4 +1,4 @@
-"""Combination Sum — https://leetcode.com/problems/combination-sum/
+"""Combination Sum: https://leetcode.com/problems/combination-sum/
 
 Write-up & approaches: ../../docs/problems/combination_sum.md
 

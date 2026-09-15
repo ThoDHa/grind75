@@ -1,4 +1,4 @@
-"""Implement Trie (Prefix Tree) — https://leetcode.com/problems/implement-trie-prefix-tree/
+"""Implement Trie (Prefix Tree): https://leetcode.com/problems/implement-trie-prefix-tree/
 
 Write-up & approaches: ../../docs/problems/implement_trie_prefix_tree.md
 

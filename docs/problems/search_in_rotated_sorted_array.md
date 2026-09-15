@@ -20,19 +20,19 @@ You must write an algorithm with `O(log n)` runtime complexity.
 
 ### Example 1
 
-**Input:** nums = `[4,5,6,7,0,1,2]`, target = `0`
+**Input:** `nums = [4,5,6,7,0,1,2]`, `target = 0`
 
 **Output:** `4`
 
 ### Example 2
 
-**Input:** nums = `[4,5,6,7,0,1,2]`, target = `3`
+**Input:** `nums = [4,5,6,7,0,1,2]`, `target = 3`
 
 **Output:** `-1`
 
 ### Example 3
 
-**Input:** nums = `[1]`, target = `0`
+**Input:** `nums = [1]`, `target = 0`
 
 **Output:** `-1`
 
@@ -408,7 +408,7 @@ Only the two pointers and a midpoint are stored.
 
 ### Trade-offs
 
-- **Linear Scan** is trivially correct and needs no edge-case reasoning, but it fails the required `O(log n)` bound and is unacceptable on large inputs.
+- **Linear Scan** is trivially correct and needs no corner-case reasoning, but it fails the required `O(log n)` bound and is unacceptable on large inputs.
 - **Find Pivot then Binary Search** keeps each phase a standard binary search, so it is easy to derive and debug and the pivot-finding helper is reusable, at the cost of a worse constant factor from making two passes.
 - **Modified Binary Search** completes in one pass for the best constant factor, but its branching is denser and the boundary conditions are easier to get wrong.
 

@@ -20,13 +20,13 @@ Design an algorithm to serialize and deserialize a binary tree. There is no rest
 
 ![Serialize and Deserialize Binary Tree Example 1](assets/serialize_and_deserialize_binary_tree_example1.jpg)
 
-**Input:** root = `[1,2,3,null,null,4,5]`
+**Input:** `root = [1,2,3,null,null,4,5]`
 
 **Output:** `[1,2,3,null,null,4,5]`
 
 ### Example 2
 
-**Input:** root = `[]`
+**Input:** `root = []`
 
 **Output:** `[]`
 
@@ -523,4 +523,4 @@ The serialized string and token list hold all `n` values plus null markers, so t
 - Key implementation detail: serialization and deserialization must follow the same preorder order (root, then left, then right), and the null markers are what allow the recursive `build_tree` to know exactly where each subtree ends.
 - The **Level-Order BFS** trades recursion (stack space) for an explicit queue (heap space) and avoids deep recursion, making it the better choice for very deep trees that could otherwise overflow the call stack.
 - The **Postorder DFS with Null Markers** solution shows the same null-marker idea applied bottom-up. Because the root is serialized last, deserialization must consume the token list from the end and build the right subtree before the left. A tempting but incorrect shortcut is to drop the null markers and reconstruct using BST-style value bounds (`min < val < max`); that only works for binary search trees and silently misplaces nodes in a general binary tree, so explicit null markers are required for correctness here.
-- Common pitfall: forgetting that postorder deserialization reverses direction (right before left) when reading from the end. Edge cases such as empty trees, single nodes, and highly unbalanced trees must be tested for each approach.
+- Common pitfall: forgetting that postorder deserialization reverses direction (right before left) when reading from the end. Corner cases such as empty trees, single nodes, and highly unbalanced trees must be tested for each approach.

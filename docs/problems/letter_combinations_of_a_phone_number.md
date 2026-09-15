@@ -120,8 +120,13 @@ len(answer) = product over i in 0..n-1 of len(digit_to_letters[digits[i]])
 ```
 
 Since each digit maps to 3 or 4 letters, the count sits between \(3^n\) and
-\(4^n\), exponential, which is why \(O(4^n \cdot n)\) is the honest bound: one
-factor for the number of combinations, and \(n\) for assembling each string.
+\(4^n\), exponential. If \(m\) of the \(n\) digits map to four letters and the
+rest to three, the exact count is \(3^{n-m} \cdot 4^m\). The analyses below
+write \(n\) for the three-letter count and \(m\) for the four-letter count,
+under which the same count reads \(3^n \cdot 4^m\), reported as `O(3^n * 4^m)`
+in each solution's analysis, one factor per combination produced. Assembling
+each string costs work proportional to its length that every solution pays
+equally, so the analyses state the combination count alone.
 
 This solution computes the product left to right, using the fact that a
 Cartesian product can be built one factor at a time:

@@ -1,10 +1,10 @@
 # [Insert Interval](https://leetcode.com/problems/insert-interval/)
 
-**Medium** | **25 minutes** | **Array, Sorting**
+**Medium** | **25 minutes** | **Array**
 
 **Pattern:** [Interval](../patterns/interval/intuition.md)
 
-**Algorithm:** [Binary search](https://en.wikipedia.org/wiki/Binary_search_algorithm)
+**Algorithm:** [Interval pattern](../patterns/interval/intuition.md) · [Binary search](https://en.wikipedia.org/wiki/Binary_search_algorithm)
 
 **Practice:** [`practice/insert_interval/solution.py`](../../practice/insert_interval/solution.py)
 
@@ -221,7 +221,7 @@ The `merged` output list holds up to `n + 1` intervals; no other auxiliary stora
 
 - Solves the problem head-on by handling the three regions (before, overlapping, after) rather than reducing it to another problem.
 - Exploiting the guaranteed sorted order means one linear walk suffices, with no sort.
-- Handles every edge case cleanly: empty input, insertion before all or after all intervals, and full overlap.
+- Handles every corner case cleanly: empty input, insertion before all or after all intervals, and full overlap.
 
 ### Insert and Merge
 

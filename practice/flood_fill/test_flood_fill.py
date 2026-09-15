@@ -1,4 +1,4 @@
-"""Tests for Flood Fill — your attempt (solution.py) against both case sets.
+"""Tests for Flood Fill: your attempt (solution.py) against both case sets.
 
 cases.json (marker `simple`) is the "Run" set; cases_full.json (marker `full`) is
 the "Submit" gauntlet. The worked approaches live in ../../docs/problems/flood_fill.md.

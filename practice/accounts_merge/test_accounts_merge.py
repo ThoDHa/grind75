@@ -1,4 +1,4 @@
-"""Tests for Accounts Merge — your attempt (solution.py) against both case sets.
+"""Tests for Accounts Merge: your attempt (solution.py) against both case sets.
 
 cases.json (marker `simple`) is the "Run" set; cases_full.json (marker `full`) is
 the "Submit" gauntlet. Answer order is not fixed, so both sides are canonicalized

@@ -1,4 +1,4 @@
-"""3Sum — https://leetcode.com/problems/3sum/
+"""3Sum: https://leetcode.com/problems/3sum/
 
 Write-up & approaches: ../../docs/problems/3sum.md
 

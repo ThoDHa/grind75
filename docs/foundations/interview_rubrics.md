@@ -74,10 +74,10 @@ own bugs.
 a debugger instead of eyeballing it.
 
 **Trained by:** [step 7 of the
-method](how_to_approach.md#7-code-it-then-test-the-edges) for the edge-case
+method](how_to_approach.md#7-code-it-then-test-the-edges) for the corner-case
 list, the phase-by-phase guide's [verify and test
 phase](interview_practices.md#5-verify-and-test) for doing it out loud, and
-the practice harness's `full` marker, which is a ready-made edge-case
+the practice harness's `full` marker, which is a ready-made corner-case
 gauntlet for every problem.
 
 ## The bands

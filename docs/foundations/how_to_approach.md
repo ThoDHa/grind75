@@ -21,7 +21,7 @@ conversation.
 
 Take the provided examples and solve them yourself on paper, slowly. Notice
 *how* you arrived at the answer. Your own manual process is very often the
-algorithm in disguise. If the examples do not cover an edge case (empty input,
+algorithm in disguise. If the examples do not cover a corner case (empty input,
 a single element, all-equal values), invent one and solve it too.
 
 Draw what you are tracking while you do this. For trees, grids, linked lists,
@@ -76,7 +76,7 @@ trades.
 
 ### 7. Code it, then test the edges
 
-Write the solution, then run it against the examples and the edge cases from
+Write the solution, then run it against the examples and the corner cases from
 step 2. The places solutions break are almost always the boundaries: empty
 input, one element, the first or last position, duplicates, and the largest
 allowed value. In an interview, run these checks out loud and before

@@ -151,6 +151,9 @@ The code is the walkthrough's take-or-skip recursion with the all-interval
 overlap check.
 
 ```python
+from typing import List
+
+
 class Solution:
     def jobScheduling(
         self, startTime: List[int], endTime: List[int], profit: List[int]
@@ -316,6 +319,9 @@ The code is the walkthrough's loop: sort, backward scan for `j`, then the
 skip/take maximum.
 
 ```python
+from typing import List
+
+
 class Solution:
     def jobScheduling(
         self, startTime: List[int], endTime: List[int], profit: List[int]
@@ -433,6 +439,9 @@ The code is the Quadratic DP with the backward scan replaced by the
 walkthrough's probe loop.
 
 ```python
+from typing import List
+
+
 class Solution:
     def jobScheduling(
         self, startTime: List[int], endTime: List[int], profit: List[int]
@@ -547,6 +556,7 @@ The code is the previous solution with the probe loop delegated to
 
 ```python
 import bisect
+from typing import List
 
 
 class Solution:

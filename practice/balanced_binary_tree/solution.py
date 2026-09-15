@@ -1,4 +1,4 @@
-"""Balanced Binary Tree — https://leetcode.com/problems/balanced-binary-tree/
+"""Balanced Binary Tree: https://leetcode.com/problems/balanced-binary-tree/
 
 Write-up & approaches: ../../docs/problems/balanced_binary_tree.md
 

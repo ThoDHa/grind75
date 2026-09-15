@@ -1,4 +1,4 @@
-"""Word Search — https://leetcode.com/problems/word-search/
+"""Word Search: https://leetcode.com/problems/word-search/
 
 Write-up & approaches: ../../docs/problems/word_search.md
 

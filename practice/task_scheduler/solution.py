@@ -1,4 +1,4 @@
-"""Task Scheduler — https://leetcode.com/problems/task-scheduler/
+"""Task Scheduler: https://leetcode.com/problems/task-scheduler/
 
 Write-up & approaches: ../../docs/problems/task_scheduler.md
 

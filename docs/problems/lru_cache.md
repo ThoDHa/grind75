@@ -284,7 +284,7 @@ class LRUCache:
         self.capacity = capacity
         # Map key -> node for O(1) lookup.
         self.cache: dict[int, Node] = {}
-        # Sentinel head and tail bracket the list so no edge cases on ends.
+        # Sentinel head and tail bracket the list so no corner cases on ends.
         # head <-> ... <-> tail; most recently used sits just before tail.
         self.head = Node()
         self.tail = Node()
@@ -530,7 +530,7 @@ table and linked-list nodes scale linearly with that bound.
 - The brute force's bottleneck is list maintenance; replacing the order list with
   a doubly linked list turns every reorder and eviction from `O(n)` into `O(1)`.
 - Sentinel head and tail nodes in the from-scratch linked-list version remove
-  endpoint edge cases, the most common source of bugs in a manual implementation.
+  endpoint corner cases, the most common source of bugs in a manual implementation.
 - `OrderedDict` is essentially the hash-map-plus-doubly-linked-list structure
   implemented in C, so choosing it trades a small amount of conceptual
   transparency for brevity and reliability without changing the complexity.

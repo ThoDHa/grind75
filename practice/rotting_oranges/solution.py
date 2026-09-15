@@ -1,4 +1,4 @@
-"""Rotting Oranges — https://leetcode.com/problems/rotting-oranges/
+"""Rotting Oranges: https://leetcode.com/problems/rotting-oranges/
 
 Write-up & approaches: ../../docs/problems/rotting_oranges.md
 

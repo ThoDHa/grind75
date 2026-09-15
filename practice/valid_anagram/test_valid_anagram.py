@@ -1,4 +1,4 @@
-"""Tests for Valid Anagram — your attempt (solution.py) against both case sets.
+"""Tests for Valid Anagram: your attempt (solution.py) against both case sets.
 
 The worked approaches live in ../../docs/problems/valid_anagram.md.
 """

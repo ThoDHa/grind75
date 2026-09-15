@@ -1,6 +1,6 @@
 """Shared utilities for the grind75 practice harness.
 
-Each problem lives in its own directory with a `solution.py` (your attempt — also
+Each problem lives in its own directory with a `solution.py` (your attempt, also
 runnable directly for debugging), a `cases.json` / `cases_full.json` (test cases),
 and a `test_<slug>.py`. The canonical worked solutions live in the matching
 `../problems/<slug>.md` write-up, not here. The helpers below marshal

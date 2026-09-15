@@ -27,7 +27,7 @@ The algorithm for `myAtoi(string s)` is as follows:
 
 ### Example 1
 
-**Input:** s = `"42"`
+**Input:** `s = "42"`
 
 **Output:** `42`
 
@@ -47,7 +47,7 @@ Since 42 is in the range `[-2^31, 2^31 - 1]`, the final result is 42.
 
 ### Example 2
 
-**Input:** s = `"   -42"`
+**Input:** `s = "   -42"`
 
 **Output:** `-42`
 
@@ -67,7 +67,7 @@ Since -42 is in the range `[-2^31, 2^31 - 1]`, the final result is -42.
 
 ### Example 3
 
-**Input:** s = `"4193 with words"`
+**Input:** `s = "4193 with words"`
 
 **Output:** `4193`
 
@@ -107,7 +107,7 @@ scan.
    provided overflow is tested before each multiply. That yields the `O(1)`
    space hand parser: see [Single Pass](#single-pass).
 3. **Make the phases explicit.** The phase order lives implicitly in the
-   sequence of loops, so every edge case depends on conditionals being
+   sequence of loops, so every corner case depends on conditionals being
    ordered correctly. Reformulating the parse as a finite automaton moves the
    whole grammar into a transition table whose entries can be verified one by
    one: see [State Machine (DFA)](#state-machine-dfa).
@@ -381,7 +381,7 @@ The running integer, sign, and index are the only state; no per-digit buffer is 
 
 The Single Pass is correct, but its phase structure is implicit: skipping,
 sign reading, and digit accumulation live in the order of its loops, and
-every edge case rests on conditionals being placed exactly right. This
+every corner case rests on conditionals being placed exactly right. This
 solution reformulates the parse as a
 **[deterministic finite automaton](https://en.wikipedia.org/wiki/Deterministic_finite_automaton)**
 (the classic LeetCode editorial framing). Every character of the input
@@ -403,7 +403,7 @@ leading spaces; a sign character moves it to `sign`, a digit moves it to
 `sign` only a digit continues the parse; from `number` only further digits
 do. Once `end` is reached, nothing can leave it, so the loop simply breaks.
 
-The payoff is that the messy edge cases stop being code at all. A lone sign
+The payoff is that the messy corner cases stop being code at all. A lone sign
 (`"+"`), a sign after spaces (`"   -"`), a second sign (`"+-12"`), leading
 letters (`"abc42"`), and trailing junk (`"42abc"`) are not handled by
 if-chains: each one is just a row-column lookup in the table that happens to
@@ -708,9 +708,9 @@ Uses constant extra space (the regex compilation is cached by Python).
 
 - **Brute Force**: The most directly derivable version, separating the four phases for clarity, and fully library-free (`ord` conversion, no `int()`). It pays `O(n)` space for the intermediate digit substring.
 - **Single Pass**: Trims the brute force's digit substring by folding collection into accumulation, reaching `O(1)` space while staying library-free. It is the recommended hand-written form.
-- **State Machine (DFA)**: Matches the Single Pass on cost (`O(n)` time, `O(1)` space, library-free) but moves the control flow into a transition table. It is slightly longer to write, and in exchange the edge cases become table entries you can verify individually rather than conditional branches you must order correctly.
+- **State Machine (DFA)**: Matches the Single Pass on cost (`O(n)` time, `O(1)` space, library-free) but moves the control flow into a transition table. It is slightly longer to write, and in exchange the corner cases become table entries you can verify individually rather than conditional branches you must order correctly.
 - **Strip and Parse**: Keeps explicit phases but leans on `int()` for the conversion and uses `O(n)` space for the digit substring, avoiding manual overflow arithmetic in favor of a final clamp.
-- **Regular Expression**: The most concise but the most library-driven: `re` encodes the parsing grammar and `int()` does the conversion, so edge case handling is implicit and it depends on the `re` module.
+- **Regular Expression**: The most concise but the most library-driven: `re` encodes the parsing grammar and `int()` does the conversion, so corner case handling is implicit and it depends on the `re` module.
 
 ### When to Use Each
 
@@ -724,6 +724,6 @@ Uses constant extra space (the regex compilation is cached by Python).
 
 - The **Single Pass** solution is the recommended choice: it runs in `O(n)` time and `O(1)` space, requires no external dependencies, and handles every parsing state (whitespace, sign, digits, overflow) explicitly.
 - Key implementation detail: check for overflow *before* performing the multiplication `result * 10 + digit`. Comparing against `INT_MAX // 10` and `INT_MAX % 10` prevents the intermediate value from exceeding the 32-bit range, then clamp to `INT_MAX` or `INT_MIN` based on the sign.
-- The **State Machine (DFA)** solution is not an optimization over the Single Pass (same time, same space, same clamping) but a restructuring: the transition table centralizes the edge case logic, which pays off when the grammar grows more complex than atoi's four states.
-- The **Strip and Parse** and **Regular Expression** approaches offload the numeric conversion (and, for the regex, the edge case handling) to Python's `int()`. They are concise but hide the parsing mechanics and depend on the language for overflow-free arithmetic before the final clamp.
-- Common pitfall: the many edge cases (empty string, only whitespace, only a sign, non-digit interruptions, and overflow) make this problem tricky; the task tests faithful implementation of an exact specification rather than algorithmic creativity, so each step must follow the stated order precisely.
+- The **State Machine (DFA)** solution is not an optimization over the Single Pass (same time, same space, same clamping) but a restructuring: the transition table centralizes the corner case logic, which pays off when the grammar grows more complex than atoi's four states.
+- The **Strip and Parse** and **Regular Expression** approaches offload the numeric conversion (and, for the regex, the corner case handling) to Python's `int()`. They are concise but hide the parsing mechanics and depend on the language for overflow-free arithmetic before the final clamp.
+- Common pitfall: the many corner cases (empty string, only whitespace, only a sign, non-digit interruptions, and overflow) make this problem tricky; the task tests faithful implementation of an exact specification rather than algorithmic creativity, so each step must follow the stated order precisely.

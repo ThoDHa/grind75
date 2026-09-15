@@ -1,4 +1,4 @@
-"""Unique Paths — https://leetcode.com/problems/unique-paths/
+"""Unique Paths: https://leetcode.com/problems/unique-paths/
 
 Write-up & approaches: ../../docs/problems/unique_paths.md
 

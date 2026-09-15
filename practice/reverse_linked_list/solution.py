@@ -1,4 +1,4 @@
-"""Reverse Linked List — https://leetcode.com/problems/reverse-linked-list/
+"""Reverse Linked List: https://leetcode.com/problems/reverse-linked-list/
 
 Write-up & approaches: ../../docs/problems/reverse_linked_list.md
 

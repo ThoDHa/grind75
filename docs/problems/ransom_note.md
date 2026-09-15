@@ -213,10 +213,10 @@ Where `k` is the number of unique characters in the magazine. In the worst case,
 
 #### Key Insights
 
-- The early length check (`len(ransomNote) > len(magazine)`) is a key optimization that avoids unnecessary processing
-- Using a hash map/dictionary provides efficient lookups and updates for character counts
-- The solution efficiently handles arbitrary characters, not just lowercase letters
-- We only need a single pass through each string, making this solution optimal in terms of time complexity
+- The early length check (`len(ransomNote) > len(magazine)`) is a key optimization that avoids unnecessary processing.
+- Using a hash map/dictionary provides efficient lookups and updates for character counts.
+- The solution efficiently handles arbitrary characters, not just lowercase letters.
+- We only need a single pass through each string, making this solution optimal in terms of time complexity.
 
 ### Array Counter
 
@@ -294,10 +294,10 @@ The solution uses a fixed-size array of 26 elements, regardless of the input siz
 
 #### Key Insights
 
-- Using an array is most memory-efficient when the character set is known and limited
-- Array indexing with `ord(char) - ord('a')` provides a direct mapping from characters to indices
-- This approach avoids hash computation overhead that would be present in dictionary-based solutions
-- For very large inputs, this solution may have better cache locality due to the contiguous memory of arrays
+- Using an array is most memory-efficient when the character set is known and limited.
+- Array indexing with `ord(char) - ord('a')` provides a direct mapping from characters to indices.
+- This approach avoids hash computation overhead that would be present in dictionary-based solutions.
+- For very large inputs, this solution may have better cache locality due to the contiguous memory of arrays.
 
 ### Counter
 
@@ -368,10 +368,10 @@ We store two Counter objects, each with at most k unique characters (where k ≤
 
 #### Key Insights
 
-- Python's Counter class streamlines the process of counting and comparing character frequencies
-- Creating two counters and then comparing them allows for a cleaner, more readable implementation
-- This approach is more declarative than imperative, focusing on what we want (compare frequencies) rather than how to do it
-- Counter objects handle missing keys gracefully, eliminating the need for explicit default value handling
+- Python's Counter class streamlines the process of counting and comparing character frequencies.
+- Creating two counters and then comparing them allows for a cleaner, more readable implementation.
+- This approach is more declarative than imperative, focusing on what we want (compare frequencies) rather than how to do it.
+- Counter objects handle missing keys gracefully, eliminating the need for explicit default value handling.
 
 ## Comparison of Solutions
 

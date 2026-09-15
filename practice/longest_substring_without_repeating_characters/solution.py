@@ -1,4 +1,4 @@
-"""Longest Substring Without Repeating Characters — https://leetcode.com/problems/longest-substring-without-repeating-characters/
+"""Longest Substring Without Repeating Characters: https://leetcode.com/problems/longest-substring-without-repeating-characters/
 
 Write-up & approaches: ../../docs/problems/longest_substring_without_repeating_characters.md
 

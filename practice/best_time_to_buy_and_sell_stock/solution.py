@@ -1,4 +1,4 @@
-"""Best Time to Buy and Sell Stock — https://leetcode.com/problems/best-time-to-buy-and-sell-stock/
+"""Best Time to Buy and Sell Stock: https://leetcode.com/problems/best-time-to-buy-and-sell-stock/
 
 Write-up & approaches: ../../docs/problems/best_time_to_buy_and_sell_stock.md
 

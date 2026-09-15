@@ -1,4 +1,4 @@
-"""Basic Calculator — https://leetcode.com/problems/basic-calculator/
+"""Basic Calculator: https://leetcode.com/problems/basic-calculator/
 
 Write-up & approaches: ../../docs/problems/basic_calculator.md
 

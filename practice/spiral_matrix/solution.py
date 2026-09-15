@@ -1,4 +1,4 @@
-"""Spiral Matrix — https://leetcode.com/problems/spiral-matrix/
+"""Spiral Matrix: https://leetcode.com/problems/spiral-matrix/
 
 Write-up & approaches: ../../docs/problems/spiral_matrix.md
 

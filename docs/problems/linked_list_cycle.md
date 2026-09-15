@@ -123,6 +123,9 @@ each step.
 #     def __init__(self, val=0, next=None):
 #         self.val = val
 #         self.next = next
+from typing import Optional
+
+
 class Solution:
     def hasCycle(self, head: Optional[ListNode]) -> bool:
         MAX_NODES = 10**4
@@ -199,6 +202,9 @@ The code is the walkthrough's check-then-add walk.
 #     def __init__(self, val=0, next=None):
 #         self.val = val
 #         self.next = next
+from typing import Optional
+
+
 class Solution:
     def hasCycle(self, head: Optional[ListNode]) -> bool:
         seen = set()
@@ -272,6 +278,9 @@ The code is the walkthrough's check-then-mark walk.
 #     def __init__(self, val=0, next=None):
 #         self.val = val
 #         self.next = next
+from typing import Optional
+
+
 class Solution:
     def hasCycle(self, head: Optional[ListNode]) -> bool:
         while head:
@@ -398,6 +407,9 @@ The code is the walkthrough's two-pointer chase with the null guard.
 #     def __init__(self, val=0, next=None):
 #         self.val = val
 #         self.next = next
+from typing import Optional
+
+
 class Solution:
     def hasCycle(self, head: Optional[ListNode]) -> bool:
         slow = head

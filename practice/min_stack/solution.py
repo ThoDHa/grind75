@@ -1,4 +1,4 @@
-"""Min Stack — https://leetcode.com/problems/min-stack/
+"""Min Stack: https://leetcode.com/problems/min-stack/
 
 Write-up & approaches: ../../docs/problems/min_stack.md
 

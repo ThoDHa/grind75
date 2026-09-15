@@ -375,7 +375,7 @@ state by flipping `1` to `2`.
   distinguish "all rotted" from "some unreachable" without re-scanning.
 - Rotting a neighbor at enqueue time (not dequeue time) is the standard guard
   that keeps each cell out of the queue more than once.
-- The `if fresh == 0: return 0` guard covers the subtle edge case where the grid
+- The `if fresh == 0: return 0` guard covers the subtle corner case where the grid
   has no fresh oranges, so zero minutes elapse even if rotten oranges exist.
 - Looping `for _ in range(len(queue))` snapshots the current frontier size,
   which is the trick that separates one minute's oranges from the next.

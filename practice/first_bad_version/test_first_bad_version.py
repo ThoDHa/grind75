@@ -1,4 +1,4 @@
-"""Tests for First Bad Version — your attempt (solution.py) against both sets.
+"""Tests for First Bad Version: your attempt (solution.py) against both sets.
 
 This is an api-callback problem: Solution.firstBadVersion(n) calls the module-level
 isBadVersion(version). Each case is {args: [n, bad], expected: first_bad}; before

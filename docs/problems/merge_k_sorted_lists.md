@@ -16,7 +16,7 @@ Merge all the linked-lists into one sorted linked-list and return it.
 
 ### Example 1
 
-**Input:** lists = `[[1,4,5],[1,3,4],[2,6]]`
+**Input:** `lists = [[1,4,5],[1,3,4],[2,6]]`
 
 **Output:** `[1,1,2,3,4,4,5,6]`
 
@@ -35,13 +35,13 @@ merging them into one sorted list:
 
 ### Example 2
 
-**Input:** lists = `[]`
+**Input:** `lists = []`
 
 **Output:** `[]`
 
 ### Example 3
 
-**Input:** lists = `[[]]`
+**Input:** `lists = [[]]`
 
 **Output:** `[]`
 
@@ -121,6 +121,8 @@ node onto `tail`, and advance one cursor.
 #     def __init__(self, val=0, next=None):
 #         self.val = val
 #         self.next = next
+from typing import List, Optional
+
 
 class Solution:
     def mergeKLists(self, lists: List[Optional[ListNode]]) -> Optional[ListNode]:
@@ -233,11 +235,13 @@ and the loop folds every list into `result`.
 #     def __init__(self, val=0, next=None):
 #         self.val = val
 #         self.next = next
+from typing import List, Optional
+
 
 class Solution:
     def mergeKLists(self, lists: List[Optional[ListNode]]) -> Optional[ListNode]:
         """
-        Sequential merge - merge lists one by one
+        Sequential merge: merge lists one by one
         """
         if not lists:
             return None
@@ -381,11 +385,13 @@ with `merge_two_lists` doing each splice.
 #     def __init__(self, val=0, next=None):
 #         self.val = val
 #         self.next = next
+from typing import List, Optional
+
 
 class Solution:
     def mergeKLists(self, lists: List[Optional[ListNode]]) -> Optional[ListNode]:
         """
-        Divide and conquer approach - merge pairs recursively
+        Divide and conquer approach: merge pairs recursively
         """
         if not lists:
             return None
@@ -496,8 +502,9 @@ the priority order shown on the right.
 #     def __init__(self, val=0, next=None):
 #         self.val = val
 #         self.next = next
-
 import heapq
+from typing import List, Optional
+
 
 class Solution:
     def mergeKLists(self, lists: List[Optional[ListNode]]) -> Optional[ListNode]:

@@ -1,4 +1,4 @@
-"""Product of Array Except Self — https://leetcode.com/problems/product-of-array-except-self/
+"""Product of Array Except Self: https://leetcode.com/problems/product-of-array-except-self/
 
 Write-up & approaches: ../../docs/problems/product_of_array_except_self.md
 

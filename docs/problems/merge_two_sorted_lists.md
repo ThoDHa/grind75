@@ -10,7 +10,7 @@
 
 You are given the heads of two sorted linked lists `list1` and `list2`.
 
-Merge the two lists in a one sorted list. The list should be made by splicing
+Merge the two lists into one sorted list. The list should be made by splicing
 together the nodes of the first two lists.
 
 Return the head of the merged linked list.
@@ -260,7 +260,7 @@ We only use a constant amount of extra space for pointers. The solution reuses t
 
 #### Key Insights
 
-- Using a dummy head node simplifies handling edge cases and avoids special treatment for the first node insertion
+- Using a dummy head node simplifies handling corner cases and avoids special treatment for the first node insertion
 - The solution leverages the fact that both input lists are already sorted
 - Attaching remaining nodes at once is more efficient than continuing comparisons after one list is exhausted
 - In-place merging saves memory by reusing existing nodes instead of creating new ones

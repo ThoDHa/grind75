@@ -1,4 +1,4 @@
-"""Clone Graph — https://leetcode.com/problems/clone-graph/
+"""Clone Graph: https://leetcode.com/problems/clone-graph/
 
 Write-up & approaches: ../../docs/problems/clone_graph.md
 

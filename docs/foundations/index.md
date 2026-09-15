@@ -87,7 +87,7 @@ workspace is a ready-made pytest harness. One-time setup: `cd practice`, then
 - `uv run pytest <slug>/ -m simple` is the equivalent of LeetCode's **Run**:
   just the example cases, for quick feedback while you iterate.
 - `uv run pytest <slug>/ -m full` is the equivalent of **Submit**: the
-  examples plus a comprehensive edge-case gauntlet.
+  examples plus a comprehensive corner-case gauntlet.
 
 An unsolved stub raises `NotSolved`, so its tests **skip** rather than fail. A
 fresh checkout shows everything skipped, which is expected. Each `solution.py`

@@ -1,4 +1,4 @@
-"""Binary Tree Maximum Path Sum — https://leetcode.com/problems/binary-tree-maximum-path-sum/
+"""Binary Tree Maximum Path Sum: https://leetcode.com/problems/binary-tree-maximum-path-sum/
 
 Write-up & approaches: ../../docs/problems/binary_tree_maximum_path_sum.md
 

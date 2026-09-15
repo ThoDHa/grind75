@@ -1,4 +1,4 @@
-"""Permutations — https://leetcode.com/problems/permutations/
+"""Permutations: https://leetcode.com/problems/permutations/
 
 Write-up & approaches: ../../docs/problems/permutations.md
 

@@ -1,4 +1,4 @@
-"""Validate Binary Search Tree — https://leetcode.com/problems/validate-binary-search-tree/
+"""Validate Binary Search Tree: https://leetcode.com/problems/validate-binary-search-tree/
 
 Write-up & approaches: ../../docs/problems/validate_binary_search_tree.md
 

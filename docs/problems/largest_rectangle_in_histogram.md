@@ -110,6 +110,9 @@ After the final bar, `max_area = 10`, which matches the example's expected Outpu
 The code is the expansion from the walkthrough, run once per bar.
 
 ```python
+from typing import List
+
+
 class Solution:
     def largestRectangleArea(self, heights: List[int]) -> int:
         max_area = 0
@@ -203,6 +206,9 @@ The code is the walkthrough's double loop with `min_height` maintained
 incrementally as `j` grows.
 
 ```python
+from typing import List
+
+
 class Solution:
     def largestRectangleArea(self, heights: List[int]) -> int:
         max_area = 0
@@ -287,6 +293,9 @@ The code is the recursion from the walkthrough: scan for the minimum, then take
 the best of the three candidates.
 
 ```python
+from typing import List
+
+
 class Solution:
     def largestRectangleArea(self, heights: List[int]) -> int:
         def calculate_area(start: int, end: int) -> int:
@@ -417,6 +426,9 @@ Example 1's expected Output.
 The code is the walkthrough's push, pop-and-measure, and final flush.
 
 ```python
+from typing import List
+
+
 class Solution:
     def largestRectangleArea(self, heights: List[int]) -> int:
         stack = []  # indices of bars in increasing-height order
@@ -492,4 +504,4 @@ In the worst case of strictly increasing heights, the stack holds every index be
 - The **Monotonic Stack** solution is the recommended approach: it achieves optimal `O(n)` time by guaranteeing each bar is pushed and popped at most once.
 - The critical implementation detail is the width calculation when popping: the width spans from the next smaller bar on the left (the new stack top after popping) to the current bar on the right, computed as `i - stack[-1] - 1`, or `i` when the stack becomes empty.
 - A common pitfall is forgetting to process the bars remaining on the stack after the main loop ends. These bars have no smaller bar to their right, so their width extends to the end of the histogram.
-- This problem is the classic example of monotonic stack applications, and the same "next greater/smaller element" technique generalizes to many related problems. Edge cases such as empty arrays, single elements, and arrays containing zeros require careful handling across all approaches.
+- This problem is the classic example of monotonic stack applications, and the same "next greater/smaller element" technique generalizes to many related problems. Corner cases such as empty arrays, single elements, and arrays containing zeros require careful handling across all approaches.

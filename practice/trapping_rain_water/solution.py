@@ -1,4 +1,4 @@
-"""Trapping Rain Water — https://leetcode.com/problems/trapping-rain-water/
+"""Trapping Rain Water: https://leetcode.com/problems/trapping-rain-water/
 
 Write-up & approaches: ../../docs/problems/trapping_rain_water.md
 

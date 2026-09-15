@@ -1,4 +1,4 @@
-"""Tests for Lowest Common Ancestor of a BST — your attempt (solution.py) against both sets.
+"""Tests for Lowest Common Ancestor of a BST: your attempt (solution.py) against both sets.
 
 Trees are stored in the case files as level-order value arrays plus the integer
 values of `p` and `q`; both are marshalled to TreeNodes here. The worked approaches

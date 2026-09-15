@@ -26,7 +26,7 @@ A height-balanced binary tree is defined as a binary tree in which the left and 
 
 ![Balanced Binary Tree Example 2](assets/balanced_binary_tree_example2.jpg)
 
-**Input:** root = `[1,2,2,3,3,null,null,4,4]`
+**Input:** `root = [1,2,2,3,3,null,null,4,4]`
 
 **Output:** `false`
 

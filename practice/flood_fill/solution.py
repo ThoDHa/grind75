@@ -1,4 +1,4 @@
-"""Flood Fill — https://leetcode.com/problems/flood-fill/
+"""Flood Fill: https://leetcode.com/problems/flood-fill/
 
 Write-up & approaches: ../../docs/problems/flood_fill.md
 

@@ -1,4 +1,4 @@
-"""Diameter of Binary Tree — https://leetcode.com/problems/diameter-of-binary-tree/
+"""Diameter of Binary Tree: https://leetcode.com/problems/diameter-of-binary-tree/
 
 Write-up & approaches: ../../docs/problems/diameter_of_binary_tree.md
 

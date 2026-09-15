@@ -1,4 +1,4 @@
-"""Sort Colors — https://leetcode.com/problems/sort-colors/
+"""Sort Colors: https://leetcode.com/problems/sort-colors/
 
 Write-up & approaches: ../../docs/problems/sort_colors.md
 

@@ -1,4 +1,4 @@
-"""Contains Duplicate — https://leetcode.com/problems/contains-duplicate/
+"""Contains Duplicate: https://leetcode.com/problems/contains-duplicate/
 
 Write-up & approaches: ../../docs/problems/contains_duplicate.md
 

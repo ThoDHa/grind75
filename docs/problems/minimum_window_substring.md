@@ -16,7 +16,7 @@ The testcases will be generated such that the answer is **unique**.
 
 ### Example 1
 
-**Input:** s = `"ADOBECODEBANC"`, t = `"ABC"`
+**Input:** `s = "ADOBECODEBANC"`, `t = "ABC"`
 
 **Output:** `"BANC"`
 
@@ -24,7 +24,7 @@ The testcases will be generated such that the answer is **unique**.
 
 ### Example 2
 
-**Input:** s = `"a"`, t = `"a"`
+**Input:** `s = "a"`, `t = "a"`
 
 **Output:** `"a"`
 
@@ -32,7 +32,7 @@ The testcases will be generated such that the answer is **unique**.
 
 ### Example 3
 
-**Input:** s = `"a"`, t = `"aa"`
+**Input:** `s = "a"`, `t = "aa"`
 
 **Output:** `""`
 
@@ -128,7 +128,7 @@ the per-candidate recount.
 class Solution:
     def minWindow(self, s: str, t: str) -> str:
         """
-        Brute force approach - check all possible substrings
+        Brute force approach: check all possible substrings
         """
         if not s or not t or len(s) < len(t):
             return ""
@@ -549,4 +549,4 @@ Additional space for filtered_s in worst case, but typically much smaller.
 - The **Sliding Window with Hash Maps** solution is the recommended choice: it achieves the follow-up's requested `O(m + n)` time complexity using the classic expand/contract pattern with two pointers, balancing simplicity and efficiency for production code and interviews.
 - Key implementation detail: track `formed` versus `required` (the count of unique characters matched at their desired frequency) so the window only contracts while it remains valid, allowing the minimum to be captured precisely.
 - The **Optimized Sliding Window** pre-filters s to only relevant characters, which delivers real benefits only when `|s| >> |t|` and t has few unique characters. Otherwise the extra filtered array adds overhead without asymptotic improvement.
-- Common pitfall: mishandling edge cases such as empty strings, impossible cases where t is longer than s, and duplicate characters in t. Frequency counts (not mere presence) must be tracked to handle duplicates correctly.
+- Common pitfall: mishandling corner cases such as empty strings, impossible cases where t is longer than s, and duplicate characters in t. Frequency counts (not mere presence) must be tracked to handle duplicates correctly.
