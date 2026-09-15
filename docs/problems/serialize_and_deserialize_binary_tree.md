@@ -16,13 +16,13 @@ Design an algorithm to serialize and deserialize a binary tree. There is no rest
 
 ### Example 1
 
-**Input:** root = `[1,2,3,null,null,4,5]`
+**Input:** `root = [1,2,3,null,null,4,5]`
 
 **Output:** `[1,2,3,null,null,4,5]`
 
 ### Example 2
 
-**Input:** root = `[]`
+**Input:** `root = []`
 
 **Output:** `[]`
 

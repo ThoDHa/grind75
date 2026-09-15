@@ -20,7 +20,7 @@ Return the maximum amount of water a container can store.
 
 ![Container Example](./assets/container_with_most_water_example1.jpg)
 
-**Input:** height = `[1,8,6,2,5,4,8,3,7]`
+**Input:** `height = [1,8,6,2,5,4,8,3,7]`
 
 **Output:** `49`
 
@@ -28,7 +28,7 @@ Return the maximum amount of water a container can store.
 
 ### Example 2
 
-**Input:** height = `[1,1]`
+**Input:** `height = [1,1]`
 
 **Output:** `1`
 

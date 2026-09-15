@@ -116,7 +116,7 @@ performed visibly.
   mistakes live exactly there.
 - Walk through one example line by line, tracking the variables like a
   debugger, out loud.
-- Propose the edge cases yourself: empty input, a single element, duplicates,
+- Propose the corner cases yourself: empty input, a single element, duplicates,
   the largest allowed value, negatives.
 - Restate the final time and space complexity, and name what you would
   improve with more time.
@@ -125,7 +125,7 @@ performed visibly.
 argue when the interviewer spots a bug. "Good catch" plus a fast fix is the
 behavior being graded. The `full` marker in the
 [practice workspace](https://github.com/ThoDHa/grind75/blob/main/practice/README.md)
-runs exactly this kind of edge-case gauntlet on every problem in this guide.
+runs exactly this kind of corner-case gauntlet on every problem in this guide.
 
 ### 6. Wrap up
 

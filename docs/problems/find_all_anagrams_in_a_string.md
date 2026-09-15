@@ -14,7 +14,7 @@ An **anagram** is a word or phrase formed by rearranging the letters of a differ
 
 ### Example 1
 
-**Input:** s = `"cbaebabacd"`, p = `"abc"`
+**Input:** `s = "cbaebabacd"`, `p = "abc"`
 
 **Output:** `[0,6]`
 
@@ -22,7 +22,7 @@ An **anagram** is a word or phrase formed by rearranging the letters of a differ
 
 ### Example 2
 
-**Input:** s = `"abab"`, p = `"ab"`
+**Input:** `s = "abab"`, `p = "ab"`
 
 **Output:** `[0,1,2]`
 

@@ -47,7 +47,7 @@ The key shift in thinking: *You're not searching the data, you're asking the dat
 
 ## Under the Hood: Collisions, or What Backs the O(1) Promise
 
-Every constant-time claim above rests on one mechanism: turning a key into an **array index**. The key is fed through a hash function (`hash(key)` in Python), producing a number — `'Python'` might hash to `-539294296` while `'python'`, differing by a single bit, hashes to `1142331976`. That number picks the slot in an internal array where the entry lives. Lookup never scans the data; it computes the address and goes straight there.
+Every constant-time claim above rests on one mechanism: turning a key into an **array index**. The key is fed through a hash function (`hash(key)` in Python), producing a number: `'Python'` might hash to `-539294296` while `'python'`, differing by a single bit, hashes to `1142331976`. That number picks the slot in an internal array where the entry lives. Lookup never scans the data; it computes the address and goes straight there.
 
 But there are infinitely many possible keys and only finitely many slots. Sooner or later, **two different keys will claim the same slot**. That is a *collision*, and hash map design is mostly the art of answering one question: *when two keys want the same slot, who stays and where does the other go?*
 
@@ -58,7 +58,7 @@ But there are infinitely many possible keys and only finitely many slots. Sooner
 | **Separate chaining** | Each slot holds a list (or tree) of entries; the newcomer appends | Hash to the slot, then walk the chain comparing keys with `==` | Java `HashMap`, C++ `unordered_map` |
 | **Open addressing** | The newcomer probes onward for the next empty slot | Hash to the slot, then follow the same probe sequence until the key is found or an empty slot says "not here" | Python `dict` and `set` |
 
-CPython chose open addressing. When a slot is occupied, the next candidate index is derived from the upper bits of the hash (the "perturbation"), and each further probe mixes in more hash bits — so even keys with nearly identical hashes scatter to unrelated slots. The full scheme is documented in the comment atop [`Objects/dictobject.c`](https://github.com/python/cpython/blob/main/Objects/dictobject.c).
+CPython chose open addressing. When a slot is occupied, the next candidate index is derived from the upper bits of the hash (the "perturbation"), and each further probe mixes in more hash bits, so even keys with nearly identical hashes scatter to unrelated slots. The full scheme is documented in the comment atop [`Objects/dictobject.c`](https://github.com/python/cpython/blob/main/Objects/dictobject.c).
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
@@ -73,7 +73,7 @@ CPython chose open addressing. When a slot is occupied, the next candidate index
 └──────────────────────────────────────────────────────────────────┘
 
 A collision is resolved, not overwritten: both keys survive, and
-equality — not just the hash — confirms the match on lookup.
+equality (not just the hash) confirms the match on lookup.
 ```
 
 ### Why the Table Resizes (and Why Hashes Look Random)
@@ -85,13 +85,13 @@ Two more mechanisms keep probes short:
 
 ### The Contract That Makes It All Work
 
-Finding a slot is only half the job. A hash hit means *"same slot"*, never *"same key"* — the map must still confirm equality. This is why the `hash`/`==` contract exists:
+Finding a slot is only half the job. A hash hit means *"same slot"*, never *"same key"*: the map must still confirm equality. This is why the `hash`/`==` contract exists:
 
 > If `a == b`, then `hash(a) == hash(b)`. Always. The reverse need not hold (that's a collision).
 
-It also explains why **keys must be immutable** (see Pitfall 3 below): if a key mutated after insertion, its hash would point somewhere it no longer lives — silently lost in the table, unfindable by any lookup.
+It also explains why **keys must be immutable** (see Pitfall 3 below): if a key mutated after insertion, its hash would point somewhere it no longer lives (silently lost in the table, unfindable by any lookup).
 
-The worst case — every key colliding — degrades the map to O(n) per lookup, no better than the scan you were trying to avoid. The whole structure is engineered so that case essentially never happens by accident: good hashes scatter, collisions stay rare, and probes stay short.
+The worst case (every key colliding) degrades the map to O(n) per lookup, no better than the scan you were trying to avoid. The whole structure is engineered so that case essentially never happens by accident: good hashes scatter, collisions stay rare, and probes stay short.
 
 ---
 

@@ -1,6 +1,6 @@
 # [Insert Interval](https://leetcode.com/problems/insert-interval/)
 
-**Medium** | **25 minutes** | **Array, Sorting**
+**Medium** | **25 minutes** | **Array**
 
 **Pattern:** [Interval](../patterns/interval/intuition.md)
 

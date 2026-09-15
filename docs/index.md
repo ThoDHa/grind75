@@ -24,7 +24,7 @@ Use the navigation sidebar (in canonical Grind75 order) or the table below.
 | [4](https://leetcode.com/problems/best-time-to-buy-and-sell-stock/) | [Best Time to Buy and Sell Stock](problems/best_time_to_buy_and_sell_stock.md) | Easy | Array | 20 minutes |
 | [5](https://leetcode.com/problems/valid-palindrome/) | [Valid Palindrome](problems/valid_palindrome.md) | Easy | String | 15 minutes |
 | [6](https://leetcode.com/problems/invert-binary-tree/) | [Invert Binary Tree](problems/invert_binary_tree.md) | Easy | Tree | 15 minutes |
-| [7](https://leetcode.com/problems/valid-anagram/) | [Valid Anagram](problems/valid_anagram.md) | Easy | String | 15 Minutes |
+| [7](https://leetcode.com/problems/valid-anagram/) | [Valid Anagram](problems/valid_anagram.md) | Easy | String | 15 minutes |
 | [8](https://leetcode.com/problems/binary-search/) | [Binary Search](problems/binary_search.md) | Easy | Binary Search | 15 minutes |
 | [9](https://leetcode.com/problems/flood-fill/) | [Flood Fill](problems/flood_fill.md) | Easy | Graph, DFS | 20 minutes |
 | [10](https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree/) | [Lowest Common Ancestor of a BST](problems/lowest_common_ancestor_of_a_binary_search_tree.md) | Medium | Tree | 20 minutes |
@@ -102,4 +102,4 @@ The [pattern intuition guides](patterns/index.md) explain the *why* behind each 
 
 ## Practice Workspace
 
-The [`practice/`](https://github.com/ThoDHa/grind75/tree/main/practice) directory is a `pytest` workspace for solving the problems yourself. Each problem has a `solution.py` to implement plus two test sets that mirror LeetCode's Run (the examples) and Submit (a full edge-case gauntlet). See its [README](https://github.com/ThoDHa/grind75/blob/main/practice/README.md) for setup and the practice loop.
+The [`practice/`](https://github.com/ThoDHa/grind75/tree/main/practice) directory is a `pytest` workspace for solving the problems yourself. Each problem has a `solution.py` to implement plus two test sets that mirror LeetCode's Run (the examples) and Submit (a full corner-case gauntlet). See its [README](https://github.com/ThoDHa/grind75/blob/main/practice/README.md) for setup and the practice loop.

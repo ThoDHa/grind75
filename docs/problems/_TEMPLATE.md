@@ -128,7 +128,7 @@ Why the space bound holds.
 #### Key Insights
 
 - The non-obvious observation that makes the solution work.
-- A tradeoff or edge case the approach handles cleanly.
+- A tradeoff or corner case the approach handles cleanly.
 - A pitfall avoided.
 
 <!-- --------------------------- END LAYOUT A --------------------------- -->

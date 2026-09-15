@@ -14,7 +14,7 @@ The testcases will be generated such that the answer is **unique**.
 
 ### Example 1
 
-**Input:** s = `"ADOBECODEBANC"`, t = `"ABC"`
+**Input:** `s = "ADOBECODEBANC"`, `t = "ABC"`
 
 **Output:** `"BANC"`
 
@@ -22,7 +22,7 @@ The testcases will be generated such that the answer is **unique**.
 
 ### Example 2
 
-**Input:** s = `"a"`, t = `"a"`
+**Input:** `s = "a"`, `t = "a"`
 
 **Output:** `"a"`
 
@@ -30,7 +30,7 @@ The testcases will be generated such that the answer is **unique**.
 
 ### Example 3
 
-**Input:** s = `"a"`, t = `"aa"`
+**Input:** `s = "a"`, `t = "aa"`
 
 **Output:** `""`
 
