@@ -489,7 +489,7 @@ Only a few scalars for the product, the zero count, and the zero index.
 
 #### Key Insights
 
-- Division reduces the problem to one total product, but the zero edge cases are fragile and easy to get wrong.
+- Division reduces the problem to one total product, but the zero corner cases are fragile and easy to get wrong.
 - The problem forbids division precisely to push toward the prefix/suffix technique, which generalizes to non-invertible operations.
 
 ## Comparison of Solutions

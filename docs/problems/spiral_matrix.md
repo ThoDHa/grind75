@@ -466,7 +466,7 @@ Only four integer boundaries are tracked; no auxiliary structure beyond the requ
 #### Key Insights
 
 - The refinement that drops the visited array entirely: tracking the four shrinking boundaries is all the state the spiral needs.
-- The guards `if top <= bottom` and `if left <= right` cleanly handle single-row and single-column edge cases.
+- The guards `if top <= bottom` and `if left <= right` cleanly handle single-row and single-column corner cases.
 - This is the classic interview answer, achieving `O(1)` auxiliary space without sacrificing clarity.
 
 ### Layer-by-Layer Recursive
@@ -583,7 +583,7 @@ The recursion depth equals the number of rings, which is bounded by `min(m, n) /
 #### Key Insights
 
 - Elegant divide-and-conquer decomposition: peel the outer ring, then solve the smaller inner matrix.
-- Explicit single-row and single-column base cases handle edge cases cleanly.
+- Explicit single-row and single-column base cases handle corner cases cleanly.
 - The recursive call stack makes execution harder to trace and debug than the iterative variants.
 
 ### Edge Peeling with Pop
@@ -733,6 +733,6 @@ The working copy duplicates the entire matrix. That copy is what keeps the appro
 - **Edge Peeling with Pop**: `O(m×n×min(m,n))` time, `O(m×n)` space for the working copy it peels in place of the input; its key advantage is creative, compact pattern-based code.
 - The first four solutions share the same `O(m×n)` time bound and differ in space usage; Edge Peeling with Pop pays an extra `min(m,n)` factor for its front pops.
 - The ladder runs from the visited-array walk (Direction Vector Walk and State Machine) to boundary tracking (Boundary Simulation), which drops the `O(m×n)` visited array for `O(1)` space.
-- Single-row and single-column matrices are the recurring edge case; boundary-based approaches need explicit guards to avoid double-counting them.
+- Single-row and single-column matrices are the recurring corner case; boundary-based approaches need explicit guards to avoid double-counting them.
 - Boundary Simulation is the most commonly expected interview answer and demonstrates clear algorithmic thinking.
 - The spiral/layer-wise traversal pattern recurs across many matrix problems, so understanding multiple approaches builds a strong, generalizable foundation.

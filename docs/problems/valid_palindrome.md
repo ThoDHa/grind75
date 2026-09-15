@@ -434,7 +434,7 @@ whole joined result in one call:
 
 #### Walkthrough
 
-Trace the expression on Example 3, `s = " "`, the edge case where nothing
+Trace the expression on Example 3, `s = " "`, the corner case where nothing
 survives the filter:
 
 ```text

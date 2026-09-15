@@ -260,7 +260,7 @@ We only use a constant amount of extra space for pointers. The solution reuses t
 
 #### Key Insights
 
-- Using a dummy head node simplifies handling edge cases and avoids special treatment for the first node insertion
+- Using a dummy head node simplifies handling corner cases and avoids special treatment for the first node insertion
 - The solution leverages the fact that both input lists are already sorted
 - Attaching remaining nodes at once is more efficient than continuing comparisons after one list is exhausted
 - In-place merging saves memory by reusing existing nodes instead of creating new ones
