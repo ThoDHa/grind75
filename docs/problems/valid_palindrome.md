@@ -8,9 +8,7 @@
 
 **Practice:** [`practice/valid_palindrome/solution.py`](../../practice/valid_palindrome/solution.py)
 
-A phrase is a palindrome if, after converting all uppercase letters into lowercase letters and
-removing all non-alphanumeric characters, it reads the same forward and backward.
-Alphanumeric characters include letters and numbers.
+A phrase is a palindrome if, after converting all uppercase letters into lowercase letters and removing all non-alphanumeric characters, it reads the same forward and backward. Alphanumeric characters include letters and numbers.
 
 Given a string `s`, return `true` if it is a palindrome, or `false` otherwise.
 
@@ -38,8 +36,7 @@ Given a string `s`, return `true` if it is a palindrome, or `false` otherwise.
 
 **Output:** `true`
 
-**Explanation:** `s` is an empty string `""` after removing non-alphanumeric characters.
-Since an empty string reads the same forward and backward, it is a palindrome.
+**Explanation:** `s` is an empty string `""` after removing non-alphanumeric characters. Since an empty string reads the same forward and backward, it is a palindrome.
 
 ## Constraints
 

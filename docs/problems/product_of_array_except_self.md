@@ -8,14 +8,11 @@
 
 **Practice:** [`practice/product_of_array_except_self/solution.py`](../../practice/product_of_array_except_self/solution.py)
 
-Given an integer array `nums`, return an array `answer` such that `answer[i]` is
-equal to the product of all the elements of `nums` except `nums[i]`.
+Given an integer array `nums`, return an array `answer` such that `answer[i]` is equal to the product of all the elements of `nums` except `nums[i]`.
 
-The product of any prefix or suffix of `nums` is guaranteed to fit in a 32-bit
-integer.
+The product of any prefix or suffix of `nums` is guaranteed to fit in a 32-bit integer.
 
-You must write an algorithm that runs in `O(n)` time and without using the
-division operation.
+You must write an algorithm that runs in `O(n)` time and without using the division operation.
 
 ## Examples
 
@@ -25,8 +22,7 @@ division operation.
 
 **Output:** `[24,12,8,6]`
 
-**Explanation:** `answer[0] = 2*3*4 = 24`, `answer[1] = 1*3*4 = 12`,
-`answer[2] = 1*2*4 = 8`, and `answer[3] = 1*2*3 = 6`.
+**Explanation:** `answer[0] = 2*3*4 = 24`, `answer[1] = 1*3*4 = 12`, `answer[2] = 1*2*4 = 8`, and `answer[3] = 1*2*3 = 6`.
 
 ### Example 2
 
@@ -34,9 +30,7 @@ division operation.
 
 **Output:** `[0,0,9,0,0]`
 
-**Explanation:** Every position except index `2` includes the zero in its
-product, so it becomes `0`. Index `2` is the product of the remaining elements,
-`(-1)*1*(-3)*3 = 9`.
+**Explanation:** Every position except index `2` includes the zero in its product, so it becomes `0`. Index `2` is the product of the remaining elements, `(-1)*1*(-3)*3 = 9`.
 
 ## Constraints
 

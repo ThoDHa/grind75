@@ -8,10 +8,7 @@
 
 **Practice:** [`practice/merge_intervals/solution.py`](../../practice/merge_intervals/solution.py)
 
-Given an array of `intervals` where `intervals[i] = [start_i, end_i]`, merge all
-overlapping intervals and return an array of the non-overlapping intervals that
-cover all the intervals in the input. Touching intervals such as `[1,4]` and
-`[4,5]` are considered overlapping. The answer may be returned in any order.
+Given an array of `intervals` where `intervals[i] = [start_i, end_i]`, merge all overlapping intervals and return an array of the non-overlapping intervals that cover all the intervals in the input. Touching intervals such as `[1,4]` and `[4,5]` are considered overlapping. The answer may be returned in any order.
 
 ## Examples
 

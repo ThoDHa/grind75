@@ -102,14 +102,12 @@ Then prefix sum of `diff` gives you the final values.
 When you see these phrases, think **Prefix Sum**:
 
 ### Signal: "Sum of subarray" or "Range sum"
-> *"Calculate the sum between indices i and j"*
-> *"Find subarrays that sum to K"*
+> *"Calculate the sum between indices i and j"* *"Find subarrays that sum to K"*
 
 **Action**: Build prefix sum array, use subtraction.
 
 ### Signal: "Add value to range" or "Increment interval"
-> *"Add 10 to all elements from index 3 to index 7"*
-> *"Multiple range update operations"*
+> *"Add 10 to all elements from index 3 to index 7"* *"Multiple range update operations"*
 
 **Action**: Use difference array, then compute prefix sum.
 

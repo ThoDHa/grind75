@@ -28,8 +28,7 @@ Given a string `s` and a dictionary of strings `wordDict`, return `true` if `s` 
 
 **Output:** `true`
 
-**Explanation:** Return true because `"applepenapple"` can be segmented as `"apple pen apple"`.
-Note that you are allowed to reuse a dictionary word.
+**Explanation:** Return true because `"applepenapple"` can be segmented as `"apple pen apple"`. Note that you are allowed to reuse a dictionary word.
 
 ### Example 3
 

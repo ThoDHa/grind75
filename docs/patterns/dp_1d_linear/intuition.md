@@ -205,20 +205,17 @@ return prev1
 ## Pattern Recognition Signals
 
 ### Signal: "Number of ways to..."
-> *"How many distinct ways to climb n stairs?"*
-> *"Count paths from start to end"*
+> *"How many distinct ways to climb n stairs?"* *"Count paths from start to end"*
 
 **Action**: Additive DP, sum transitions.
 
 ### Signal: "Maximize profit without taking adjacent"
-> *"Rob houses but can't rob neighbors"*
-> *"Maximum sum of non-consecutive elements"*
+> *"Rob houses but can't rob neighbors"* *"Maximum sum of non-consecutive elements"*
 
 **Action**: Include/exclude DP.
 
 ### Signal: "Track best so far"
-> *"Best time to buy and sell"*
-> *"Maximum subarray sum"*
+> *"Best time to buy and sell"* *"Maximum subarray sum"*
 
 **Action**: Running min/max (implicit DP).
 

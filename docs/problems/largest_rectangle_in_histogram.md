@@ -20,8 +20,7 @@ Given an array of integers `heights` representing the histogram's bar height whe
 
 **Output:** `10`
 
-**Explanation:** The above is a histogram where width of each bar is `1`.
-The largest rectangle is shown in the red area, which has an area = `10` units.
+**Explanation:** The above is a histogram where width of each bar is `1`. The largest rectangle is shown in the red area, which has an area = `10` units.
 
 ### Example 2
 
