@@ -1,35 +1,21 @@
 # Study Plan and Schedule
 
-Working through 75 problems without a plan stalls around problem 30, when the
-novelty wears off and the problems stop being easy. This page turns the list
-into a budget: how many hours the preparation really takes, which style fits
-the time you have, and a week-by-week schedule that places the foundations and
-all 75 problems into the eight weeks the repository promises.
+Working through 75 problems without a plan stalls around problem 30, when the novelty wears off and the problems stop being easy. This page turns the list into a budget: how many hours the preparation really takes, which style fits the time you have, and a week-by-week schedule that places the foundations and all 75 problems into the eight weeks the repository promises.
 
 ## How much time this takes
 
 The honest arithmetic:
 
 - The 75 problems carry a target time each (the Time column in the
-  [problem list](../index.md)). Summed, they come to about 32 hours of
-  first-pass solving.
+  [problem list](../index.md)). Summed, they come to about 32 hours of first-pass solving.
 - Nobody solves everything on the first pass. Between struggles, re-reading
-  pattern guides, and spaced reviews, a realistic budget is two to three times
-  the first-pass figure: roughly 65 to 100 hours total.
+  pattern guides, and spaced reviews, a realistic budget is two to three times the first-pass figure: roughly 65 to 100 hours total.
 - Add the [Foundations](../foundations/index.md) (about an hour), behavioral
-  preparation (about three hours, see
-  [Behavioral Interviews](behavioral.md)), and two to four
-  [mock interviews](mock_interviews.md).
+  preparation (about three hours, see [Behavioral Interviews](behavioral.md)), and two to four [mock interviews](mock_interviews.md).
 
-As rough anchors: about 30 hours of focused work is the bare minimum to get
-through the list meaningfully; about 100 hours leaves you well prepared. Eight
-weeks at 8 to 12 hours per week lands inside that band, which is why the
-schedule below is built on eight weeks.
+As rough anchors: about 30 hours of focused work is the bare minimum to get through the list meaningfully; about 100 hours leaves you well prepared. Eight weeks at 8 to 12 hours per week lands inside that band, which is why the schedule below is built on eight weeks.
 
-**Estimate conservatively.** Plan for your worst realistic week, not your best
-one. A plan you keep beats an ambitious one you abandon in week three; if the
-schedule below feels tight, stretch it to ten or twelve weeks rather than
-cramming. Burnout late in the plan costs more than a slower start.
+**Estimate conservatively.** Plan for your worst realistic week, not your best one. A plan you keep beats an ambitious one you abandon in week three; if the schedule below feels tight, stretch it to ten or twelve weeks rather than cramming. Burnout late in the plan costs more than a slower start.
 
 ## Three ways to work through the list
 
@@ -39,24 +25,13 @@ cramming. Burnout late in the plan costs more than a slower start.
 | Depth-first | Stay on one topic until it is exhausted, then move to the next | You have very little time, or an interview next week on a specific topic |
 | Depth-then-breadth | Shore up your weakest topics first, then sweep the whole list | You have more than a month and you already know where you are weak |
 
-Breadth-first and depth-then-breadth are usually better than pure depth-first:
-topics you touched early come back before you forget them, which is the same
-instinct the practice tracker's spaced-repetition queue automates. In this
-list, breadth-first works naturally because the ordering already revisits
-every topic several times.
+Breadth-first and depth-then-breadth are usually better than pure depth-first: topics you touched early come back before you forget them, which is the same instinct the practice tracker's spaced-repetition queue automates. In this list, breadth-first works naturally because the ordering already revisits every topic several times.
 
 ## The 8-week schedule
 
-The [problem list](../index.md) is ordered by increasing difficulty with
-related problem types grouped together, so the weeks derive straight from it:
-problems 1 through 30 in the first three weeks (ten each, while problems are
-short), then nine per week as they lengthen, ending with the nine hard
-problems in week 8. Every problem appears exactly once. The weekly schedule
-interleaves the [pattern groups](../patterns/index.md) in that problem order;
-to follow the pattern curriculum instead, read each group straight through.
+The [problem list](../index.md) is ordered by increasing difficulty with related problem types grouped together, so the weeks derive straight from it: problems 1 through 30 in the first three weeks (ten each, while problems are short), then nine per week as they lengthen, ending with the nine hard problems in week 8. Every problem appears exactly once. The weekly schedule interleaves the [pattern groups](../patterns/index.md) in that problem order; to follow the pattern curriculum instead, read each group straight through.
 
-First-pass time is the sum of each problem's Time column: one clean attempt
-each. It is a lower bound, not the plan.
+First-pass time is the sum of each problem's Time column: one clean attempt each. It is a lower bound, not the plan.
 
 | Week | Problems | First-pass time | Focus |
 |------|----------|-----------------|-------|
@@ -74,46 +49,29 @@ Operating notes:
 - **Week 1 starts with the foundations**, before problem 1. They are about an
   hour total and every later page assumes them.
 - **Rate every solve from day one.** After each problem, record how it felt
-  (`progress.py rate`). From week 2 on, clear the `due` review queue once a
-  week before starting new problems; by weeks 5 through 8 that queue is where
-  much of the real learning happens.
+  (`progress.py rate`). From week 2 on, clear the `due` review queue once a week before starting new problems; by weeks 5 through 8 that queue is where much of the real learning happens.
 - **Read the pattern guide before each unfamiliar topic**, not after failing.
   The guide makes attempt one count.
 - **Falling behind? Shift the plan, do not compress it.** Moving everything a
-  week costs nothing. Squeezing week 8 into three days throws away the hard
-  problems, which are the ones that differentiate.
+  week costs nothing. Squeezing week 8 into three days throws away the hard problems, which are the ones that differentiate.
 
 !!! tip "Mocks start around week 5"
 
-    That is roughly the 60% mark of the plan: enough patterns internalized
-    that a mock is useful, enough plan left to fix what the mock exposes. See
-    [Mock Interviews](mock_interviews.md).
+    That is roughly the 60% mark of the plan: enough patterns internalized that a mock is useful, enough plan left to fix what the mock exposes. See [Mock Interviews](mock_interviews.md).
 
 ## After week 8
 
 - Two bonus problems, [Binary Tree Maximum Path Sum](../problems/binary_tree_maximum_path_sum.md)
-  and [Maximum Frequency Stack](../problems/maximum_frequency_stack.md), sit
-  beyond the canonical 75 if you want extra practice on trees and designs.
+  and [Maximum Frequency Stack](../problems/maximum_frequency_stack.md), sit beyond the canonical 75 if you want extra practice on trees and designs.
 - Interviewing for mid-level and senior roles? Work through the
-  [System Design section](../system_design/index.md) in parallel from about
-  week 5, not after it.
+  [System Design section](../system_design/index.md) in parallel from about week 5, not after it.
 - Keep the `due` queue running until the offer is signed. The review habit is
   worth more than any single problem.
 
 ## Make it yours
 
-The schedule is a shape, not a contract. To adapt it: put real dates on a
-calendar first, then decide how many hours per week each block gets. Ten hours
-a week fits the table as printed; five hours a week means doubling the
-durations and stretching to about sixteen weeks, which is fine. If your
-interview is sooner than week 8 ends, cut breadth (for example, week 6's
-extra DP practice) before you cut the hard tier or the mocks.
+The schedule is a shape, not a contract. To adapt it: put real dates on a calendar first, then decide how many hours per week each block gets. Ten hours a week fits the table as printed; five hours a week means doubling the durations and stretching to about sixteen weeks, which is fine. If your interview is sooner than week 8 ends, cut breadth (for example, week 6's extra DP practice) before you cut the hard tier or the mocks.
 
 ---
 
-*This page adapts the time-budgeting figures, preparation-style taxonomy, and
-conservative-estimation advice from the Tech Interview Handbook's
-[Coding Interview Study Plan](https://www.techinterviewhandbook.org/coding-interview-study-plan/).
-The 8-week schedule itself, the weekly splits, and the time sums are derived
-from this repository's problem order and Time column, and the
-spaced-repetition integration is original to this project.*
+*This page adapts the time-budgeting figures, preparation-style taxonomy, and conservative-estimation advice from the Tech Interview Handbook's [Coding Interview Study Plan](https://www.techinterviewhandbook.org/coding-interview-study-plan/). The 8-week schedule itself, the weekly splits, and the time sums are derived from this repository's problem order and Time column, and the spaced-repetition integration is original to this project.*

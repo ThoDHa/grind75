@@ -39,25 +39,16 @@ Each letter in `magazine` can only be used once in `ransomNote`.
 
 ## Deriving the Solution
 
-The note can be built exactly when, for every letter, the magazine contains at
-least as many copies as the note needs. Every solution below enforces that
-supply-and-demand rule; they differ in whether the supply is rescanned, counted
-by hand, or counted by the library.
+The note can be built exactly when, for every letter, the magazine contains at least as many copies as the note needs. Every solution below enforces that supply-and-demand rule; they differ in whether the supply is rescanned, counted by hand, or counted by the library.
 
 1. **Start literal.** Simulate cutting letters out: for each note character,
-   scan the remaining magazine letters for a copy and remove it. Every
-   character triggers a fresh scan of the pool, costing `O(m * n)`: see
-   [Brute Force](#brute-force).
+   scan the remaining magazine letters for a copy and remove it. Every character triggers a fresh scan of the pool, costing `O(m * n)`: see [Brute Force](#brute-force).
 2. **Count instead of rescanning.** The scans keep re-answering "how many of
-   this letter are left?", a question a tally answers in `O(1)`. Count the
-   magazine once into a dictionary, then spend counts per note character, for
-   `O(m + n)`: see [Hash Map](#hash-map).
+   this letter are left?", a question a tally answers in `O(1)`. Count the magazine once into a dictionary, then spend counts per note character, for `O(m + n)`: see [Hash Map](#hash-map).
 3. **Exploit the alphabet.** The inputs are lowercase English letters only, so
-   the dictionary can shrink to a fixed 26-slot array indexed by letter,
-   trading hashing for direct indexing: see [Array Counter](#array-counter).
+   the dictionary can shrink to a fixed 26-slot array indexed by letter, trading hashing for direct indexing: see [Array Counter](#array-counter).
 4. **Let the library count.** Python's `Counter` builds both tallies in a line
-   apiece; it goes last because the standard library is doing the core work:
-   see [Counter](#counter).
+   apiece; it goes last because the standard library is doing the core work: see [Counter](#counter).
 
 ## Solutions
 
@@ -65,12 +56,7 @@ by hand, or counted by the library.
 
 #### Derivation
 
-The most direct idea mirrors the physical act the problem describes: cut each
-letter out of the magazine. For every character the ransom note needs, scan the
-remaining magazine letters for a matching copy and remove it so it cannot be
-reused. No counting structure is involved at all, just repeated
-[linear search](https://en.wikipedia.org/wiki/Linear_search) over a shrinking
-pool:
+The most direct idea mirrors the physical act the problem describes: cut each letter out of the magazine. For every character the ransom note needs, scan the remaining magazine letters for a matching copy and remove it so it cannot be reused. No counting structure is involved at all, just repeated [linear search](https://en.wikipedia.org/wiki/Linear_search) over a shrinking pool:
 
 1. Copy the magazine into a list `available` that acts as a pool of usable
    letters.
@@ -142,12 +128,7 @@ We materialize the magazine as a list of `m` letters that shrinks as we consume 
 
 #### Derivation
 
-The brute force wastes its time rescanning: every note character sweeps the
-pool again to answer a question that never needed the pool's order, only its
-counts. So count once. A [hash map](https://en.wikipedia.org/wiki/Hash_table)
-tally of the magazine answers "how many of this letter remain?" in `O(1)`, and
-spending from the tally enforces the use-each-letter-once rule. A length check
-comes first, since a note longer than the magazine is impossible outright:
+The brute force wastes its time rescanning: every note character sweeps the pool again to answer a question that never needed the pool's order, only its counts. So count once. A [hash map](https://en.wikipedia.org/wiki/Hash_table) tally of the magazine answers "how many of this letter remain?" in `O(1)`, and spending from the tally enforces the use-each-letter-once rule. A length check comes first, since a note longer than the magazine is impossible outright:
 
 1. If `len(ransomNote) > len(magazine)`, return `False` immediately.
 2. Build `counter`, mapping each magazine character to its frequency.
@@ -158,8 +139,7 @@ comes first, since a note longer than the magazine is impossible outright:
 
 #### Walkthrough
 
-Let us run Example 3: `ransomNote = "aa"`, `magazine = "aab"`. The length check
-passes (`2 <= 3`), and the first loop tallies the magazine:
+Let us run Example 3: `ransomNote = "aa"`, `magazine = "aab"`. The length check passes (`2 <= 3`), and the first loop tallies the magazine:
 
 ```text
 build 'a'   counter = {'a': 1}
@@ -174,11 +154,7 @@ need 'a'    counter['a'] is 2, not 0 -> spend one   counter = {'a': 1, 'b': 1}
 need 'a'    counter['a'] is 1, not 0 -> spend one   counter = {'a': 0, 'b': 1}
 ```
 
-The loop ends with every character paid for, so the function returns `True`,
-matching Example 3's expected Output. On Example 2 (`"aa"` from `"ab"`) the
-tally starts as `{'a': 1, 'b': 1}`: the first `'a'` spends the count down to
-`0`, the second finds `counter.get('a', 0) == 0`, and the function returns
-`False`, matching that example as well.
+The loop ends with every character paid for, so the function returns `True`, matching Example 3's expected Output. On Example 2 (`"aa"` from `"ab"`) the tally starts as `{'a': 1, 'b': 1}`: the first `'a'` spends the count down to `0`, the second finds `counter.get('a', 0) == 0`, and the function returns `False`, matching that example as well.
 
 #### Solution
 
@@ -222,11 +198,7 @@ Where `k` is the number of unique characters in the magazine. In the worst case,
 
 #### Derivation
 
-The hash map is more machinery than the constraints require. Every character
-is a lowercase English letter, so there are only 26 possible keys, and
-`ord(char) - ord('a')` maps each letter to a slot in a plain 26-element array.
-That replaces hashing with direct indexing while keeping the same
-count-then-spend logic:
+The hash map is more machinery than the constraints require. Every character is a lowercase English letter, so there are only 26 possible keys, and `ord(char) - ord('a')` maps each letter to a slot in a plain 26-element array. That replaces hashing with direct indexing while keeping the same count-then-spend logic:
 
 1. If `len(ransomNote) > len(magazine)`, return `False` immediately.
 2. Create `counts`, a fixed array of 26 zeros, and count each magazine
@@ -238,9 +210,7 @@ count-then-spend logic:
 
 #### Walkthrough
 
-Let us rerun Example 3, `ransomNote = "aa"`, `magazine = "aab"`, on the array.
-`'a'` maps to index `0` and `'b'` to index `1`; slots `2` through `25` stay at
-`0` throughout, so the snapshots show only the first three:
+Let us rerun Example 3, `ransomNote = "aa"`, `magazine = "aab"`, on the array. `'a'` maps to index `0` and `'b'` to index `1`; slots `2` through `25` stay at `0` throughout, so the snapshots show only the first three:
 
 ```text
 build 'a'   counts[0] += 1              counts = [1, 0, 0, ...]
@@ -250,14 +220,11 @@ spend 'a'   index 0, count 2 > 0        counts = [1, 1, 0, ...]
 spend 'a'   index 0, count 1 > 0        counts = [0, 1, 0, ...]
 ```
 
-Both `'a'`s are paid for and the loop ends, so the function returns `True`,
-matching Example 3's expected Output. The `'b'` count is never touched: the
-note did not ask for it.
+Both `'a'`s are paid for and the loop ends, so the function returns `True`, matching Example 3's expected Output. The `'b'` count is never touched: the note did not ask for it.
 
 #### Solution
 
-The code is the same build-then-spend pass over a 26-slot array instead of a
-dictionary.
+The code is the same build-then-spend pass over a 26-slot array instead of a dictionary.
 
 ```python
 class Solution:
@@ -303,11 +270,7 @@ The solution uses a fixed-size array of 26 elements, regardless of the input siz
 
 #### Derivation
 
-The hand-rolled tallies are exactly what Python's built-in
-[`Counter`](https://docs.python.org/3/library/collections.html#collections.Counter)
-class produces in one call, so the final step is to let the library count.
-Instead of spending counts down, this version tallies both strings and
-compares demand against supply directly:
+The hand-rolled tallies are exactly what Python's built-in [`Counter`](https://docs.python.org/3/library/collections.html#collections.Counter) class produces in one call, so the final step is to let the library count. Instead of spending counts down, this version tallies both strings and compares demand against supply directly:
 
 1. If `len(ransomNote) > len(magazine)`, return `False` immediately.
 2. Build `magazine_counts = Counter(magazine)` and
@@ -318,10 +281,7 @@ compares demand against supply directly:
 
 #### Walkthrough
 
-Here `Counter` itself is the technique, so the trace picks up where the
-library leaves off: on Example 3 (`ransomNote = "aa"`, `magazine = "aab"`) the
-two constructor calls yield the finished tallies, and the loop compares demand
-against supply per unique character:
+Here `Counter` itself is the technique, so the trace picks up where the library leaves off: on Example 3 (`ransomNote = "aa"`, `magazine = "aab"`) the two constructor calls yield the finished tallies, and the loop compares demand against supply per unique character:
 
 ```text
 magazine_counts = {'a': 2, 'b': 1}      supply
@@ -329,10 +289,7 @@ ransom_counts   = {'a': 2}              demand
 char 'a', count 2:   magazine_counts['a'] = 2, and 2 < 2 is False -> covered
 ```
 
-The only demanded letter is covered, so the loop ends and the function returns
-`True`, matching Example 3's expected Output. A letter the magazine lacks
-never raises an error: `Counter` returns `0` for absent keys, so the demand
-simply fails the `<` test naturally.
+The only demanded letter is covered, so the loop ends and the function returns `True`, matching Example 3's expected Output. A letter the magazine lacks never raises an error: `Counter` returns `0` for absent keys, so the demand simply fails the `<` test naturally.
 
 #### Solution
 

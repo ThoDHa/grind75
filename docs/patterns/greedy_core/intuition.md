@@ -106,32 +106,27 @@ Length = (3 - 1) × (2 + 1) + 1 = 7
 When you see these phrases, think **Greedy Core**:
 
 ### Signal: "Can you reach..." or "Minimum jumps to..."
-> *"Determine if you can reach the last index"*
-> *"Find the minimum number of jumps"*
+> *"Determine if you can reach the last index"* *"Find the minimum number of jumps"*
 
 **Action**: Track farthest reachable position.
 
 ### Signal: "Complete a circuit" or "Circular route"
-> *"Find starting point to complete the loop"*
-> *"Track resource balance around a cycle"*
+> *"Find starting point to complete the loop"* *"Track resource balance around a cycle"*
 
 **Action**: Use prefix sum with reset; check total feasibility.
 
 ### Signal: "Distribute" or "Assign" or "Match"
-> *"Assign cookies to maximize satisfaction"*
-> *"Distribute people to minimize cost"*
+> *"Assign cookies to maximize satisfaction"* *"Distribute people to minimize cost"*
 
 **Action**: Sort by the key metric, then greedily match.
 
 ### Signal: "Cooldown" or "Same items must be n apart"
-> *"Wait n intervals before repeating a task"*
-> *"Rearrange so identical elements are not adjacent"*
+> *"Wait n intervals before repeating a task"* *"Rearrange so identical elements are not adjacent"*
 
 **Action**: Count frequencies; schedule the most frequent first, fill the slots.
 
 ### Signal: "Neighbors must satisfy..." (bidirectional)
-> *"Higher-rated neighbors must have more"*
-> *"Constraints from both left and right"*
+> *"Higher-rated neighbors must have more"* *"Constraints from both left and right"*
 
 **Action**: Two-pass greedy (forward + backward).
 

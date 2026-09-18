@@ -44,35 +44,18 @@ You may assume that you have an infinite number of each kind of coin.
 
 ## Deriving the Solution
 
-The fewest coins for an amount contains a smaller copy of itself: whichever coin
-is chosen last, the remaining coins must make `amount - coin` as cheaply as
-possible. Every solution below exploits this optimal substructure; they differ in
-how much repeated work they spend exploring it.
+The fewest coins for an amount contains a smaller copy of itself: whichever coin is chosen last, the remaining coins must make `amount - coin` as cheaply as possible. Every solution below exploits this optimal substructure; they differ in how much repeated work they spend exploring it.
 
 1. **Start literal.** Ask recursively: for the remaining amount, try every coin,
-   solve what each choice leaves behind, and keep the cheapest branch. Correct,
-   but the same remaining amounts are re-solved across countless branches,
-   costing `O(coins.length^amount)`: see
-   [Brute Force Recursion](#brute-force-recursion).
+   solve what each choice leaves behind, and keep the cheapest branch. Correct, but the same remaining amounts are re-solved across countless branches, costing `O(coins.length^amount)`: see [Brute Force Recursion](#brute-force-recursion).
 2. **Cache the repeats.** The answer for a remaining amount does not depend on
-   how the recursion reached it, so store each amount's answer the first time it
-   is computed and serve every revisit from the cache. Work collapses to one
-   computation per distinct amount, `O(amount × coins.length)`: see
-   [Top-Down Memoization](#top-down-memoization).
+   how the recursion reached it, so store each amount's answer the first time it is computed and serve every revisit from the cache. Work collapses to one computation per distinct amount, `O(amount × coins.length)`: see [Top-Down Memoization](#top-down-memoization).
 3. **Flip the direction.** The cached recursion still burns one stack frame per
-   coin subtracted, which can reach `amount` frames. Building a table upward
-   from `dp[0]` computes the same values iteratively, with no recursion at all:
-   see [Bottom-Up DP](#bottom-up-dp).
+   coin subtracted, which can reach `amount` frames. Building a table upward from `dp[0]` computes the same values iteratively, with no recursion at all: see [Bottom-Up DP](#bottom-up-dp).
 4. **Reframe as a shortest path.** A lateral alternative: treat every amount as a
-   node and every coin as a unit-weight edge, so "fewest coins" becomes "fewest
-   edges" from `0` to `amount`, which breadth-first search finds level by level:
-   see [BFS](#bfs).
+   node and every coin as a unit-weight edge, so "fewest coins" becomes "fewest edges" from `0` to `amount`, which breadth-first search finds level by level: see [BFS](#bfs).
 5. **Hand the cache to the library.** Step 2's memo is not part of the
-   recurrence, only a dictionary bolted onto it. Decorating the brute-force
-   function with `functools.cache` deletes the lookup and the store while
-   leaving the coin loop and both base cases untouched, at the price of also
-   caching the negative amounts the guard rejects: see
-   [Top-Down Memoization with functools.cache](#top-down-memoization-with-functoolscache).
+   recurrence, only a dictionary bolted onto it. Decorating the brute-force function with `functools.cache` deletes the lookup and the store while leaving the coin loop and both base cases untouched, at the price of also caching the negative amounts the guard rejects: see [Top-Down Memoization with functools.cache](#top-down-memoization-with-functoolscache).
 
 ## Solutions
 
@@ -80,12 +63,7 @@ how much repeated work they spend exploring it.
 
 #### Derivation
 
-The most literal reading of the problem is a question that answers itself
-recursively: what is the fewest number of coins making `remaining_amount`? If
-some coin is used, the rest of the coins must make `remaining_amount - coin`, so
-try every coin and keep the cheapest branch. This naive
-[recursive](https://en.wikipedia.org/wiki/Recursion_(computer_science)) approach explores all possible combinations of coins with no
-cleverness at all:
+The most literal reading of the problem is a question that answers itself recursively: what is the fewest number of coins making `remaining_amount`? If some coin is used, the rest of the coins must make `remaining_amount - coin`, so try every coin and keep the cheapest branch. This naive [recursive](https://en.wikipedia.org/wiki/Recursion_(computer_science)) approach explores all possible combinations of coins with no cleverness at all:
 
 1. Define `backtrack(remaining_amount)` as the fewest coins making that amount,
    or `-1` when it cannot be made.
@@ -95,8 +73,7 @@ cleverness at all:
    the branch is possible (`result != -1`), fold `1 + result` into `min_coins`.
 4. Return `min_coins`, or `-1` when every branch failed.
 
-While conceptually simple, this approach has exponential time complexity due to
-overlapping subproblems being solved multiple times.
+While conceptually simple, this approach has exponential time complexity due to overlapping subproblems being solved multiple times.
 
 #### Walkthrough
 
@@ -132,8 +109,7 @@ Notice that `backtrack(1)` and `backtrack(0)` were each computed more than once 
 
 #### Solution
 
-The code is the call tree from the walkthrough: two base cases, then the `min`
-over one recursive call per coin.
+The code is the call tree from the walkthrough: two base cases, then the `min` over one recursive call per coin.
 
 ```python
 from typing import List
@@ -184,13 +160,7 @@ Space for the recursion stack, which can be up to `amount` levels deep.
 
 #### Derivation
 
-The brute force pays for its honesty by re-deriving `backtrack(1)` and
-`backtrack(0)` in branch after branch. The observation that saves it is that a
-call's answer depends only on its argument: the fewest coins for a remaining
-amount is the same no matter which coin choices led there. That makes each
-distinct `remaining_amount` a cacheable state, so
-[memoization](https://en.wikipedia.org/wiki/Memoization) keeps the natural top-down recursion and puts a dictionary in
-front of it:
+The brute force pays for its honesty by re-deriving `backtrack(1)` and `backtrack(0)` in branch after branch. The observation that saves it is that a call's answer depends only on its argument: the fewest coins for a remaining amount is the same no matter which coin choices led there. That makes each distinct `remaining_amount` a cacheable state, so [memoization](https://en.wikipedia.org/wiki/Memoization) keeps the natural top-down recursion and puts a dictionary in front of it:
 
 1. Keep the brute-force recursion, now named `dp(remaining_amount)`, with the
    same base cases.
@@ -203,12 +173,9 @@ One practical guard is required: each recursive call subtracts a single coin, so
 
 #### Walkthrough
 
-Example 1 costs the brute force 46 calls, too many to trace, so we reuse the same
-tailored input as the Brute Force walkthrough: `coins = [1,3,4]`, `amount = 4`.
-It is small enough to follow in full and reaches a memo hit within a dozen lines.
+Example 1 costs the brute force 46 calls, too many to trace, so we reuse the same tailored input as the Brute Force walkthrough: `coins = [1,3,4]`, `amount = 4`. It is small enough to follow in full and reaches a memo hit within a dozen lines.
 
-The tree below indents one level per recursive call. Watch `memo` fill as calls
-resolve, then pay off when `dp(4)` tries coin `3`:
+The tree below indents one level per recursive call. Watch `memo` fill as calls resolve, then pay off when `dp(4)` tries coin `3`:
 
 ```text
 dp(4)                              try coin 1 -> dp(3)
@@ -228,17 +195,11 @@ dp(4)                              try coin 1 -> dp(3)
 -> 1, memo[4] = 1                  min(1 + 1, 1 + 1, 1 + 0) = 1
 ```
 
-In the brute-force tree, the coin-3 branch of `backtrack(4)` re-derived
-`backtrack(1)` and its children from scratch; here `dp(1)` answers from `memo` in
-a single lookup. On this small input that saves only a few calls, but for amounts
-near `10^4` the same mechanism is what collapses `O(coins.length^amount)` into
-one computation per distinct amount. The final answer is `1` (the single coin
-`4`), matching the tailored example's expected result.
+In the brute-force tree, the coin-3 branch of `backtrack(4)` re-derived `backtrack(1)` and its children from scratch; here `dp(1)` answers from `memo` in a single lookup. On this small input that saves only a few calls, but for amounts near `10^4` the same mechanism is what collapses `O(coins.length^amount)` into one computation per distinct amount. The final answer is `1` (the single coin `4`), matching the tailored example's expected result.
 
 #### Solution
 
-The code is the Brute Force recursion with the memo lookup and store wrapped
-around the coin loop, plus the recursion-limit guard.
+The code is the Brute Force recursion with the memo lookup and store wrapped around the coin loop, plus the recursion-limit guard.
 
 ```python
 import sys
@@ -304,22 +265,12 @@ Space for the memoization table plus recursion stack depth (worst case O(amount)
 
 #### Derivation
 
-The memoized recursion still asks from the top ("what does `amount` need?") and
-pays for that framing with a call stack that can grow one frame per unit of
-amount. Turn the direction around: instead of waiting for the recursion to demand
-a subproblem, compute every amount's answer in increasing order, so that by the
-time `current_amount` is considered, every smaller answer it depends on already
-sits in a table. To make amount `i`, use any coin `c` with `c <= i` and then
-optimally make the remainder `i - c`, which gives the relation
-`dp[i] = min(dp[i], 1 + dp[i - c])`. This is the iterative
-[dynamic programming](https://en.wikipedia.org/wiki/Dynamic_programming) form of the exact same recurrence the recursion evaluated:
+The memoized recursion still asks from the top ("what does `amount` need?") and pays for that framing with a call stack that can grow one frame per unit of amount. Turn the direction around: instead of waiting for the recursion to demand a subproblem, compute every amount's answer in increasing order, so that by the time `current_amount` is considered, every smaller answer it depends on already sits in a table. To make amount `i`, use any coin `c` with `c <= i` and then optimally make the remainder `i - c`, which gives the relation `dp[i] = min(dp[i], 1 + dp[i - c])`. This is the iterative [dynamic programming](https://en.wikipedia.org/wiki/Dynamic_programming) form of the exact same recurrence the recursion evaluated:
 
 1. Create `dp` of size `amount + 1`, filled with the sentinel `amount + 1` (an
-   impossible coin count standing in for infinity), and set `dp[0] = 0`: zero
-   coins make amount `0`.
+   impossible coin count standing in for infinity), and set `dp[0] = 0`: zero coins make amount `0`.
 2. For each `current_amount` from `1` to `amount`, try every `coin` with
-   `coin <= current_amount` and relax
-   `dp[current_amount] = min(dp[current_amount], 1 + dp[current_amount - coin])`.
+   `coin <= current_amount` and relax `dp[current_amount] = min(dp[current_amount], 1 + dp[current_amount - coin])`.
 3. Return `dp[amount]`, or `-1` when it still holds the sentinel, meaning no
    combination of coins reaches it.
 
@@ -327,13 +278,7 @@ optimally make the remainder `i - c`, which gives the relation
 
 Let `dp[i]` be the fewest coins that sum to exactly `i`:
 
-$$
-dp[i] =
-\begin{cases}
-0, & i = 0 \\[4pt]
-\displaystyle\min_{\substack{c \in \text{coins} \\ c \le i}} \bigl(dp[i - c] + 1\bigr), & i > 0
-\end{cases}
-$$
+$$ dp[i] = \begin{cases} 0, & i = 0 \\[4pt] \displaystyle\min_{\substack{c \in \text{coins} \\ c \le i}} \bigl(dp[i - c] + 1\bigr), & i > 0 \end{cases} $$
 
 ```text
 dp[0] = 0
@@ -341,17 +286,11 @@ dp[i] = min(dp[i - c] + 1) over coins c <= i,  for i > 0
         (min over an empty set is infinity: no coin fits)
 ```
 
-The minimum over an empty set is \(\infty\): when no coin fits, amount `i` is
-unreachable. The code stands in the sentinel `amount + 1` for that infinity,
-which is larger than any achievable answer but small enough not to overflow.
-The result is `dp[amount]`, or `-1` if it never fell below the sentinel.
+The minimum over an empty set is \(\infty\): when no coin fits, amount `i` is unreachable. The code stands in the sentinel `amount + 1` for that infinity, which is larger than any achievable answer but small enough not to overflow. The result is `dp[amount]`, or `-1` if it never fell below the sentinel.
 
 #### Walkthrough
 
-Let us fill the table by hand on Example 1: `coins = [1,3,4]`, `amount = 6`, so
-the sentinel is `7` and `dp` starts as `[0, 7, 7, 7, 7, 7, 7]`. Each line below
-is one pass of the outer loop, showing which coins fit and the `min` they
-produce:
+Let us fill the table by hand on Example 1: `coins = [1,3,4]`, `amount = 6`, so the sentinel is `7` and `dp` starts as `[0, 7, 7, 7, 7, 7, 7]`. Each line below is one pass of the outer loop, showing which coins fit and the `min` they produce:
 
 ```text
 start               dp = [0, 7, 7, 7, 7, 7, 7]                    only dp[0] known
@@ -363,15 +302,11 @@ current_amount = 5  dp[5] = min(1 + dp[4], 1 + dp[2], 1 + dp[1]) = 2   coins 1, 
 current_amount = 6  dp[6] = min(1 + dp[5], 1 + dp[3], 1 + dp[2]) = 2   coins 1, 3, 4
 ```
 
-The finished table is `[0, 1, 2, 1, 1, 2, 2]`. The winning term for `dp[6]` was
-`1 + dp[3]`: one coin `3` on top of the one-coin answer for amount `3`, which is
-the combination `6 = 3 + 3`. The function returns `dp[6] = 2`, matching the
-expected Output for Example 1.
+The finished table is `[0, 1, 2, 1, 1, 2, 2]`. The winning term for `dp[6]` was `1 + dp[3]`: one coin `3` on top of the one-coin answer for amount `3`, which is the combination `6 = 3 + 3`. The function returns `dp[6] = 2`, matching the expected Output for Example 1.
 
 #### Solution
 
-The code is the table fill from the walkthrough: one relaxation per fitting coin
-per amount.
+The code is the table fill from the walkthrough: one relaxation per fitting coin per amount.
 
 ```python
 from typing import List
@@ -419,32 +354,20 @@ We use a DP array of size `amount + 1` to store the minimum coins needed for eac
 
 #### Derivation
 
-The three approaches above all refine one recursion. This one steps sideways and
-reframes the problem as a graph search: every amount from `0` to `amount` is a
-node, and adding one coin is a unit-weight edge from `current_amount` to
-`current_amount + coin`. The fewest coins making `amount` is then the fewest
-edges on a path from `0` to `amount`, and fewest edges on a unit-weight graph is
-exactly what [BFS](https://en.wikipedia.org/wiki/Breadth-first_search) computes: it explores every amount reachable with one coin
-before any reachable with two, so the first time the target is reached is
-guaranteed optimal. This reframing is a clever lateral leap rather than a direct
-refinement of the recursion, which is why it lands last among the approaches.
+The three approaches above all refine one recursion. This one steps sideways and reframes the problem as a graph search: every amount from `0` to `amount` is a node, and adding one coin is a unit-weight edge from `current_amount` to `current_amount + coin`. The fewest coins making `amount` is then the fewest edges on a path from `0` to `amount`, and fewest edges on a unit-weight graph is exactly what [BFS](https://en.wikipedia.org/wiki/Breadth-first_search) computes: it explores every amount reachable with one coin before any reachable with two, so the first time the target is reached is guaranteed optimal. This reframing is a clever lateral leap rather than a direct refinement of the recursion, which is why it lands last among the approaches.
 
 1. Return `0` immediately when `amount == 0`: no coins are needed.
 2. Start `queue` holding amount `0`, a `visited` set holding `0`, and
    `steps = 0`.
 3. Each pass of the `while` loop processes one full level: increment `steps`,
-   then pop every amount currently in the queue. For each popped
-   `current_amount` and each `coin`, form `new_amount = current_amount + coin`.
+   then pop every amount currently in the queue. For each popped `current_amount` and each `coin`, form `new_amount = current_amount + coin`.
 4. If `new_amount == amount`, return `steps`: the target was reached using
-   `steps` coins. Otherwise enqueue `new_amount` when it is below `amount` and
-   not yet in `visited`.
+   `steps` coins. Otherwise enqueue `new_amount` when it is below `amount` and not yet in `visited`.
 5. If the queue drains without reaching the target, return `-1`.
 
 #### Walkthrough
 
-Let us run the search on Example 1: `coins = [1,3,4]`, `amount = 6`. The queue
-starts as `[0]` with `visited = {0}`. Each level below adds one more coin to
-every amount discovered on the previous level:
+Let us run the search on Example 1: `coins = [1,3,4]`, `amount = 6`. The queue starts as `[0]` with `visited = {0}`. Each level below adds one more coin to every amount discovered on the previous level:
 
 ```text
 start      queue = [0]          visited = {0}
@@ -454,18 +377,11 @@ steps = 2  pop 1: 1+1=2 enqueue, 1+3=4 in visited (skip), 1+4=5 enqueue
            pop 3: 3+1=4 in visited (skip), 3+3=6 == amount -> return steps = 2
 ```
 
-Level one discovers every amount a single coin can make: `1`, `3`, and `4`. On
-level two, popping `3` and adding coin `3` produces `new_amount == 6`, so the
-function returns `steps = 2` without even finishing the level. The path
-`0 -> 3 -> 6` is the combination `6 = 3 + 3`, and the returned `2` matches the
-expected Output. Note the `visited` skips: amount `4` was already discovered on
-level one as `0 + 4`, so rediscovering it two coins deep could never improve on
-that and is pruned.
+Level one discovers every amount a single coin can make: `1`, `3`, and `4`. On level two, popping `3` and adding coin `3` produces `new_amount == 6`, so the function returns `steps = 2` without even finishing the level. The path `0 -> 3 -> 6` is the combination `6 = 3 + 3`, and the returned `2` matches the expected Output. Note the `visited` skips: amount `4` was already discovered on level one as `0 + 4`, so rediscovering it two coins deep could never improve on that and is pruned.
 
 #### Solution
 
-The code is the level sweep from the walkthrough: one `steps` increment per
-level, returning the moment `new_amount` hits `amount`.
+The code is the level sweep from the walkthrough: one `steps` increment per level, returning the moment `new_amount` hits `amount`.
 
 ```python
 from collections import deque
@@ -524,41 +440,22 @@ Space for the queue and visited set, both of which can contain up to `amount` el
 
 #### Derivation
 
-The [Top-Down Memoization](#top-down-memoization) solution is the Brute Force
-recursion plus a dictionary that keeps it from re-solving a remaining amount it
-has already answered. The recursion is the algorithm; the dictionary is
-bookkeeping, and the standard library supplies it. Decorating the function with
-[`functools.cache`](https://docs.python.org/3/library/functools.html#functools.cache)
-attaches an unbounded cache keyed by the call's arguments, consulted before the
-body runs and filled with whatever the body returns, so the coin loop and both
-base cases stay exactly as the Brute Force wrote them:
+The [Top-Down Memoization](#top-down-memoization) solution is the Brute Force recursion plus a dictionary that keeps it from re-solving a remaining amount it has already answered. The recursion is the algorithm; the dictionary is bookkeeping, and the standard library supplies it. Decorating the function with [`functools.cache`](https://docs.python.org/3/library/functools.html#functools.cache) attaches an unbounded cache keyed by the call's arguments, consulted before the body runs and filled with whatever the body returns, so the coin loop and both base cases stay exactly as the Brute Force wrote them:
 
 1. Keep `dp(remaining_amount)` verbatim from the Brute Force: return `0` at
-   amount `0`, return `-1` when the amount has gone negative, otherwise take the
-   `min` of `1 + dp(remaining_amount - coin)` over every coin whose branch is
-   possible.
+   amount `0`, return `-1` when the amount has gone negative, otherwise take the `min` of `1 + dp(remaining_amount - coin)` over every coin whose branch is possible.
 2. Decorate it with `@cache`, so each distinct `remaining_amount` runs the body
    at most once and every later request for it is served from the cache.
 3. Delete the three bookkeeping lines the decorator now owns: the `memo = {}`
-   declaration, the `if remaining_amount in memo` lookup, and the
-   `memo[remaining_amount] = ...` store.
+   declaration, the `if remaining_amount in memo` lookup, and the `memo[remaining_amount] = ...` store.
 4. Keep the `sys.setrecursionlimit` guard. Caching removes repeated work, not
-   depth: with `coins = [1]` the chain still descends one frame per unit of
-   amount, reaching `10^4` frames under the stated constraints, far past
-   CPython's default limit of 1000.
+   depth: with `coins = [1]` the chain still descends one frame per unit of amount, reaching `10^4` frames under the stated constraints, far past CPython's default limit of 1000.
 
-Where the decorator sits changes what gets stored. The hand-rolled version
-returns `-1` from its `remaining_amount < 0` guard before it ever touches `memo`,
-so negatives are never cached; `@cache` wraps the whole body, so every
-undershoot becomes its own entry. With small coins that adds a handful of keys,
-but a coin larger than `amount` produces a distinct negative for every amount it
-is subtracted from, which is what lifts the space bound below.
+Where the decorator sits changes what gets stored. The hand-rolled version returns `-1` from its `remaining_amount < 0` guard before it ever touches `memo`, so negatives are never cached; `@cache` wraps the whole body, so every undershoot becomes its own entry. With small coins that adds a handful of keys, but a coin larger than `amount` produces a distinct negative for every amount it is subtracted from, which is what lifts the space bound below.
 
 #### Walkthrough
 
-Run it on Example 1: `coins = [1,3,4]`, `amount = 6`. The trace indents one level
-per call, tries the coins in the order `1`, `3`, `4`, and marks every request the
-decorator answers without running the body:
+Run it on Example 1: `coins = [1,3,4]`, `amount = 6`. The trace indents one level per call, tries the coins in the order `1`, `3`, `4`, and marks every request the decorator answers without running the body:
 
 ```text
 dp(6)                        try coin 1 -> dp(5)
@@ -588,17 +485,11 @@ dp(6)                        try coin 1 -> dp(5)
 -> 2                         min(1 + 2, 1 + 1, 1 + 2) = 2
 ```
 
-Nineteen calls are made in total. Ten of them reach the body, one per distinct
-argument: the seven amounts `0` through `6` and the three negatives `-1`, `-2`,
-`-3`. The other nine are cache hits, two of them on the negative keys `-1` and
-`-2`, which the hand-rolled memo never stores at all. The winning branch
-at the top is coin `3` laid on top of `dp(3) = 1`, the combination `6 = 3 + 3`.
-The call returns `2`, matching the expected Output `2` for Example 1.
+Nineteen calls are made in total. Ten of them reach the body, one per distinct argument: the seven amounts `0` through `6` and the three negatives `-1`, `-2`, `-3`. The other nine are cache hits, two of them on the negative keys `-1` and `-2`, which the hand-rolled memo never stores at all. The winning branch at the top is coin `3` laid on top of `dp(3) = 1`, the combination `6 = 3 + 3`. The call returns `2`, matching the expected Output `2` for Example 1.
 
 #### Solution
 
-The Brute Force recursion, unchanged, with one decorator standing in for the memo
-dictionary and the recursion-limit guard still in place.
+The Brute Force recursion, unchanged, with one decorator standing in for the memo dictionary and the recursion-limit guard still in place.
 
 ```python
 import sys
@@ -642,38 +533,22 @@ class Solution:
 
 ##### Time Complexity: `O(amount × coins.length)`
 
-The cache admits each distinct remaining amount into the body exactly once, and
-that one admission loops over all `coins.length` denominations. Every other call
-is a dictionary lookup on an integer key, which is constant time, so the totals
-match the hand-rolled memo: one coin loop per reachable amount from `0` to
-`amount`.
+The cache admits each distinct remaining amount into the body exactly once, and that one admission loops over all `coins.length` denominations. Every other call is a dictionary lookup on an integer key, which is constant time, so the totals match the hand-rolled memo: one coin loop per reachable amount from `0` to `amount`.
 
 ##### Space Complexity: `O(amount × coins.length)`
 
-The non-negative keys number at most `amount + 1`, and the recursion stack
-descends at most `amount` frames, so both match the hand-rolled version. The
-negative keys are the difference: `remaining_amount - coin` undershoots zero for
-every coin larger than the amount it is subtracted from, and each distinct
-undershoot is cached, which in the worst case (denominations far larger than
-`amount`, permitted up to `2^31 - 1` here) adds up to `amount × coins.length`
-entries. When every coin is small relative to `amount`, only a few negatives are
-ever produced and the bound collapses back to `O(amount)`.
+The non-negative keys number at most `amount + 1`, and the recursion stack descends at most `amount` frames, so both match the hand-rolled version. The negative keys are the difference: `remaining_amount - coin` undershoots zero for every coin larger than the amount it is subtracted from, and each distinct undershoot is cached, which in the worst case (denominations far larger than `amount`, permitted up to `2^31 - 1` here) adds up to `amount × coins.length` entries. When every coin is small relative to `amount`, only a few negatives are ever produced and the bound collapses back to `O(amount)`.
 
 #### Key Insights
 
 - The algorithm is untouched: the coin loop, the `min`, and both base cases read
-  exactly as they do in the Brute Force, which shows that memoization is an
-  execution strategy rather than a change to the recurrence.
+  exactly as they do in the Brute Force, which shows that memoization is an execution strategy rather than a change to the recurrence.
 - `@cache` keys on the argument tuple, so it substitutes cleanly only when the
-  arguments are hashable and the function is genuinely pure; `dp` reads
-  `remaining_amount` and the enclosing `coins`, which is fixed for the lifetime
-  of the cache, so the substitution holds.
+  arguments are hashable and the function is genuinely pure; `dp` reads `remaining_amount` and the enclosing `coins`, which is fixed for the lifetime of the cache, so the substitution holds.
 - Wrapping the entire body means the negative-amount rejections are cached too,
-  which is free speed on small denominations and a real space cost on huge ones:
-  the trade-off the hand-rolled `< 0` guard avoided by returning before the memo.
+  which is free speed on small denominations and a real space cost on huge ones: the trade-off the hand-rolled `< 0` guard avoided by returning before the memo.
 - The decorator does nothing about recursion depth, so `sys.setrecursionlimit`
-  stays; when `amount` is large enough for that to worry you, the fix is
-  [Bottom-Up DP](#bottom-up-dp) rather than a bigger stack.
+  stays; when `amount` is large enough for that to worry you, the fix is [Bottom-Up DP](#bottom-up-dp) rather than a bigger stack.
 
 ## Comparison of Solutions
 
@@ -684,8 +559,7 @@ ever produced and the bound collapses back to `O(amount)`.
 - **Bottom-Up DP**: `O(amount × coins.length)` - iterates every amount from 1 to target and checks all coin denominations for each.
 - **BFS**: `O(amount × coins.length)` - visits each amount once and tries all coins from it, like a shortest-path search.
 - **Top-Down Memoization with functools.cache**: `O(amount × coins.length)`: the
-  same one-coin-loop-per-amount bound, with the decorator's lookup standing in
-  for the hand-written one.
+  same one-coin-loop-per-amount bound, with the decorator's lookup standing in for the hand-written one.
 
 ### Space Complexity
 
@@ -694,9 +568,7 @@ ever produced and the bound collapses back to `O(amount)`.
 - **Bottom-Up DP**: `O(amount)` - a single DP array of size `amount + 1`.
 - **BFS**: `O(amount)` - queue and visited set, each holding up to `amount` elements.
 - **Top-Down Memoization with functools.cache**: `O(amount × coins.length)`: the
-  only approach whose space exceeds `O(amount)`, because the decorator caches the
-  negative amounts the hand-rolled guard discarded; it falls back to `O(amount)`
-  whenever the denominations are small relative to `amount`.
+  only approach whose space exceeds `O(amount)`, because the decorator caches the negative amounts the hand-rolled guard discarded; it falls back to `O(amount)` whenever the denominations are small relative to `amount`.
 
 ### Trade-offs
 
@@ -705,9 +577,7 @@ ever produced and the bound collapses back to `O(amount)`.
 - **Bottom-Up DP**: Iterative with clear logic and optimal complexity, but builds every subproblem even when some are not needed.
 - **BFS**: Models the problem cleanly as a shortest-path search, but adds queue and visited-set overhead.
 - **Top-Down Memoization with functools.cache**: Keeps that recursion and its
-  time complexity while cutting three lines of memo plumbing, paying an import,
-  the cached negative amounts, and the loss of direct control over what the cache
-  keys on and how long it lives.
+  time complexity while cutting three lines of memo plumbing, paying an import, the cached negative amounts, and the loss of direct control over what the cache keys on and how long it lives.
 
 ### When to Use Each
 
@@ -716,10 +586,7 @@ ever produced and the bound collapses back to `O(amount)`.
 - **Bottom-Up DP (Recommended)**: Best for interviews and production code. Clear, efficient, and iterative.
 - **BFS**: When you want to model the problem as a graph shortest path problem. Good for educational purposes.
 - **Top-Down Memoization with functools.cache**: The Pythonic default whenever the
-  recursive framing is the one worth showing. Prefer it over the hand-rolled memo
-  for readability, and fall back to the explicit dictionary when an interviewer
-  asks to see the caching mechanism itself or when the cached negatives are a
-  space cost you cannot pay.
+  recursive framing is the one worth showing. Prefer it over the hand-rolled memo for readability, and fall back to the explicit dictionary when an interviewer asks to see the caching mechanism itself or when the cached negatives are a space cost you cannot pay.
 
 ### Optimization Notes
 

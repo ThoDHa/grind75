@@ -43,33 +43,20 @@ A height-balanced binary tree is defined as a binary tree in which the left and 
 
 ## Deriving the Solution
 
-Balance is a condition on heights: at every node, the left and right subtree
-heights may differ by at most `1`. Every solution below therefore computes
-subtree heights and checks that condition at each node; they differ only in
-*when* the heights are computed.
+Balance is a condition on heights: at every node, the left and right subtree heights may differ by at most `1`. Every solution below therefore computes subtree heights and checks that condition at each node; they differ only in *when* the heights are computed.
 
 1. **Start literal.** Execute the definition as written: at each node, measure
-   the height of both subtrees with a helper, compare, and recurse into the
-   children. Correct, but the helper re-walks the same nodes at every ancestor
-   level, costing `O(n^2)` on a skewed tree: see
-   [Top-Down Recursion](#top-down-recursion).
+   the height of both subtrees with a helper, compare, and recurse into the children. Correct, but the helper re-walks the same nodes at every ancestor level, costing `O(n^2)` on a skewed tree: see [Top-Down Recursion](#top-down-recursion).
 2. **Spot the waste.** A node's height is just `1` plus the larger child
-   height, so heights are naturally built from the bottom up. The literal
-   version throws that structure away and remeasures whole subtrees from
-   scratch at every level.
+   height, so heights are naturally built from the bottom up. The literal version throws that structure away and remeasures whole subtrees from scratch at every level.
 3. **Fuse the two passes.** Compute heights in a single post-order traversal
-   and check balance at the moment each node's child heights are in hand,
-   smuggling "unbalanced" upward as the sentinel height `-1`. One pass, `O(n)`:
-   see [Bottom-Up Recursion](#bottom-up-recursion).
+   and check balance at the moment each node's child heights are in hand, smuggling "unbalanced" upward as the sentinel height `-1`. One pass, `O(n)`: see [Bottom-Up Recursion](#bottom-up-recursion).
 4. **Drop the recursion.** The same post-order visit order can be driven by an
-   explicit stack, which removes the interpreter's recursion limit as a failure
-   mode on pathologically deep trees: see
-   [Iterative Post-Order](#iterative-post-order).
+   explicit stack, which removes the interpreter's recursion limit as a failure mode on pathologically deep trees: see [Iterative Post-Order](#iterative-post-order).
 
 ## Solutions
 
-The solutions below assume the standard LeetCode node definition and
-`from typing import Optional`:
+The solutions below assume the standard LeetCode node definition and `from typing import Optional`:
 
 ```python
 class TreeNode:
@@ -83,25 +70,19 @@ class TreeNode:
 
 #### Derivation
 
-The definition itself is executable: a tree is balanced when the subtree
-heights of *every* node differ by at most `1`. So the most direct question to
-ask at each node is "does the condition hold here, and in both children?",
-answered with a height helper and a [recursive](https://en.wikipedia.org/wiki/Recursion_(computer_science)) call into each child:
+The definition itself is executable: a tree is balanced when the subtree heights of *every* node differ by at most `1`. So the most direct question to ask at each node is "does the condition hold here, and in both children?", answered with a height helper and a [recursive](https://en.wikipedia.org/wiki/Recursion_(computer_science)) call into each child:
 
 1. An empty tree is balanced, so return `True` for a null `root`.
 2. Compute the height of the left and right subtrees and compare them. If they
-   differ by more than `1`, the current node violates the balance condition, so
-   return `False`.
+   differ by more than `1`, the current node violates the balance condition, so return `False`.
 3. Otherwise, recursively require that both the left and right subtrees are also
    balanced.
 
-The `height` helper computes the number of nodes on the longest root-to-leaf
-path of a subtree, recurring into both children and taking the larger result.
+The `height` helper computes the number of nodes on the longest root-to-leaf path of a subtree, recurring into both children and taking the larger result.
 
 #### Walkthrough
 
-Let us watch this top-down version run on Example 1, `root = [3,9,20,null,null,15,7]`.
-That tree looks like this, where `9` is a leaf and `20` has two leaf children:
+Let us watch this top-down version run on Example 1, `root = [3,9,20,null,null,15,7]`. That tree looks like this, where `9` is a leaf and `20` has two leaf children:
 
 ```
         3
@@ -111,15 +92,9 @@ That tree looks like this, where `9` is a leaf and `20` has two leaf children:
         15    7
 ```
 
-`isBalanced(node)` does two things at each node: it computes the height of the
-left and right subtrees with the `height` helper, compares them, and (if they are
-close enough) recurses into both children. Recall `height` returns `0` for an
-empty subtree and `1 + max(left, right)` otherwise, so a single leaf has height
-`1`.
+`isBalanced(node)` does two things at each node: it computes the height of the left and right subtrees with the `height` helper, compares them, and (if they are close enough) recurses into both children. Recall `height` returns `0` for an empty subtree and `1 + max(left, right)` otherwise, so a single leaf has height `1`.
 
-We trace each `isBalanced` call in the order they run. The `diff` column is
-`abs(height(left) - height(right))`; a value greater than `1` would return
-`False` on the spot.
+We trace each `isBalanced` call in the order they run. The `diff` column is `abs(height(left) - height(right))`; a value greater than `1` would return `False` on the spot.
 
 | Step | `isBalanced(node)` | `height(left)` | `height(right)` | `diff` | Action |
 |------|--------------------|----------------|-----------------|--------|--------|
@@ -129,15 +104,11 @@ We trace each `isBalanced` call in the order they run. The `diff` column is
 | 4 | `15` | `0` | `0` | `0` | `diff <= 1`: both children `None`, return `True` |
 | 5 | `7` | `0` | `0` | `0` | `diff <= 1`: both children `None`, return `True` |
 
-No node ever produced a `diff` greater than `1`, so no call returned `False`. The
-`and` at node `3` chains the results back up: node `20` is balanced because `15`
-and `7` are, node `3` is balanced because `9` and `20` are. The top call returns
-`True`, which matches the expected Output `true`.
+No node ever produced a `diff` greater than `1`, so no call returned `False`. The `and` at node `3` chains the results back up: node `20` is balanced because `15` and `7` are, node `3` is balanced because `9` and `20` are. The top call returns `True`, which matches the expected Output `true`.
 
 #### Solution
 
-The code is the definition written down: a height comparison at the current
-node, then recursion into both children.
+The code is the definition written down: a height comparison at the current node, then recursion into both children.
 
 ```python
 class Solution:
@@ -158,15 +129,11 @@ class Solution:
 
 ##### Time Complexity: `O(n^2)`
 
-The `height` helper visits every node of a subtree, and `isBalanced` calls it at
-every node. In the worst case (a skewed tree) the same nodes are revisited at
-every level, producing quadratic work. For a balanced tree the cost is closer to
-`O(n log n)`.
+The `height` helper visits every node of a subtree, and `isBalanced` calls it at every node. In the worst case (a skewed tree) the same nodes are revisited at every level, producing quadratic work. For a balanced tree the cost is closer to `O(n log n)`.
 
 ##### Space Complexity: `O(h)`
 
-Where `h` is the height of the tree. The recursion stack grows as deep as the
-longest path: `O(log n)` for a balanced tree and `O(n)` for a skewed one.
+Where `h` is the height of the tree. The recursion stack grows as deep as the longest path: `O(log n)` for a balanced tree and `O(n)` for a skewed one.
 
 #### Key Insights
 
@@ -179,12 +146,7 @@ longest path: `O(log n)` for a balanced tree and `O(n)` for a skewed one.
 
 #### Derivation
 
-The top-down version is slow because it recomputes heights: `height` walks an
-entire subtree, and every ancestor of that subtree walks it again. Yet a node's
-height is only `1` plus the larger child height, so a single [post-order traversal](https://en.wikipedia.org/wiki/Tree_traversal)
-that hands each subtree's height upward computes every height exactly once. The
-balance check rides along in the same pass, reusing a sentinel value to report
-imbalance instead of a height:
+The top-down version is slow because it recomputes heights: `height` walks an entire subtree, and every ancestor of that subtree walks it again. Yet a node's height is only `1` plus the larger child height, so a single [post-order traversal](https://en.wikipedia.org/wiki/Tree_traversal) that hands each subtree's height upward computes every height exactly once. The balance check rides along in the same pass, reusing a sentinel value to report imbalance instead of a height:
 
 1. The inner `check` returns the height of a balanced subtree, or `-1` if any
    part of that subtree is unbalanced.
@@ -200,12 +162,9 @@ The tree is balanced exactly when `check(root)` is not `-1`.
 
 #### Recurrence
 
-Balance is a condition that must hold at *every* node, not just the root, with
-\(h\) the usual height function:
+Balance is a condition that must hold at *every* node, not just the root, with \(h\) the usual height function:
 
-$$
-\text{balanced}(T) = \bigwedge_{v \in T} \Bigl(\ \bigl|\,h(v.\text{left}) - h(v.\text{right})\,\bigr| \le 1 \ \Bigr)
-$$
+$$ \text{balanced}(T) = \bigwedge_{v \in T} \Bigl(\ \bigl|\,h(v.\text{left}) - h(v.\text{right})\,\bigr| \le 1 \ \Bigr) $$
 
 ```text
 balanced(T) == abs(h(v.left) - h(v.right)) <= 1  for all nodes v in T
@@ -213,20 +172,9 @@ balanced(T) == abs(h(v.left) - h(v.right)) <= 1  for all nodes v in T
               h(v)    = 1 + max(h(v.left), h(v.right))
 ```
 
-Evaluating the \(\bigwedge\) and the \(h\) separately is what makes the top-down
-version \(O(n^2)\): every node recomputes the heights beneath it. This solution
-fuses them by overloading the return value. `check` yields a real height when
-the subtree is balanced and the sentinel `-1` when it is not:
+Evaluating the \(\bigwedge\) and the \(h\) separately is what makes the top-down version \(O(n^2)\): every node recomputes the heights beneath it. This solution fuses them by overloading the return value. `check` yields a real height when the subtree is balanced and the sentinel `-1` when it is not:
 
-$$
-\text{check}(v) =
-\begin{cases}
-0, & v = \text{null} \\[4pt]
--1, & \text{check}(v.\text{left}) = -1 \ \vee \ \text{check}(v.\text{right}) = -1 \\[4pt]
--1, & \bigl|\,\text{check}(v.\text{left}) - \text{check}(v.\text{right})\,\bigr| > 1 \\[4pt]
-1 + \max\bigl(\text{check}(v.\text{left}),\ \text{check}(v.\text{right})\bigr), & \text{otherwise}
-\end{cases}
-$$
+$$ \text{check}(v) = \begin{cases} 0, & v = \text{null} \\[4pt] -1, & \text{check}(v.\text{left}) = -1 \ \vee \ \text{check}(v.\text{right}) = -1 \\[4pt] -1, & \bigl|\,\text{check}(v.\text{left}) - \text{check}(v.\text{right})\,\bigr| > 1 \\[4pt] 1 + \max\bigl(\text{check}(v.\text{left}),\ \text{check}(v.\text{right})\bigr), & \text{otherwise} \end{cases} $$
 
 ```text
 check(null) = 0
@@ -235,14 +183,11 @@ check(v)    = -1, if abs(check(v.left) - check(v.right)) > 1
 check(v)    = 1 + max(check(v.left), check(v.right)), otherwise
 ```
 
-The sentinel is safe because a genuine height is never negative, so `-1` cannot
-collide with a real answer. Once it appears it propagates straight to the root,
-which is the short-circuit that makes \(\bigwedge\) cost a single pass.
+The sentinel is safe because a genuine height is never negative, so `-1` cannot collide with a real answer. Once it appears it propagates straight to the root, which is the short-circuit that makes \(\bigwedge\) cost a single pass.
 
 #### Walkthrough
 
-Example 1 is balanced, so the sentinel never fires there. Example 2,
-`root = [1,2,2,3,3,null,null,4,4]`, is the official example that exercises it:
+Example 1 is balanced, so the sentinel never fires there. Example 2, `root = [1,2,2,3,3,null,null,4,4]`, is the official example that exercises it:
 
 ```
           1
@@ -254,9 +199,7 @@ Example 1 is balanced, so the sentinel never fires there. Example 2,
     4   4
 ```
 
-`check` runs post-order, so children finish before their parents. Each line
-below is one call *finishing*, in the order the recursion resolves them, with
-the child heights it received and the value it returns:
+`check` runs post-order, so children finish before their parents. Each line below is one call *finishing*, in the order the recursion resolves them, with the child heights it received and the value it returns:
 
 ```text
 check(4)   left=0, right=0 -> 1     left leaf 4, both children null
@@ -268,17 +211,11 @@ check(2)   left=0, right=0 -> 1     right 2, a leaf
 check(1)   left=3, right=1 -> -1    diff 2 > 1: sentinel
 ```
 
-At the root, the left subtree reports height `3` and the right reports `1`.
-The difference `2` exceeds `1`, so `check(1)` returns the sentinel `-1`. Here
-the imbalance surfaced at the root itself; had it appeared deeper, the
-`left == -1` and `right == -1` early exits would have carried the sentinel
-straight up without visiting any further nodes. `isBalanced` then evaluates
-`check(root) != -1`, which is `False`, matching the expected Output `false`.
+At the root, the left subtree reports height `3` and the right reports `1`. The difference `2` exceeds `1`, so `check(1)` returns the sentinel `-1`. Here the imbalance surfaced at the root itself; had it appeared deeper, the `left == -1` and `right == -1` early exits would have carried the sentinel straight up without visiting any further nodes. `isBalanced` then evaluates `check(root) != -1`, which is `False`, matching the expected Output `false`.
 
 #### Solution
 
-The code is the walkthrough's `check` written down: post-order heights with the
-`-1` sentinel short-circuiting upward.
+The code is the walkthrough's `check` written down: post-order heights with the `-1` sentinel short-circuiting upward.
 
 ```python
 class Solution:
@@ -303,13 +240,11 @@ class Solution:
 
 ##### Time Complexity: `O(n)`
 
-Each node is visited exactly once, and only constant-time work happens per node
-because the height and balance check are combined.
+Each node is visited exactly once, and only constant-time work happens per node because the height and balance check are combined.
 
 ##### Space Complexity: `O(h)`
 
-Where `h` is the height of the tree. Only the recursion stack is used: `O(log n)`
-for a balanced tree and `O(n)` for a skewed one.
+Where `h` is the height of the tree. Only the recursion stack is used: `O(log n)` for a balanced tree and `O(n)` for a skewed one.
 
 #### Key Insights
 
@@ -323,11 +258,7 @@ for a balanced tree and `O(n)` for a skewed one.
 
 #### Derivation
 
-The bottom-up pass is optimal, but it leans on the call stack: a skewed tree of
-`5000` nodes recurses `5000` deep, and much deeper trees would hit the
-interpreter's recursion limit. The repair is to reproduce the same bottom-up
-logic without recursion: an explicit [post-order traversal](https://en.wikipedia.org/wiki/Tree_traversal) with a manual stack,
-recording each node's height in a dictionary as it is finished:
+The bottom-up pass is optimal, but it leans on the call stack: a skewed tree of `5000` nodes recurses `5000` deep, and much deeper trees would hit the interpreter's recursion limit. The repair is to reproduce the same bottom-up logic without recursion: an explicit [post-order traversal](https://en.wikipedia.org/wiki/Tree_traversal) with a manual stack, recording each node's height in a dictionary as it is finished:
 
 1. Keep a `heights` map seeded with `None -> 0` so absent children contribute a
    height of `0`.
@@ -340,17 +271,11 @@ recording each node's height in a dictionary as it is finished:
    it.
 6. If the traversal completes without finding an imbalance, the tree is balanced.
 
-The `last_visited` pointer distinguishes "about to descend right" from "returning
-from the right subtree", which is what makes an iterative post-order traversal
-correct.
+The `last_visited` pointer distinguishes "about to descend right" from "returning from the right subtree", which is what makes an iterative post-order traversal correct.
 
 #### Walkthrough
 
-Let us drive the stack by hand on Example 1, `root = [3,9,20,null,null,15,7]`
-(the tree drawn in the Top-Down walkthrough). Each line is one event: either a
-push while walking left, or a node *finishing* (its height recorded, then
-popped). `finish v` reads `left_h` and `right_h` from `heights` and stores
-`heights[v] = 1 + max(left_h, right_h)`:
+Let us drive the stack by hand on Example 1, `root = [3,9,20,null,null,15,7]` (the tree drawn in the Top-Down walkthrough). Each line is one event: either a push while walking left, or a node *finishing* (its height recorded, then popped). `finish v` reads `left_h` and `right_h` from `heights` and stores `heights[v] = 1 + max(left_h, right_h)`:
 
 ```text
 push 3, push 9                              walk left from the root
@@ -367,16 +292,11 @@ peek 3      last_visited is 20 -> both children done
 finish 3    left_h=1, right_h=2, diff=1 -> heights[3]=3   stack []
 ```
 
-Every `finish` compared its two child heights before recording; none differed
-by more than `1`, so no early `False` fired. The stack is empty and `node` is
-`None`, so the loop ends and the function returns `True`, matching the expected
-Output `true`. Note the finish order `9, 15, 7, 20, 3` is exactly the
-post-order in which the recursive `check` resolves its calls.
+Every `finish` compared its two child heights before recording; none differed by more than `1`, so no early `False` fired. The stack is empty and `node` is `None`, so the loop ends and the function returns `True`, matching the expected Output `true`. Note the finish order `9, 15, 7, 20, 3` is exactly the post-order in which the recursive `check` resolves its calls.
 
 #### Solution
 
-The code is the walkthrough's push/finish loop, with `last_visited` telling a
-first arrival at a node apart from the return from its right subtree.
+The code is the walkthrough's push/finish loop, with `last_visited` telling a first arrival at a node apart from the return from its right subtree.
 
 ```python
 class Solution:
@@ -411,11 +331,7 @@ Each node is pushed and popped once, and the per-node work is constant.
 
 ##### Space Complexity: `O(n)`
 
-The stack holds at most one root-to-leaf path at a time, which is `O(h)`, but
-the `heights` map is never pruned: every node keeps its entry after it is
-finished, so the map grows to one entry per node and dominates at `O(n)`.
-Deleting child entries once a parent's height is recorded would bring this back
-down to `O(h)`.
+The stack holds at most one root-to-leaf path at a time, which is `O(h)`, but the `heights` map is never pruned: every node keeps its entry after it is finished, so the map grows to one entry per node and dominates at `O(n)`. Deleting child entries once a parent's height is recorded would bring this back down to `O(h)`.
 
 #### Key Insights
 
@@ -451,8 +367,7 @@ down to `O(h)`.
 - **Bottom-Up Recursion**: Linear and concise, at the cost of a slightly less
   obvious sentinel trick.
 - **Iterative Post-Order**: Linear and immune to recursion-depth limits, at the
-  cost of more bookkeeping (manual stack, `last_visited`, height map) and `O(n)`
-  space for the unpruned height map.
+  cost of more bookkeeping (manual stack, `last_visited`, height map) and `O(n)` space for the unpruned height map.
 
 ### When to Use Each
 
@@ -468,5 +383,4 @@ down to `O(h)`.
 - The `-1` sentinel encodes both imbalance and an impossible height in a single
   return value, enabling early termination.
 - The iterative version trades the implicit call stack for an explicit one,
-  delivering the same `O(n)` behavior without depending on the interpreter's
-  recursion limit.
+  delivering the same `O(n)` behavior without depending on the interpreter's recursion limit.

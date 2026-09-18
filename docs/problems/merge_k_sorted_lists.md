@@ -30,8 +30,7 @@ Merge all the linked-lists into one sorted linked-list and return it.
 ]
 ```
 
-merging them into one sorted list:
-`1->1->2->3->4->4->5->6`
+merging them into one sorted list: `1->1->2->3->4->4->5->6`
 
 ### Example 2
 
@@ -56,25 +55,16 @@ merging them into one sorted list:
 
 ## Deriving the Solution
 
-All k inputs are already sorted, so the next node of the merged list is always
-the smallest of the k current heads. Every solution below either speeds up
-finding that minimum or reorganizes the k-way merge into balanced two-way
-merges.
+All k inputs are already sorted, so the next node of the merged list is always the smallest of the k current heads. Every solution below either speeds up finding that minimum or reorganizes the k-way merge into balanced two-way merges.
 
 1. **Start literal.** Keep one cursor per list and scan all k of them for the
-   minimum before emitting each node: `O(N × k)`: see
-   [Repeated Minimum Scan](#repeated-minimum-scan).
+   minimum before emitting each node: `O(N × k)`: see [Repeated Minimum Scan](#repeated-minimum-scan).
 2. **Reuse a known tool.** Merging two sorted lists is a solved problem, so fold
-   the lists into an accumulated result one at a time. Simpler code, but the
-   accumulator is re-walked on every merge, so the cost stays `O(N × k)`: see
-   [Sequential Merge](#sequential-merge).
+   the lists into an accumulated result one at a time. Simpler code, but the accumulator is re-walked on every merge, so the cost stays `O(N × k)`: see [Sequential Merge](#sequential-merge).
 3. **Balance the merging.** The waste is the ever-longer accumulator. Merging
-   the lists in pairs halves their count each round, so every node takes part in
-   only `log k` merges: `O(N log k)`, entirely from scratch: see
-   [Divide and Conquer](#divide-and-conquer).
+   the lists in pairs halves their count each round, so every node takes part in only `log k` merges: `O(N log k)`, entirely from scratch: see [Divide and Conquer](#divide-and-conquer).
 4. **Or fix the scan directly.** Replace the linear minimum search of step 1
-   with a min-heap of the k current heads: each pop and push costs `O(log k)`,
-   reaching the same `O(N log k)` via the library: see [Min-Heap](#min-heap).
+   with a min-heap of the k current heads: each pop and push costs `O(log k)`, reaching the same `O(N log k)` via the library: see [Min-Heap](#min-heap).
 
 ## Solutions
 
@@ -112,8 +102,7 @@ After step 8 every cursor is `None`, so the next scan returns `min_idx == -1` an
 
 #### Solution
 
-The code is the walkthrough's loop: scan `heads` for `min_idx`, splice that
-node onto `tail`, and advance one cursor.
+The code is the walkthrough's loop: scan `heads` for `min_idx`, splice that node onto `tail`, and advance one cursor.
 
 ```python
 # Definition for singly-linked list.
@@ -172,30 +161,19 @@ The `heads` cursor array holds k entries. Result nodes are spliced from the inpu
 
 #### Derivation
 
-The minimum scan builds its machinery from nothing, yet merging two sorted
-lists is already a solved problem: the classic two-pointer
-[merge](https://en.wikipedia.org/wiki/Merge_algorithm) splices the smaller head
-onto a growing tail until one list empties. So ask: can that known tool be
-reused as-is? It can, by folding the k lists into an accumulated result one at
-a time:
+The minimum scan builds its machinery from nothing, yet merging two sorted lists is already a solved problem: the classic two-pointer [merge](https://en.wikipedia.org/wiki/Merge_algorithm) splices the smaller head onto a growing tail until one list empties. So ask: can that known tool be reused as-is? It can, by folding the k lists into an accumulated result one at a time:
 
 1. Return `None` immediately when `lists` is empty.
 2. Write `merge_two_lists(l1, l2)`: a `dummy` head and a `current` tail pointer;
-   while both lists are non-empty, splice the smaller of `l1` and `l2` onto
-   `current` and advance that list; when one empties, attach the survivor with
-   `current.next = l1 or l2`.
+   while both lists are non-empty, splice the smaller of `l1` and `l2` onto `current` and advance that list; when one empties, attach the survivor with `current.next = l1 or l2`.
 3. Seed `result = lists[0]` and merge each remaining list into it:
    `result = merge_two_lists(result, lists[i])` for `i` from `1` to `k - 1`.
 
-The simplicity has a cost: `result` grows toward length `N`, and every one of
-its nodes is re-walked during each later merge. Early nodes are compared over
-and over, which is the flaw the pairing scheme in the next approach removes.
+The simplicity has a cost: `result` grows toward length `N`, and every one of its nodes is re-walked during each later merge. Early nodes are compared over and over, which is the flaw the pairing scheme in the next approach removes.
 
 #### Walkthrough
 
-Let us fold the lists of Example 1 one at a time: `lists = [[1,4,5],[1,3,4],[2,6]]`.
-The first merge combines `result = 1->4->5` with `1->3->4`. Each line shows the
-two current heads, the comparison, and the merged prefix behind `current`:
+Let us fold the lists of Example 1 one at a time: `lists = [[1,4,5],[1,3,4],[2,6]]`. The first merge combines `result = 1->4->5` with `1->3->4`. Each line shows the two current heads, the comparison, and the merged prefix behind `current`:
 
 ```text
 merge_two_lists(1->4->5, 1->3->4):
@@ -207,9 +185,7 @@ merge_two_lists(1->4->5, 1->3->4):
   l2 empty: current.next = l1   ->   result = 1->1->3->4->4->5
 ```
 
-The tie at `4 <= 4` keeps the node from `l1`, the accumulated result, preserving
-stability. The second merge folds in the last list, `2->6`, re-walking the
-six-node accumulator that the first merge produced:
+The tie at `4 <= 4` keeps the node from `l1`, the accumulated result, preserving stability. The second merge folds in the last list, `2->6`, re-walking the six-node accumulator that the first merge produced:
 
 ```text
 merge_two_lists(1->1->3->4->4->5, 2->6):
@@ -219,15 +195,11 @@ merge_two_lists(1->1->3->4->4->5, 2->6):
   result = 1->1->2->3->4->4->5->6
 ```
 
-That re-walk is the approach's weakness in miniature: nodes `1, 1, 3` were
-already compared in the first merge and are compared again here. The final
-`result` is `1->1->2->3->4->4->5->6`, matching the expected Output
-`[1,1,2,3,4,4,5,6]`.
+That re-walk is the approach's weakness in miniature: nodes `1, 1, 3` were already compared in the first merge and are compared again here. The final `result` is `1->1->2->3->4->4->5->6`, matching the expected Output `[1,1,2,3,4,4,5,6]`.
 
 #### Solution
 
-The code is the walkthrough generalized: `merge_two_lists` does each splice,
-and the loop folds every list into `result`.
+The code is the walkthrough generalized: `merge_two_lists` does each splice, and the loop folds every list into `result`.
 
 ```python
 # Definition for singly-linked list.
@@ -291,33 +263,19 @@ Uses constant extra space, only manipulating pointers.
 
 #### Derivation
 
-Sequential Merge is slow because its merges are lopsided: the accumulator keeps
-growing while each incoming list stays short, so early nodes are re-walked on
-every later merge. The repair is to keep every merge between lists of similar
-length. Merge the lists in pairs, [divide and conquer](https://en.wikipedia.org/wiki/Divide-and-conquer_algorithm)
-style: one round turns k lists into `⌈k/2⌉` longer ones, the next round halves
-that again, and after `log k` rounds a single list remains. Each node is touched
-once per round, never once per list:
+Sequential Merge is slow because its merges are lopsided: the accumulator keeps growing while each incoming list stays short, so early nodes are re-walked on every later merge. The repair is to keep every merge between lists of similar length. Merge the lists in pairs, [divide and conquer](https://en.wikipedia.org/wiki/Divide-and-conquer_algorithm) style: one round turns k lists into `⌈k/2⌉` longer ones, the next round halves that again, and after `log k` rounds a single list remains. Each node is touched once per round, never once per list:
 
 1. Return `None` immediately when `lists` is empty.
 2. While more than one list remains, walk `lists` two at a time: merge
-   `lists[i]` with `lists[i + 1]` using the same two-pointer `merge_two_lists`
-   helper as the Sequential Merge, guarding the odd tail with
-   `lists[i + 1] if i + 1 < len(lists) else None`.
+   `lists[i]` with `lists[i + 1]` using the same two-pointer `merge_two_lists` helper as the Sequential Merge, guarding the odd tail with `lists[i + 1] if i + 1 < len(lists) else None`.
 3. Collect the round's outputs in `merged_lists` and replace `lists` with it.
 4. When one list remains, return it.
 
 #### Cost Recurrence
 
-Merging two sorted lists is linear in their combined length. Pairing the `k` lists
-halves their count each round, and the two halves split the nodes between them, so
-both parameters shrink together. Writing \(k\) for the lists still to merge and
-\(N\) for the total nodes across them:
+Merging two sorted lists is linear in their combined length. Pairing the `k` lists halves their count each round, and the two halves split the nodes between them, so both parameters shrink together. Writing \(k\) for the lists still to merge and \(N\) for the total nodes across them:
 
-$$
-T(k, N) = 2\,T\!\left(\frac{k}{2}, \frac{N}{2}\right) + O(N),
-\qquad T(1, n) = O(1)
-$$
+$$ T(k, N) = 2\,T\!\left(\frac{k}{2}, \frac{N}{2}\right) + O(N), \qquad T(1, n) = O(1) $$
 
 ```text
 T(k, N) = 2 * T(k / 2, N / 2) + O(N)
@@ -325,41 +283,29 @@ T(1, n) = O(1)
           (k = lists still to merge, N = total nodes across them)
 ```
 
-Both parameters have to appear. Holding the node count fixed at every level would
-give \(T(k) = 2\,T(k/2) + O(N)\), which solves to \(\Theta(Nk)\), the sequential
-cost rather than this one. What makes the divide-and-conquer version cheaper is
-that a whole round of merges costs \(O(N)\) in total, not \(O(N)\) per subproblem.
+Both parameters have to appear. Holding the node count fixed at every level would give \(T(k) = 2\,T(k/2) + O(N)\), which solves to \(\Theta(Nk)\), the sequential cost rather than this one. What makes the divide-and-conquer version cheaper is that a whole round of merges costs \(O(N)\) in total, not \(O(N)\) per subproblem.
 
-Every round touches all \(N\) nodes exactly once, and there are \(\log_2 k\)
-rounds, so the total is:
+Every round touches all \(N\) nodes exactly once, and there are \(\log_2 k\) rounds, so the total is:
 
-$$
-T(k) = \sum_{r=1}^{\lceil \log_2 k \rceil} O(N) = O(N \log k)
-$$
+$$ T(k) = \sum_{r=1}^{\lceil \log_2 k \rceil} O(N) = O(N \log k) $$
 
 ```text
 T(k) = sum over r = 1 to ceil(log2 k) of O(N) = O(N log k)
 ```
 
-The contrast with Sequential Merge is worth reading off the sum. Folding one
-list in at a time re-walks the accumulated result on every step, so its cost is
+The contrast with Sequential Merge is worth reading off the sum. Folding one list in at a time re-walks the accumulated result on every step, so its cost is
 
-$$
-\sum_{i=1}^{k} O\!\left(\frac{iN}{k}\right) = O(Nk)
-$$
+$$ \sum_{i=1}^{k} O\!\left(\frac{iN}{k}\right) = O(Nk) $$
 
 ```text
 sum over i = 1 to k of O(i * N / k) = O(N * k)
 ```
 
-The growing prefix is what makes it quadratic in `k`. Pairwise merging keeps
-each node in exactly \(\log k\) merges instead of up to \(k\).
+The growing prefix is what makes it quadratic in `k`. Pairwise merging keeps each node in exactly \(\log k\) merges instead of up to \(k\).
 
 #### Walkthrough
 
-Let us run the rounds on Example 1: `lists = [[1,4,5],[1,3,4],[2,6]]`, so
-`k = 3`. Each round pairs the lists off and calls `merge_two_lists` on each
-pair; the odd list out merges against `None`, which returns it unchanged:
+Let us run the rounds on Example 1: `lists = [[1,4,5],[1,3,4],[2,6]]`, so `k = 3`. Each round pairs the lists off and calls `merge_two_lists` on each pair; the odd list out merges against `None`, which returns it unchanged:
 
 ```text
 round 1   pair (1->4->5, 1->3->4)  ->  1->1->3->4->4->5
@@ -369,15 +315,11 @@ round 2   pair (1->1->3->4->4->5, 2->6)  ->  1->1->2->3->4->4->5->6
           lists = [1->1->2->3->4->4->5->6]
 ```
 
-Each pairwise merge is the splice loop traced step by step in the Sequential
-Merge walkthrough; only the pairing schedule differs. After round 2 a single
-list remains, so the `while` loop exits and `lists[0]` is returned:
-`1->1->2->3->4->4->5->6`, matching the expected Output `[1,1,2,3,4,4,5,6]`.
+Each pairwise merge is the splice loop traced step by step in the Sequential Merge walkthrough; only the pairing schedule differs. After round 2 a single list remains, so the `while` loop exits and `lists[0]` is returned: `1->1->2->3->4->4->5->6`, matching the expected Output `[1,1,2,3,4,4,5,6]`.
 
 #### Solution
 
-The code is the walkthrough's rounds: an outer `while` that pairs off `lists`,
-with `merge_two_lists` doing each splice.
+The code is the walkthrough's rounds: an outer `while` that pairs off `lists`, with `merge_two_lists` doing each splice.
 
 ```python
 # Definition for singly-linked list.
@@ -449,29 +391,19 @@ Each merging round allocates a `merged_lists` array holding up to `⌈k/2⌉` li
 
 #### Derivation
 
-The Repeated Minimum Scan already emits nodes in the right order; its only cost
-is the `O(k)` scan per node to find the smallest current head. A
-[min-heap](https://en.wikipedia.org/wiki/Heap_(data_structure)) (priority
-queue) is the data structure built for exactly that job: it hands back the
-minimum of k candidates in `O(log k)` and accepts a replacement in `O(log k)`.
-Keep one candidate per list in the heap and the merge falls out:
+The Repeated Minimum Scan already emits nodes in the right order; its only cost is the `O(k)` scan per node to find the smallest current head. A [min-heap](https://en.wikipedia.org/wiki/Heap_(data_structure)) (priority queue) is the data structure built for exactly that job: it hands back the minimum of k candidates in `O(log k)` and accepts a replacement in `O(log k)`. Keep one candidate per list in the heap and the merge falls out:
 
 1. Push `(head.val, i, head)` for each non-empty list. The list index `i` in
-   the middle breaks ties between equal values, so the heap never has to
-   compare `ListNode` objects, which are not orderable.
+   the middle breaks ties between equal values, so the heap never has to compare `ListNode` objects, which are not orderable.
 2. Pop the smallest tuple `(val, list_idx, node)` and splice `node` onto
    `current`.
 3. When the popped node has a successor, push
-   `(node.next.val, list_idx, node.next)` so its list stays represented by
-   exactly one candidate.
+   `(node.next.val, list_idx, node.next)` so its list stays represented by exactly one candidate.
 4. When the heap empties, every node has been spliced; return `dummy.next`.
 
 #### Walkthrough
 
-Here the heap itself is the technique, so the trace follows its contents on
-Example 1: `lists = [[1,4,5],[1,3,4],[2,6]]`. Entries are shown as
-`(val, list_idx)`, listed in priority order; each step pops the minimum,
-splices its node, and pushes the popped node's successor when one exists:
+Here the heap itself is the technique, so the trace follows its contents on Example 1: `lists = [[1,4,5],[1,3,4],[2,6]]`. Entries are shown as `(val, list_idx)`, listed in priority order; each step pops the minimum, splices its node, and pushes the popped node's successor when one exists:
 
 ```text
 init: push (1,0), (1,1), (2,2)           heap = [(1,0), (1,1), (2,2)]
@@ -485,16 +417,11 @@ pop (5,0)  splice 5   list 0 exhausted   heap = [(6,2)]
 pop (6,2)  splice 6   list 2 exhausted   heap = []
 ```
 
-The tie-break shows up twice: `(1,0)` pops before `(1,1)`, and `(4,0)` before
-`(4,1)`, because tuple comparison falls through to the list index when values
-are equal. The heap never holds more than `k = 3` entries even as all eight
-nodes flow through it. With the heap empty, the loop ends and `dummy.next` is
-`1->1->2->3->4->4->5->6`, matching the expected Output `[1,1,2,3,4,4,5,6]`.
+The tie-break shows up twice: `(1,0)` pops before `(1,1)`, and `(4,0)` before `(4,1)`, because tuple comparison falls through to the list index when values are equal. The heap never holds more than `k = 3` entries even as all eight nodes flow through it. With the heap empty, the loop ends and `dummy.next` is `1->1->2->3->4->4->5->6`, matching the expected Output `[1,1,2,3,4,4,5,6]`.
 
 #### Solution
 
-The code is the walkthrough's pop-splice-push cycle, with `heapq` maintaining
-the priority order shown on the right.
+The code is the walkthrough's pop-splice-push cycle, with `heapq` maintaining the priority order shown on the right.
 
 ```python
 # Definition for singly-linked list.

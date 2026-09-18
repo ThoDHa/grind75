@@ -168,26 +168,22 @@ This is a special case worth knowing: it shows that "counting" does not always m
 When you see these phrases, think **Hashing & Frequency Counting**:
 
 ### Signal: "Have I seen X before?"
-> *"Find the first repeated element"*
-> *"Detect if a value occurs twice"*
+> *"Find the first repeated element"* *"Detect if a value occurs twice"*
 
 **Action**: Use a "seen" set. Check before insert.
 
 ### Signal: "Find a pair / group with a property"
-> *"Two numbers that sum to target"*
-> *"Indices i, j where nums[i] + nums[j] == k"*
+> *"Two numbers that sum to target"* *"Indices i, j where nums[i] + nums[j] == k"*
 
 **Action**: Complement lookup. Store seen values, query for the needed partner.
 
 ### Signal: "Count of each element" or "How many times..."
-> *"Are these two strings anagrams?"*
-> *"Most frequent element"*
+> *"Are these two strings anagrams?"* *"Most frequent element"*
 
 **Action**: Build a frequency map, then compare or scan counts.
 
 ### Signal: "Is there a duplicate?" or "All unique?"
-> *"Contains duplicate"*
-> *"Are all rows distinct?"*
+> *"Contains duplicate"* *"Are all rows distinct?"*
 
 **Action**: Compare set size to length, or short-circuit with a seen-set.
 
@@ -202,8 +198,7 @@ When you see these phrases, think **Hashing & Frequency Counting**:
 
 ### Trace 1: Complement Lookup: Two Sum
 
-**Problem**: Return indices of two numbers that add up to `target`.
-**Input**: `nums = [3, 2, 4]`, `target = 6`
+**Problem**: Return indices of two numbers that add up to `target`. **Input**: `nums = [3, 2, 4]`, `target = 6`
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
@@ -224,8 +219,7 @@ Key observations:
 
 ### Trace 2: Frequency Map: Valid Anagram
 
-**Problem**: Is `t` a rearrangement of `s`?
-**Input**: `s = "anagram"`, `t = "nagaram"`
+**Problem**: Is `t` a rearrangement of `s`? **Input**: `s = "anagram"`, `t = "nagaram"`
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐

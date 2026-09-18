@@ -8,9 +8,7 @@
 
 **Practice:** [`practice/valid_palindrome/solution.py`](../../practice/valid_palindrome/solution.py)
 
-A phrase is a palindrome if, after converting all uppercase letters into lowercase letters and
-removing all non-alphanumeric characters, it reads the same forward and backward.
-Alphanumeric characters include letters and numbers.
+A phrase is a palindrome if, after converting all uppercase letters into lowercase letters and removing all non-alphanumeric characters, it reads the same forward and backward. Alphanumeric characters include letters and numbers.
 
 Given a string `s`, return `true` if it is a palindrome, or `false` otherwise.
 
@@ -38,8 +36,7 @@ Given a string `s`, return `true` if it is a palindrome, or `false` otherwise.
 
 **Output:** `true`
 
-**Explanation:** `s` is an empty string `""` after removing non-alphanumeric characters.
-Since an empty string reads the same forward and backward, it is a palindrome.
+**Explanation:** `s` is an empty string `""` after removing non-alphanumeric characters. Since an empty string reads the same forward and backward, it is a palindrome.
 
 ## Constraints
 
@@ -48,30 +45,16 @@ Since an empty string reads the same forward and backward, it is a palindrome.
 
 ## Deriving the Solution
 
-Every solution reads the problem as two independent jobs: normalize the string
-(keep only alphanumeric characters, fold uppercase onto lowercase) and test
-mirror symmetry on the normalized form. The approaches differ only in who does
-the normalizing and where the mirror test runs.
+Every solution reads the problem as two independent jobs: normalize the string (keep only alphanumeric characters, fold uppercase onto lowercase) and test mirror symmetry on the normalized form. The approaches differ only in who does the normalizing and where the mirror test runs.
 
 1. **Start literal.** Spell both rules out by hand: classify characters through
-   raw `ord` ranges, shift uppercase down to lowercase, collect the survivors,
-   and compare mirrored indices. Linear time, but an `O(n)` buffer and the most
-   verbose code: see [Brute Force](#brute-force).
+   raw `ord` ranges, shift uppercase down to lowercase, collect the survivors, and compare mirrored indices. Linear time, but an `O(n)` buffer and the most verbose code: see [Brute Force](#brute-force).
 2. **Hand the rules to the library.** `isalnum` and `lower` perform exactly the
-   range tests the brute force wrote out, in single optimized calls. Clean
-   first, then walk two pointers inward over the cleaned list. Simpler code,
-   same `O(n)` buffer: see
-   [Filter then Two Pointers](#filter-then-two-pointers).
+   range tests the brute force wrote out, in single optimized calls. Clean first, then walk two pointers inward over the cleaned list. Simpler code, same `O(n)` buffer: see [Filter then Two Pointers](#filter-then-two-pointers).
 3. **Spot the waste.** The cleaned buffer exists only to be read once by the
-   pointers. Let the pointers skip non-alphanumeric characters in place instead
-   and the buffer disappears, reaching `O(1)` space: see
-   [Two Pointers with Inline Filtering](#two-pointers-with-inline-filtering).
+   pointers. Let the pointers skip non-alphanumeric characters in place instead and the buffer disappears, reaching `O(1)` space: see [Two Pointers with Inline Filtering](#two-pointers-with-inline-filtering).
 4. **Shortcut family.** When the extra memory is acceptable, "reads the same
-   backward" is literally `cleaned == cleaned[::-1]`, one expression. Two
-   library-driven forms of the same idea: comprehension-based cleaning in
-   [Filter and Reverse](#filter-and-reverse), and `filter(str.isalnum, s)` with
-   a single `.lower()` call in
-   [Builtin Filter and Reverse](#builtin-filter-and-reverse).
+   backward" is literally `cleaned == cleaned[::-1]`, one expression. Two library-driven forms of the same idea: comprehension-based cleaning in [Filter and Reverse](#filter-and-reverse), and `filter(str.isalnum, s)` with a single `.lower()` call in [Builtin Filter and Reverse](#builtin-filter-and-reverse).
 
 ## Solutions
 
@@ -79,43 +62,28 @@ the normalizing and where the mirror test runs.
 
 #### Derivation
 
-The problem hinges on two rules: which characters count as alphanumeric, and
-how to fold uppercase onto lowercase. This first attempt asks what the check
-looks like when nothing is delegated to `str.isalnum` or `str.lower`. Both
-rules reduce to code-point arithmetic: a character survives when `ord(c)` falls
-in the digit range `'0'..'9'` or the lowercase range `'a'..'z'`, and an
-uppercase letter is folded by shifting its code point down by
-`ord('a') - ord('A')` (32). Once a cleaned list exists, "reads the same forward
-and backward" means position `i` must match its mirror `n - 1 - i`:
+The problem hinges on two rules: which characters count as alphanumeric, and how to fold uppercase onto lowercase. This first attempt asks what the check looks like when nothing is delegated to `str.isalnum` or `str.lower`. Both rules reduce to code-point arithmetic: a character survives when `ord(c)` falls in the digit range `'0'..'9'` or the lowercase range `'a'..'z'`, and an uppercase letter is folded by shifting its code point down by `ord('a') - ord('A')` (32). Once a cleaned list exists, "reads the same forward and backward" means position `i` must match its mirror `n - 1 - i`:
 
 1. Walk the input once. For each character, take its code point with `ord`.
 2. Keep it only when its code point falls inside the digit range `'0'..'9'` or
-   the lowercase range `'a'..'z'`. If it falls inside the uppercase range
-   `'A'..'Z'`, shift it down by `ord('a') - ord('A')` (32) to lowercase it before
-   keeping it. Discard everything else.
+   the lowercase range `'a'..'z'`. If it falls inside the uppercase range `'A'..'Z'`, shift it down by `ord('a') - ord('A')` (32) to lowercase it before keeping it. Discard everything else.
 3. Compare `cleaned[i]` with `cleaned[n - 1 - i]` for the first half of the
    cleaned list. Any mismatch means it is not a palindrome, so return `False`.
 4. If every mirrored pair agrees, return `True`.
 
-Defining the character classes through explicit code-point ranges is the core
-lesson here; the rest is the same mirror comparison every palindrome check uses.
+Defining the character classes through explicit code-point ranges is the core lesson here; the rest is the same mirror comparison every palindrome check uses.
 
 #### Walkthrough
 
 Trace the Brute Force solution on Example 1, `s = "A man, a plan, a canal: Panama"`.
 
-First, the cleaning pass walks every character once. Each letter is kept (and
-lowercased if it was uppercase) while spaces, commas, and the colon are dropped.
-`'A'` has code point `65`, inside the uppercase range, so it is shifted down by
-`32` to `'a'`; the spaces and punctuation fail every range test and are discarded.
-After this pass, `cleaned` holds:
+First, the cleaning pass walks every character once. Each letter is kept (and lowercased if it was uppercase) while spaces, commas, and the colon are dropped. `'A'` has code point `65`, inside the uppercase range, so it is shifted down by `32` to `'a'`; the spaces and punctuation fail every range test and are discarded. After this pass, `cleaned` holds:
 
 `['a','m','a','n','a','p','l','a','n','a','c','a','n','a','l','p','a','n','a','m','a']`
 
 That is the string `amanaplanacanalpanama`, so `n = 21`.
 
-Next, the mirror comparison checks `cleaned[i]` against `cleaned[n - 1 - i]` for
-`i` from `0` up to `n // 2 - 1`, that is `i = 0..9`:
+Next, the mirror comparison checks `cleaned[i]` against `cleaned[n - 1 - i]` for `i` from `0` up to `n // 2 - 1`, that is `i = 0..9`:
 
 | `i` | `cleaned[i]` | `n - 1 - i` | `cleaned[n - 1 - i]` | Match? |
 |-----|--------------|-------------|----------------------|--------|
@@ -130,15 +98,11 @@ Next, the mirror comparison checks `cleaned[i]` against `cleaned[n - 1 - i]` for
 | 8   | `n`          | 12          | `n`                  | yes    |
 | 9   | `a`          | 11          | `a`                  | yes    |
 
-Every mirrored pair agrees. The loop stops at `i = 10` because `21 // 2 == 10`,
-and index `10` (the middle `c`) mirrors itself, so it needs no check. No mismatch
-ever fired, so the function returns `True`, which matches the expected Output for
-Example 1.
+Every mirrored pair agrees. The loop stops at `i = 10` because `21 // 2 == 10`, and index `10` (the middle `c`) mirrors itself, so it needs no check. No mismatch ever fired, so the function returns `True`, which matches the expected Output for Example 1.
 
 #### Solution
 
-The code is the walkthrough written down: the hand-rolled cleaning pass
-followed by the half-length mirror comparison.
+The code is the walkthrough written down: the hand-rolled cleaning pass followed by the half-length mirror comparison.
 
 ```python
 class Solution:
@@ -162,13 +126,11 @@ class Solution:
 
 ##### Time Complexity: `O(n)`
 
-The cleaning pass touches each of the `n` characters once, and the mirror
-comparison walks at most half the cleaned list, so the work is linear.
+The cleaning pass touches each of the `n` characters once, and the mirror comparison walks at most half the cleaned list, so the work is linear.
 
 ##### Space Complexity: `O(n)`
 
-The `cleaned` list can hold up to `n` characters when every character is
-alphanumeric.
+The `cleaned` list can hold up to `n` characters when every character is alphanumeric.
 
 #### Key Insights
 
@@ -183,11 +145,7 @@ alphanumeric.
 
 #### Derivation
 
-The Brute Force spells the character rules out by hand, but Python already
-ships them: `c.isalnum()` performs the same range tests and `c.lower()` the
-same case fold, each in one optimized call. Delegating the normalization
-leaves only the mirror test, and a natural way to phrase that test is with two
-pointers marching toward each other from the ends of the cleaned list:
+The Brute Force spells the character rules out by hand, but Python already ships them: `c.isalnum()` performs the same range tests and `c.lower()` the same case fold, each in one optimized call. Delegating the normalization leaves only the mirror test, and a natural way to phrase that test is with two pointers marching toward each other from the ends of the cleaned list:
 
 1. Walk the input once, keeping only the characters for which `isalnum()` is
    true and converting each to lowercase. Collect them into a list `filtered`.
@@ -199,15 +157,11 @@ pointers marching toward each other from the ends of the cleaned list:
 5. If the pointers meet without a mismatch, every mirrored pair agreed, so return
    `True`.
 
-Separating the cleaning step from the comparison step keeps each phase simple at
-the cost of an extra pass and an `O(n)` buffer.
+Separating the cleaning step from the comparison step keeps each phase simple at the cost of an extra pass and an `O(n)` buffer.
 
 #### Walkthrough
 
-Trace the solution on Example 2, `s = "race a car"`, which exercises the
-mismatch exit. The cleaning pass keeps the eight letters and drops the two
-spaces (nothing needs lowercasing), then the pointers start at the ends of
-`filtered` and walk inward:
+Trace the solution on Example 2, `s = "race a car"`, which exercises the mismatch exit. The cleaning pass keeps the eight letters and drops the two spaces (nothing needs lowercasing), then the pointers start at the ends of `filtered` and walk inward:
 
 ```text
 filtered = ['r','a','c','e','a','c','a','r']    from "race a car", spaces dropped
@@ -217,13 +171,11 @@ left=2 'c'   right=5 'c'    match; move both inward
 left=3 'e'   right=4 'a'    mismatch -> return False
 ```
 
-The fourth comparison pits `'e'` against `'a'` and fails, so the function
-returns `False` immediately, matching the expected Output for Example 2.
+The fourth comparison pits `'e'` against `'a'` and fails, so the function returns `False` immediately, matching the expected Output for Example 2.
 
 #### Solution
 
-The code is the two-phase plan from the walkthrough: build `filtered`, then
-close the pointers over it.
+The code is the two-phase plan from the walkthrough: build `filtered`, then close the pointers over it.
 
 ```python
 class Solution:
@@ -242,13 +194,11 @@ class Solution:
 
 ##### Time Complexity: `O(n)`
 
-Building `filtered` visits each of the `n` characters once, and the two-pointer
-scan visits each surviving character at most once, so the work is linear.
+Building `filtered` visits each of the `n` characters once, and the two-pointer scan visits each surviving character at most once, so the work is linear.
 
 ##### Space Complexity: `O(n)`
 
-The `filtered` list can hold up to `n` characters when every character is
-alphanumeric.
+The `filtered` list can hold up to `n` characters when every character is alphanumeric.
 
 #### Key Insights
 
@@ -261,17 +211,12 @@ alphanumeric.
 
 #### Derivation
 
-The previous approach still pays `O(n)` memory for `filtered`, a buffer built
-only to be read once by the pointers. The repair is to filter on the fly:
-instead of materializing a cleaned string, the [pointers](https://usaco.guide/silver/two-pointers) skip past non-alphanumeric
-characters as they advance over the original `s`, lowercasing only the two
-characters actually being compared:
+The previous approach still pays `O(n)` memory for `filtered`, a buffer built only to be read once by the pointers. The repair is to filter on the fly: instead of materializing a cleaned string, the [pointers](https://usaco.guide/silver/two-pointers) skip past non-alphanumeric characters as they advance over the original `s`, lowercasing only the two characters actually being compared:
 
 1. Start `left` at index `0` and `right` at the last index of the original
    string `s`.
 2. While `left < right`, first advance `left` rightward past any character that
-   is not alphanumeric, and advance `right` leftward past any such character.
-   Each inner loop keeps the `left < right` guard so the pointers never cross.
+   is not alphanumeric, and advance `right` leftward past any such character. Each inner loop keeps the `left < right` guard so the pointers never cross.
 3. Compare `s[left].lower()` with `s[right].lower()`. If they differ, return
    `False`.
 4. Move both pointers one step inward and continue.
@@ -280,10 +225,7 @@ characters actually being compared:
 
 #### Walkthrough
 
-Trace the pointers on Example 1, `s = "A man, a plan, a canal: Panama"`, whose
-punctuation exercises the skip loops on both sides. Indices run `0..29`; each
-line below is one skip or one comparison, with both compared characters shown
-after lowercasing:
+Trace the pointers on Example 1, `s = "A man, a plan, a canal: Panama"`, whose punctuation exercises the skip loops on both sides. Indices run `0..29`; each line below is one skip or one comparison, with both compared characters shown after lowercasing:
 
 ```text
 compare s[0]='A'  ~ s[29]='a'   'a' == 'a', match; left=1,  right=28
@@ -306,16 +248,11 @@ compare s[17]='c' ~ s[17]='c'   pointers met on the middle 'c'; match
 exit    left=18 > right=16      loop condition fails -> return True
 ```
 
-Every skip line is punctuation being filtered inline, work the previous
-approach did in a separate pass. The final comparison harmlessly checks the
-middle `'c'` against itself because the left skip loop stopped at
-`left == right`. No mismatch ever fired, so the function returns `True`,
-matching the expected Output for Example 1.
+Every skip line is punctuation being filtered inline, work the previous approach did in a separate pass. The final comparison harmlessly checks the middle `'c'` against itself because the left skip loop stopped at `left == right`. No mismatch ever fired, so the function returns `True`, matching the expected Output for Example 1.
 
 #### Solution
 
-The code is the skip-then-compare loop from the walkthrough, run directly on
-the original string.
+The code is the skip-then-compare loop from the walkthrough, run directly on the original string.
 
 ```python
 class Solution:
@@ -337,8 +274,7 @@ class Solution:
 
 ##### Time Complexity: `O(n)`
 
-Each pointer only ever moves toward the other, so across the whole run every
-character is examined a constant number of times.
+Each pointer only ever moves toward the other, so across the whole run every character is examined a constant number of times.
 
 ##### Space Complexity: `O(1)`
 
@@ -349,8 +285,7 @@ Only the two integer pointers are stored; no copy of the input is made.
 - Skipping non-alphanumeric characters inline avoids the separate cleaning pass
   and the `O(n)` buffer it requires.
 - The inner `while` loops must retain the `left < right` condition; otherwise a
-  string of only punctuation could advance a pointer past the other and index out
-  of bounds.
+  string of only punctuation could advance a pointer past the other and index out of bounds.
 - Lowercasing a single character during the comparison keeps the original string
   untouched.
 
@@ -358,11 +293,7 @@ Only the two integer pointers are stored; no copy of the input is made.
 
 #### Derivation
 
-The pointer solutions phrase "reads the same backward" as a loop, but the
-phrase also names a single comparison: a cleaned string is a palindrome exactly
-when it equals its own reverse. Python's slice `cleaned[::-1]` produces that
-reverse directly, so when clarity matters more than memory the whole check
-collapses into one expression:
+The pointer solutions phrase "reads the same backward" as a loop, but the phrase also names a single comparison: a cleaned string is a palindrome exactly when it equals its own reverse. Python's slice `cleaned[::-1]` produces that reverse directly, so when clarity matters more than memory the whole check collapses into one expression:
 
 1. Use a generator expression to keep only alphanumeric characters and lowercase
    each one, joining them into the string `cleaned`.
@@ -371,9 +302,7 @@ collapses into one expression:
 
 #### Walkthrough
 
-Trace the expression on Example 2, `s = "race a car"`. The generator keeps the
-eight letters and drops the spaces, the slice reverses the result, and the
-equality test compares the two strings position by position:
+Trace the expression on Example 2, `s = "race a car"`. The generator keeps the eight letters and drops the spaces, the slice reverses the result, and the equality test compares the two strings position by position:
 
 ```text
 cleaned        = "raceacar"    letters kept, spaces dropped
@@ -383,14 +312,11 @@ compare          raceacar
                     ^          first difference at index 3: 'e' vs 'a'
 ```
 
-Reversing swaps the unmatched `'e'` and `'a'` around the center, so the two
-strings differ at index `3` and the equality test is `False`, matching the
-expected Output for Example 2.
+Reversing swaps the unmatched `'e'` and `'a'` around the center, so the two strings differ at index `3` and the equality test is `False`, matching the expected Output for Example 2.
 
 #### Solution
 
-The code is the comparison from the walkthrough: clean once, reverse by slice,
-test equality.
+The code is the comparison from the walkthrough: clean once, reverse by slice, test equality.
 
 ```python
 class Solution:
@@ -407,8 +333,7 @@ Cleaning the string and producing its reverse each touch every character once.
 
 ##### Space Complexity: `O(n)`
 
-Both `cleaned` and its reversed slice are new strings whose size grows with the
-input.
+Both `cleaned` and its reversed slice are new strings whose size grows with the input.
 
 #### Key Insights
 
@@ -421,10 +346,7 @@ input.
 
 #### Derivation
 
-The previous form still lowercases character by character inside the
-comprehension. The most library-driven form pushes even that to the standard
-library: delegate the filtering to the built-in `filter` and lowercase the
-whole joined result in one call:
+The previous form still lowercases character by character inside the comprehension. The most library-driven form pushes even that to the standard library: delegate the filtering to the built-in `filter` and lowercase the whole joined result in one call:
 
 1. Pass the unbound method `str.isalnum` and the string `s` to `filter`, which
    yields only the alphanumeric characters.
@@ -434,8 +356,7 @@ whole joined result in one call:
 
 #### Walkthrough
 
-Trace the expression on Example 3, `s = " "`, the corner case where nothing
-survives the filter:
+Trace the expression on Example 3, `s = " "`, the corner case where nothing survives the filter:
 
 ```text
 filter(str.isalnum, " ")   yields nothing: the lone space fails isalnum
@@ -444,9 +365,7 @@ cleaned[::-1] = ""         reversing the empty string gives the empty string
 "" == ""                   -> True
 ```
 
-With no characters left, `cleaned` and its reverse are both the empty string,
-so the equality holds and the function returns `True`, matching the expected
-Output for Example 3: an empty string reads the same forward and backward.
+With no characters left, `cleaned` and its reverse are both the empty string, so the equality holds and the function returns `True`, matching the expected Output for Example 3: an empty string reads the same forward and backward.
 
 #### Solution
 
@@ -461,8 +380,7 @@ class Solution:
 
 ##### Time Complexity: `O(n)`
 
-`filter`, `join`, `lower`, and the reversal each process the characters a
-constant number of times.
+`filter`, `join`, `lower`, and the reversal each process the characters a constant number of times.
 
 ##### Space Complexity: `O(n)`
 
@@ -516,8 +434,7 @@ The joined string and its reversed copy both scale with the input length.
 ### Optimization Notes
 
 - The Brute Force form spells out alphanumeric and case-fold logic with `ord`
-  arithmetic; the other forms hand that work to `isalnum` and `lower`, which do
-  the same checks in a single optimized C-level call.
+  arithmetic; the other forms hand that work to `isalnum` and `lower`, which do the same checks in a single optimized C-level call.
 - The inline two-pointer approach processes the input in place and never builds a
   cleaned copy, making it the most memory-efficient option.
 - In the inline approach, retaining the `left < right` guard inside both skip

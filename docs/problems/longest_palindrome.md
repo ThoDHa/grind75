@@ -41,28 +41,16 @@ Letters are case sensitive, for example, "Aa" is not considered a palindrome her
 
 ## Deriving the Solution
 
-A palindrome mirrors around its center, so its characters occur in pairs, with at
-most one unpaired character sitting in the exact middle. Every solution below
-computes the same quantity, the number of characters that can pair up plus one
-center character when any letter is left over, and they differ only in how the
-pairing is counted.
+A palindrome mirrors around its center, so its characters occur in pairs, with at most one unpaired character sitting in the exact middle. Every solution below computes the same quantity, the number of characters that can pair up plus one center character when any letter is left over, and they differ only in how the pairing is counted.
 
 1. **Count, then pair.** Tally each character's frequency in a dictionary, keep
-   the largest even part of every count, and add `1` if any count is odd. Two
-   simple passes answer the question in `O(n)`: see [Brute Force](#brute-force).
+   the largest even part of every count, and add `1` if any count is odd. Two simple passes answer the question in `O(n)`: see [Brute Force](#brute-force).
 2. **Pair as you read.** The counts are only ever used to extract pairs, so the
-   pairs can be collected on the fly instead: a set holds characters still
-   waiting for a partner, and each arrival either completes a pair or joins the
-   waiting set. One pass, no per-count arithmetic: see
-   [Set-based Pair Matching](#set-based-pair-matching).
+   pairs can be collected on the fly instead: a set holds characters still waiting for a partner, and each arrival either completes a pair or joins the waiting set. One pass, no per-count arithmetic: see [Set-based Pair Matching](#set-based-pair-matching).
 3. **Subtract instead of add.** Summing even parts count by count is more work
-   than needed: every discarded character comes from an odd count, and exactly
-   one leftover may stay as the center. Start from `len(s)`, subtract one per odd
-   count, and credit one back: see
-   [Character Frequency Counting with Odd Character Tracking](#character-frequency-counting-with-odd-character-tracking).
+   than needed: every discarded character comes from an odd count, and exactly one leftover may stay as the center. Start from `len(s)`, subtract one per odd count, and credit one back: see [Character Frequency Counting with Odd Character Tracking](#character-frequency-counting-with-odd-character-tracking).
 4. **Let the library count.** The counting pass in step 1 is exactly what
-   `collections.Counter` provides, so delegating it leaves only the pair
-   arithmetic: see [Counter Frequency Tally](#counter-frequency-tally).
+   `collections.Counter` provides, so delegating it leaves only the pair arithmetic: see [Counter Frequency Tally](#counter-frequency-tally).
 
 ## Solutions
 
@@ -111,8 +99,7 @@ The function returns `7`, which matches the example's expected Output.
 
 #### Solution
 
-The code is the walkthrough's two passes written down: count every character,
-then take the even part of each count.
+The code is the walkthrough's two passes written down: count every character, then take the even part of each count.
 
 ```python
 class Solution:
@@ -161,11 +148,7 @@ class Solution:
 
 #### Derivation
 
-The Brute Force spends one pass counting and a second pass pairing, yet the
-counts themselves are never needed: only the pairs are. Can the pairs be
-collected while reading the string? A [set](https://en.wikipedia.org/wiki/Hash_table) `chars` of characters still waiting
-for a partner does exactly that: each incoming character either completes a pair
-with its waiting twin or becomes a waiter itself.
+The Brute Force spends one pass counting and a second pass pairing, yet the counts themselves are never needed: only the pairs are. Can the pairs be collected while reading the string? A [set](https://en.wikipedia.org/wiki/Hash_table) `chars` of characters still waiting for a partner does exactly that: each incoming character either completes a pair with its waiting twin or becomes a waiter itself.
 
 1. For each character in the string:
     - If it's already in the set, we've found a pair. Remove it from the set and increase `count` by 2.
@@ -174,9 +157,7 @@ with its waiting twin or becomes a waiter itself.
 
 #### Walkthrough
 
-Let us run the pairing set on Example 1: `s = "abccccdd"`. Each line shows the
-character read, whether it found its partner waiting in `chars`, and the state
-afterward:
+Let us run the pairing set on Example 1: `s = "abccccdd"`. Each line shows the character read, whether it found its partner waiting in `chars`, and the state afterward:
 
 ```text
 c = a   not in chars -> add     chars = {a}          count = 0
@@ -189,15 +170,11 @@ c = d   not in chars -> add     chars = {a, b, d}    count = 4
 c = d   in chars -> pair        chars = {a, b}       count = 6
 ```
 
-Three pairs formed (`cc`, `cc`, `dd`), contributing `6`. The set still holds
-`{a, b}`: two characters never found a partner, and one of them may sit in the
-center, so `count` becomes `7`. The function returns `7`, matching the expected
-Output for Example 1.
+Three pairs formed (`cc`, `cc`, `dd`), contributing `6`. The set still holds `{a, b}`: two characters never found a partner, and one of them may sit in the center, so `count` becomes `7`. The function returns `7`, matching the expected Output for Example 1.
 
 #### Solution
 
-The code is the walkthrough's pairing loop, followed by the center check on the
-leftover set.
+The code is the walkthrough's pairing loop, followed by the center check on the leftover set.
 
 ```python
 class Solution:
@@ -242,12 +219,7 @@ class Solution:
 
 #### Derivation
 
-Both approaches so far build the answer upward by adding pairs, doing a little
-arithmetic for every distinct count. Work backward from `len(s)` instead: every
-character would be usable if nothing were unpaired, and only odd frequencies
-leave an unpaired character behind. Each odd frequency forces exactly one
-discard, except that one leftover may stay as the center, so counting the odd
-frequencies is all the arithmetic needed:
+Both approaches so far build the answer upward by adding pairs, doing a little arithmetic for every distinct count. Work backward from `len(s)` instead: every character would be usable if nothing were unpaired, and only odd frequencies leave an unpaired character behind. Each odd frequency forces exactly one discard, except that one leftover may stay as the center, so counting the odd frequencies is all the arithmetic needed:
 
 1. Create a [hash map](https://en.wikipedia.org/wiki/Hash_table) (dictionary) `counter` to store the count of each character.
 2. Initialize an odd counter at `-1`, which pre-credits one odd character as the allowed center.
@@ -258,36 +230,23 @@ frequencies is all the arithmetic needed:
 
 #### Closed Form
 
-A palindrome uses each character in mirrored pairs, with at most one unpaired
-character allowed in the exact middle. So with \(c_x\) the frequency of
-character `x`, the answer is a direct formula rather than a search:
+A palindrome uses each character in mirrored pairs, with at most one unpaired character allowed in the exact middle. So with \(c_x\) the frequency of character `x`, the answer is a direct formula rather than a search:
 
-$$
-\text{answer} = \sum_{x} 2\left\lfloor \frac{c_x}{2} \right\rfloor
-\ + \ \bigl[\, \exists\, x : c_x \text{ is odd} \,\bigr]
-$$
+$$ \text{answer} = \sum_{x} 2\left\lfloor \frac{c_x}{2} \right\rfloor \ + \ \bigl[\, \exists\, x : c_x \text{ is odd} \,\bigr] $$
 
 ```text
 answer = sum over x of 2 * (counter[x] // 2)
          + 1 if counter[x] is odd for some x, else + 0
 ```
 
-The floor-halve-and-double term keeps the largest even portion of each
-frequency; the bracket adds `1` if any character has a leftover, since exactly
-one leftover may occupy the center.
+The floor-halve-and-double term keeps the largest even portion of each frequency; the bracket adds `1` if any character has a leftover, since exactly one leftover may occupy the center.
 
-This solution evaluates the same quantity from the other direction. Writing
-\(k\) for the number of characters with odd frequency:
+This solution evaluates the same quantity from the other direction. Writing \(k\) for the number of characters with odd frequency:
 
-$$
-\sum_{x} 2\left\lfloor \frac{c_x}{2} \right\rfloor = |s| - k
-\qquad\Longrightarrow\qquad
-\text{answer} =
-\begin{cases}
+$$ \sum_{x} 2\left\lfloor \frac{c_x}{2} \right\rfloor = |s| - k \qquad\Longrightarrow\qquad \text{answer} = \begin{cases}
 |s|, & k = 0 \\[4pt]
 |s| - k + 1, & k \ge 1
-\end{cases}
-$$
+\end{cases} $$
 
 ```text
 sum over x of 2 * (counter[x] // 2) = len(s) - k
@@ -297,17 +256,11 @@ answer = len(s) - k + 1  for k >= 1
          where k = number of characters x with counter[x] odd
 ```
 
-because each odd-frequency character contributes exactly one discarded unit.
-That is why the code initializes its counter at `-1`: pre-crediting the one
-character allowed in the center folds the `+1` into the subtraction, collapsing
-both cases into `len(s) - odd`.
+because each odd-frequency character contributes exactly one discarded unit. That is why the code initializes its counter at `-1`: pre-crediting the one character allowed in the center folds the `+1` into the subtraction, collapsing both cases into `len(s) - odd`.
 
 #### Walkthrough
 
-Let us trace on Example 1: `s = "abccccdd"`, so `len(s) = 8`. The counting pass
-fills `counter` exactly as in the Brute Force walkthrough, one increment per
-character, ending at `{a: 1, b: 1, c: 4, d: 2}`. The second pass tallies odd
-frequencies, starting from the pre-credit `odd = -1`:
+Let us trace on Example 1: `s = "abccccdd"`, so `len(s) = 8`. The counting pass fills `counter` exactly as in the Brute Force walkthrough, one increment per character, ending at `{a: 1, b: 1, c: 4, d: 2}`. The second pass tallies odd frequencies, starting from the pre-credit `odd = -1`:
 
 ```text
 start          odd = -1    pre-credit: one odd character may be the center
@@ -317,14 +270,11 @@ c: 4   even    odd = 1
 d: 2   even    odd = 1
 ```
 
-Two characters (`a` and `b`) have odd counts; the pre-credit absorbs the first,
-leaving `odd = 1` genuine discard. Since `odd > 0`, the answer is
-`len(s) - odd = 8 - 1 = 7`, matching the expected Output for Example 1.
+Two characters (`a` and `b`) have odd counts; the pre-credit absorbs the first, leaving `odd = 1` genuine discard. Since `odd > 0`, the answer is `len(s) - odd = 8 - 1 = 7`, matching the expected Output for Example 1.
 
 #### Solution
 
-The code is the count-then-subtract pass from the walkthrough, with the center
-credit folded into the `-1` initialization.
+The code is the count-then-subtract pass from the walkthrough, with the center credit folded into the `-1` initialization.
 
 ```python
 class Solution:
@@ -371,13 +321,7 @@ class Solution:
 
 #### Derivation
 
-The manual counting loop that opens every approach above is boilerplate the
-standard library already provides:
-[`collections.Counter`](https://docs.python.org/3/library/collections.html#collections.Counter)
-performs the same frequency tally in one call. What remains is the pair
-arithmetic, tightened with a bitwise touch: `freq & 1` is `1` when `freq` is odd
-and `0` when even, so it both detects odd counts and trims the unpaired
-character off each odd group in a single expression.
+The manual counting loop that opens every approach above is boilerplate the standard library already provides: [`collections.Counter`](https://docs.python.org/3/library/collections.html#collections.Counter) performs the same frequency tally in one call. What remains is the pair arithmetic, tightened with a bitwise touch: `freq & 1` is `1` when `freq` is odd and `0` when even, so it both detects odd counts and trims the unpaired character off each odd group in a single expression.
 
 1. Build a `Counter` over `s`, mapping each character to its frequency.
 2. For each frequency, add its largest even part (`freq - (freq & 1)`) to the running `length`, since pairs of characters always contribute to a palindrome.
@@ -386,10 +330,7 @@ character off each odd group in a single expression.
 
 #### Walkthrough
 
-Let us trace on Example 1: `s = "abccccdd"`. `Counter(s)` is the library's
-version of the counting pass and yields `counts = {a: 1, b: 1, c: 4, d: 2}`. The
-loop then processes each frequency, starting from `length = 0` and
-`has_odd = False`:
+Let us trace on Example 1: `s = "abccccdd"`. `Counter(s)` is the library's version of the counting pass and yields `counts = {a: 1, b: 1, c: 4, d: 2}`. The loop then processes each frequency, starting from `length = 0` and `has_odd = False`:
 
 ```text
 freq = 1  (a)   freq & 1 = 1   length += 1 - 1 = 0 -> 0    has_odd = True
@@ -398,9 +339,7 @@ freq = 4  (c)   freq & 1 = 0   length += 4 - 0 = 4 -> 4    has_odd stays True
 freq = 2  (d)   freq & 1 = 0   length += 2 - 0 = 2 -> 6    has_odd stays True
 ```
 
-The even parts contribute `6`, and because `has_odd` is `True` one leftover
-character may occupy the center: the function returns `6 + 1 = 7`, matching the
-expected Output for Example 1.
+The even parts contribute `6`, and because `has_odd` is `True` one leftover character may occupy the center: the function returns `6 + 1 = 7`, matching the expected Output for Example 1.
 
 #### Solution
 

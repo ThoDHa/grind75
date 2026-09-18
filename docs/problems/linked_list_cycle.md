@@ -54,25 +54,16 @@ Return `true` if there is a cycle in the linked list. Otherwise, return `false`.
 
 ## Deriving the Solution
 
-A cycle shows itself in exactly one way: following `next` pointers revisits a
-node instead of reaching null. Every solution below is a different way of
-noticing that revisit.
+A cycle shows itself in exactly one way: following `next` pointers revisits a node instead of reaching null. Every solution below is a different way of noticing that revisit.
 
 1. **Start literal.** Do not detect the revisit at all: just walk, and if the
-   walk outlives the largest list the constraints allow (`10^4` nodes), the
-   pointers must be looping. Constant space, but the argument leans on a known
-   size cap rather than on the list itself: see [Brute Force](#brute-force).
+   walk outlives the largest list the constraints allow (`10^4` nodes), the pointers must be looping. Constant space, but the argument leans on a known size cap rather than on the list itself: see [Brute Force](#brute-force).
 2. **Remember where you have been.** Detect the revisit directly: store every
-   visited node in a set and stop the moment one repeats. Works for any list,
-   but spends `O(n)` memory remembering the past: see [Hash Set](#hash-set).
+   visited node in a set and stop the moment one repeats. Works for any list, but spends `O(n)` memory remembering the past: see [Hash Set](#hash-set).
 3. **Store the memory in the list.** The set only records one bit per node,
-   "visited"; write that bit into the nodes themselves as a sentinel value.
-   Space drops to `O(1)`, but the caller's list is destroyed in the process:
-   see [Marking Visited Nodes](#marking-visited-nodes).
+   "visited"; write that bit into the nodes themselves as a sentinel value. Space drops to `O(1)`, but the caller's list is destroyed in the process: see [Marking Visited Nodes](#marking-visited-nodes).
 4. **Race two pointers.** Replace memory with relative motion: a fast pointer
-   gains one node per step on a slow one, so inside any cycle it must catch it,
-   and on an acyclic list it simply runs off the end. Constant space, no
-   mutation, no size cap: see [Floyd's Cycle Detection](#floyds-cycle-detection).
+   gains one node per step on a slow one, so inside any cycle it must catch it, and on an acyclic list it simply runs off the end. Constant space, no mutation, no size cap: see [Floyd's Cycle Detection](#floyds-cycle-detection).
 
 ## Solutions
 
@@ -80,11 +71,7 @@ noticing that revisit.
 
 #### Derivation
 
-The most direct idea uses no extra data structure at all: just walk the list
-and count steps. A list without a cycle has at most `n` nodes, so following
-`next` pointers must reach a null terminator within `n` steps. If we keep
-walking past the largest list the constraints allow, the only explanation is
-that the pointers loop back on themselves.
+The most direct idea uses no extra data structure at all: just walk the list and count steps. A list without a cycle has at most `n` nodes, so following `next` pointers must reach a null terminator within `n` steps. If we keep walking past the largest list the constraints allow, the only explanation is that the pointers loop back on themselves.
 
 1. Read the upper bound on the node count from the constraints (`10^4`) and use
    it as the step budget `MAX_NODES`.
@@ -92,8 +79,7 @@ that the pointers loop back on themselves.
 3. If `steps` ever exceeds the budget, declare a cycle; if traversal reaches
    null first, declare no cycle.
 
-This is correct because the budget is the maximum possible chain length: any
-walk longer than that cannot be a simple acyclic chain.
+This is correct because the budget is the maximum possible chain length: any walk longer than that cannot be a simple acyclic chain.
 
 #### Walkthrough
 
@@ -114,8 +100,7 @@ For this acyclic list the result is `false`. Example 1 itself has a cycle (`pos 
 
 #### Solution
 
-The code is the walkthrough's counted walk, with the budget check at the top of
-each step.
+The code is the walkthrough's counted walk, with the budget check at the top of each step.
 
 ```python
 # Definition for singly-linked list.
@@ -161,13 +146,7 @@ Only a counter and the traversal pointer are kept, regardless of input size.
 
 #### Derivation
 
-The Brute Force never actually observes a revisit; it infers a cycle from a
-size cap that only the constraints happen to provide, so it fails to generalize
-to lists of unknown size. Detect the revisit itself instead: a cycle exists
-exactly when the walk reaches some node a second time, so remember every node
-visited so far in a [hash set](https://en.wikipedia.org/wiki/Hash_table) and
-stop when one repeats. The set stores node objects, not values, so duplicate
-values in distinct nodes cannot cause a false positive.
+The Brute Force never actually observes a revisit; it infers a cycle from a size cap that only the constraints happen to provide, so it fails to generalize to lists of unknown size. Detect the revisit itself instead: a cycle exists exactly when the walk reaches some node a second time, so remember every node visited so far in a [hash set](https://en.wikipedia.org/wiki/Hash_table) and stop when one repeats. The set stores node objects, not values, so duplicate values in distinct nodes cannot cause a false positive.
 
 1. Start with an empty set `seen`.
 2. Walk the list; at each node, if `head` is already in `seen`, return `True`.
@@ -176,9 +155,7 @@ values in distinct nodes cannot cause a false positive.
 
 #### Walkthrough
 
-Trace the set on Example 1: `head = [3,2,0,-4]`, `pos = 1`. Label the four
-nodes `n0` through `n3` by position, since the set keys on node identity, not
-value; `pos = 1` means the tail `n3` points back to `n1`:
+Trace the set on Example 1: `head = [3,2,0,-4]`, `pos = 1`. Label the four nodes `n0` through `n3` by position, since the set keys on node identity, not value; `pos = 1` means the tail `n3` points back to `n1`:
 
 ```text
 visit n0 (val 3)     n0 not in seen -> seen = {n0}
@@ -188,9 +165,7 @@ visit n3 (val -4)    n3 not in seen -> seen = {n0, n1, n2, n3}
 visit n1 (val 2)     n1 in seen -> return True
 ```
 
-Following `n3.next` lands back on `n1`, the node the tail connects to. The
-membership test recognizes the same object it added on the second step, and
-the function returns `True`, matching Example 1's expected Output.
+Following `n3.next` lands back on `n1`, the node the tail connects to. The membership test recognizes the same object it added on the second step, and the function returns `True`, matching Example 1's expected Output.
 
 #### Solution
 
@@ -236,12 +211,7 @@ We store each node in the hash set, which in the worst case would contain all `n
 
 #### Derivation
 
-The hash set spends `O(n)` memory to remember a single bit per node: "visited".
-The list itself can carry that bit. Overwrite each visited node's value with a
-sentinel that no real node holds (`float('inf')` is safe here because the
-constraints bound values by `10^5`); encountering the sentinel again means the
-walk has come back around. The price is mutating the caller's list, which is
-not always permitted.
+The hash set spends `O(n)` memory to remember a single bit per node: "visited". The list itself can carry that bit. Overwrite each visited node's value with a sentinel that no real node holds (`float('inf')` is safe here because the constraints bound values by `10^5`); encountering the sentinel again means the walk has come back around. The price is mutating the caller's list, which is not always permitted.
 
 1. Walk the list from `head`.
 2. If `head.val` equals the sentinel, this node was visited before, so return
@@ -252,8 +222,7 @@ not always permitted.
 
 #### Walkthrough
 
-Trace the marking on Example 1: `head = [3,2,0,-4]`, `pos = 1`, with the nodes
-labeled `n0` through `n3` and the tail `n3` pointing back to `n1`:
+Trace the marking on Example 1: `head = [3,2,0,-4]`, `pos = 1`, with the nodes labeled `n0` through `n3` and the tail `n3` pointing back to `n1`:
 
 ```text
 visit n0 (val 3)      not inf -> n0.val = inf, advance to n1
@@ -263,10 +232,7 @@ visit n3 (val -4)     not inf -> n3.val = inf, advance to n3.next = n1
 visit n1 (val inf)    head.val == inf -> return True
 ```
 
-When the walk wraps back to `n1`, the sentinel written on the second step is
-still there, so the check fires and the function returns `True`, matching
-Example 1's expected Output. Note that all four original values have been
-destroyed along the way.
+When the walk wraps back to `n1`, the sentinel written on the second step is still there, so the check fires and the function returns `True`, matching Example 1's expected Output. Note that all four original values have been destroyed along the way.
 
 #### Solution
 
@@ -311,16 +277,7 @@ We don't use any extra data structures that scale with input size.
 
 #### Derivation
 
-Marking reaches `O(1)` space only by damaging the list.
-[Floyd's Cycle-Finding Algorithm](https://en.wikipedia.org/wiki/Cycle_detection),
-the "tortoise and hare", achieves `O(1)` space with the list untouched by
-replacing memory with relative motion: run two pointers from the head, `slow`
-advancing one step per iteration and `fast` advancing two. On an acyclic list
-`fast` simply reaches the end. Inside a cycle, `fast` gains on `slow` by
-exactly one node per iteration (`gap = (gap - 1) mod L`, where `L` is the cycle
-length), so the gap cannot skip past zero: the pointers must meet, and meeting
-is the proof of a cycle. The Invariant below states that argument formally,
-along with why `fast.next` reaching null is the correct no-cycle exit.
+Marking reaches `O(1)` space only by damaging the list. [Floyd's Cycle-Finding Algorithm](https://en.wikipedia.org/wiki/Cycle_detection), the "tortoise and hare", achieves `O(1)` space with the list untouched by replacing memory with relative motion: run two pointers from the head, `slow` advancing one step per iteration and `fast` advancing two. On an acyclic list `fast` simply reaches the end. Inside a cycle, `fast` gains on `slow` by exactly one node per iteration (`gap = (gap - 1) mod L`, where `L` is the cycle length), so the gap cannot skip past zero: the pointers must meet, and meeting is the proof of a cycle. The Invariant below states that argument formally, along with why `fast.next` reaching null is the correct no-cycle exit.
 
 1. Start `slow = head` and `fast = head`.
 2. Each iteration, advance `slow = slow.next` and `fast = fast.next.next`,
@@ -331,15 +288,9 @@ along with why `fast.next` reaching null is the correct no-cycle exit.
 
 #### Invariant
 
-Suppose the list contains a cycle of length \(L\). Once both pointers are inside
-that cycle, let \(d\) be the forward distance from `fast` to `slow` around it:
-the number of `next` steps `fast` still needs to take to land on `slow`, so
-\(0 \le d < L\). Each iteration moves `slow` one step forward (adding \(1\) to
-the gap) and `fast` two steps forward (subtracting \(2\)):
+Suppose the list contains a cycle of length \(L\). Once both pointers are inside that cycle, let \(d\) be the forward distance from `fast` to `slow` around it: the number of `next` steps `fast` still needs to take to land on `slow`, so \(0 \le d < L\). Each iteration moves `slow` one step forward (adding \(1\) to the gap) and `fast` two steps forward (subtracting \(2\)):
 
-$$
-d_{k+1} = (d_k + 1 - 2) \bmod L = (d_k - 1) \bmod L
-$$
+$$ d_{k+1} = (d_k + 1 - 2) \bmod L = (d_k - 1) \bmod L $$
 
 ```text
 d[k + 1] = (d[k] + 1 - 2) mod L = (d[k] - 1) mod L
@@ -347,40 +298,15 @@ d[k + 1] = (d[k] + 1 - 2) mod L = (d[k] - 1) mod L
            0 <= d[k] < L, and L = cycle length
 ```
 
-The gap closes by *exactly* one node per iteration, and that exactness is what
-makes the 2:1 ratio non-arbitrary rather than a convention. A quantity that
-decreases by one cannot step over zero, so the pointers can never pass each
-other unmet. Since \(d_0 < L\), the gap reaches \(0\) within \(L\) iterations,
-and \(d = 0\) is precisely the condition `slow == fast`. The `return True` is
-therefore forced after at most one cycle length of passes, which is where the
-`O(n)` bound comes from.
+The gap closes by *exactly* one node per iteration, and that exactness is what makes the 2:1 ratio non-arbitrary rather than a convention. A quantity that decreases by one cannot step over zero, so the pointers can never pass each other unmet. Since \(d_0 < L\), the gap reaches \(0\) within \(L\) iterations, and \(d = 0\) is precisely the condition `slow == fast`. The `return True` is therefore forced after at most one cycle length of passes, which is where the `O(n)` bound comes from.
 
-A faster hare does not lose the meeting, but it does lose this argument. With
-`fast` advancing three steps the gap changes by \(-2\) each pass, and a quantity
-falling by two can step over \(0\) instead of landing on it, so nothing about
-termination follows from the invariant alone. It still meets here, but only for reasons
-outside the invariant, and they differ by parity. When \(L\) is even, the entry
-offsets save it: both pointers start at the head, so `slow` enters the cycle after
-\(\mu\) steps with `fast` at in-cycle offset \(2\mu\), forcing \(d_0\) even, and a
-gap falling by two then lands on \(0\) rather than stepping over it. When \(L\) is
-odd, \(d_0\) is no longer forced even, so the gap can step over \(0\) and wrap, and
-meeting then rests on something else: \(2\) is invertible modulo an odd \(L\), so
-\((d_0 - 2k) \bmod L\) sweeps every residue and cannot avoid \(0\). At a 2:1 ratio neither argument is
-needed, which is the sense in which the ratio is not arbitrary.
+A faster hare does not lose the meeting, but it does lose this argument. With `fast` advancing three steps the gap changes by \(-2\) each pass, and a quantity falling by two can step over \(0\) instead of landing on it, so nothing about termination follows from the invariant alone. It still meets here, but only for reasons outside the invariant, and they differ by parity. When \(L\) is even, the entry offsets save it: both pointers start at the head, so `slow` enters the cycle after \(\mu\) steps with `fast` at in-cycle offset \(2\mu\), forcing \(d_0\) even, and a gap falling by two then lands on \(0\) rather than stepping over it. When \(L\) is odd, \(d_0\) is no longer forced even, so the gap can step over \(0\) and wrap, and meeting then rests on something else: \(2\) is invertible modulo an odd \(L\), so \((d_0 - 2k) \bmod L\) sweeps every residue and cannot avoid \(0\). At a 2:1 ratio neither argument is needed, which is the sense in which the ratio is not arbitrary.
 
-The other exit is equally forced. Coincidence requires \(d = 0\) inside a cycle,
-so on an acyclic list the pointers can never meet and the loop can only end by
-its guard failing. `fast` and `fast.next` are exactly the two references that
-`fast = fast.next.next` dereferences, so the guard fails the moment the hare runs
-out of track ahead of it. A null `next` anywhere means the chain terminates,
-which means no node is reachable twice: `return False` is not a fallback but the
-correct reading of the invariant.
+The other exit is equally forced. Coincidence requires \(d = 0\) inside a cycle, so on an acyclic list the pointers can never meet and the loop can only end by its guard failing. `fast` and `fast.next` are exactly the two references that `fast = fast.next.next` dereferences, so the guard fails the moment the hare runs out of track ahead of it. A null `next` anywhere means the chain terminates, which means no node is reachable twice: `return False` is not a fallback but the correct reading of the invariant.
 
 #### Walkthrough
 
-Trace both pointers on Example 1: `head = [3,2,0,-4]`, `pos = 1`. Label the
-nodes `n0` through `n3`; the tail `n3` points back to `n1`, so the cycle is
-`n1 -> n2 -> n3 -> n1` with length `L = 3`:
+Trace both pointers on Example 1: `head = [3,2,0,-4]`, `pos = 1`. Label the nodes `n0` through `n3`; the tail `n3` points back to `n1`, so the cycle is `n1 -> n2 -> n3 -> n1` with length `L = 3`:
 
 ```text
 start    slow = n0 (val 3)     fast = n0 (val 3)
@@ -389,13 +315,7 @@ iter 2   slow = n2 (val 0)     fast = n1 (val 2)     slow != fast   (fast wrappe
 iter 3   slow = n3 (val -4)    fast = n3 (val -4)    slow == fast -> return True
 ```
 
-In iteration 2 the hare crosses the tail: from `n2` its two steps pass through
-`n3` and wrap along `n3.next` to `n1`. Both pointers are now inside the cycle,
-with the forward distance from `fast` (at `n1`) to `slow` (at `n2`) equal to
-`d = 1`. Iteration 3 closes that gap by exactly one, to `d = 0`: `slow` steps
-to `n3` while `fast` takes two steps `n1 -> n2 -> n3`, and the pointers
-coincide. The meeting at `n3` returns `True`, matching Example 1's expected
-Output.
+In iteration 2 the hare crosses the tail: from `n2` its two steps pass through `n3` and wrap along `n3.next` to `n1`. Both pointers are now inside the cycle, with the forward distance from `fast` (at `n1`) to `slow` (at `n2`) equal to `d = 1`. Iteration 3 closes that gap by exactly one, to `d = 0`: `slow` steps to `n3` while `fast` takes two steps `n1 -> n2 -> n3`, and the pointers coincide. The meeting at `n3` returns `True`, matching Example 1's expected Output.
 
 #### Solution
 

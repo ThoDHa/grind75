@@ -43,24 +43,14 @@ Given the `root` of a binary tree, return the **maximum path sum** of any **non-
 
 ## Deriving the Solution
 
-Every path in a tree has a unique highest node: the point where it bends from
-one subtree into the other, or from which it descends one side only. Fixing
-that bend point decomposes the path into the node itself plus at most one
-downward path into each child, so both solutions reduce the problem to
-measuring best downward paths.
+Every path in a tree has a unique highest node: the point where it bends from one subtree into the other, or from which it descends one side only. Fixing that bend point decomposes the path into the node itself plus at most one downward path into each child, so both solutions reduce the problem to measuring best downward paths.
 
 1. **Start literal.** Try every node as the bend point: for each candidate,
-   measure the best downward path into its left and right subtrees with a
-   helper, and keep the largest `node.val + left_gain + right_gain`. Correct,
-   but the helper re-walks whole subtrees for every candidate, costing
-   `O(n^2)`: see [Brute Force](#brute-force).
+   measure the best downward path into its left and right subtrees with a helper, and keep the largest `node.val + left_gain + right_gain`. Correct, but the helper re-walks whole subtrees for every candidate, costing `O(n^2)`: see [Brute Force](#brute-force).
 2. **Spot the waste.** The helper's answer for a node never changes between
-   calls, yet the brute force recomputes it once for the node itself and once
-   more for every one of its ancestors.
+   calls, yet the brute force recomputes it once for the node itself and once more for every one of its ancestors.
 3. **Compute each gain once.** A post-order traversal finishes both children
-   before their parent, so each node can record its own bent sum and hand its
-   downward gain up to the parent in the same visit. One pass replaces the
-   nested re-walks, reaching `O(n)`: see [Post-Order DFS](#post-order-dfs).
+   before their parent, so each node can record its own bent sum and hand its downward gain up to the parent in the same visit. One pass replaces the nested re-walks, reaching `O(n)`: see [Post-Order DFS](#post-order-dfs).
 
 ## Solutions
 
@@ -68,36 +58,22 @@ measuring best downward paths.
 
 #### Derivation
 
-The problem asks for the best path anywhere in the tree, which is hard to grab
-directly. The reformulation that makes it tractable is to ask, for each node,
-"what is the best path whose *highest* point is this node?": every path has
-exactly one highest node where it bends from one branch into the other (or
-stays straight on one side), so taking the maximum over all bend points covers
-every path exactly once. For a fixed bend the two halves are independent: the
-best downward descent into the left subtree and the best downward descent into
-the right subtree. The most direct plan measures those descents from scratch
-for each candidate:
+The problem asks for the best path anywhere in the tree, which is hard to grab directly. The reformulation that makes it tractable is to ask, for each node, "what is the best path whose *highest* point is this node?": every path has exactly one highest node where it bends from one branch into the other (or stays straight on one side), so taking the maximum over all bend points covers every path exactly once. For a fixed bend the two halves are independent: the best downward descent into the left subtree and the best downward descent into the right subtree. The most direct plan measures those descents from scratch for each candidate:
 
 1. Define `max_down(node)`: the largest sum of a path that starts at `node` and
-   descends through at most one child. Clamp the chosen child at `0` so a
-   negative branch is simply skipped.
+   descends through at most one child. Clamp the chosen child at `0` so a negative branch is simply skipped.
 2. For each node in the tree, compute the best left descent and best right
-   descent, then form `node.val + left_gain + right_gain` as the path that bends
-   at this node.
+   descent, then form `node.val + left_gain + right_gain` as the path that bends at this node.
 3. Track the maximum of these bent sums in `self.best` across every node and
    return it.
 
-This recomputes `max_down` from scratch at every node, which is wasteful but
-needs no insight beyond the definition of a path.
+This recomputes `max_down` from scratch at every node, which is wasteful but needs no insight beyond the definition of a path.
 
 #### Walkthrough
 
-Let us trace the Brute Force on Example 1: the tree `[1,2,3]`, where `1` is the
-root with left child `2` and right child `3`. We expect the answer `6`.
+Let us trace the Brute Force on Example 1: the tree `[1,2,3]`, where `1` is the root with left child `2` and right child `3`. We expect the answer `6`.
 
-`self.best` starts at `-inf`. The call `visit(root)` walks the tree as a call
-tree, and for each node it asks `max_down` to measure the best downward path into
-each child:
+`self.best` starts at `-inf`. The call `visit(root)` walks the tree as a call tree, and for each node it asks `max_down` to measure the best downward path into each child:
 
 ```
 visit(1):
@@ -122,14 +98,11 @@ The table below shows `self.best` after each node is visited as a bend point:
 | `2`          | `0`         | `0`          | `2`      | `6`         |
 | `3`          | `0`         | `0`          | `3`      | `6`         |
 
-The best bend happens at the root, where the path descends into both children:
-`2 -> 1 -> 3`. After every node has been tried, `visit` returns and the method
-returns `self.best`, which is `6`: matching the expected Output.
+The best bend happens at the root, where the path descends into both children: `2 -> 1 -> 3`. After every node has been tried, `visit` returns and the method returns `self.best`, which is `6`: matching the expected Output.
 
 #### Solution
 
-The code is the walkthrough's two nested recursions: `visit` enumerates the
-bend points and `max_down` measures each descent.
+The code is the walkthrough's two nested recursions: `visit` enumerates the bend points and `max_down` measures each descent.
 
 ```python
 # Definition for a binary tree node.
@@ -170,14 +143,11 @@ class Solution:
 
 ##### Time Complexity: `O(n^2)`
 
-`visit` touches all `n` nodes, and at each node `max_down` walks the entire
-subtree below it. In a skewed tree this is `O(n)` work per node, giving
-`O(n^2)` in the worst case.
+`visit` touches all `n` nodes, and at each node `max_down` walks the entire subtree below it. In a skewed tree this is `O(n)` work per node, giving `O(n^2)` in the worst case.
 
 ##### Space Complexity: `O(h)`
 
-Both recursions descend at most to the tree height `h` at once: `O(log n)` for a
-balanced tree and `O(n)` for a skewed one.
+Both recursions descend at most to the tree height `h` at once: `O(log n)` for a balanced tree and `O(n)` for a skewed one.
 
 #### Key Insights
 
@@ -192,85 +162,53 @@ balanced tree and `O(n)` for a skewed one.
 
 #### Derivation
 
-The Brute Force wastes its time in one place: `max_down(node)` is recomputed
-for every ancestor of `node`, even though its value never changes. The repair
-is to compute each node's downward gain exactly once and let its parent reuse
-it, which a single
-[post-order traversal](https://en.wikipedia.org/wiki/Tree_traversal) makes
-possible: children finish before their parent, so the parent can combine the
-freshly computed child gains on the spot.
+The Brute Force wastes its time in one place: `max_down(node)` is recomputed for every ancestor of `node`, even though its value never changes. The repair is to compute each node's downward gain exactly once and let its parent reuse it, which a single [post-order traversal](https://en.wikipedia.org/wiki/Tree_traversal) makes possible: children finish before their parent, so the parent can combine the freshly computed child gains on the spot.
 
-The price of merging the two recursions is keeping two quantities apart. A
-maximum path can take two shapes at any node: it can **bend** through the node,
-descending into both the left and right subtrees, or it can **pass straight
-through**, continuing up to the node's parent on only one side. Only the
-straight shape may be handed upward, because a bent path already uses both
-children. So the recursion returns the best straight (single-side) path while
-a global maximum captures the best bent path seen anywhere:
+The price of merging the two recursions is keeping two quantities apart. A maximum path can take two shapes at any node: it can **bend** through the node, descending into both the left and right subtrees, or it can **pass straight through**, continuing up to the node's parent on only one side. Only the straight shape may be handed upward, because a bent path already uses both children. So the recursion returns the best straight (single-side) path while a global maximum captures the best bent path seen anywhere:
 
 1. Define `max_gain(node)` to return the largest sum of a downward path that
-   starts at `node` and goes through at most one child. An empty node
-   contributes `0`.
+   starts at `node` and goes through at most one child. An empty node contributes `0`.
 2. Recurse into both children, clamping each gain with `max(..., 0)`. If a
-   subtree's best contribution is negative, we drop it: a single positive node
-   beats a node plus a negative branch.
+   subtree's best contribution is negative, we drop it: a single positive node beats a node plus a negative branch.
 3. The best path that *peaks* at this node is `node.val + left_gain +
    right_gain`. Compare it against the running global `max_sum`.
 4. Return `node.val + max(left_gain, right_gain)` to the parent, because a path
    the parent extends can only pass through one of this node's sides.
 
-Tracking the bent sum separately from the returned straight sum is what lets
-the single traversal consider every possible path.
+Tracking the bent sum separately from the returned straight sum is what lets the single traversal consider every possible path.
 
 #### Recurrence
 
-Two different quantities are in play, and separating them is the whole trick.
-Let \(g(v)\) be the best sum of a path that starts at `v` and only descends
-(the value `max_gain` returns):
+Two different quantities are in play, and separating them is the whole trick. Let \(g(v)\) be the best sum of a path that starts at `v` and only descends (the value `max_gain` returns):
 
-$$
-g(v) = v.\text{val} + \max\bigl(0,\ g(v.\text{left}),\ g(v.\text{right})\bigr),
-\qquad g(\text{null}) = 0
-$$
+$$ g(v) = v.\text{val} + \max\bigl(0,\ g(v.\text{left}),\ g(v.\text{right})\bigr), \qquad g(\text{null}) = 0 $$
 
 ```text
 max_gain(null) = 0
 max_gain(v)    = v.val + max(0, max_gain(v.left), max_gain(v.right))
 ```
 
-Let \(b(v)\) be the best path whose highest point is `v`, which may bend into
-both subtrees:
+Let \(b(v)\) be the best path whose highest point is `v`, which may bend into both subtrees:
 
-$$
-b(v) = v.\text{val} + \max\bigl(0, g(v.\text{left})\bigr) + \max\bigl(0, g(v.\text{right})\bigr)
-$$
+$$ b(v) = v.\text{val} + \max\bigl(0, g(v.\text{left})\bigr) + \max\bigl(0, g(v.\text{right})\bigr) $$
 
 ```text
 b(v) = v.val + max(0, max_gain(v.left)) + max(0, max_gain(v.right))
 ```
 
-The answer maximizes \(b\) over every node, since any path has exactly one
-highest point:
+The answer maximizes \(b\) over every node, since any path has exactly one highest point:
 
-$$
-\text{answer} = \max_{v \in T} b(v)
-$$
+$$ \text{answer} = \max_{v \in T} b(v) $$
 
 ```text
 max_sum = max(b(v)) over all nodes v in T
 ```
 
-The clamp at \(0\) encodes "a negative branch is better skipped than taken."
-\(b(v)\) cannot be returned upward: a bent path already uses both children, so
-extending it through the parent would revisit `v` and no longer be a path. That
-asymmetry is why the recursion returns \(g\) while \(b\) accumulates into a
-separate running maximum.
+The clamp at \(0\) encodes "a negative branch is better skipped than taken." \(b(v)\) cannot be returned upward: a bent path already uses both children, so extending it through the parent would revisit `v` and no longer be a path. That asymmetry is why the recursion returns \(g\) while \(b\) accumulates into a separate running maximum.
 
 #### Walkthrough
 
-Let us trace the traversal on Example 2: `root = [-10,9,20,null,null,15,7]`,
-where the best path avoids the root entirely. `self.max_sum` starts at `-inf`,
-and post-order means every node's children resolve before the node itself:
+Let us trace the traversal on Example 2: `root = [-10,9,20,null,null,15,7]`, where the best path avoids the root entirely. `self.max_sum` starts at `-inf`, and post-order means every node's children resolve before the node itself:
 
 ```text
         -10
@@ -295,16 +233,11 @@ max_gain(-10)    left_gain = max(9, 0) = 9
                  returns -10 + 35 = 25           (discarded by the caller)
 ```
 
-The bent sum at `20` uses both of its children (`15 -> 20 -> 7`), which is why
-`42` is recorded in `max_sum` but only the straight sum `35` travels up to the
-root. At the root, even the best bent sum `34` loses to `42`, because the `-10`
-drags it down. The method returns `max_sum = 42`, matching the expected Output
-and the optimal path `15 -> 20 -> 7`.
+The bent sum at `20` uses both of its children (`15 -> 20 -> 7`), which is why `42` is recorded in `max_sum` but only the straight sum `35` travels up to the root. At the root, even the best bent sum `34` loses to `42`, because the `-10` drags it down. The method returns `max_sum = 42`, matching the expected Output and the optimal path `15 -> 20 -> 7`.
 
 #### Solution
 
-The code is the single traversal from the walkthrough: each call records its
-bent sum into `max_sum` and returns its straight sum.
+The code is the single traversal from the walkthrough: each call records its bent sum into `max_sum` and returns its straight sum.
 
 ```python
 # Definition for a binary tree node.
@@ -343,13 +276,11 @@ class Solution:
 
 ##### Time Complexity: `O(n)`
 
-Each node is visited once, performing constant work (two comparisons and two
-additions) per visit.
+Each node is visited once, performing constant work (two comparisons and two additions) per visit.
 
 ##### Space Complexity: `O(h)`
 
-The recursion stack grows with the tree height `h`: `O(log n)` for a balanced
-tree and `O(n)` for a skewed one.
+The recursion stack grows with the tree height `h`: `O(log n)` for a balanced tree and `O(n)` for a skewed one.
 
 #### Key Insights
 

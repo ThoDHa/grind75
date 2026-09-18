@@ -40,27 +40,16 @@ Could you come up with a one-pass algorithm using only constant extra space?
 
 ## Deriving the Solution
 
-The values are already the sort keys: the colors are encoded as `0`, `1`, and
-`2`, and ascending numeric order is exactly the required red-white-blue order.
-The problem forbids the library sort, so every solution is a hand-written way
-of putting three known values in order.
+The values are already the sort keys: the colors are encoded as `0`, `1`, and `2`, and ascending numeric order is exactly the required red-white-blue order. The problem forbids the library sort, so every solution is a hand-written way of putting three known values in order.
 
 1. **Start literal.** "Sort it yourself" invites writing a general sort by
-   hand. Selection sort needs no insight about the values: repeatedly find the
-   minimum of the unsorted tail and swap it forward, at `O(n^2)` comparisons:
-   see [Selection Sort](#selection-sort).
+   hand. Selection sort needs no insight about the values: repeatedly find the minimum of the unsorted tail and swap it forward, at `O(n^2)` comparisons: see [Selection Sort](#selection-sort).
 2. **Spot the waste.** Comparing elements is unnecessary when only three
-   distinct values exist: the sorted array is fully determined by how many
-   `0`s, `1`s, and `2`s it holds.
+   distinct values exist: the sorted array is fully determined by how many `0`s, `1`s, and `2`s it holds.
 3. **Count instead of compare.** Tally the three colors in one pass, then
-   overwrite the array with that many `0`s, `1`s, and `2`s in a second pass:
-   `O(n)` time, but two passes: see [Counting Sort](#counting-sort).
+   overwrite the array with that many `0`s, `1`s, and `2`s in a second pass: `O(n)` time, but two passes: see [Counting Sort](#counting-sort).
 4. **Partition in one pass.** The follow-up asks for a single pass. Instead of
-   counting first and writing later, classify each element as it is examined,
-   swapping `0`s toward the front and `2`s toward the back while `1`s settle
-   in the middle. Three pointers carve the array into regions and one sweep
-   sorts it: see
-   [Dutch National Flag Algorithm](#dutch-national-flag-algorithm).
+   counting first and writing later, classify each element as it is examined, swapping `0`s toward the front and `2`s toward the back while `1`s settle in the middle. Three pointers carve the array into regions and one sweep sorts it: see [Dutch National Flag Algorithm](#dutch-national-flag-algorithm).
 
 ## Solutions
 
@@ -68,14 +57,7 @@ of putting three known values in order.
 
 #### Derivation
 
-The problem forbids the library sort, so the most direct response is to
-[write a sort by hand](https://en.wikipedia.org/wiki/Sorting_algorithm).
-[Selection sort](https://en.wikipedia.org/wiki/Selection_sort) is the simplest
-to derive: it needs no extra structure and no insight about the values, it
-just repeatedly finds the minimum of the unsorted region and swaps it to the
-front. With only `0`, `1`, and `2` present this still produces the correct
-red-white-blue order because ascending numeric order is exactly the required
-color order.
+The problem forbids the library sort, so the most direct response is to [write a sort by hand](https://en.wikipedia.org/wiki/Sorting_algorithm). [Selection sort](https://en.wikipedia.org/wiki/Selection_sort) is the simplest to derive: it needs no extra structure and no insight about the values, it just repeatedly finds the minimum of the unsorted region and swaps it to the front. With only `0`, `1`, and `2` present this still produces the correct red-white-blue order because ascending numeric order is exactly the required color order.
 
 1. Treat the prefix before index `i` as already sorted.
 2. Scan the unsorted tail `i+1 .. n-1` to find `smallest`, the index of the
@@ -103,8 +85,7 @@ At `i=0` the smallest value in the whole array is the `0` at index `1`, so it sw
 
 #### Solution
 
-The code is the walkthrough's outer loop written down: find `smallest` in the
-tail, swap it to index `i`.
+The code is the walkthrough's outer loop written down: find `smallest` in the tail, swap it to index `i`.
 
 ```python
 from typing import List
@@ -143,13 +124,7 @@ Sorting happens in place with only a few index variables; no auxiliary array is 
 
 #### Derivation
 
-Selection Sort ignores the one special property this input has: only three
-distinct values exist. Comparing elements is wasted work when the sorted
-result is fully determined by how many of each color the array holds, so
-[count the occurrences of each color](https://en.wikipedia.org/wiki/Counting_sort)
-in one pass, then rebuild the array from the tallies in a second pass. The
-counting makes this specialized sort more efficient than any general-purpose
-comparison sort, at the price of traversing the data twice.
+Selection Sort ignores the one special property this input has: only three distinct values exist. Comparing elements is wasted work when the sorted result is fully determined by how many of each color the array holds, so [count the occurrences of each color](https://en.wikipedia.org/wiki/Counting_sort) in one pass, then rebuild the array from the tallies in a second pass. The counting makes this specialized sort more efficient than any general-purpose comparison sort, at the price of traversing the data twice.
 
 1. Allocate `count = [0, 0, 0]`, one slot per color.
 2. First pass: for each `num` in `nums`, increment `count[num]`.
@@ -158,8 +133,7 @@ comparison sort, at the price of traversing the data twice.
 
 #### Walkthrough
 
-Let us run Counting Sort on Example 1: `nums = [2,0,2,1,1,0]`. The first pass
-tallies each color as it is seen:
+Let us run Counting Sort on Example 1: `nums = [2,0,2,1,1,0]`. The first pass tallies each color as it is seen:
 
 ```text
 num = 2    count = [0, 0, 1]
@@ -170,9 +144,7 @@ num = 1    count = [1, 2, 2]
 num = 0    count = [2, 2, 2]
 ```
 
-The tallies say the sorted array is two `0`s, then two `1`s, then two `2`s.
-The second pass writes exactly that, advancing `index` once per element
-written:
+The tallies say the sorted array is two `0`s, then two `1`s, then two `2`s. The second pass writes exactly that, advancing `index` once per element written:
 
 ```text
 color = 0   writes indices 0-1   nums = [0, 0, 2, 1, 1, 0]
@@ -180,8 +152,7 @@ color = 1   writes indices 2-3   nums = [0, 0, 1, 1, 1, 0]
 color = 2   writes indices 4-5   nums = [0, 0, 1, 1, 2, 2]
 ```
 
-After the rebuild the array reads `[0,0,1,1,2,2]` in place, matching the
-expected Output.
+After the rebuild the array reads `[0,0,1,1,2,2]` in place, matching the expected Output.
 
 #### Solution
 
@@ -232,17 +203,7 @@ Uses a fixed-size counting array of 3 elements regardless of input size.
 
 #### Derivation
 
-Counting Sort makes one pass to learn the tallies and a second pass to write
-them back. The follow-up asks whether the second pass can be avoided: can
-each element land in its final region the moment it is examined? The
-[classic algorithm](https://en.wikipedia.org/wiki/Dutch_national_flag_problem)
-designed by Edsger Dijkstra does exactly that with three pointers that
-partition the array into three regions in a single pass: `left` (boundary
-between 0s and 1s), `right` (boundary between 1s and 2s), and `current`
-(element being examined). A `0` belongs at the front, so swap it to `left`; a
-`2` belongs at the back, so swap it to `right`; a `1` is already in the
-middle, so leave it. The key subtlety is that when swapping a 2 to the right,
-we must re-examine the swapped element without advancing `current`.
+Counting Sort makes one pass to learn the tallies and a second pass to write them back. The follow-up asks whether the second pass can be avoided: can each element land in its final region the moment it is examined? The [classic algorithm](https://en.wikipedia.org/wiki/Dutch_national_flag_problem) designed by Edsger Dijkstra does exactly that with three pointers that partition the array into three regions in a single pass: `left` (boundary between 0s and 1s), `right` (boundary between 1s and 2s), and `current` (element being examined). A `0` belongs at the front, so swap it to `left`; a `2` belongs at the back, so swap it to `right`; a `1` is already in the middle, so leave it. The key subtlety is that when swapping a 2 to the right, we must re-examine the swapped element without advancing `current`.
 
 1. Initialize `left = 0`, `right = len(nums) - 1`, `current = 0`.
 2. While `current <= right`, inspect `nums[current]`.
@@ -254,18 +215,9 @@ we must re-examine the swapped element without advancing `current`.
 
 #### Invariant
 
-Three pointers cut the array into four regions, and the loop preserves this at
-every step:
+Three pointers cut the array into four regions, and the loop preserves this at every step:
 
-$$
-\underbrace{[\,0,\ \textit{left}\,)}_{\text{all } 0}
-\quad
-\underbrace{[\,\textit{left},\ \textit{current}\,)}_{\text{all } 1}
-\quad
-\underbrace{[\,\textit{current},\ \textit{right}\,]}_{\text{unexamined}}
-\quad
-\underbrace{(\,\textit{right},\ n\,)}_{\text{all } 2}
-$$
+$$ \underbrace{[\,0,\ \textit{left}\,)}_{\text{all } 0} \quad \underbrace{[\,\textit{left},\ \textit{current}\,)}_{\text{all } 1} \quad \underbrace{[\,\textit{current},\ \textit{right}\,]}_{\text{unexamined}} \quad \underbrace{(\,\textit{right},\ n\,)}_{\text{all } 2} $$
 
 ```text
 nums[0 .. left - 1]        all 0
@@ -274,25 +226,15 @@ nums[current .. right]     unexamined
 nums[right + 1 .. n - 1]   all 2
 ```
 
-The loop runs while the unexamined region is non-empty
-(\(\textit{current} \le \textit{right}\)) and shrinks it by one each pass, which
-is what guarantees termination and the single-pass bound.
+The loop runs while the unexamined region is non-empty (\(\textit{current} \le \textit{right}\)) and shrinks it by one each pass, which is what guarantees termination and the single-pass bound.
 
-The asymmetry in the code follows directly. Swapping a `0` leftward exchanges it
-with a position in the all-`1` region, whose value is already known to be `1`,
-so `current` may advance immediately. Swapping a `2` rightward brings back a
-value from the **unexamined** region, which has not been classified yet, so
-`current` must hold still and re-examine it. Advancing there would step over an
-unclassified element and break the invariant.
+The asymmetry in the code follows directly. Swapping a `0` leftward exchanges it with a position in the all-`1` region, whose value is already known to be `1`, so `current` may advance immediately. Swapping a `2` rightward brings back a value from the **unexamined** region, which has not been classified yet, so `current` must hold still and re-examine it. Advancing there would step over an unclassified element and break the invariant.
 
-At exit \(\textit{current} > \textit{right}\), the unexamined region is empty and
-the three colour regions tile the array in order.
+At exit \(\textit{current} > \textit{right}\), the unexamined region is empty and the three colour regions tile the array in order.
 
 #### Walkthrough
 
-Let us run the single pass on Example 1: `nums = [2,0,2,1,1,0]`, starting
-with `left = 0`, `right = 5`, `current = 0`. Each line shows the value
-examined, the action taken, and the state after it:
+Let us run the single pass on Example 1: `nums = [2,0,2,1,1,0]`, starting with `left = 0`, `right = 5`, `current = 0`. Each line shows the value examined, the action taken, and the state after it:
 
 ```text
 nums[0]=2   swap with nums[right=5], right=4   nums=[0,0,2,1,1,2]  current stays 0
@@ -304,14 +246,7 @@ nums[3]=1   already in place                   nums unchanged      current -> 4
 current=4 > right=3: loop exits
 ```
 
-The first line is the moment the Invariant warns about: the swap with `right`
-pulls the unexamined `0` from index `5` into position `0`, and because
-`current` holds still, the very next line classifies that `0` and sends it
-into the low region. The two swaps with `left` are self-swaps (`left ==
-current` while no `1` has yet been seen), which still advance both boundaries
-correctly. The same pattern repeats at `current = 2`: the `2` swaps rightward,
-`current` stays, and the arriving `1` is classified on the next line. The
-array ends as `[0,0,1,1,2,2]` in place, matching the expected Output.
+The first line is the moment the Invariant warns about: the swap with `right` pulls the unexamined `0` from index `5` into position `0`, and because `current` holds still, the very next line classifies that `0` and sends it into the low region. The two swaps with `left` are self-swaps (`left == current` while no `1` has yet been seen), which still advance both boundaries correctly. The same pattern repeats at `current = 2`: the `2` swaps rightward, `current` stays, and the arriving `1` is classified on the next line. The array ends as `[0,0,1,1,2,2]` in place, matching the expected Output.
 
 #### Solution
 

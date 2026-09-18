@@ -56,27 +56,16 @@ accounts = [["Gabe","Gabe0@m.co","Gabe3@m.co","Gabe1@m.co"],["Kevin","Kevin3@m.c
 
 ## Deriving the Solution
 
-Two accounts belong to the same person exactly when they share an email, and
-"shares an email" chains transitively across accounts. Every solution below
-computes the same thing, the groups of emails connected through shared accounts;
-they differ in how directly that connectivity is computed.
+Two accounts belong to the same person exactly when they share an email, and "shares an email" chains transitively across accounts. Every solution below computes the same thing, the groups of emails connected through shared accounts; they differ in how directly that connectivity is computed.
 
 1. **Start literal.** Keep fusing any two groups whose email sets intersect until
-   a full pass changes nothing. Each pass compares all pairs of groups and may
-   merge only one, so the loop costs `O(A^3 × K)`: see
-   [Brute Force](#brute-force).
+   a full pass changes nothing. Each pass compares all pairs of groups and may merge only one, so the loop costs `O(A^3 × K)`: see [Brute Force](#brute-force).
 2. **Spot the waste.** The repeated sweeps exist only to propagate transitivity:
-   merging one pair can create a new overlap with a group already checked. The
-   quantity actually being computed is connectivity, which need not be
-   rediscovered pass after pass.
+   merging one pair can create a new overlap with a group already checked. The quantity actually being computed is connectivity, which need not be rediscovered pass after pass.
 3. **Make the graph explicit.** Treat every email as a node and link the emails
-   of each account together; every merged person is then exactly one connected
-   component, recoverable with one DFS per component in linear time: see
-   [DFS Connected Components](#dfs-connected-components).
+   of each account together; every merged person is then exactly one connected component, recoverable with one DFS per component in linear time: see [DFS Connected Components](#dfs-connected-components).
 4. **Skip building the graph.** A disjoint-set forest maintains the same
-   components incrementally: union each account's emails as they are read, then
-   group emails by their root. Near-constant work per email and no adjacency
-   structure at all: see [Union-Find](#union-find).
+   components incrementally: union each account's emails as they are read, then group emails by their root. Near-constant work per email and no adjacency structure at all: see [Union-Find](#union-find).
 
 ## Solutions
 
@@ -84,10 +73,7 @@ they differ in how directly that connectivity is computed.
 
 #### Derivation
 
-Two accounts belong to the same person exactly when they share an email, so the
-most direct idea is to keep merging overlapping accounts until none overlap. Each
-account starts as its own group, and we fuse any two groups whose email sets
-intersect, repeating until a full sweep changes nothing.
+Two accounts belong to the same person exactly when they share an email, so the most direct idea is to keep merging overlapping accounts until none overlap. Each account starts as its own group, and we fuse any two groups whose email sets intersect, repeating until a full sweep changes nothing.
 
 1. Turn each account into a `[name, set-of-emails]` group.
 2. Compare every pair of groups. When two share at least one email, absorb the
@@ -96,17 +82,13 @@ intersect, repeating until a full sweep changes nothing.
    the sweeps and keep going until a complete pass merges nothing.
 4. Emit each remaining group as its name followed by the emails in sorted order.
 
-The repeated passes are what make this correct: merging a chain like `A-B` then
-`B-C` requires revisiting groups, and looping until a clean pass guarantees every
-transitive link is resolved.
+The repeated passes are what make this correct: merging a chain like `A-B` then `B-C` requires revisiting groups, and looping until a clean pass guarantees every transitive link is resolved.
 
 #### Walkthrough
 
-Let us watch the Brute Force run on Example 1, with
-`accounts = [["John","johnsmith@mail.com","john_newyork@mail.com"], ["John","johnsmith@mail.com","john00@mail.com"], ["Mary","mary@mail.com"], ["John","johnnybravo@mail.com"]]`.
+Let us watch the Brute Force run on Example 1, with `accounts = [["John","johnsmith@mail.com","john_newyork@mail.com"], ["John","johnsmith@mail.com","john00@mail.com"], ["Mary","mary@mail.com"], ["John","johnnybravo@mail.com"]]`.
 
-First, each account becomes a `[name, set-of-emails]` group, so we start with four
-groups (showing each email set sorted for readability):
+First, each account becomes a `[name, set-of-emails]` group, so we start with four groups (showing each email set sorted for readability):
 
 | Group | Name | Emails |
 | --- | --- | --- |
@@ -118,10 +100,7 @@ groups (showing each email set sorted for readability):
 **Pass 1.** The sweep compares pairs starting from `i = 0`:
 
 - `groups[0] & groups[1]`: both contain `johnsmith@mail.com`, so they intersect.
-  Group `1`'s emails are unioned into group `0`, and group `1` is popped.
-  `merged_something` becomes `True`. Group `0` is now
-  `{john00@mail.com, john_newyork@mail.com, johnsmith@mail.com}`, and what was
-  group `2` slides down into index `1`.
+  Group `1`'s emails are unioned into group `0`, and group `1` is popped. `merged_something` becomes `True`. Group `0` is now `{john00@mail.com, john_newyork@mail.com, johnsmith@mail.com}`, and what was group `2` slides down into index `1`.
 - `groups[0] & groups[1]` (now `Mary`): no shared email, so `j` advances.
 - `groups[0] & groups[2]` (now `John` / `johnnybravo@mail.com`): no shared email.
 - `i` advances through the remaining `Mary` and `johnnybravo` groups; none of
@@ -135,9 +114,7 @@ State after Pass 1 (three groups remain):
 | `1` | `Mary` | `{mary@mail.com}` |
 | `2` | `John` | `{johnnybravo@mail.com}` |
 
-**Pass 2.** Because `merged_something` was `True`, we sweep again. Every pair is
-now checked: no two groups share an email, so nothing merges and
-`merged_something` stays `False`. The `while` loop exits.
+**Pass 2.** Because `merged_something` was `True`, we sweep again. Every pair is now checked: no two groups share an email, so nothing merges and `merged_something` stays `False`. The `while` loop exits.
 
 Finally, each surviving group is emitted as its name followed by its emails sorted:
 
@@ -147,13 +124,11 @@ Finally, each surviving group is emitted as its name followed by its emails sort
  ["John","johnnybravo@mail.com"]]
 ```
 
-This matches the expected Output for Example 1 (the accounts may appear in any
-order).
+This matches the expected Output for Example 1 (the accounts may appear in any order).
 
 #### Solution
 
-The code is the walkthrough's merge-until-stable loop: nested sweeps that fuse
-intersecting groups, restarted by the `merged_something` flag after any merge.
+The code is the walkthrough's merge-until-stable loop: nested sweeps that fuse intersecting groups, restarted by the `merged_something` flag after any merge.
 
 ```python
 from typing import List
@@ -191,16 +166,11 @@ class Solution:
 
 ##### Time Complexity: `O(A^3 × K)`
 
-Let `A` be the number of accounts and `K` the emails per account. Each pass
-compares every pair of groups (`O(A^2)`) and each comparison intersects two email
-sets (`O(K)`). In the worst case a pass merges only one pair, so up to `O(A)`
-passes are needed, pushing the bound to `O(A^3 × K)` before sorting. This is
-far heavier than the connectivity-based solutions.
+Let `A` be the number of accounts and `K` the emails per account. Each pass compares every pair of groups (`O(A^2)`) and each comparison intersects two email sets (`O(K)`). In the worst case a pass merges only one pair, so up to `O(A)` passes are needed, pushing the bound to `O(A^3 × K)` before sorting. This is far heavier than the connectivity-based solutions.
 
 ##### Space Complexity: `O(N)`
 
-The groups collectively hold every email once, where `N` is the total number of
-emails, so auxiliary storage is linear.
+The groups collectively hold every email once, where `N` is the total number of emails, so auxiliary storage is linear.
 
 #### Key Insights
 
@@ -217,32 +187,21 @@ emails, so auxiliary storage is linear.
 
 #### Derivation
 
-The brute force re-scans every pair of groups on every pass, and all those sweeps
-accomplish is propagating transitivity. Connectivity does that for free: model
-the relation directly as a graph where each email is a node and emails appearing
-together in an account are connected by edges. Each connected component of that
-graph is one merged person, and a [depth-first search](https://en.wikipedia.org/wiki/Depth-first_search) recovers every component
-in a single traversal, with no repeated passes.
+The brute force re-scans every pair of groups on every pass, and all those sweeps accomplish is propagating transitivity. Connectivity does that for free: model the relation directly as a graph where each email is a node and emails appearing together in an account are connected by edges. Each connected component of that graph is one merged person, and a [depth-first search](https://en.wikipedia.org/wiki/Depth-first_search) recovers every component in a single traversal, with no repeated passes.
 
 1. For each account, add edges in `graph` between the first email and every other
-   email in that account. Because connectivity is transitive, linking each email
-   to a single representative (the first) suffices to bind the whole account
-   together, and chains across accounts merge through shared emails.
+   email in that account. Because connectivity is transitive, linking each email to a single representative (the first) suffices to bind the whole account together, and chains across accounts merge through shared emails.
 2. Record each email's account name in `owner` as it is registered.
 3. Run `dfs` from every unvisited email, collecting all reachable emails into one
    `component`.
 4. For each component, emit the owner's name followed by the emails sorted
    alphabetically.
 
-Building the adjacency graph from scratch keeps the logic explicit: the merge is
-nothing more than enumerating connected components, and DFS is the most direct
-way to walk them.
+Building the adjacency graph from scratch keeps the logic explicit: the merge is nothing more than enumerating connected components, and DFS is the most direct way to walk them.
 
 #### Walkthrough
 
-Let us build the graph and walk it on Example 1, writing each email by its local
-part (`johnsmith` for `johnsmith@mail.com`, and so on) for brevity. Each account
-links its emails to the account's first email, a star per account:
+Let us build the graph and walk it on Example 1, writing each email by its local part (`johnsmith` for `johnsmith@mail.com`, and so on) for brevity. Each account links its emails to the account's first email, a star per account:
 
 ```text
 account 0  first = johnsmith     johnsmith <-> john_newyork
@@ -251,10 +210,7 @@ account 2  first = mary          (single email: only a self-link)
 account 3  first = johnnybravo   (single email: only a self-link)
 ```
 
-Single-email accounts still register themselves (the loop adds `first` to its own
-adjacency set), which is what makes them appear as keys of `graph` and later be
-emitted as their own components. The shared `johnsmith` node is what fuses
-accounts 0 and 1: the adjacency sets end up as
+Single-email accounts still register themselves (the loop adds `first` to its own adjacency set), which is what makes them appear as keys of `graph` and later be emitted as their own components. The shared `johnsmith` node is what fuses accounts 0 and 1: the adjacency sets end up as
 
 ```text
 graph[johnsmith]    = {johnsmith, john_newyork, john00}
@@ -264,10 +220,7 @@ graph[mary]         = {mary}
 graph[johnnybravo]  = {johnnybravo}
 ```
 
-and `owner` maps every email to its account name. The result loop visits `graph`
-keys in insertion order, so the first `dfs` starts at `johnsmith`. Neighbors come
-from a set, whose iteration order can vary between runs; one possible order is
-shown, and the collected component is the same either way:
+and `owner` maps every email to its account name. The result loop visits `graph` keys in insertion order, so the first `dfs` starts at `johnsmith`. Neighbors come from a set, whose iteration order can vary between runs; one possible order is shown, and the collected component is the same either way:
 
 ```text
 stack = [johnsmith]              pop johnsmith     visit, component = [johnsmith]
@@ -277,18 +230,13 @@ stack = [john_newyork]           pop john_newyork  visit, component = [johnsmith
 stack = []                       component complete
 ```
 
-The component is emitted as `[owner[johnsmith]] + sorted(component)`, giving
-`["John", "john00@mail.com", "john_newyork@mail.com", "johnsmith@mail.com"]`.
-The keys `john_newyork` and `john00` are skipped as already visited, then `mary`
-and `johnnybravo` each start a `dfs` that finds only themselves, yielding
-`["Mary", "mary@mail.com"]` and `["John", "johnnybravo@mail.com"]`.
+The component is emitted as `[owner[johnsmith]] + sorted(component)`, giving `["John", "john00@mail.com", "john_newyork@mail.com", "johnsmith@mail.com"]`. The keys `john_newyork` and `john00` are skipped as already visited, then `mary` and `johnnybravo` each start a `dfs` that finds only themselves, yielding `["Mary", "mary@mail.com"]` and `["John", "johnnybravo@mail.com"]`.
 
 The three components match the expected Output for Example 1.
 
 #### Solution
 
-The code is the walkthrough's two phases: the star construction per account, then
-one iterative `dfs` per unvisited email.
+The code is the walkthrough's two phases: the star construction per account, then one iterative `dfs` per unvisited email.
 
 ```python
 from collections import defaultdict
@@ -340,23 +288,16 @@ class Solution:
 
 ##### Time Complexity: `O(N + N log K)`
 
-Let `N` be the total number of emails and `K` the size of the largest merged
-account. Each account contributes one edge per email (every email links only to
-the account's first email), so the graph has `O(N)` edges in total and building
-plus traversing it is `O(N)`. Sorting each component totals `O(N log K)`, which
-dominates and is commonly summarized as `O(N log N)`.
+Let `N` be the total number of emails and `K` the size of the largest merged account. Each account contributes one edge per email (every email links only to the account's first email), so the graph has `O(N)` edges in total and building plus traversing it is `O(N)`. Sorting each component totals `O(N log K)`, which dominates and is commonly summarized as `O(N log N)`.
 
 ##### Space Complexity: `O(N)`
 
-The star construction adds `O(1)` edges per email, so the adjacency graph holds
-`O(N)` entries in total. The `owner` map and `visited` set are `O(N)`, and the
-DFS stack is bounded by the component size.
+The star construction adds `O(1)` edges per email, so the adjacency graph holds `O(N)` entries in total. The `owner` map and `visited` set are `O(N)`, and the DFS stack is bounded by the component size.
 
 #### Key Insights
 
 - Treating emails as graph nodes makes the merge a textbook connected-components
-  problem, no special data structure required beyond a dictionary of adjacency
-  sets.
+  problem, no special data structure required beyond a dictionary of adjacency sets.
 - Linking every email to the account's first email (a star within each account)
   is enough to connect the account; full pairwise edges are unnecessary.
 - An iterative DFS with an explicit stack sidesteps any recursion-depth concern
@@ -368,33 +309,21 @@ DFS stack is bounded by the component size.
 
 #### Derivation
 
-The DFS approach materializes the whole adjacency structure before any traversal
-can begin, yet all the output needs is which component each email lands in.
-"Shares an email" is a connectivity relation that is reflexive, symmetric, and
-transitive, and that is precisely what [union-find](https://en.wikipedia.org/wiki/Disjoint-set_data_structure) maintains incrementally:
-treat each email as a node, union the emails that appear together in one account
-as they are read, and each connected component becomes one merged person, with no
-adjacency sets and no traversal.
+The DFS approach materializes the whole adjacency structure before any traversal can begin, yet all the output needs is which component each email lands in. "Shares an email" is a connectivity relation that is reflexive, symmetric, and transitive, and that is precisely what [union-find](https://en.wikipedia.org/wiki/Disjoint-set_data_structure) maintains incrementally: treat each email as a node, union the emails that appear together in one account as they are read, and each connected component becomes one merged person, with no adjacency sets and no traversal.
 
 1. For every account, register each email in the `parent` forest (each email
    pointing to itself initially) and record its name in `owner`.
 2. `union` every email in an account with the account's first email. After
-   processing all accounts, emails reachable through any chain of shared accounts
-   land in the same component.
+   processing all accounts, emails reachable through any chain of shared accounts land in the same component.
 3. Walk all emails and group them by their component root via `find` into
    `groups`.
 4. For each group, emit the owner's name followed by the emails in sorted order.
 
-Using the email strings themselves as union-find keys avoids a separate
-index-mapping step. Any email in a component can supply the name because all
-accounts in one component share the same person and therefore the same name.
+Using the email strings themselves as union-find keys avoids a separate index-mapping step. Any email in a component can supply the name because all accounts in one component share the same person and therefore the same name.
 
 #### Walkthrough
 
-Let us grow the forest on Example 1, again abbreviating each email to its local
-part. Reading the accounts in order, each email is registered with
-`parent[email] = email` on first sight and then unioned with the account's first
-email:
+Let us grow the forest on Example 1, again abbreviating each email to its local part. Reading the accounts in order, each email is registered with `parent[email] = email` on first sight and then unioned with the account's first email:
 
 ```text
 account 0 (John)   parent[johnsmith] = johnsmith           register first email
@@ -408,9 +337,7 @@ account 2 (Mary)   parent[mary] = mary                     register, self-union
 account 3 (John)   parent[johnnybravo] = johnnybravo       register, self-union
 ```
 
-The shared `johnsmith` is what fuses accounts 0 and 1: both unions route through
-`find(johnsmith)`, so `john_newyork` and `john00` hang under the same root. The
-grouping loop then calls `find` on every registered email:
+The shared `johnsmith` is what fuses accounts 0 and 1: both unions route through `find(johnsmith)`, so `john_newyork` and `john00` hang under the same root. The grouping loop then calls `find` on every registered email:
 
 ```text
 find(johnsmith)    = johnsmith     groups[johnsmith]   = [johnsmith]
@@ -420,10 +347,7 @@ find(mary)         = mary          groups[mary]        = [mary]
 find(johnnybravo)  = johnnybravo   groups[johnnybravo] = [johnnybravo]
 ```
 
-On this input every non-root already points directly at its root, so the path
-compression line inside `find` never rewrites a pointer; on longer chains it
-halves the path toward the root on every call. Emitting
-`[owner[root]] + sorted(emails)` per group gives
+On this input every non-root already points directly at its root, so the path compression line inside `find` never rewrites a pointer; on longer chains it halves the path toward the root on every call. Emitting `[owner[root]] + sorted(emails)` per group gives
 
 ```
 [["John","john00@mail.com","john_newyork@mail.com","johnsmith@mail.com"],
@@ -435,8 +359,7 @@ which matches the expected Output for Example 1.
 
 #### Solution
 
-The code is the walkthrough's forest: registration and `union` while reading
-accounts, then one `find` per email to group the components.
+The code is the walkthrough's forest: registration and `union` while reading accounts, then one `find` per email to group the components.
 
 ```python
 from collections import defaultdict
@@ -482,16 +405,11 @@ class Solution:
 
 ##### Time Complexity: `O(N × α(N) + N log K)`
 
-Let `N` be the total number of emails across all accounts and `K` the size of
-the largest merged account. The union-find operations cost `O(N × α(N))`, where
-`α` is the inverse Ackermann function (effectively constant). Sorting the emails
-within each group totals `O(N log K)` in the worst case, which dominates and is
-commonly written simply as `O(N log N)`.
+Let `N` be the total number of emails across all accounts and `K` the size of the largest merged account. The union-find operations cost `O(N × α(N))`, where `α` is the inverse Ackermann function (effectively constant). Sorting the emails within each group totals `O(N log K)` in the worst case, which dominates and is commonly written simply as `O(N log N)`.
 
 ##### Space Complexity: `O(N)`
 
-The `parent`, `owner`, and `groups` structures each hold one entry per distinct
-email, so auxiliary space is linear in the number of emails.
+The `parent`, `owner`, and `groups` structures each hold one entry per distinct email, so auxiliary space is linear in the number of emails.
 
 #### Key Insights
 

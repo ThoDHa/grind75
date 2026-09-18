@@ -28,8 +28,7 @@ Given a string `s` and a dictionary of strings `wordDict`, return `true` if `s` 
 
 **Output:** `true`
 
-**Explanation:** Return true because `"applepenapple"` can be segmented as `"apple pen apple"`.
-Note that you are allowed to reuse a dictionary word.
+**Explanation:** Return true because `"applepenapple"` can be segmented as `"apple pen apple"`. Note that you are allowed to reuse a dictionary word.
 
 ### Example 3
 
@@ -47,37 +46,20 @@ Note that you are allowed to reuse a dictionary word.
 
 ## Deriving the Solution
 
-Every segmentation is a chain of word boundaries: positions `0` through
-`len(s)` act as nodes, and a dictionary word `s[i:j]` connects position `i` to
-position `j`. The question "can `s` be segmented?" becomes "is position
-`len(s)` reachable from position `0`?", and every solution below is a
-different way of exploring that reachability.
+Every segmentation is a chain of word boundaries: positions `0` through `len(s)` act as nodes, and a dictionary word `s[i:j]` connects position `i` to position `j`. The question "can `s` be segmented?" becomes "is position `len(s)` reachable from position `0`?", and every solution below is a different way of exploring that reachability.
 
 1. **Start literal.** From each position, try every word that could start
-   there and recurse on the rest. Correct, but the same suffix is re-explored
-   along many different prefixes, costing `O(2^n)`: see
-   [Brute Force Recursion](#brute-force-recursion).
+   there and recurse on the rest. Correct, but the same suffix is re-explored along many different prefixes, costing `O(2^n)`: see [Brute Force Recursion](#brute-force-recursion).
 2. **Spot the waste.** Whether `s[start_index:]` can be segmented depends only
-   on `start_index`, not on how the search reached it, so there are only
-   `n + 1` genuinely distinct subproblems.
+   on `start_index`, not on how the search reached it, so there are only `n + 1` genuinely distinct subproblems.
 3. **Visit each position once.** Two dressings of the same repair: walk the
-   reachability graph with a queue and a `visited` set, in [BFS](#bfs), or
-   keep the recursion and cache each `start_index` answer, in
-   [Top-Down Memoization](#top-down-memoization). Either way each position is
-   processed at most once.
+   reachability graph with a queue and a `visited` set, in [BFS](#bfs), or keep the recursion and cache each `start_index` answer, in [Top-Down Memoization](#top-down-memoization). Either way each position is processed at most once.
 4. **Flip the direction.** Build prefix answers iteratively instead: `dp[i]`
-   records whether `s[0:i]` splits cleanly, computed from smaller prefixes
-   with no recursion at all: see [Bottom-Up DP](#bottom-up-dp).
+   records whether `s[0:i]` splits cleanly, computed from smaller prefixes with no recursion at all: see [Bottom-Up DP](#bottom-up-dp).
 5. **Sharpen the matching.** All of the above slice and hash a candidate
-   substring per boundary pair. Walking a prefix tree character by character
-   finds every word starting at a position in one descent and stops the
-   moment no word can continue: see [Trie-Based DP](#trie-based-dp).
+   substring per boundary pair. Walking a prefix tree character by character finds every word starting at a position in one descent and stops the moment no word can continue: see [Trie-Based DP](#trie-based-dp).
 6. **Let the library hold the cache.** The memoized form in step 3 spends five
-   lines declaring a dictionary, reading it on entry, and writing it on both
-   exits. Decorating the recursion with `functools.cache` deletes all five
-   while the boundary loop and the base case stay exactly as the brute force
-   wrote them: see
-   [Top-Down Memoization with functools.cache](#top-down-memoization-with-functoolscache).
+   lines declaring a dictionary, reading it on entry, and writing it on both exits. Decorating the recursion with `functools.cache` deletes all five while the boundary loop and the base case stay exactly as the brute force wrote them: see [Top-Down Memoization with functools.cache](#top-down-memoization-with-functoolscache).
 
 ## Solutions
 
@@ -85,12 +67,7 @@ different way of exploring that reachability.
 
 #### Derivation
 
-The most direct reading: a segmentation must start with some dictionary word,
-and after removing that word the rest of the string poses the same question.
-That is a
-[recursive](https://en.wikipedia.org/wiki/Recursion_(computer_science))
-structure: try every word that could begin at the current position, recurse on
-what remains, and succeed the moment the whole string is consumed.
+The most direct reading: a segmentation must start with some dictionary word, and after removing that word the rest of the string poses the same question. That is a [recursive](https://en.wikipedia.org/wiki/Recursion_(computer_science)) structure: try every word that could begin at the current position, recurse on what remains, and succeed the moment the whole string is consumed.
 
 1. Put the words in `word_set` for constant-time membership tests.
 2. From the current `start_index`, try every possible word boundary
@@ -131,8 +108,7 @@ The deepest call hits the base case because `start_index` reached `len(s) = 8`, 
 
 #### Solution
 
-The code is the call tree from the walkthrough: one loop over `end_index`,
-one recursive call per matching word.
+The code is the call tree from the walkthrough: one loop over `end_index`, one recursive call per matching word.
 
 ```python
 from typing import List
@@ -180,29 +156,17 @@ Space for the recursion stack, which can be up to n levels deep.
 
 #### Derivation
 
-The brute force re-explores the same suffix along many prefixes because
-nothing remembers which positions have already been examined. Making the
-graph explicit fixes that. Treat the problem as finding a path from index `0`
-to index `len(s)` in a graph where each valid starting position is a node and
-there is an edge from position `i` to position `j` when `s[i:j]` is in the
-dictionary.
-[BFS](https://en.wikipedia.org/wiki/Breadth-first_search) explores all
-reachable positions level by level, and a `visited` set guarantees no
-position is ever expanded twice.
+The brute force re-explores the same suffix along many prefixes because nothing remembers which positions have already been examined. Making the graph explicit fixes that. Treat the problem as finding a path from index `0` to index `len(s)` in a graph where each valid starting position is a node and there is an edge from position `i` to position `j` when `s[i:j]` is in the dictionary. [BFS](https://en.wikipedia.org/wiki/Breadth-first_search) explores all reachable positions level by level, and a `visited` set guarantees no position is ever expanded twice.
 
 1. Start a `queue` holding only index `0` and an empty `visited` set.
 2. Pop a `start_index`; skip it when already in `visited`, otherwise mark it.
 3. For every `end_index` whose slice `s[start_index:end_index]` is in
-   `word_set`, enqueue `end_index`; return `True` immediately when such a
-   slice ends exactly at `len(s)`.
+   `word_set`, enqueue `end_index`; return `True` immediately when such a slice ends exactly at `len(s)`.
 4. When the queue empties without reaching the end, return `False`.
 
 #### Walkthrough
 
-Let us run the BFS on Example 3: `s = "catsandog"`, `wordDict =
-["cats","dog","sand","and","cat"]`, where the expected Output is `false`.
-Positions run from `0` to `9`, and `9` is the goal. Each line shows one queue
-pop and its effect:
+Let us run the BFS on Example 3: `s = "catsandog"`, `wordDict = ["cats","dog","sand","and","cat"]`, where the expected Output is `false`. Positions run from `0` to `9`, and `9` is the goal. Each line shows one queue pop and its effect:
 
 ```text
 pop 0   words "cat" -> 3, "cats" -> 4    queue=[3, 4]    visited={0}
@@ -212,17 +176,11 @@ pop 7   s[7:9]="og": no word starts      queue=[7]       visited={0, 3, 4, 7}
 pop 7   already visited: skipped         queue=[]
 ```
 
-Position `7` is reachable two ways (`"cat" + "sand"` and `"cats" + "and"`),
-so it is enqueued twice, but the `visited` set turns the second pop into a
-no-op instead of a re-expansion: that is the mechanism that keeps each
-position processed at most once. No word starts at position `7` (neither
-`"o"` nor `"og"` is in `word_set`), so no pop ever reaches position `9`. The
-queue drains and the function returns `False`, matching the expected Output.
+Position `7` is reachable two ways (`"cat" + "sand"` and `"cats" + "and"`), so it is enqueued twice, but the `visited` set turns the second pop into a no-op instead of a re-expansion: that is the mechanism that keeps each position processed at most once. No word starts at position `7` (neither `"o"` nor `"og"` is in `word_set`), so no pop ever reaches position `9`. The queue drains and the function returns `False`, matching the expected Output.
 
 #### Solution
 
-The code is the pop-and-expand loop from the walkthrough, with the early
-`return True` firing when a word ends exactly at `len(s)`.
+The code is the pop-and-expand loop from the walkthrough, with the early `return True` firing when a word ends exactly at `len(s)`.
 
 ```python
 from collections import deque
@@ -276,13 +234,7 @@ Space for the queue, visited set, and word set.
 
 #### Derivation
 
-The BFS repairs the re-exploration by managing an explicit queue, but the
-recursive shape of the brute force can be kept instead. Its only flaw is
-recomputation: the answer to "can `s[start_index:]` be segmented?" depends
-solely on `start_index`, so once computed it can be stored and reused. That
-is [memoization](https://en.wikipedia.org/wiki/Memoization): the recursion is
-unchanged, but a `memo` dictionary keyed on `start_index` answers every
-revisit without recursing.
+The BFS repairs the re-exploration by managing an explicit queue, but the recursive shape of the brute force can be kept instead. Its only flaw is recomputation: the answer to "can `s[start_index:]` be segmented?" depends solely on `start_index`, so once computed it can be stored and reused. That is [memoization](https://en.wikipedia.org/wiki/Memoization): the recursion is unchanged, but a `memo` dictionary keyed on `start_index` answers every revisit without recursing.
 
 1. Define `dp(start_index)` as "can `s[start_index:]` be segmented?".
 2. On entry, return `memo[start_index]` if this index was already computed.
@@ -292,10 +244,7 @@ revisit without recursing.
 
 #### Walkthrough
 
-Example 1 succeeds on its first path, so no index is ever revisited and the
-memo never fires there. Example 3 does exercise it: `s = "catsandog"`,
-`wordDict = ["cats","dog","sand","and","cat"]`, expected Output `false`. The
-trace indents one level per recursive call:
+Example 1 succeeds on its first path, so no index is ever revisited and the memo never fires there. Example 3 does exercise it: `s = "catsandog"`, `wordDict = ["cats","dog","sand","and","cat"]`, expected Output `false`. The trace indents one level per recursive call:
 
 ```text
 dp(0)  s[0:]="catsandog"       "cat" matches -> recurse
@@ -310,17 +259,11 @@ dp(0)  continues               "cats" matches -> recurse
 dp(0) -> False, memo[0] = False
 ```
 
-Position `7` is reached twice: once through `"cat" + "sand"` and once through
-`"cats" + "and"`. The first visit scans `"o"` and `"og"`, finds no word, and
-stores `memo[7] = False`; the second visit returns that stored answer without
-scanning anything. The brute force would have redone the whole suffix search
-from `7` for every prefix landing there. With no boundary working anywhere,
-`dp(0)` returns `False`, matching the expected Output for Example 3.
+Position `7` is reached twice: once through `"cat" + "sand"` and once through `"cats" + "and"`. The first visit scans `"o"` and `"og"`, finds no word, and stores `memo[7] = False`; the second visit returns that stored answer without scanning anything. The brute force would have redone the whole suffix search from `7` for every prefix landing there. With no boundary working anywhere, `dp(0)` returns `False`, matching the expected Output for Example 3.
 
 #### Solution
 
-The code is the brute force recursion with the `memo` lookup and store
-wrapped around the boundary loop.
+The code is the brute force recursion with the `memo` lookup and store wrapped around the boundary loop.
 
 ```python
 from typing import List
@@ -376,14 +319,7 @@ O(n) for memoization cache and recursion stack, plus O(m × k) for the word set.
 
 #### Derivation
 
-The memoized recursion still asks from the top: "can the suffix from here be
-segmented?". Turn the question around and build from the bottom instead: "can
-the prefix ending here be segmented?". Let `dp[i]` record whether `s[0:i]`
-can be segmented. A prefix `s[0:i]` splits cleanly exactly when some earlier
-boundary `j` has `dp[j]` true and the final piece `s[j:i]` is a dictionary
-word, so every `dp[i]` is computed from smaller prefixes with no recursion at
-all: the iterative
-[bottom-up DP](https://en.wikipedia.org/wiki/Dynamic_programming).
+The memoized recursion still asks from the top: "can the suffix from here be segmented?". Turn the question around and build from the bottom instead: "can the prefix ending here be segmented?". Let `dp[i]` record whether `s[0:i]` can be segmented. A prefix `s[0:i]` splits cleanly exactly when some earlier boundary `j` has `dp[j]` true and the final piece `s[j:i]` is a dictionary word, so every `dp[i]` is computed from smaller prefixes with no recursion at all: the iterative [bottom-up DP](https://en.wikipedia.org/wiki/Dynamic_programming).
 
 1. Initialize `dp[0] = True` because the empty prefix is trivially
    segmentable.
@@ -394,14 +330,9 @@ all: the iterative
 
 #### Recurrence
 
-Let `dp[i]` be true when the prefix `s[0:i]` splits cleanly into dictionary
-words. Splitting on where the *last* word starts gives a disjunction over every
-candidate boundary `j`:
+Let `dp[i]` be true when the prefix `s[0:i]` splits cleanly into dictionary words. Splitting on where the *last* word starts gives a disjunction over every candidate boundary `j`:
 
-$$
-dp[i] = \bigvee_{j=0}^{i-1} \Bigl( dp[j] \ \wedge \ s[j{:}i] \in \text{wordDict} \Bigr),
-\qquad dp[0] = \text{true}
-$$
+$$ dp[i] = \bigvee_{j=0}^{i-1} \Bigl( dp[j] \ \wedge \ s[j{:}i] \in \text{wordDict} \Bigr), \qquad dp[0] = \text{true} $$
 
 ```text
 dp[0] = True
@@ -409,17 +340,11 @@ dp[i] = OR over j = 0 .. i - 1 of (dp[j] and s[j:i] in word_set)
         for 1 <= i <= n
 ```
 
-\(\bigvee\) is the "or" counterpart of \(\sum\): it runs over the same index
-range, but combines with logical **or** instead of addition, so `dp[i]` is true
-as soon as one boundary works. That is exactly what the inner loop's `break`
-exploits. The empty prefix is vacuously segmentable, which seeds `dp[0]`.
+\(\bigvee\) is the "or" counterpart of \(\sum\): it runs over the same index range, but combines with logical **or** instead of addition, so `dp[i]` is true as soon as one boundary works. That is exactly what the inner loop's `break` exploits. The empty prefix is vacuously segmentable, which seeds `dp[0]`.
 
 #### Walkthrough
 
-Let us fill `dp` by hand on Example 1: `s = "leetcode"`, `wordDict =
-["leet","code"]`, so `n = 8` and `dp` has nine entries with `dp[0] = True`.
-For each `i` the inner loop scans `j` from `0` upward, asking whether `dp[j]`
-is true and `s[j:i]` is a word:
+Let us fill `dp` by hand on Example 1: `s = "leetcode"`, `wordDict = ["leet","code"]`, so `n = 8` and `dp` has nine entries with `dp[0] = True`. For each `i` the inner loop scans `j` from `0` upward, asking whether `dp[j]` is true and `s[j:i]` is a word:
 
 ```text
 i=1   j=0: "l" not a word                            dp[1] = False
@@ -432,17 +357,11 @@ i=7   j=0: "leetcod" no; j=4: "cod" no               dp[7] = False
 i=8   j=0: "leetcode" no; j=4: s[4:8]="code" yes     dp[8] = True
 ```
 
-Only boundaries `j` with `dp[j]` already true can contribute, so the
-annotations list just those candidates: from `i = 5` onward they are `j = 0`
-and `j = 4`. The word `"leet"` ending at `4` sets `dp[4]`, and at `i = 8` the
-whole-string slice `"leetcode"` fails first before `"code"` continues from
-the `j = 4` boundary and sets `dp[8]`, where the `break` fires. The function
-returns `dp[8] = True`, matching the expected Output for Example 1.
+Only boundaries `j` with `dp[j]` already true can contribute, so the annotations list just those candidates: from `i = 5` onward they are `j = 0` and `j = 4`. The word `"leet"` ending at `4` sets `dp[4]`, and at `i = 8` the whole-string slice `"leetcode"` fails first before `"code"` continues from the `j = 4` boundary and sets `dp[8]`, where the `break` fires. The function returns `dp[8] = True`, matching the expected Output for Example 1.
 
 #### Solution
 
-The code is the double loop from the walkthrough, with the `break` firing as
-soon as `dp[i]` is settled.
+The code is the double loop from the walkthrough, with the `break` firing as soon as `dp[i]` is settled.
 
 ```python
 from typing import List
@@ -490,15 +409,7 @@ O(n) for the DP array, plus O(m × k) for storing the word set.
 
 #### Derivation
 
-The bottom-up DP checks each boundary pair `(j, i)` by slicing and hashing
-`s[j:i]`, paying up to `O(n)` per candidate and testing every length
-independently. A [Trie](https://en.wikipedia.org/wiki/Trie) (prefix tree)
-built from the dictionary repairs both costs: starting from a reachable
-position `i`, descend the Trie following `s[i], s[i+1], ...` one character at
-a time. Every node marked `is_word` along the descent reveals a word starting
-at `i`, so one walk discovers all of them at once, and the walk stops the
-moment the next character has no child, since no dictionary word can extend
-that span.
+The bottom-up DP checks each boundary pair `(j, i)` by slicing and hashing `s[j:i]`, paying up to `O(n)` per candidate and testing every length independently. A [Trie](https://en.wikipedia.org/wiki/Trie) (prefix tree) built from the dictionary repairs both costs: starting from a reachable position `i`, descend the Trie following `s[i], s[i+1], ...` one character at a time. Every node marked `is_word` along the descent reveals a word starting at `i`, so one walk discovers all of them at once, and the walk stops the moment the next character has no child, since no dictionary word can extend that span.
 
 1. Build the Trie once: for each `word`, walk `node.children` down from
    `root`, creating nodes as needed, and set `is_word` on the final node.
@@ -510,11 +421,7 @@ that span.
 
 #### Walkthrough
 
-Let us run the Trie walk on Example 1: `s = "leetcode"`, `wordDict =
-["leet","code"]`. The Trie holds two branches from `root`: `l-e-e-t` with
-`is_word` set on the final `t` node, and `c-o-d-e` with `is_word` set on the
-final `e` node. As before, `dp` starts as `[True, False, ..., False]`, and
-only positions with `dp[i]` true launch a walk:
+Let us run the Trie walk on Example 1: `s = "leetcode"`, `wordDict = ["leet","code"]`. The Trie holds two branches from `root`: `l-e-e-t` with `is_word` set on the final `t` node, and `c-o-d-e` with `is_word` set on the final `e` node. As before, `dp` starts as `[True, False, ..., False]`, and only positions with `dp[i]` true launch a walk:
 
 ```text
 i=0     dp[0] True: walk 'l','e','e','t'   is_word at j=3 -> dp[4] = True
@@ -524,16 +431,11 @@ i=4     dp[4] True: walk 'c','o','d','e'   is_word at j=7 -> dp[8] = True
 i=5..7  dp[i] False: no walk
 ```
 
-The walk from `i = 0` finds `"leet"` in one descent and stops immediately
-after, because no dictionary word continues with `'c'` beyond `"leet"`. The
-walk from `i = 4` finds `"code"` and reaches the end of the string. No slice
-is ever taken: each step consumes one character and one child lookup. The
-function returns `dp[8] = True`, matching the expected Output for Example 1.
+The walk from `i = 0` finds `"leet"` in one descent and stops immediately after, because no dictionary word continues with `'c'` beyond `"leet"`. The walk from `i = 4` finds `"code"` and reaches the end of the string. No slice is ever taken: each step consumes one character and one child lookup. The function returns `dp[8] = True`, matching the expected Output for Example 1.
 
 #### Solution
 
-The code builds the Trie, then runs the walkthrough's descent from every
-reachable position `i`.
+The code builds the Trie, then runs the walkthrough's descent from every reachable position `i`.
 
 ```python
 from typing import List
@@ -599,45 +501,23 @@ The Trie stores all characters from all words, plus the O(n) DP array.
 
 #### Derivation
 
-The recursion is the algorithm, and none of it changes here: the same scan over
-every word boundary from `start_index`, the same recursive call on each match,
-the same base case at `start_index == len(s)`. Only the bookkeeping moves.
-[`functools.cache`](https://docs.python.org/3/library/functools.html#functools.cache)
-wraps a function in an unbounded dictionary keyed on its arguments, consulting
-that dictionary before the body runs and storing the return value after, which
-is what the explicit `memo` did with `start_index`.
+The recursion is the algorithm, and none of it changes here: the same scan over every word boundary from `start_index`, the same recursive call on each match, the same base case at `start_index == len(s)`. Only the bookkeeping moves. [`functools.cache`](https://docs.python.org/3/library/functools.html#functools.cache) wraps a function in an unbounded dictionary keyed on its arguments, consulting that dictionary before the body runs and storing the return value after, which is what the explicit `memo` did with `start_index`.
 
-The key is the one detail worth checking. `functools.cache` hashes the argument
-tuple, so every parameter must be hashable, and `wordDict` is a list. That is
-not a problem here because the state is a single integer position: `s` and
-`word_set` are fixed for the whole call and stay captured by the closure rather
-than passed down, so the cached function takes `start_index` alone. Rewriting
-the recursion to pass the remaining suffix or the dictionary as parameters would
-either enlarge the key needlessly or fail outright with
-`TypeError: unhashable type: 'list'`.
+The key is the one detail worth checking. `functools.cache` hashes the argument tuple, so every parameter must be hashable, and `wordDict` is a list. That is not a problem here because the state is a single integer position: `s` and `word_set` are fixed for the whole call and stay captured by the closure rather than passed down, so the cached function takes `start_index` alone. Rewriting the recursion to pass the remaining suffix or the dictionary as parameters would either enlarge the key needlessly or fail outright with `TypeError: unhashable type: 'list'`.
 
 1. Build `word_set = set(wordDict)` for constant-time membership tests.
 2. Decorate the inner `dp` with `@cache`, taking `start_index` as its only
    parameter.
 3. Write the body as the brute force wrote it: return `True` at
-   `start_index == len(s)`, otherwise scan `end_index` upward and recurse on
-   `dp(end_index)` whenever `s[start_index:end_index]` is a dictionary word.
+   `start_index == len(s)`, otherwise scan `end_index` upward and recurse on `dp(end_index)` whenever `s[start_index:end_index]` is a dictionary word.
 4. Call `dp(0)`. Each of the `n + 1` positions runs the body at most once, and
-   every later arrival at a position is answered from the decorator's
-   dictionary.
+   every later arrival at a position is answered from the decorator's dictionary.
 
-Five lines vanish: the `memo = {}` declaration, the two-line lookup, and the
-two stores on the success and failure paths. Defining `dp` inside `wordBreak`
-also keeps the cache per call, which matters more here than usual: the cached
-answers depend on `s` and `word_set`, so a cache surviving across calls would
-return another input's verdicts.
+Five lines vanish: the `memo = {}` declaration, the two-line lookup, and the two stores on the success and failure paths. Defining `dp` inside `wordBreak` also keeps the cache per call, which matters more here than usual: the cached answers depend on `s` and `word_set`, so a cache surviving across calls would return another input's verdicts.
 
 #### Walkthrough
 
-Let us run the decorated recursion on Example 3: `s = "catsandog"`,
-`wordDict = ["cats","dog","sand","and","cat"]`, whose expected Output is
-`false`. The trace indents one level per call, noting whether the decorator ran
-the body or answered from its dictionary:
+Let us run the decorated recursion on Example 3: `s = "catsandog"`, `wordDict = ["cats","dog","sand","and","cat"]`, whose expected Output is `false`. The trace indents one level per call, noting whether the decorator ran the body or answered from its dictionary:
 
 ```text
 dp(0)   s[0:]="catsandog"    miss: "cat" matches -> recurse
@@ -652,19 +532,11 @@ dp(0)   continues            "cats" matches -> recurse
 dp(0) -> False
 ```
 
-Position `7` is reached twice, once through `"cat" + "sand"` and once through
-`"cats" + "and"`. The first arrival scans `"o"` and `"og"`, finds no word, and
-returns `False`, which the decorator stores on the way out; the second arrival
-never enters the body at all. Asking the decorator afterwards confirms the
-shape of the search: `dp.cache_info()` reports `hits=1, misses=4` with four
-entries, one for each distinct position the search reached (`0`, `3`, `4`, and
-`7`). No boundary works anywhere, so `dp(0)` returns `False`, matching the
-expected Output for Example 3.
+Position `7` is reached twice, once through `"cat" + "sand"` and once through `"cats" + "and"`. The first arrival scans `"o"` and `"og"`, finds no word, and returns `False`, which the decorator stores on the way out; the second arrival never enters the body at all. Asking the decorator afterwards confirms the shape of the search: `dp.cache_info()` reports `hits=1, misses=4` with four entries, one for each distinct position the search reached (`0`, `3`, `4`, and `7`). No boundary works anywhere, so `dp(0)` returns `False`, matching the expected Output for Example 3.
 
 #### Solution
 
-The brute force recursion unchanged, with one decorator line above it doing
-what the memo lookup and the two stores did.
+The brute force recursion unchanged, with one decorator line above it doing what the memo lookup and the two stores did.
 
 ```python
 from functools import cache
@@ -700,38 +572,22 @@ class Solution:
 
 ##### Time Complexity: `O(n³ + m×k)`
 
-The reachable states are unchanged: each of the `n` starting indices runs its
-body at most once, trying `O(n)` ending positions, and each candidate
-`s[start_index:end_index]` is sliced and hashed at a cost of up to `O(n)`
-because the slice length is not capped by the longest dictionary word, giving
-`O(n³)` for the search itself. Building `word_set` adds `O(m × k)`. The
-decorator's lookup hashes one small integer, which is `O(1)`, so it does not
-enter the bound. Capping the ending position at the maximum word length would
-tighten the search portion to `O(n² × k)` here exactly as it would for the
-hand-written memo.
+The reachable states are unchanged: each of the `n` starting indices runs its body at most once, trying `O(n)` ending positions, and each candidate `s[start_index:end_index]` is sliced and hashed at a cost of up to `O(n)` because the slice length is not capped by the longest dictionary word, giving `O(n³)` for the search itself. Building `word_set` adds `O(m × k)`. The decorator's lookup hashes one small integer, which is `O(1)`, so it does not enter the bound. Capping the ending position at the maximum word length would tighten the search portion to `O(n² × k)` here exactly as it would for the hand-written memo.
 
 ##### Space Complexity: `O(n + m×k)`
 
-The decorator's dictionary holds at most one entry per starting index, so `O(n)`,
-and the recursion stack reaches `O(n)` depth in the worst case. The word set
-contributes `O(m × k)`.
+The decorator's dictionary holds at most one entry per starting index, so `O(n)`, and the recursion stack reaches `O(n)` depth in the worst case. The word set contributes `O(m × k)`.
 
 #### Key Insights
 
 - Decorating the brute force recursion produces the memoized solution outright,
-  which shows how little of memoization is algorithm: the subproblem structure
-  was already there, and only the storage of answers was missing.
+  which shows how little of memoization is algorithm: the subproblem structure was already there, and only the storage of answers was missing.
 - The suffix question depends on `start_index` alone, and that is exactly why a
-  cache keyed on the argument tuple works without adjustment: the subproblem
-  state and the function signature already coincide.
+  cache keyed on the argument tuple works without adjustment: the subproblem state and the function signature already coincide.
 - Hashability is the constraint to watch when reaching for `functools.cache`.
-  Keeping `s` and `word_set` in the closure keeps the key to one integer, while
-  a signature carrying `wordDict` would raise `TypeError` on the first call
-  because lists are unhashable.
+  Keeping `s` and `word_set` in the closure keeps the key to one integer, while a signature carrying `wordDict` would raise `TypeError` on the first call because lists are unhashable.
 - Because the cached answers are only valid for one `s` and one dictionary, the
-  decorated function must be nested inside `wordBreak`. Decorating `wordBreak`
-  itself would also fail on the unhashable `wordDict`, and a module-level cached
-  helper would answer later calls with an earlier input's verdicts.
+  decorated function must be nested inside `wordBreak`. Decorating `wordBreak` itself would also fail on the unhashable `wordDict`, and a module-level cached helper would answer later calls with an earlier input's verdicts.
 
 ## Comparison of Solutions
 

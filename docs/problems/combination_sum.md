@@ -51,32 +51,16 @@ These are the only two combinations.
 
 ## Deriving the Solution
 
-Enumerating combinations rather than permutations is at heart a question about
-order: `[2,2,3]` and `[2,3,2]` are the same multiset, so every solution must
-build each combination in exactly one canonical order. All three approaches below
-share that discipline: once the search or the table moves past a candidate, it
-never returns to it, so no combination can ever be produced a second way.
+Enumerating combinations rather than permutations is at heart a question about order: `[2,2,3]` and `[2,3,2]` are the same multiset, so every solution must build each combination in exactly one canonical order. All three approaches below share that discipline: once the search or the table moves past a candidate, it never returns to it, so no combination can ever be produced a second way.
 
 1. **Start literal.** At each candidate, branch on a binary decision: include
-   `candidates[index]` and stay on the same index (so it can be reused), or
-   exclude it and move to `index + 1`. The exclude branch never revisits earlier
-   candidates, so uniqueness is automatic; the cost is the full exponential
-   decision tree: see
-   [Include-Exclude Backtracking](#include-exclude-backtracking).
+   `candidates[index]` and stay on the same index (so it can be reused), or exclude it and move to `index + 1`. The exclude branch never revisits earlier candidates, so uniqueness is automatic; the cost is the full exponential decision tree: see [Include-Exclude Backtracking](#include-exclude-backtracking).
 2. **Spot the waste.** The binary tree walks doomed branches one exclude at a
-   time: once `remaining` drops below every candidate still available, no
-   include can succeed, yet the tree still visits each exclusion step
-   separately.
+   time: once `remaining` drops below every candidate still available, no include can succeed, yet the tree still visits each exclusion step separately.
 3. **Sort and prune.** Rewrite the fork as a loop over candidates from `start`
-   onward and sort the input first: the moment one candidate exceeds
-   `remaining`, every later one does too, so a single `break` discards the rest
-   of the level: see
-   [Sorted Backtracking with Pruning](#sorted-backtracking-with-pruning).
+   onward and sort the input first: the moment one candidate exceeds `remaining`, every later one does too, so a single `break` discards the rest of the level: see [Sorted Backtracking with Pruning](#sorted-backtracking-with-pruning).
 4. **Build up instead of searching down.** Replace the recursion with a table
-   holding, for every sub-target `t`, all combinations summing to `t`, grown one
-   candidate at a time; keeping candidates as the outer loop preserves
-   non-decreasing order, which is what keeps every stored combination unique:
-   see [Bottom-Up Dynamic Programming](#bottom-up-dynamic-programming).
+   holding, for every sub-target `t`, all combinations summing to `t`, grown one candidate at a time; keeping candidates as the outer loop preserves non-decreasing order, which is what keeps every stored combination unique: see [Bottom-Up Dynamic Programming](#bottom-up-dynamic-programming).
 
 ## Solutions
 
@@ -84,10 +68,7 @@ never returns to it, so no combination can ever be produced a second way.
 
 #### Derivation
 
-The most direct way to think about the problem is a [binary decision tree](https://en.wikipedia.org/wiki/Backtracking): at each
-candidate, we either include it (and stay put so it can be used again) or exclude it
-(and move to the next candidate). This frames the search without needing to sort the
-input first.
+The most direct way to think about the problem is a [binary decision tree](https://en.wikipedia.org/wiki/Backtracking): at each candidate, we either include it (and stay put so it can be used again) or exclude it (and move to the next candidate). This frames the search without needing to sort the input first.
 
 The steps:
 
@@ -98,25 +79,15 @@ The steps:
 4. Otherwise branch twice: include `candidates[index]` while recursing on the same
    `index` (enabling reuse), then exclude it and recurse on `index + 1`.
 
-Because the "exclude" branch only ever advances the index, no candidate is ever
-revisited after we move past it. Each combination is therefore produced exactly once
-in the order its candidates first appear, guaranteeing uniqueness.
+Because the "exclude" branch only ever advances the index, no candidate is ever revisited after we move past it. Each combination is therefore produced exactly once in the order its candidates first appear, guaranteeing uniqueness.
 
 #### Walkthrough
 
-Let us watch the Include-Exclude Backtracking code run on Example 1:
-`candidates = [2,3,6,7]`, `target = 7`. Expected output: `[[2,2,3],[7]]`.
+Let us watch the Include-Exclude Backtracking code run on Example 1: `candidates = [2,3,6,7]`, `target = 7`. Expected output: `[[2,2,3],[7]]`.
 
-Each call carries three pieces of state: `index` (which candidate we may take next),
-`remaining` (how much target is left), and `current` (the partial combination built so
-far). At every live node the code makes two recursive calls: include `candidates[index]`
-(staying on the same `index` so it can be reused), then exclude it (moving to `index + 1`).
-A call is recorded when `remaining` hits `0`, and abandoned when `remaining` goes negative
-or `index` runs off the end.
+Each call carries three pieces of state: `index` (which candidate we may take next), `remaining` (how much target is left), and `current` (the partial combination built so far). At every live node the code makes two recursive calls: include `candidates[index]` (staying on the same `index` so it can be reused), then exclude it (moving to `index + 1`). A call is recorded when `remaining` hits `0`, and abandoned when `remaining` goes negative or `index` runs off the end.
 
-Below is the call tree, indented by depth. To keep it readable we show the two branches
-that succeed in full and collapse the overshooting branches to a single `dead` line. The
-candidates are `[2,3,6,7]`, so `index 0 -> 2`, `index 1 -> 3`, `index 2 -> 6`, `index 3 -> 7`.
+Below is the call tree, indented by depth. To keep it readable we show the two branches that succeed in full and collapse the overshooting branches to a single `dead` line. The candidates are `[2,3,6,7]`, so `index 0 -> 2`, `index 1 -> 3`, `index 2 -> 6`, `index 3 -> 7`.
 
 ```
 backtrack(index=0, remaining=7, current=[])          start: target 7, may take 2
@@ -143,19 +114,13 @@ backtrack(index=0, remaining=7, current=[])          start: target 7, may take 2
         exclude   -> index=4 (off the end)                  dead
 ```
 
-Two leaves reached `remaining == 0` and were recorded, in the order they were found:
-first `[2,2,3]` (build `2 -> 2 -> 3`), then `[7]`. The function returns `result =
-[[2,2,3],[7]]`, which matches the expected Output.
+Two leaves reached `remaining == 0` and were recorded, in the order they were found: first `[2,2,3]` (build `2 -> 2 -> 3`), then `[7]`. The function returns `result = [[2,2,3],[7]]`, which matches the expected Output.
 
-Notice how reuse and uniqueness both fall out of the index handling: taking `2` three
-times was possible because the include branch kept `index=0`, while `[7]` was only ever
-reached through the exclude branches that skipped `2`, `3`, and `6` first. No combination
-is ever produced twice.
+Notice how reuse and uniqueness both fall out of the index handling: taking `2` three times was possible because the include branch kept `index=0`, while `[7]` was only ever reached through the exclude branches that skipped `2`, `3`, and `6` first. No combination is ever produced twice.
 
 #### Solution
 
-The code is the decision tree from the walkthrough: record at `remaining == 0`,
-abandon on overshoot, otherwise fork on include and exclude.
+The code is the decision tree from the walkthrough: record at `remaining == 0`, abandon on overshoot, otherwise fork on include and exclude.
 
 ```python
 from typing import List
@@ -188,16 +153,11 @@ class Solution:
 
 ##### Time Complexity: `O(2^target)` (loosely; `O(N^(target / min_candidate))` tighter)
 
-Every node makes a binary choice, so the decision tree has up to `2^target` leaves
-in the worst case. A tighter bound is `O(N^(target / m))` where `N` is the number of
-candidates and `m` the smallest candidate, since a combination can be at most
-`target / m` long. Copying each valid combination adds a factor proportional to its
-length.
+Every node makes a binary choice, so the decision tree has up to `2^target` leaves in the worst case. A tighter bound is `O(N^(target / m))` where `N` is the number of candidates and `m` the smallest candidate, since a combination can be at most `target / m` long. Copying each valid combination adds a factor proportional to its length.
 
 ##### Space Complexity: `O(target / min_candidate)`
 
-Excluding the output, space is dominated by the recursion stack and the `current`
-list, both bounded by the maximum combination length `target / min_candidate`.
+Excluding the output, space is dominated by the recursion stack and the `current` list, both bounded by the maximum combination length `target / min_candidate`.
 
 #### Key Insights
 
@@ -211,20 +171,12 @@ list, both bounded by the maximum combination length `target / min_candidate`.
 
 #### Derivation
 
-The include-exclude tree wastes effort in two ways: it walks the exclude
-decisions one at a time, and it cannot tell when a branch has become hopeless.
-The same search expressed as a loop repairs both. We explore with the classic
-["choose, explore, unchoose"](https://en.wikipedia.org/wiki/Backtracking) pattern, where each call loops over the candidates
-it may still take, and add one preparation step that unlocks a real prune. Two
-details make it both correct and efficient:
+The include-exclude tree wastes effort in two ways: it walks the exclude decisions one at a time, and it cannot tell when a branch has become hopeless. The same search expressed as a loop repairs both. We explore with the classic ["choose, explore, unchoose"](https://en.wikipedia.org/wiki/Backtracking) pattern, where each call loops over the candidates it may still take, and add one preparation step that unlocks a real prune. Two details make it both correct and efficient:
 
 1. Sort `candidates` ascending. This lets us `break` out of the loop the moment a
-   candidate exceeds the remaining target, since every later candidate is at least
-   as large.
+   candidate exceeds the remaining target, since every later candidate is at least as large.
 2. Pass the current index `i` (rather than `i + 1`) into the recursive call. This
-   allows a number to be reused an unlimited number of times while the `start`
-   bound still prevents us from revisiting earlier candidates, which is what avoids
-   counting `[2,3]` and `[3,2]` as distinct combinations.
+   allows a number to be reused an unlimited number of times while the `start` bound still prevents us from revisiting earlier candidates, which is what avoids counting `[2,3]` and `[3,2]` as distinct combinations.
 
 The steps:
 
@@ -233,19 +185,13 @@ The steps:
    `current` combination.
 3. When `remaining` hits `0`, record a copy of `current` as a valid combination.
 4. For each candidate from `start` onward, `break` if it exceeds `remaining`,
-   otherwise pick it, recurse on the same `i` allowing reuse, then unpick and
-   continue.
+   otherwise pick it, recurse on the same `i` allowing reuse, then unpick and continue.
 
-Because we only ever move the start index forward, each combination is generated in
-non-decreasing order exactly once, guaranteeing uniqueness.
+Because we only ever move the start index forward, each combination is generated in non-decreasing order exactly once, guaranteeing uniqueness.
 
 #### Walkthrough
 
-Let us run the pruned search on Example 1: `candidates = [2,3,6,7]` (already
-sorted), `target = 7`. Each call loops `i` upward from its `start`; a `take` line
-descends one level, and every `break` line kills the remainder of a loop in one
-stroke. Indices map to candidates as `i=0 -> 2`, `i=1 -> 3`, `i=2 -> 6`,
-`i=3 -> 7`.
+Let us run the pruned search on Example 1: `candidates = [2,3,6,7]` (already sorted), `target = 7`. Each call loops `i` upward from its `start`; a `take` line descends one level, and every `break` line kills the remainder of a loop in one stroke. Indices map to candidates as `i=0 -> 2`, `i=1 -> 3`, `i=2 -> 6`, `i=3 -> 7`.
 
 ```text
 backtrack(start=0, remaining=7, current=[])
@@ -269,18 +215,11 @@ backtrack(start=0, remaining=7, current=[])
                  remaining == 0 -> RECORD [7]
 ```
 
-Compare the `[2,2,2]` node with its include-exclude counterpart: there, the
-search still descended an exclude chain before every option died; here, `2 > 1`
-fails once and the `break` discards candidates `3`, `6`, and `7` unexamined,
-because sorting guarantees they are even larger. Reuse still comes from recursing
-on the same `i` (three `2`s in `[2,2,3]`), and `[7]` appears only after the loop
-has walked past `2`, `3`, and `6`. The two recorded leaves give
-`result = [[2,2,3],[7]]`, matching the expected Output.
+Compare the `[2,2,2]` node with its include-exclude counterpart: there, the search still descended an exclude chain before every option died; here, `2 > 1` fails once and the `break` discards candidates `3`, `6`, and `7` unexamined, because sorting guarantees they are even larger. Reuse still comes from recursing on the same `i` (three `2`s in `[2,2,3]`), and `[7]` appears only after the loop has walked past `2`, `3`, and `6`. The two recorded leaves give `result = [[2,2,3],[7]]`, matching the expected Output.
 
 #### Solution
 
-The code is the loop from the walkthrough: sort once, then choose, explore,
-unchoose, with the `break` prune guarding the loop.
+The code is the loop from the walkthrough: sort once, then choose, explore, unchoose, with the `break` prune guarding the loop.
 
 ```python
 from typing import List
@@ -315,16 +254,11 @@ class Solution:
 
 ##### Time Complexity: `O(N^(target / min_candidate))`
 
-Let `N` be the number of candidates and `m` the smallest candidate. The recursion
-tree has depth at most `target / m` (the longest a combination can be), and each
-node branches up to `N` ways. Copying each valid combination costs an additional
-factor proportional to its length. This exponential bound is expected for an
-enumeration problem; the sort-and-prune keeps the constant factors low in practice.
+Let `N` be the number of candidates and `m` the smallest candidate. The recursion tree has depth at most `target / m` (the longest a combination can be), and each node branches up to `N` ways. Copying each valid combination costs an additional factor proportional to its length. This exponential bound is expected for an enumeration problem; the sort-and-prune keeps the constant factors low in practice.
 
 ##### Space Complexity: `O(target / min_candidate)`
 
-Excluding the output, space is dominated by the recursion stack and the `current`
-list, both bounded by the maximum combination length `target / min_candidate`.
+Excluding the output, space is dominated by the recursion stack and the `current` list, both bounded by the maximum combination length `target / min_candidate`.
 
 #### Key Insights
 
@@ -341,13 +275,7 @@ list, both bounded by the maximum combination length `target / min_candidate`.
 
 #### Derivation
 
-Instead of recursing, we [build up answers for every sub-target](https://en.wikipedia.org/wiki/Dynamic_programming) from `0` to
-`target`. The outer loop over candidates (rather than an inner loop) is the trick
-that prevents duplicate combinations: by the time we consider a candidate, every
-combination already stored uses only earlier candidates, so appending the current
-candidate keeps each combination in non-decreasing order and unique. The
-Invariant below states that property formally, along with why the naive
-`dp[t] = union of dp[t - c] + [c]` relation would over-count.
+Instead of recursing, we [build up answers for every sub-target](https://en.wikipedia.org/wiki/Dynamic_programming) from `0` to `target`. The outer loop over candidates (rather than an inner loop) is the trick that prevents duplicate combinations: by the time we consider a candidate, every combination already stored uses only earlier candidates, so appending the current candidate keeps each combination in non-decreasing order and unique. The Invariant below states that property formally, along with why the naive `dp[t] = union of dp[t - c] + [c]` relation would over-count.
 
 The steps:
 
@@ -360,15 +288,9 @@ The steps:
 
 #### Invariant
 
-This DP is collection-valued: each `dp[t]` holds a *list of combinations*
-summing to \(t\), not a scalar optimum. There is no honest recurrence to state
-here, because the obvious one is false. The relation to reach for is a union over
-the last candidate added:
+This DP is collection-valued: each `dp[t]` holds a *list of combinations* summing to \(t\), not a scalar optimum. There is no honest recurrence to state here, because the obvious one is false. The relation to reach for is a union over the last candidate added:
 
-$$
-dp[t] \ \stackrel{?}{=} \bigcup_{\substack{c \,\in\, \text{candidates} \\ c \,\le\, t}}
-\bigl\{\, \textit{combo} + [c] \ :\ \textit{combo} \in dp[t - c] \,\bigr\}
-$$
+$$ dp[t] \ \stackrel{?}{=} \bigcup_{\substack{c \,\in\, \text{candidates} \\ c \,\le\, t}} \bigl\{\, \textit{combo} + [c] \ :\ \textit{combo} \in dp[t - c] \,\bigr\} $$
 
 ```text
 dp[t] =? union of { combo + [c] : combo in dp[t - c] }
@@ -376,21 +298,11 @@ dp[t] =? union of { combo + [c] : combo in dp[t - c] }
         (the ? marks this relation as FALSE: it is stated only to be refuted)
 ```
 
-That relation over-counts. With `candidates = [2,3]` and \(t = 5\) it appends `3` to `[2]`
-drawn from \(dp[2]\), and appends `2` to `[3]` drawn from \(dp[3]\), producing
-both `[2,3]` and `[3,2]`: two permutations of one combination. The relation
-carries no notion of candidate order, so nothing in it can rule the duplicate
-out.
+That relation over-counts. With `candidates = [2,3]` and \(t = 5\) it appends `3` to `[2]` drawn from \(dp[2]\), and appends `2` to `[3]` drawn from \(dp[3]\), producing both `[2,3]` and `[3,2]`: two permutations of one combination. The relation carries no notion of candidate order, so nothing in it can rule the duplicate out.
 
-What the code maintains instead is a property of the outer loop. Let \(i\) be
-the number of sorted candidates processed so far. After each pass of the outer
-loop:
+What the code maintains instead is a property of the outer loop. Let \(i\) be the number of sorted candidates processed so far. After each pass of the outer loop:
 
-$$
-\forall t,\ \forall \textit{combo} \in dp[t]:\quad
-\textit{combo} = [\,c_1 \le c_2 \le \cdots \le c_k\,]
-\quad\text{with every } c_j \in \{\text{candidates}[0], \ldots, \text{candidates}[i-1]\}
-$$
+$$ \forall t,\ \forall \textit{combo} \in dp[t]:\quad \textit{combo} = [\,c_1 \le c_2 \le \cdots \le c_k\,] \quad\text{with every } c_j \in \{\text{candidates}[0], \ldots, \text{candidates}[i-1]\} $$
 
 ```text
 for all t, for all combo in dp[t]:
@@ -399,36 +311,17 @@ for all t, for all combo in dp[t]:
         (i = sorted candidates processed so far; holds after each outer pass)
 ```
 
-Every combination stored anywhere in the table draws only on the first \(i\)
-candidates, and is listed in non-decreasing order.
+Every combination stored anywhere in the table draws only on the first \(i\) candidates, and is listed in non-decreasing order.
 
-Both writes to the table preserve it. The initialization `dp[0] = [[]]` holds it
-trivially at \(i = 0\): the empty combination is non-decreasing and uses no
-candidate at all. The single append step `dp[t].append(combo + [candidate])`
-holds it too. Because `candidates` is sorted and processed in order, `candidate`
-is greater than or equal to every candidate available to a stored `combo`, hence
-greater than or equal to every element of `combo` itself. Appending it at the
-*end* therefore keeps the combination non-decreasing, and introduces no
-candidate from beyond position \(i\).
+Both writes to the table preserve it. The initialization `dp[0] = [[]]` holds it trivially at \(i = 0\): the empty combination is non-decreasing and uses no candidate at all. The single append step `dp[t].append(combo + [candidate])` holds it too. Because `candidates` is sorted and processed in order, `candidate` is greater than or equal to every candidate available to a stored `combo`, hence greater than or equal to every element of `combo` itself. Appending it at the *end* therefore keeps the combination non-decreasing, and introduces no candidate from beyond position \(i\).
 
-At loop exit \(i\) is the full candidate count, so `dp[target]` holds every
-valid combination, each already in canonical non-decreasing order, and each
-exactly once, since a combination has exactly one non-decreasing listing and the
-appends can only have built it in that order. No deduplication pass is needed.
+At loop exit \(i\) is the full candidate count, so `dp[target]` holds every valid combination, each already in canonical non-decreasing order, and each exactly once, since a combination has exactly one non-decreasing listing and the appends can only have built it in that order. No deduplication pass is needed.
 
-This is what makes the loop nesting load-bearing rather than stylistic.
-Candidates must be the outer loop and sub-targets the inner one. Swap them and
-each `dp[t]` is finished while later candidates are still unprocessed, so a
-smaller candidate can be appended after a larger one: the invariant fails, and
-the permutation duplicates of the naive relation come straight back.
+This is what makes the loop nesting load-bearing rather than stylistic. Candidates must be the outer loop and sub-targets the inner one. Swap them and each `dp[t]` is finished while later candidates are still unprocessed, so a smaller candidate can be appended after a larger one: the invariant fails, and the permutation duplicates of the naive relation come straight back.
 
 #### Walkthrough
 
-Let us grow the table by hand on Example 1: `candidates = [2,3,6,7]` (already
-sorted), `target = 7`. `dp[0]` starts as `[[]]` and every other `dp[t]` starts
-empty. Each candidate sweeps sub-targets `t` upward from its own value, appending
-itself to every combination in `dp[t - candidate]`; the lines below show only the
-entries each pass changes:
+Let us grow the table by hand on Example 1: `candidates = [2,3,6,7]` (already sorted), `target = 7`. `dp[0]` starts as `[[]]` and every other `dp[t]` starts empty. Each candidate sweeps sub-targets `t` upward from its own value, appending itself to every combination in `dp[t - candidate]`; the lines below show only the entries each pass changes:
 
 ```text
 start          dp[0] = [[]]                        all other dp[t] empty
@@ -443,19 +336,11 @@ candidate 6    dp[6] = [[2,2,2], [3,3], [6]]       [] + [6]
 candidate 7    dp[7] = [[2,2,3], [7]]              [] + [7]
 ```
 
-The candidate `2` pass shows reuse working through the upward sweep: `dp[4]`
-reads the `[2]` that the very same pass just wrote into `dp[2]`, and `dp[6]`
-reads `[2,2]`, so one candidate stacks on itself as many times as it fits.
-Uniqueness shows in what never happens: when candidate `3` reaches `t = 5` it
-extends `[2]` into `[2,3]`, but `[3,2]` can never arise, because by the
-invariant no stored combination ever has a smaller candidate appended after a
-larger one. The final `dp[7] = [[2,2,3], [7]]` is returned, matching the
-expected Output.
+The candidate `2` pass shows reuse working through the upward sweep: `dp[4]` reads the `[2]` that the very same pass just wrote into `dp[2]`, and `dp[6]` reads `[2,2]`, so one candidate stacks on itself as many times as it fits. Uniqueness shows in what never happens: when candidate `3` reaches `t = 5` it extends `[2]` into `[2,3]`, but `[3,2]` can never arise, because by the invariant no stored combination ever has a smaller candidate appended after a larger one. The final `dp[7] = [[2,2,3], [7]]` is returned, matching the expected Output.
 
 #### Solution
 
-The code is the table growth from the walkthrough: three nested loops, candidates
-outermost.
+The code is the table growth from the walkthrough: three nested loops, candidates outermost.
 
 ```python
 from typing import List
@@ -480,23 +365,18 @@ class Solution:
 
 ##### Time Complexity: `O(N * target * K)`
 
-For each of `N` candidates and each of up to `target` sub-targets, we copy every
-stored combination, where `K` bounds the total number and length of combinations.
-Since the result set itself can be exponential, this matches the inherent output
-size; the DP adds no asymptotic savings over backtracking for enumeration.
+For each of `N` candidates and each of up to `target` sub-targets, we copy every stored combination, where `K` bounds the total number and length of combinations. Since the result set itself can be exponential, this matches the inherent output size; the DP adds no asymptotic savings over backtracking for enumeration.
 
 ##### Space Complexity: `O(target * K)`
 
-The `dp` table stores, for every sub-target, all combinations reaching it. This is
-strictly more memory than backtracking, which only keeps one path plus the output.
+The `dp` table stores, for every sub-target, all combinations reaching it. This is strictly more memory than backtracking, which only keeps one path plus the output.
 
 #### Key Insights
 
 - Looping over candidates on the outside (and sub-targets on the inside) is what
   enforces non-decreasing order and therefore uniqueness.
 - Every combination in `dp[t]` already comes out non-decreasing, so unlike the
-  include-exclude approach only the outer ordering is arbitrary: an equality check needs
-  the list of combinations sorted, not their contents.
+  include-exclude approach only the outer ordering is arbitrary: an equality check needs the list of combinations sorted, not their contents.
 - The table makes every intermediate combination explicit, which trades memory for
   the removal of recursion.
 
@@ -544,6 +424,4 @@ strictly more memory than backtracking, which only keeps one path plus the outpu
 - Reuse always comes from staying on the same index (`i` or `index`) in the include
   branch, never from a separate counter.
 - Include-Exclude Backtracking emits each combination in input order, so comparing
-  its output needs the full `sorted(map(sorted, result))` canonicalization. The two
-  sorted approaches already emit non-decreasing combinations, so for those only the
-  outer list needs sorting.
+  its output needs the full `sorted(map(sorted, result))` canonicalization. The two sorted approaches already emit non-decreasing combinations, so for those only the outer list needs sorting.

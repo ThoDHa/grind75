@@ -34,8 +34,7 @@ Given a string `s`, find the length of the longest substring without repeating c
 
 **Output:** `3`
 
-**Explanation:** The answer is "wke", with the length of 3.
-Notice that the answer must be a substring, "pwke" is a subsequence and not a substring.
+**Explanation:** The answer is "wke", with the length of 3. Notice that the answer must be a substring, "pwke" is a subsequence and not a substring.
 
 ### Example 4
 
@@ -50,25 +49,14 @@ Notice that the answer must be a substring, "pwke" is a subsequence and not a su
 
 ## Deriving the Solution
 
-The answer is the widest window of consecutive characters containing no
-duplicate. Every solution below examines such windows; they differ in how much
-of an examined window survives when a duplicate appears.
+The answer is the widest window of consecutive characters containing no duplicate. Every solution below examines such windows; they differ in how much of an examined window survives when a duplicate appears.
 
 1. **Start literal.** Anchor a start index, grow the substring rightward while
-   collecting its characters into a set, and stop at the first repeat; try every
-   anchor. Each anchor rescans up to `n` characters, costing `O(n^2)`: see
-   [Brute Force](#brute-force).
+   collecting its characters into a set, and stop at the first repeat; try every anchor. Each anchor rescans up to `n` characters, costing `O(n^2)`: see [Brute Force](#brute-force).
 2. **Stop restarting.** When a repeat appears, the brute force throws the whole
-   window away and rebuilds most of it from the next anchor, yet only the
-   prefix up to the duplicate is invalid. Keep the window and shrink it from
-   the left just past the duplicate: each character then enters and leaves the
-   window at most once, giving `O(2n)`: see
-   [Sliding Window with Set](#sliding-window-with-set).
+   window away and rebuilds most of it from the next anchor, yet only the prefix up to the duplicate is invalid. Keep the window and shrink it from the left just past the duplicate: each character then enters and leaves the window at most once, giving `O(2n)`: see [Sliding Window with Set](#sliding-window-with-set).
 3. **Jump instead of shuffle.** The set version shrinks one character at a time
-   because a set records only presence, not position. Recording each
-   character's last-seen index lets `left` jump directly past the duplicate in
-   a single assignment, touching each character exactly once: see
-   [Sliding Window with Last-Seen Index](#sliding-window-with-last-seen-index).
+   because a set records only presence, not position. Recording each character's last-seen index lets `left` jump directly past the duplicate in a single assignment, touching each character exactly once: see [Sliding Window with Last-Seen Index](#sliding-window-with-last-seen-index).
 
 ## Solutions
 
@@ -76,12 +64,7 @@ of an examined window survives when a duplicate appears.
 
 #### Derivation
 
-The most direct idea is to consider every substring and keep the longest one
-that has no repeated character. Rather than re-scanning each substring from
-scratch, we anchor a `start` index and grow the substring one character at a
-time, collecting the characters into a `seen` set. The moment the next character
-is already in the set, this substring cannot grow any further, so we stop and
-move the anchor forward.
+The most direct idea is to consider every substring and keep the longest one that has no repeated character. Rather than re-scanning each substring from scratch, we anchor a `start` index and grow the substring one character at a time, collecting the characters into a `seen` set. The moment the next character is already in the set, this substring cannot grow any further, so we stop and move the anchor forward.
 
 1. Initialize `longest = 0`.
 2. For each `start` index, begin an empty `seen` set.
@@ -94,10 +77,7 @@ move the anchor forward.
 
 #### Walkthrough
 
-Let us watch the brute force run on Example 1: `s = "abcabcbb"` (indices `0`
-through `7`). The outer loop fixes each `start`; the inner loop grows `end` and
-fills a fresh `seen` set until a repeat forces a `break`. We track `longest`
-across the whole run.
+Let us watch the brute force run on Example 1: `s = "abcabcbb"` (indices `0` through `7`). The outer loop fixes each `start`; the inner loop grows `end` and fills a fresh `seen` set until a repeat forces a `break`. We track `longest` across the whole run.
 
 The first anchor, `start = 0`, does the heavy lifting:
 
@@ -108,9 +88,7 @@ The first anchor, `start = 0`, does the heavy lifting:
 | 0 | 2 | `c` | add | `{a, b, c}` | 3 | 3 |
 | 0 | 3 | `a` | already in `seen`: `break` | - | - | 3 |
 
-The substring `"abc"` reaches length `3`, then `s[3] = 'a'` repeats `s[0]`, so the
-inner loop breaks and the anchor moves on. Notice the restart: the next `start`
-throws away the `{a, b, c}` we just built and rediscovers it from scratch.
+The substring `"abc"` reaches length `3`, then `s[3] = 'a'` repeats `s[0]`, so the inner loop breaks and the anchor moves on. Notice the restart: the next `start` throws away the `{a, b, c}` we just built and rediscovers it from scratch.
 
 Every later anchor follows the same shape but never beats `3`:
 
@@ -124,8 +102,7 @@ Every later anchor follows the same shape but never beats `3`:
 | 6 | `"b"` | `b` (index 7) | 1 |
 | 7 | `"b"` | end of string | 1 |
 
-No anchor produces a window longer than `3`, so `longest` stays at `3`. The
-function returns `3`, which matches the expected Output for Example 1.
+No anchor produces a window longer than `3`, so `longest` stays at `3`. The function returns `3`, which matches the expected Output for Example 1.
 
 #### Solution
 
@@ -153,14 +130,11 @@ class Solution:
 
 ##### Time Complexity: `O(n^2)`
 
-For each of the `n` starting positions, the inner loop extends until it hits a
-repeat, scanning up to `n` characters. Each membership test on the set is `O(1)`
-on average, so the total work is quadratic.
+For each of the `n` starting positions, the inner loop extends until it hits a repeat, scanning up to `n` characters. Each membership test on the set is `O(1)` on average, so the total work is quadratic.
 
 ##### Space Complexity: `O(min(n, charset))`
 
-The `seen` set holds at most one entry per distinct character in the current
-substring, bounded by both the string length and the size of the character set.
+The `seen` set holds at most one entry per distinct character in the current substring, bounded by both the string length and the size of the character set.
 
 #### Key Insights
 
@@ -169,20 +143,13 @@ substring, bounded by both the string length and the size of the character set.
 - Growing a substring with a running `seen` set avoids re-checking each candidate
   from scratch, dropping the naive `O(n^3)` to `O(n^2)`.
 - The wasted work is the restart: when the inner loop breaks, everything learned
-  about the prefix is discarded and recomputed from the next `start`. Removing
-  that waste is exactly what the sliding window does.
+  about the prefix is discarded and recomputed from the next `start`. Removing that waste is exactly what the sliding window does.
 
 ### Sliding Window with Set
 
 #### Derivation
 
-The brute force's restart is the waste to remove: after a break, everything
-between the old anchor and the duplicate is duplicate-free and will be verified
-again anyway. Keep it. We maintain a [sliding window](https://usaco.guide/gold/sliding-window) `[left, right]` whose characters are kept in a set,
-guaranteeing the window never holds a duplicate. The `right` pointer expands the
-window one character at a time. Whenever the incoming character already lives in
-the window, we advance `left` one step at a time, removing each evicted
-character from the set, until the duplicate has been dropped.
+The brute force's restart is the waste to remove: after a break, everything between the old anchor and the duplicate is duplicate-free and will be verified again anyway. Keep it. We maintain a [sliding window](https://usaco.guide/gold/sliding-window) `[left, right]` whose characters are kept in a set, guaranteeing the window never holds a duplicate. The `right` pointer expands the window one character at a time. Whenever the incoming character already lives in the window, we advance `left` one step at a time, removing each evicted character from the set, until the duplicate has been dropped.
 
 1. Initialize an empty `seen` set, `longest = 0`, and `left = 0`.
 2. Move `right` across each character of `s`.
@@ -194,10 +161,7 @@ character from the set, until the duplicate has been dropped.
 
 #### Walkthrough
 
-Let us slide the window across Example 1: `s = "abcabcbb"` (indices `0` through
-`7`). Each event is either an expansion (`right` moves and the character joins
-`seen`) or a shrink step (`s[left]` leaves `seen` and `left` advances), forced
-by an incoming duplicate:
+Let us slide the window across Example 1: `s = "abcabcbb"` (indices `0` through `7`). Each event is either an expansion (`right` moves and the character joins `seen`) or a shrink step (`s[left]` leaves `seen` and `left` advances), forced by an incoming duplicate:
 
 ```text
 right=0  'a' not in seen -> add    window [0,0] "a"    seen={a}      longest=1
@@ -217,17 +181,11 @@ right=7  'b' in seen: remove s[5]='c', left=6
          add 'b'                   window [7,7] "b"    seen={b}      longest=3
 ```
 
-The step at `right = 6` shows the shrink loop running twice: evicting `'a'`
-does not remove the duplicate `'b'`, so `left` keeps advancing until it does.
-Unlike the brute force, the characters between the duplicates are never
-rediscovered: they simply stay in the window. The widest window seen had length
-`3` (first reached by `"abc"`), so the function returns `3`, matching the
-expected Output for Example 1.
+The step at `right = 6` shows the shrink loop running twice: evicting `'a'` does not remove the duplicate `'b'`, so `left` keeps advancing until it does. Unlike the brute force, the characters between the duplicates are never rediscovered: they simply stay in the window. The widest window seen had length `3` (first reached by `"abc"`), so the function returns `3`, matching the expected Output for Example 1.
 
 #### Solution
 
-The code is the walkthrough's expand-and-shrink loop: the inner `while` is the
-shrink steps.
+The code is the walkthrough's expand-and-shrink loop: the inner `while` is the shrink steps.
 
 ```python
 class Solution:
@@ -253,14 +211,11 @@ class Solution:
 
 ##### Time Complexity: `O(2n)`
 
-Each character is added to the set once by `right` and removed at most once by
-`left`. In the worst case the pointers together traverse the string twice, which
-is linear, written here as `O(2n)` to make the double traversal explicit.
+Each character is added to the set once by `right` and removed at most once by `left`. In the worst case the pointers together traverse the string twice, which is linear, written here as `O(2n)` to make the double traversal explicit.
 
 ##### Space Complexity: `O(min(n, charset))`
 
-The set holds at most one entry per distinct character in the window, bounded by
-both the string length and the size of the character set.
+The set holds at most one entry per distinct character in the window, bounded by both the string length and the size of the character set.
 
 #### Key Insights
 
@@ -275,14 +230,7 @@ both the string length and the size of the character set.
 
 #### Derivation
 
-The set version shrinks one character at a time because a set records only that
-a character is present, not where it is. Knowing *where* the duplicate sits
-would let `left` leap past it in a single move. So we keep the sliding window
-`[left, right]` that always holds a substring with no repeated characters, but
-replace the set with a [hash map](https://en.wikipedia.org/wiki/Hash_table) `last_seen` that records the most recent
-index of each character. When the current character has been seen at an index
-that falls inside the current window, the window must shrink from the left past
-that occurrence, and the stored index says exactly where that is.
+The set version shrinks one character at a time because a set records only that a character is present, not where it is. Knowing *where* the duplicate sits would let `left` leap past it in a single move. So we keep the sliding window `[left, right]` that always holds a substring with no repeated characters, but replace the set with a [hash map](https://en.wikipedia.org/wiki/Hash_table) `last_seen` that records the most recent index of each character. When the current character has been seen at an index that falls inside the current window, the window must shrink from the left past that occurrence, and the stored index says exactly where that is.
 
 1. Initialize an empty `last_seen` map, `longest = 0`, and `left = 0`.
 2. Iterate `right` over each character `char` in `s`.
@@ -292,66 +240,40 @@ that occurrence, and the stored index says exactly where that is.
 5. The current window length is `right - left + 1`; update `longest` with it.
 6. Return `longest`.
 
-The guard `last_seen[char] >= left` is essential: a character may exist in the
-map from a position that has already been passed by `left`, and that stale entry
-must not drag `left` backward. The Invariant below is the formal statement of
-why, resting on `no duplicate in s[left..right]` plus `left never decreases`.
+The guard `last_seen[char] >= left` is essential: a character may exist in the map from a position that has already been passed by `left`, and that stale entry must not drag `left` backward. The Invariant below is the formal statement of why, resting on `no duplicate in s[left..right]` plus `left never decreases`.
 
 #### Invariant
 
-The loop maintains two properties. The first is the window property, true at the
-end of every iteration:
+The loop maintains two properties. The first is the window property, true at the end of every iteration:
 
-$$
-\forall\, i \ne j \in [\,\textit{left},\ \textit{right}\,]\ :\quad s[i] \ne s[j]
-$$
+$$ \forall\, i \ne j \in [\,\textit{left},\ \textit{right}\,]\ :\quad s[i] \ne s[j] $$
 
 ```text
 for all i != j with left <= i <= right and left <= j <= right:  s[i] != s[j]
 ```
 
-No character repeats inside `[left, right]`, so `right - left + 1` is always the
-length of a valid substring and taking a running maximum over it is sound.
+No character repeats inside `[left, right]`, so `right - left + 1` is always the length of a valid substring and taking a running maximum over it is sound.
 
-The second says what `last_seen` holds, and it is deliberately *not*
-window-scoped:
+The second says what `last_seen` holds, and it is deliberately *not* window-scoped:
 
-$$
-\textit{last\_seen}[c] = \max \{\, i \le \textit{right} \ :\ s[i] = c \,\}
-$$
+$$ \textit{last\_seen}[c] = \max \{\, i \le \textit{right} \ :\ s[i] = c \,\} $$
 
 ```text
 last_seen[c] = max { i <= right : s[i] == c }
                for every c in s[0..right]
 ```
 
-That is the last occurrence anywhere in the prefix, which may sit far to the left
-of `left`.
+That is the last occurrence anywhere in the prefix, which may sit far to the left of `left`.
 
-Expansion is the only step that can break the first property, and only
-`char = s[right]` can break it, since the rest of the window was already
-duplicate-free. The previous occurrence of `char` sits at `last_seen[char]`, and
-it lies inside the window exactly when `last_seen[char] >= left`. The jump
-`left = last_seen[char] + 1` evicts it and nothing beyond it, restoring the
-property with the smallest possible move. When `last_seen[char] < left` the entry
-is stale, no duplicate is entering, and `left` must hold still.
+Expansion is the only step that can break the first property, and only `char = s[right]` can break it, since the rest of the window was already duplicate-free. The previous occurrence of `char` sits at `last_seen[char]`, and it lies inside the window exactly when `last_seen[char] >= left`. The jump `left = last_seen[char] + 1` evicts it and nothing beyond it, restoring the property with the smallest possible move. When `last_seen[char] < left` the entry is stale, no duplicate is entering, and `left` must hold still.
 
-That stale case is why the conjunct cannot be dropped. Testing only
-`char in last_seen` would assign `left = last_seen[char] + 1` from an index
-already passed, a value that can be *smaller* than the current `left`. On
-`"abba"` at `right = 3`, `last_seen['a'] == 0` while `left == 2`, so the window
-would rewind to `[1, 3]` and swallow both `b` characters.
+That stale case is why the conjunct cannot be dropped. Testing only `char in last_seen` would assign `left = last_seen[char] + 1` from an index already passed, a value that can be *smaller* than the current `left`. On `"abba"` at `right = 3`, `last_seen['a'] == 0` while `left == 2`, so the window would rewind to `[1, 3]` and swallow both `b` characters.
 
-The conjunct therefore also gives monotonicity: `left` is reassigned only when
-`last_seen[char] >= left`, so it never decreases. Both pointers advance at most
-`n` times, and at exit `longest` is the maximum width over all valid windows.
+The conjunct therefore also gives monotonicity: `left` is reassigned only when `last_seen[char] >= left`, so it never decreases. Both pointers advance at most `n` times, and at exit `longest` is the maximum width over all valid windows.
 
 #### Walkthrough
 
-The official Examples exercise the forward jump but never leave a stale map
-entry, so the `>= left` guard's rejecting branch would not appear in any of
-them. To see both behaviors we use the small tailored input `s = "abba"`, whose
-final character carries a last-seen index that lies behind the window:
+The official Examples exercise the forward jump but never leave a stale map entry, so the `>= left` guard's rejecting branch would not appear in any of them. To see both behaviors we use the small tailored input `s = "abba"`, whose final character carries a last-seen index that lies behind the window:
 
 ```text
 right=0  'a' new                                 left=0  window [0,0] "a"   longest=1
@@ -365,18 +287,11 @@ right=3  'a' seen at 0, but 0 >= left=2 is False -> stale, left holds
          last_seen = {a: 3, b: 2}
 ```
 
-At `right = 2` the duplicate `'b'` sits inside the window, so `left` jumps
-straight to `last_seen['b'] + 1 = 2` in a single assignment: no step-by-step
-eviction. At `right = 3` the map still remembers `'a'` at index `0`, but that
-occurrence lies behind `left = 2`: the entry is stale, the guard rejects it,
-and `left` correctly holds still. Dropping the guard would rewind `left` to `1`
-and count the invalid window `"bba"`. The widest valid window had length `2`
-(`"ab"`, later tied by `"ba"`), so the function returns `2`.
+At `right = 2` the duplicate `'b'` sits inside the window, so `left` jumps straight to `last_seen['b'] + 1 = 2` in a single assignment: no step-by-step eviction. At `right = 3` the map still remembers `'a'` at index `0`, but that occurrence lies behind `left = 2`: the entry is stale, the guard rejects it, and `left` correctly holds still. Dropping the guard would rewind `left` to `1` and count the invalid window `"bba"`. The widest valid window had length `2` (`"ab"`, later tied by `"ba"`), so the function returns `2`.
 
 #### Solution
 
-The code is the walkthrough's jump rule: one guarded assignment replaces the
-shrink loop.
+The code is the walkthrough's jump rule: one guarded assignment replaces the shrink loop.
 
 ```python
 class Solution:
@@ -401,15 +316,11 @@ class Solution:
 
 ##### Time Complexity: `O(n)`
 
-Each character is visited once by `right`, and `left` only ever moves forward.
-Every hash map lookup and update is `O(1)` on average, so the total work is
-linear in the length of `s`.
+Each character is visited once by `right`, and `left` only ever moves forward. Every hash map lookup and update is `O(1)` on average, so the total work is linear in the length of `s`.
 
 ##### Space Complexity: `O(min(n, m))`
 
-The map stores at most one entry per distinct character. Its size is bounded by
-both the length `n` and the size `m` of the character set (English letters,
-digits, symbols, and spaces), giving `O(min(n, m))`.
+The map stores at most one entry per distinct character. Its size is bounded by both the length `n` and the size `m` of the character set (English letters, digits, symbols, and spaces), giving `O(min(n, m))`.
 
 #### Key Insights
 

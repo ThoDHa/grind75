@@ -40,26 +40,14 @@ If the BST is modified often (i.e., we can do insert and delete operations) and 
 
 ## Deriving the Solution
 
-A BST stores order structurally: everything in a node's left subtree is smaller
-than the node, everything in its right subtree is larger. An in-order walk
-(left subtree, node, right subtree) therefore visits the values in ascending
-order, so the kth smallest value is simply the kth node an in-order traversal
-visits. Every solution below is that same walk; they differ in how much of it
-runs and what it costs in space.
+A BST stores order structurally: everything in a node's left subtree is smaller than the node, everything in its right subtree is larger. An in-order walk (left subtree, node, right subtree) therefore visits the values in ascending order, so the kth smallest value is simply the kth node an in-order traversal visits. Every solution below is that same walk; they differ in how much of it runs and what it costs in space.
 
 1. **Start literal.** Run the full in-order walk, collect every value into a
-   sorted list, and index it at `k - 1`. Correct, but it always touches all `n`
-   nodes and stores all `n` values, even for `k = 1`: see
-   [Recursive In-Order Traversal](#recursive-in-order-traversal).
+   sorted list, and index it at `k - 1`. Correct, but it always touches all `n` nodes and stores all `n` values, even for `k = 1`: see [Recursive In-Order Traversal](#recursive-in-order-traversal).
 2. **Spot the waste.** Nothing after the kth visit matters. To stop mid-walk,
-   count visits as they happen and return at count `k`. An explicit stack makes
-   the walk pausable at any node, unlike a plain recursion that must unwind:
-   see [Iterative In-Order Traversal](#iterative-in-order-traversal).
+   count visits as they happen and return at count `k`. An explicit stack makes the walk pausable at any node, unlike a plain recursion that must unwind: see [Iterative In-Order Traversal](#iterative-in-order-traversal).
 3. **Shrink the space.** The stack exists only to find the way back up after a
-   left descent. Morris traversal removes it: temporarily thread each subtree's
-   rightmost node back to its root, follow the thread instead of a stack, and
-   erase it on the way through, achieving the same early-stopping walk in
-   `O(1)` extra space: see [Morris Traversal](#morris-traversal).
+   left descent. Morris traversal removes it: temporarily thread each subtree's rightmost node back to its root, follow the thread instead of a stack, and erase it on the way through, achieving the same early-stopping walk in `O(1)` extra space: see [Morris Traversal](#morris-traversal).
 
 ## Solutions
 
@@ -67,12 +55,7 @@ runs and what it costs in space.
 
 #### Derivation
 
-The question this approach asks is where sorted order can come from without
-sorting. The answer is the structure itself: because everything smaller than a
-node lives in its left subtree and everything larger in its right subtree, an
-in-order traversal of a [BST](https://en.wikipedia.org/wiki/Binary_search_tree)
-yields the values in ascending order. That reduces the problem to producing the
-full sorted list and reading one entry:
+The question this approach asks is where sorted order can come from without sorting. The answer is the structure itself: because everything smaller than a node lives in its left subtree and everything larger in its right subtree, an in-order traversal of a [BST](https://en.wikipedia.org/wiki/Binary_search_tree) yields the values in ascending order. That reduces the problem to producing the full sorted list and reading one entry:
 
 1. Recurse into the left subtree, then visit the node, then recurse into the
    right subtree, accumulating values in a list.
@@ -81,8 +64,7 @@ full sorted list and reading one entry:
 3. Return the value at index `k - 1`, converting the 1-indexed `k` to a
    0-indexed lookup.
 
-The approach is conceptually simple but processes every node regardless of how
-small `k` is.
+The approach is conceptually simple but processes every node regardless of how small `k` is.
 
 #### Walkthrough
 
@@ -122,8 +104,7 @@ So `sorted_values = [1, 2, 3, 4]`, the node values in ascending order. With `k =
 
 #### Solution
 
-The code is the walkthrough's call tree written down: concatenate left list,
-own value, right list, then index the result.
+The code is the walkthrough's call tree written down: concatenate left list, own value, right list, then index the result.
 
 ```python
 # Definition for a binary tree node.
@@ -150,12 +131,7 @@ class Solution:
 
 ##### Time Complexity: `O(n * H)`
 
-The traversal always visits all `n` nodes regardless of `k`, and the
-concatenation at each node copies every value already collected in its subtree.
-Summed over the tree that copying costs `O(n * H)`: `O(n log n)` when the tree
-is balanced, degrading to `O(n^2)` on a fully skewed tree. Appending each value
-to one shared list instead of concatenating (`values.append(node.val)` at the
-visit step) removes the copying and restores a true `O(n)`.
+The traversal always visits all `n` nodes regardless of `k`, and the concatenation at each node copies every value already collected in its subtree. Summed over the tree that copying costs `O(n * H)`: `O(n log n)` when the tree is balanced, degrading to `O(n^2)` on a fully skewed tree. Appending each value to one shared list instead of concatenating (`values.append(node.val)` at the visit step) removes the copying and restores a true `O(n)`.
 
 ##### Space Complexity: `O(n)`
 
@@ -171,11 +147,7 @@ The final list holds all `n` node values, and the recursion stack adds `O(H)` fo
 
 #### Derivation
 
-The recursive version's flaw is that it cannot stop: it builds the entire
-sorted list even when only the first entry is needed. The repair is to count
-visits during the walk and return the moment the count reaches `k`. That calls
-for an [in-order traversal](https://en.wikipedia.org/wiki/Tree_traversal) that
-can pause at any node, which an explicit stack provides:
+The recursive version's flaw is that it cannot stop: it builds the entire sorted list even when only the first entry is needed. The repair is to count visits during the walk and return the moment the count reaches `k`. That calls for an [in-order traversal](https://en.wikipedia.org/wiki/Tree_traversal) that can pause at any node, which an explicit stack provides:
 
 1. Use an explicit stack to simulate the recursion: push nodes while descending left, so the top of the stack is always the smallest unvisited value.
 2. Pop a node to "visit" it and increment a running counter.
@@ -186,8 +158,7 @@ Because the traversal stops the moment the kth node is visited, it never explore
 
 #### Walkthrough
 
-Let us run the stack-driven walk on Example 2, whose deeper left spine
-exercises the descent: `root = [5,3,6,2,4,null,null,1]`, `k = 3`. The tree is
+Let us run the stack-driven walk on Example 2, whose deeper left spine exercises the descent: `root = [5,3,6,2,4,null,null,1]`, `k = 3`. The tree is
 
 ```text
         5
@@ -199,9 +170,7 @@ exercises the descent: `root = [5,3,6,2,4,null,null,1]`, `k = 3`. The tree is
   1
 ```
 
-`current` starts at the root and `stack` starts empty. The inner loop pushes
-nodes while walking left; each pop visits the smallest unprocessed node and
-bumps `count`:
+`current` starts at the root and `stack` starts empty. The inner loop pushes nodes while walking left; each pop visits the smallest unprocessed node and bumps `count`:
 
 ```text
 descend left    push 5, 3, 2, 1        stack = [5, 3, 2, 1], current = None
@@ -210,17 +179,11 @@ pop 2           count = 2              not k; current = 2.right = None
 pop 3           count = 3 == k         return current.val = 3
 ```
 
-The first descent stacks the whole left spine `5, 3, 2, 1`, leaving the
-smallest value on top. The pops then deliver values in ascending order: `1`,
-then `2` (whose right subtree is empty, so nothing new is pushed), then `3`.
-At `count == k` the function returns `3` immediately: node `4`, still hanging
-off `3`'s right side, and node `6` are never visited. The returned `3` matches
-the expected Output for Example 2.
+The first descent stacks the whole left spine `5, 3, 2, 1`, leaving the smallest value on top. The pops then deliver values in ascending order: `1`, then `2` (whose right subtree is empty, so nothing new is pushed), then `3`. At `count == k` the function returns `3` immediately: node `4`, still hanging off `3`'s right side, and node `6` are never visited. The returned `3` matches the expected Output for Example 2.
 
 #### Solution
 
-The code is the walkthrough's two loops: push while descending left, pop to
-visit, and return at the kth pop.
+The code is the walkthrough's two loops: push while descending left, pop to visit, and return at the kth pop.
 
 ```python
 # Definition for a binary tree node.
@@ -277,14 +240,7 @@ The stack holds at most one path from root to leaf, which is `O(log n)` for a ba
 
 #### Derivation
 
-The iterative walk still pays `O(H)` space for its stack, whose only job is to
-remember the way back up after a left descent. The question
-[Morris traversal](https://en.wikipedia.org/wiki/Tree_traversal#Morris_in-order_traversal_using_threading)
-asks is whether the tree itself can store that return path. It can: the node
-visited immediately before a root in an [in-order walk](https://en.wikipedia.org/wiki/Tree_traversal)
-is its predecessor, the rightmost node of its left subtree, and that node's
-right pointer is always unused (`None`). Pointing it back at the root creates a
-temporary thread to follow instead of popping a stack:
+The iterative walk still pays `O(H)` space for its stack, whose only job is to remember the way back up after a left descent. The question [Morris traversal](https://en.wikipedia.org/wiki/Tree_traversal#Morris_in-order_traversal_using_threading) asks is whether the tree itself can store that return path. It can: the node visited immediately before a root in an [in-order walk](https://en.wikipedia.org/wiki/Tree_traversal) is its predecessor, the rightmost node of its left subtree, and that node's right pointer is always unused (`None`). Pointing it back at the root creates a temporary thread to follow instead of popping a stack:
 
 1. For a node with no left child, visit it (increment the counter) and move right.
 2. For a node with a left child, find its in-order predecessor: the rightmost node of the left subtree.
@@ -296,8 +252,7 @@ The temporary links let the traversal find its way back up the tree without a st
 
 #### Walkthrough
 
-Let us thread our way through Example 2: `root = [5,3,6,2,4,null,null,1]`,
-`k = 3`, the same tree as in the iterative walkthrough:
+Let us thread our way through Example 2: `root = [5,3,6,2,4,null,null,1]`, `k = 3`, the same tree as in the iterative walkthrough:
 
 ```text
         5
@@ -309,9 +264,7 @@ Let us thread our way through Example 2: `root = [5,3,6,2,4,null,null,1]`,
   1
 ```
 
-Each event below is one iteration of the outer loop: either a thread is
-created and `current` descends left, or a node is visited and `current` moves
-right (possibly along a thread):
+Each event below is one iteration of the outer loop: either a thread is created and `current` descends left, or a node is visited and `current` moves right (possibly along a thread):
 
 ```text
 current = 5   has left; predecessor = 4 (rightmost of 5's left subtree)
@@ -328,20 +281,11 @@ current = 3   has left; predecessor walk finds 2.right == current
               unthread 2.right = None; visit: count = 3 == k -> return 3
 ```
 
-The first three iterations lay threads while descending the left spine, so
-that after visiting `1` the walk can climb back to `2` and then `3` with no
-stack at all. On each return the thread is recognized (the predecessor's right
-pointer already targets `current`), erased, and the node is visited: the values
-arrive in the sorted order `1`, `2`, `3`, and at `count == k` the function
-returns `3`, the expected Output. Note that the early return leaves the
-outermost thread `4.right = 5` in place: stopping mid-walk trades a fully
-restored tree for speed, which is the corruption risk the Key Insights below
-warn about.
+The first three iterations lay threads while descending the left spine, so that after visiting `1` the walk can climb back to `2` and then `3` with no stack at all. On each return the thread is recognized (the predecessor's right pointer already targets `current`), erased, and the node is visited: the values arrive in the sorted order `1`, `2`, `3`, and at `count == k` the function returns `3`, the expected Output. Note that the early return leaves the outermost thread `4.right = 5` in place: stopping mid-walk trades a fully restored tree for speed, which is the corruption risk the Key Insights below warn about.
 
 #### Solution
 
-The code is the walkthrough's event loop: thread on first arrival, unthread
-and visit on second, count toward `k`.
+The code is the walkthrough's event loop: thread on first arrival, unthread and visit on second, count toward `k`.
 
 ```python
 # Definition for a binary tree node.

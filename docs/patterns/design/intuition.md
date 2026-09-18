@@ -10,9 +10,7 @@ Most problems hand you an input and ask for an answer. **Design problems hand yo
 
 You are asked to implement a class (`MinStack`, `LRUCache`, `FreqStack`) that supports a fixed menu of operations. Alongside each operation comes a promise about its cost:
 
-> *"All operations must run in O(1)."*
-> *"`get` and `put` must each be O(1) on average."*
-> *"`getMin` must be constant time even after many pushes and pops."*
+> *"All operations must run in O(1)."* *"`get` and `put` must each be O(1) on average."* *"`getMin` must be constant time even after many pushes and pops."*
 
 A naive single structure usually satisfies *some* operations cheaply and others expensively. A plain stack gives O(1) `push` and `pop`, but `getMin` costs O(n) because you must scan. A plain array gives O(1) random access, but maintaining recency order costs O(n) on every touch.
 
@@ -157,21 +155,17 @@ The top of `groups[maxfreq]` is always the most-frequent, most-recent element: e
 When you see these phrases, think **Data-Structure Design**:
 
 ### Signal: "Implement a class / design a structure"
-> *"Design a data structure that supports the following operations..."*
-> *"Implement the `LRUCache` class."*
+> *"Design a data structure that supports the following operations..."* *"Implement the `LRUCache` class."*
 
 **Action**: List the operations, write each one's complexity target next to it, then assign primitives.
 
 ### Signal: A complexity budget per operation
-> *"All operations in O(1)."*
-> *"`get` and `put` in O(1) average time."*
-> *"`getMin` in constant time."*
+> *"All operations in O(1)."* *"`get` and `put` in O(1) average time."* *"`getMin` in constant time."*
 
 **Action**: Work backward from each budget to a primitive that meets it; compose when one is not enough.
 
 ### Signal: A menu of named operations
-> *"Support `push`, `pop`, `getMin`."*
-> *"Support `insert`, `remove`, `getRandom`."*
+> *"Support `push`, `pop`, `getMin`."* *"Support `insert`, `remove`, `getRandom`."*
 
 **Action**: Find the operation that the obvious single structure handles *poorly*: that gap tells you which auxiliary structure to add.
 

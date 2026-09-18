@@ -136,8 +136,7 @@ Can reach 5 from 0? No (different component)
 - DFS: O(depth) for recursion stack
 - BFS: O(width) for queue
 
-For a balanced tree, width ≈ n/2 at bottom level, depth ≈ log(n). BFS uses more memory for trees.
-For a long chain, depth = n, width = 1. DFS uses more memory for chains.
+For a balanced tree, width ≈ n/2 at bottom level, depth ≈ log(n). BFS uses more memory for trees. For a long chain, depth = n, width = 1. DFS uses more memory for chains.
 
 ---
 

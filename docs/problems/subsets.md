@@ -34,33 +34,16 @@ The solution set must not contain duplicate subsets. Return the solution in any 
 
 ## Deriving the Solution
 
-A subset is fixed by one binary decision per element: each `nums[i]` is either in
-or out. With `n` elements those independent choices multiply to `2^n` subsets, so
-every solution below is a different way of enumerating the same `2^n` decision
-combinations exactly once.
+A subset is fixed by one binary decision per element: each `nums[i]` is either in or out. With `n` elements those independent choices multiply to `2^n` subsets, so every solution below is a different way of enumerating the same `2^n` decision combinations exactly once.
 
 1. **Grow the answer one element at a time.** Every subset of an enlarged array
-   either omits the newest element or contains it, so introducing one more element
-   doubles the collection built so far: copy each existing subset, append the new
-   element to the copy, and keep both. Repeating this for all `n` elements yields
-   the full power set with no recursion: see
-   [Iterative Build-Up](#iterative-build-up).
+   either omits the newest element or contains it, so introducing one more element doubles the collection built so far: copy each existing subset, append the new element to the copy, and keep both. Repeating this for all `n` elements yields the full power set with no recursion: see [Iterative Build-Up](#iterative-build-up).
 2. **Walk the decisions as a tree.** The doubling loop is awkward to adapt when
-   the enumeration needs constraints (a fixed subset size, skipping duplicates).
-   Explore the same decisions depth-first instead: extend a growing
-   `current_subset` with each later element in turn, recurse, and undo the choice
-   on the way back. Every node of that tree is a valid subset: see
-   [Backtracking](#backtracking).
+   the enumeration needs constraints (a fixed subset size, skipping duplicates). Explore the same decisions depth-first instead: extend a growing `current_subset` with each later element in turn, recurse, and undo the choice on the way back. Every node of that tree is a valid subset: see [Backtracking](#backtracking).
 3. **Make the binary fork explicit.** The backtracking version hides the
-   per-element in/out choice inside a for loop over candidates. Restating it as
-   exactly two recursive calls per index (skip it, then choose it) exposes the
-   binary decision tree whose `2^n` leaves are the subsets: see
-   [Recursive Choose or Skip](#recursive-choose-or-skip).
+   per-element in/out choice inside a for loop over candidates. Restating it as exactly two recursive calls per index (skip it, then choose it) exposes the binary decision tree whose `2^n` leaves are the subsets: see [Recursive Choose or Skip](#recursive-choose-or-skip).
 4. **Encode the decisions as bits.** Both recursions spend a call stack on what is
-   just `n` independent bits. An integer below `2^n` already holds `n` bits, so
-   counting `mask` from `0` to `2^n - 1` enumerates every subset directly, with no
-   recursion and no duplicate bookkeeping: see
-   [Bit Manipulation](#bit-manipulation).
+   just `n` independent bits. An integer below `2^n` already holds `n` bits, so counting `mask` from `0` to `2^n - 1` enumerates every subset directly, with no recursion and no duplicate bookkeeping: see [Bit Manipulation](#bit-manipulation).
 
 ## Solutions
 
@@ -68,19 +51,11 @@ combinations exactly once.
 
 #### Derivation
 
-Ask what happens to the [power set](https://en.wikipedia.org/wiki/Power_set) when
-one more element arrives. Every subset of the enlarged array either omits the new
-element, in which case it is already in the collection built so far, or contains
-it, in which case it is an existing subset with the new element appended. So the
-power set of `k + 1` elements is the power set of `k` elements plus a copy of that
-power set with the new element added to every member: it exactly doubles. Starting
-from the power set of zero elements, which is just the empty subset, and applying
-this doubling once per element builds the whole answer iteratively:
+Ask what happens to the [power set](https://en.wikipedia.org/wiki/Power_set) when one more element arrives. Every subset of the enlarged array either omits the new element, in which case it is already in the collection built so far, or contains it, in which case it is an existing subset with the new element appended. So the power set of `k + 1` elements is the power set of `k` elements plus a copy of that power set with the new element added to every member: it exactly doubles. Starting from the power set of zero elements, which is just the empty subset, and applying this doubling once per element builds the whole answer iteratively:
 
 1. Start with `result = [[]]`: the power set of no elements.
 2. For each `num`, build `new_subsets` by appending `num` to a copy of every
-   `existing_subset` currently in `result` (`existing_subset + [num]` creates the
-   copy).
+   `existing_subset` currently in `result` (`existing_subset + [num]` creates the copy).
 3. Extend `result` with `new_subsets`, doubling its size.
 4. After all `n` elements, `result` holds all `2^n` subsets.
 
@@ -149,34 +124,19 @@ We store all intermediate and final subsets. The result list grows from 1 to 2^n
 
 #### Derivation
 
-The Iterative Build-Up commits to producing subsets wholesale, one doubling pass
-per element, which leaves no natural place to impose constraints such as a fixed
-subset size or duplicate skipping. Ask instead: can the subsets be enumerated as
-paths in a tree, where each step decides which element joins next? That is the
-classic [backtracking](https://en.wikipedia.org/wiki/Backtracking) "choose,
-explore, unchoose" pattern. A `start_index` parameter restricts each call to
-elements at or after that index, so elements are only ever appended in index
-order, which is what prevents `[1, 2]` and `[2, 1]` from both appearing. Unlike
-permutations, where only complete arrangements count, every partial path here is
-itself a valid subset, so the current state is recorded at every node of the tree
-rather than only at the leaves:
+The Iterative Build-Up commits to producing subsets wholesale, one doubling pass per element, which leaves no natural place to impose constraints such as a fixed subset size or duplicate skipping. Ask instead: can the subsets be enumerated as paths in a tree, where each step decides which element joins next? That is the classic [backtracking](https://en.wikipedia.org/wiki/Backtracking) "choose, explore, unchoose" pattern. A `start_index` parameter restricts each call to elements at or after that index, so elements are only ever appended in index order, which is what prevents `[1, 2]` and `[2, 1]` from both appearing. Unlike permutations, where only complete arrangements count, every partial path here is itself a valid subset, so the current state is recorded at every node of the tree rather than only at the leaves:
 
 1. Define `backtrack(start_index, current_subset)` and launch it as
    `backtrack(0, [])`.
 2. On entry, append a copy of the current state (`current_subset[:]`) to
    `result`: every node of the tree is a subset.
 3. For each `i` from `start_index` to the end of `nums`: append `nums[i]` to
-   `current_subset` (choose), recurse with `backtrack(i + 1, current_subset)`
-   (explore), then `current_subset.pop()` (unchoose) so the next iteration starts
-   from the same state.
+   `current_subset` (choose), recurse with `backtrack(i + 1, current_subset)` (explore), then `current_subset.pop()` (unchoose) so the next iteration starts from the same state.
 4. When the top-level call returns, `result` holds all `2^n` subsets.
 
 #### Walkthrough
 
-Let us run the tree by hand on Example 1: `nums = [1,2,3]`. Each call records
-`current_subset` first, then loops over the remaining elements, choosing each one,
-recursing, and popping it back off. The trace below indents one level per
-recursive call:
+Let us run the tree by hand on Example 1: `nums = [1,2,3]`. Each call records `current_subset` first, then loops over the remaining elements, choosing each one, recursing, and popping it back off. The trace below indents one level per recursive call:
 
 ```text
 backtrack(0, [])                 record []
@@ -203,14 +163,11 @@ backtrack(0, [])                 record []
   pop 3 -> []                    unchoose
 ```
 
-Reading off the `record` events in order, `result` ends as
-`[[], [1], [1,2], [1,2,3], [1,3], [2], [2,3], [3]]`: the same eight subsets as
-the expected Output, in a different order, which the problem explicitly allows.
+Reading off the `record` events in order, `result` ends as `[[], [1], [1,2], [1,2,3], [1,3], [2], [2,3], [3]]`: the same eight subsets as the expected Output, in a different order, which the problem explicitly allows.
 
 #### Solution
 
-The code is the choose/explore/unchoose tree from the walkthrough, with the
-record step first in every call.
+The code is the choose/explore/unchoose tree from the walkthrough, with the record step first in every call.
 
 ```python
 from typing import List
@@ -259,31 +216,20 @@ O(2^n × n) for storing all subsets in the result, plus O(n) for the recursion s
 
 #### Derivation
 
-The Backtracking tree works, but its loop over candidates blurs the counting
-argument: where exactly are the `n` binary decisions that make the answer `2^n`?
-This formulation makes them explicit. Walk the array one index at a time and
-[recurse](https://en.wikipedia.org/wiki/Recursion_(computer_science)) exactly
-twice per index: once skipping `nums[index]` and once choosing it. That builds a
-binary decision tree of depth `n` whose `2^n` root-to-leaf paths are precisely the
-subsets, and a subset is collected only at the base case, once every element has
-been decided:
+The Backtracking tree works, but its loop over candidates blurs the counting argument: where exactly are the `n` binary decisions that make the answer `2^n`? This formulation makes them explicit. Walk the array one index at a time and [recurse](https://en.wikipedia.org/wiki/Recursion_(computer_science)) exactly twice per index: once skipping `nums[index]` and once choosing it. That builds a binary decision tree of depth `n` whose `2^n` root-to-leaf paths are precisely the subsets, and a subset is collected only at the base case, once every element has been decided:
 
 1. Define `generate_subsets(index, current_subset)` and launch it as
    `generate_subsets(0, [])`.
 2. Base case: when `index == len(nums)` every element has been decided, so return
    `[current_subset[:]]`, a list holding one finished subset.
 3. Otherwise recurse twice: first skip `nums[index]` (leave `current_subset`
-   untouched), then choose it (`current_subset.append(nums[index])`, recurse, and
-   `current_subset.pop()` to backtrack).
+   untouched), then choose it (`current_subset.append(nums[index])`, recurse, and `current_subset.pop()` to backtrack).
 4. Collect both branches' lists with `result.extend(...)` and return the combined
    list up the tree.
 
 #### Walkthrough
 
-Let us draw the full decision tree on Example 1: `nums = [1,2,3]`. Each internal
-node forks into a skip branch (taken first) and a choose branch; each leaf at
-`index == 3` returns a one-subset list, and every internal node returns the
-concatenation of its two branches:
+Let us draw the full decision tree on Example 1: `nums = [1,2,3]`. Each internal node forks into a skip branch (taken first) and a choose branch; each leaf at `index == 3` returns a one-subset list, and every internal node returns the concatenation of its two branches:
 
 ```text
 generate_subsets(0, [])
@@ -303,14 +249,11 @@ generate_subsets(0, [])
       choose 3: generate_subsets(3, [1, 2, 3]) -> [[1, 2, 3]]
 ```
 
-Concatenating the leaves left to right, the root returns
-`[[], [3], [2], [2,3], [1], [1,3], [1,2], [1,2,3]]`: the same eight subsets as
-the expected Output, in a different order, which the problem explicitly allows.
+Concatenating the leaves left to right, the root returns `[[], [3], [2], [2,3], [1], [1,3], [1,2], [1,2,3]]`: the same eight subsets as the expected Output, in a different order, which the problem explicitly allows.
 
 #### Solution
 
-The code is the skip-then-choose fork from the walkthrough, collecting subsets
-only at the `index == len(nums)` leaves.
+The code is the skip-then-choose fork from the walkthrough, collecting subsets only at the `index == len(nums)` leaves.
 
 ```python
 from typing import List
@@ -359,13 +302,7 @@ O(2^n × n) for storing results, plus O(n) for recursion stack depth and current
 
 #### Derivation
 
-Both recursive solutions spend a call stack simulating `n` binary in/out
-decisions. A machine already has a data type for `n` binary decisions: the bits of
-an integer. Let bit `i` of a number mean "`nums[i]` is included"; then every
-integer from `0` to `2^n - 1` describes exactly one subset, and every subset is
-described by exactly one integer. Iterating a `mask` over that range therefore
-enumerates the power set with no recursion and no duplicate bookkeeping, decoding
-each mask into its subset by testing its bits:
+Both recursive solutions spend a call stack simulating `n` binary in/out decisions. A machine already has a data type for `n` binary decisions: the bits of an integer. Let bit `i` of a number mean "`nums[i]` is included"; then every integer from `0` to `2^n - 1` describes exactly one subset, and every subset is described by exactly one integer. Iterating a `mask` over that range therefore enumerates the power set with no recursion and no duplicate bookkeeping, decoding each mask into its subset by testing its bits:
 
 1. Let `n = len(nums)` and iterate `mask` over `range(1 << n)`, since `1 << n`
    is `2^n`.
@@ -376,8 +313,7 @@ each mask into its subset by testing its bits:
 
 #### Formula
 
-The [power set](https://en.wikipedia.org/wiki/Power_set) of an `n`-element set has
-\(2^n\) members:
+The [power set](https://en.wikipedia.org/wiki/Power_set) of an `n`-element set has \(2^n\) members:
 
 $$
 |\mathcal{P}(S)| = 2^{n}
@@ -387,41 +323,30 @@ $$
 number of subsets of nums = 2^n   where n = len(nums)
 ```
 
-Each element is independently in or out, so there are \(n\) binary choices, and
-they multiply to \(2^n\). This solution makes that counting argument literal by
-building a bijection between subsets and the integers below \(2^n\):
+Each element is independently in or out, so there are \(n\) binary choices, and they multiply to \(2^n\). This solution makes that counting argument literal by building a bijection between subsets and the integers below \(2^n\):
 
-$$
-\text{mask} \ \longleftrightarrow \ \bigl\{\, \text{nums}[i] \ :\ \text{bit } i \text{ of mask is } 1 \,\bigr\}
-$$
+$$ \text{mask} \ \longleftrightarrow \ \bigl\{\, \text{nums}[i] \ :\ \text{bit } i \text{ of mask is } 1 \,\bigr\} $$
 
 ```text
 mask  <-->  { nums[i] : bit i of mask is 1 }
             for mask = 0 .. 2^n - 1
 ```
 
-Iterating `mask` from \(0\) to \(2^n - 1\) therefore enumerates every subset
-exactly once, with no recursion and no bookkeeping to avoid duplicates.
+Iterating `mask` from \(0\) to \(2^n - 1\) therefore enumerates every subset exactly once, with no recursion and no bookkeeping to avoid duplicates.
 
-The total output size is also worth stating, because it bounds every solution on
-this page (each element appears in exactly half of the subsets):
+The total output size is also worth stating, because it bounds every solution on this page (each element appears in exactly half of the subsets):
 
-$$
-\sum_{k=0}^{n} k\binom{n}{k} = n \cdot 2^{\,n-1}
-$$
+$$ \sum_{k=0}^{n} k\binom{n}{k} = n \cdot 2^{\,n-1} $$
 
 ```text
 sum over k = 0 .. n of k * (n choose k) = n * 2^(n - 1)
 ```
 
-So even writing the answer down costs \(\Theta(n 2^n)\), and no approach can be
-asymptotically faster.
+So even writing the answer down costs \(\Theta(n 2^n)\), and no approach can be asymptotically faster.
 
 #### Walkthrough
 
-Let us decode every mask on Example 1: `nums = [1,2,3]`, so `n = 3` and `mask`
-runs from `0` to `7`. Each line shows the mask in binary (bit 0 rightmost), the
-bits that pass the `mask & (1 << i)` test, and the decoded `subset`:
+Let us decode every mask on Example 1: `nums = [1,2,3]`, so `n = 3` and `mask` runs from `0` to `7`. Each line shows the mask in binary (bit 0 rightmost), the bits that pass the `mask & (1 << i)` test, and the decoded `subset`:
 
 ```text
 mask = 0  (000)  no bits set                subset []
@@ -434,14 +359,11 @@ mask = 6  (110)  bits 1, 2 -> 2, 3          subset [2, 3]
 mask = 7  (111)  bits 0, 1, 2 -> 1, 2, 3    subset [1, 2, 3]
 ```
 
-Collecting the decoded subsets in mask order gives
-`[[], [1], [2], [1,2], [3], [1,3], [2,3], [1,2,3]]`, which matches the expected
-Output exactly.
+Collecting the decoded subsets in mask order gives `[[], [1], [2], [1,2], [3], [1,3], [2,3], [1,2,3]]`, which matches the expected Output exactly.
 
 #### Solution
 
-The code is the mask loop from the walkthrough: count through `2^n` integers and
-decode each one bit by bit.
+The code is the mask loop from the walkthrough: count through `2^n` integers and decode each one bit by bit.
 
 ```python
 from typing import List

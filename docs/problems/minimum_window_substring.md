@@ -36,8 +36,7 @@ The testcases will be generated such that the answer is **unique**.
 
 **Output:** `""`
 
-**Explanation:** Both 'a's from t must be included in the window.
-Since the largest window of s only has one 'a', return empty string.
+**Explanation:** Both 'a's from t must be included in the window. Since the largest window of s only has one 'a', return empty string.
 
 ## Constraints
 
@@ -52,31 +51,16 @@ Could you find an algorithm that runs in `O(m + n)` time?
 
 ## Deriving the Solution
 
-A window of `s` is valid when it holds every character of `t`, duplicates
-included, which is a comparison between two frequency counts: what the window
-contains versus what `t` demands. Every solution below is a strategy for
-checking as few windows as cheaply as possible against that count.
+A window of `s` is valid when it holds every character of `t`, duplicates included, which is a comparison between two frequency counts: what the window contains versus what `t` demands. Every solution below is a strategy for checking as few windows as cheaply as possible against that count.
 
 1. **Start literal.** Enumerate every substring and validate each one by
-   counting from scratch. Correct, but there are `O(|s|^2)` substrings and each
-   check rescans its window, `O(|s|^3 + |s|^2 × |t|)` in total: see
-   [Brute Force](#brute-force).
+   counting from scratch. Correct, but there are `O(|s|^2)` substrings and each check rescans its window, `O(|s|^3 + |s|^2 × |t|)` in total: see [Brute Force](#brute-force).
 2. **Spot the waste.** Adjacent windows differ by a single character, yet every
-   validity check recounts the whole window. And the candidates are not
-   independent: once a window is valid, growing it further can never make it
-   shorter, while shrinking it from the left is the only move that can.
+   validity check recounts the whole window. And the candidates are not independent: once a window is valid, growing it further can never make it shorter, while shrinking it from the left is the only move that can.
 3. **Slide instead of enumerate.** Keep one window between two pointers and
-   update its counts incrementally: extend `right` until the window turns
-   valid, then shrink from `left` while it stays valid, recording the minimum.
-   A `formed`-versus-`required` counter makes each validity test `O(1)`, and
-   each character enters and leaves the window once, giving the follow-up's
-   `O(|s| + |t|)`: see
-   [Sliding Window with Hash Maps](#sliding-window-with-hash-maps).
+   update its counts incrementally: extend `right` until the window turns valid, then shrink from `left` while it stays valid, recording the minimum. A `formed`-versus-`required` counter makes each validity test `O(1)`, and each character enters and leaves the window once, giving the follow-up's `O(|s| + |t|)`: see [Sliding Window with Hash Maps](#sliding-window-with-hash-maps).
 4. **Skip the irrelevant.** Characters that never occur in `t` cannot change
-   validity, so pre-filter `s` down to the positions that hold `t`'s characters
-   and slide over that shorter list, keeping original indices for measuring.
-   Same bound, better constants when `|s| >> |t|`: see
-   [Optimized Sliding Window](#optimized-sliding-window).
+   validity, so pre-filter `s` down to the positions that hold `t`'s characters and slide over that shorter list, keeping original indices for measuring. Same bound, better constants when `|s| >> |t|`: see [Optimized Sliding Window](#optimized-sliding-window).
 
 ## Solutions
 
@@ -121,8 +105,7 @@ The function returns `min_window`, which is `"BANC"`: this matches the expected 
 
 #### Solution
 
-The code is the two nested loops from the table, with `is_valid_window` doing
-the per-candidate recount.
+The code is the two nested loops from the table, with `is_valid_window` doing the per-candidate recount.
 
 ```python
 class Solution:
@@ -183,91 +166,51 @@ Space for character counting in validation function.
 
 #### Derivation
 
-The Brute Force throws away everything it learns: the window starting at `i`
-and the window starting at `i + 1` overlap almost entirely, yet each validity
-check recounts from zero. The repair is to keep a single window and update its
-counts incrementally as the boundaries move, which is the
-**[sliding window technique](https://usaco.guide/gold/sliding-window)** with two pointers. `right` expands
-the window until it becomes valid; `left` then contracts it, because once valid,
-only shrinking can improve it, and each shrink step measures a candidate.
+The Brute Force throws away everything it learns: the window starting at `i` and the window starting at `i + 1` overlap almost entirely, yet each validity check recounts from zero. The repair is to keep a single window and update its counts incrementally as the boundaries move, which is the **[sliding window technique](https://usaco.guide/gold/sliding-window)** with two pointers. `right` expands the window until it becomes valid; `left` then contracts it, because once valid, only shrinking can improve it, and each shrink step measures a candidate.
 
-One question remains: how do we know the window is valid without rescanning its
-counts? Track it with a saturation counter. `t_count` holds `t`'s required
-frequencies and `required` its number of distinct characters; `formed` counts
-how many of those characters the window currently satisfies at full
-multiplicity. `formed` only changes when a count crosses its requirement, so
-the validity test is a single integer comparison:
+One question remains: how do we know the window is valid without rescanning its counts? Track it with a saturation counter. `t_count` holds `t`'s required frequencies and `required` its number of distinct characters; `formed` counts how many of those characters the window currently satisfies at full multiplicity. `formed` only changes when a count crosses its requirement, so the validity test is a single integer comparison:
 
 1. Count `t` into `t_count` and set `required = len(t_count)`, `formed = 0`,
    `left = right = 0`, with empty `window_counts`.
 2. Expand: add `s[right]` to `window_counts`; when that character's count
    reaches exactly `t_count[char]`, increment `formed`.
 3. While `formed == required`, the window is valid: record it if
-   `right - left + 1` beats `min_len` (remembering `min_left`), then remove
-   `s[left]` from `window_counts`, decrement `formed` when that character's
-   count falls below `t_count[char]`, and advance `left`.
+   `right - left + 1` beats `min_len` (remembering `min_left`), then remove `s[left]` from `window_counts`, decrement `formed` when that character's count falls below `t_count[char]`, and advance `left`.
 4. Advance `right` and repeat; at the end return `s[min_left:min_left + min_len]`,
    or `""` when `min_len` was never set.
 
-The Invariant below pins down exactly what `formed` counts, why the expansion
-test uses `==` while the contraction test uses `<`, and why the minimum-window
-update must sit inside the shrink loop.
+The Invariant below pins down exactly what `formed` counts, why the expansion test uses `==` while the contraction test uses `<`, and why the minimum-window update must sit inside the shrink loop.
 
 #### Invariant
 
-`t_count` holds the required multiplicity of each character of `t`, and
-`required = len(t_count)`. Call a character \(c\) of `t` *satisfied* when the
-window holds at least as many copies as `t` demands. The loop maintains:
+`t_count` holds the required multiplicity of each character of `t`, and `required = len(t_count)`. Call a character \(c\) of `t` *satisfied* when the window holds at least as many copies as `t` demands. The loop maintains:
 
-$$
-\textit{formed} = \bigl|\{\, c \in \textit{t\_count} \ :\ \textit{window\_counts}[c] \ge \textit{t\_count}[c] \,\}\bigr|
-$$
+$$ \textit{formed} = \bigl|\{\, c \in \textit{t\_count} \ :\ \textit{window\_counts}[c] \ge \textit{t\_count}[c] \,\}\bigr| $$
 
 ```text
 formed = number of characters c in t_count with window_counts[c] >= t_count[c]
 ```
 
-Each of the `required` characters is either satisfied or not, so the count
-saturates exactly on validity:
+Each of the `required` characters is either satisfied or not, so the count saturates exactly on validity:
 
-$$
-\textit{formed} = \textit{required} \iff \text{the window contains every character of } t \text{, duplicates included}
-$$
+$$ \textit{formed} = \textit{required} \iff \text{the window contains every character of } t \text{, duplicates included} $$
 
 ```text
 formed == required
     if and only if  the window contains every character of t, duplicates included
 ```
 
-The definition uses \(\ge\), not \(=\): surplus copies are permitted and must not
-change a character's status. That fixes both comparison operators, since counts
-move by one and `formed` can change only at a crossing. Going up, a character
-becomes satisfied exactly when its count lands on `t_count[char]`, hence the `==`
-in the expansion test. Going down, it becomes unsatisfied exactly when the count
-falls to `t_count[char] - 1`, hence the strict `<` after the decrement.
+The definition uses \(\ge\), not \(=\): surplus copies are permitted and must not change a character's status. That fixes both comparison operators, since counts move by one and `formed` can change only at a crossing. Going up, a character becomes satisfied exactly when its count lands on `t_count[char]`, hence the `==` in the expansion test. Going down, it becomes unsatisfied exactly when the count falls to `t_count[char] - 1`, hence the strict `<` after the decrement.
 
-Relaxing that `<` to `!=` breaks the invariant whenever the window carries
-surplus. With `t = "AB"` and `s = "AAAB"` the window holds three copies of `A`
-where one is needed; removing one leaves two, `2 != 1` fires, and `formed` drops
-while `A` is still satisfied, so the shrink loop exits and reports `"AAAB"`.
+Relaxing that `<` to `!=` breaks the invariant whenever the window carries surplus. With `t = "AB"` and `s = "AAAB"` the window holds three copies of `A` where one is needed; removing one leaves two, `2 != 1` fires, and `formed` drops while `A` is still satisfied, so the shrink loop exits and reports `"AAAB"`.
 
-The minimum-window update sits inside the shrink loop for the same reason. The
-`while` condition asserts `formed == required` at the top of the body, so the
-window is valid *there*, and the decrement below is the only step that can
-invalidate it. Updating on every pass before that decrement therefore measures
-every valid window at this `right`, down to the shortest. Hoisted above the loop it
-would run unconditionally and measure windows before they are known valid at all;
-hoisted below, `left` has already passed validity.
+The minimum-window update sits inside the shrink loop for the same reason. The `while` condition asserts `formed == required` at the top of the body, so the window is valid *there*, and the decrement below is the only step that can invalidate it. Updating on every pass before that decrement therefore measures every valid window at this `right`, down to the shortest. Hoisted above the loop it would run unconditionally and measure windows before they are known valid at all; hoisted below, `left` has already passed validity.
 
-At exit `min_len` is the shortest valid width over all `right`, and
-`min_len == inf` means no window was ever valid: the empty-string case.
+At exit `min_len` is the shortest valid width over all `right`, and `min_len == inf` means no window was ever valid: the empty-string case.
 
 #### Walkthrough
 
-Let us slide the window across Example 1: `s = "ADOBECODEBANC"`, `t = "ABC"`,
-so `t_count = {A: 1, B: 1, C: 1}` and `required = 3`. Each line shows `right`
-advancing by one character; indented lines show the shrink loop firing whenever
-`formed` reaches `3`:
+Let us slide the window across Example 1: `s = "ADOBECODEBANC"`, `t = "ABC"`, so `t_count = {A: 1, B: 1, C: 1}` and `required = 3`. Each line shows `right` advancing by one character; indented lines show the shrink loop firing whenever `formed` reaches `3`:
 
 ```text
 right=0  'A'   A reaches 1 in window_counts       formed 1
@@ -297,18 +240,11 @@ right=12 'C'   C reaches 1                        formed 3 -> valid, shrink
                drop B -> 0 < 1                    formed 2, left=10, stop
 ```
 
-Two details of the invariant show up in the trace. At `right=9` the second `B`
-enters as surplus: its count moves to `2`, past the requirement rather than
-onto it, so `formed` stays `2`. And in the shrink at `right=10`, dropping that
-same surplus `B` (count `2 -> 1`, still `>= 1`) leaves `formed` at `3`, so the
-window keeps shrinking past it. The loop ends with `min_len = 4` and
-`min_left = 9`, so the function returns `s[9:13] = "BANC"`, the expected
-Output.
+Two details of the invariant show up in the trace. At `right=9` the second `B` enters as surplus: its count moves to `2`, past the requirement rather than onto it, so `formed` stays `2`. And in the shrink at `right=10`, dropping that same surplus `B` (count `2 -> 1`, still `>= 1`) leaves `formed` at `3`, so the window keeps shrinking past it. The loop ends with `min_len = 4` and `min_left = 9`, so the function returns `s[9:13] = "BANC"`, the expected Output.
 
 #### Solution
 
-The code is the expand/contract loop from the trace, with the `formed`
-crossings guarding both counter updates.
+The code is the expand/contract loop from the trace, with the `formed` crossings guarding both counter updates.
 
 ```python
 class Solution:
@@ -385,14 +321,7 @@ In the worst case, window_counts could contain all characters from s, and t_coun
 
 #### Derivation
 
-In the standard sliding window, every character of `s` passes through the loop,
-including characters like `D`, `O`, `E`, and `N` that never occur in `t` and
-can never change the window's validity. When `|s|` is much larger than `|t|`
-and `t` has few unique characters, most iterations are spent stepping over such
-filler. The repair is to filter it out once, up front: keep only the positions
-of `s` that hold a character of `t`, and slide the same window over that
-shorter list. The original indices must ride along, because the reported window
-still spans the full string, filler included.
+In the standard sliding window, every character of `s` passes through the loop, including characters like `D`, `O`, `E`, and `N` that never occur in `t` and can never change the window's validity. When `|s|` is much larger than `|t|` and `t` has few unique characters, most iterations are spent stepping over such filler. The repair is to filter it out once, up front: keep only the positions of `s` that hold a character of `t`, and slide the same window over that shorter list. The original indices must ride along, because the reported window still spans the full string, filler included.
 
 1. Count `t` into `dict_t` and set `required = len(dict_t)`.
 2. Build `filtered_s`, the list of `(i, char)` pairs for every position `i` of
@@ -400,15 +329,13 @@ still spans the full string, filler included.
 3. Run the same expand/contract loop over `filtered_s`, maintaining
    `window_counts` and `formed` exactly as before.
 4. When measuring a valid window, read the true boundaries from the stored
-   indices: `start = filtered_s[left][0]` and `end = filtered_s[right][0]`, and
-   compare `end - start + 1` against `min_len`.
+   indices: `start = filtered_s[left][0]` and `end = filtered_s[right][0]`, and compare `end - start + 1` against `min_len`.
 5. Return `s[min_left:min_left + min_len]`, or `""` when no valid window was
    found.
 
 #### Walkthrough
 
-Let us rerun Example 1 (`s = "ADOBECODEBANC"`, `t = "ABC"`) over the filtered
-list. Only six of the thirteen positions survive the filter:
+Let us rerun Example 1 (`s = "ADOBECODEBANC"`, `t = "ABC"`) over the filtered list. Only six of the thirteen positions survive the filter:
 
 ```text
 filtered_s = [(0,'A'), (3,'B'), (5,'C'), (9,'B'), (10,'A'), (12,'C')]
@@ -429,17 +356,11 @@ right=5  (12,'C')  C reaches 1                    formed 3 -> valid, shrink
                    drop B -> 0 < 1                formed 2, left=4, stop
 ```
 
-The loop runs six expansion steps instead of thirteen; the filler characters
-never enter it. The window lengths are still measured in the original string
-through the stored indices, which is why the window at `left=3, right=5` has
-length `12 - 9 + 1 = 4` even though it spans only three filtered entries. The
-final answer is `s[9:13] = "BANC"`, the expected Output, identical to the
-unfiltered version.
+The loop runs six expansion steps instead of thirteen; the filler characters never enter it. The window lengths are still measured in the original string through the stored indices, which is why the window at `left=3, right=5` has length `12 - 9 + 1 = 4` even though it spans only three filtered entries. The final answer is `s[9:13] = "BANC"`, the expected Output, identical to the unfiltered version.
 
 #### Solution
 
-The code is the filtered trace written down: the same window machinery, indexed
-through `filtered_s`.
+The code is the filtered trace written down: the same window machinery, indexed through `filtered_s`.
 
 ```python
 class Solution:

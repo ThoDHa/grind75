@@ -50,30 +50,16 @@ According to the definition of LCA on Wikipedia: "The lowest common ancestor is 
 
 ## Deriving the Solution
 
-The lowest common ancestor is the node where the root-to-`p` path and the
-root-to-`q` path part ways: the two paths share a prefix from the root down,
-and the last node of that shared prefix is the LCA. Every solution below finds
-that divergence point; they differ in how much of the tree they must inspect
-to locate it.
+The lowest common ancestor is the node where the root-to-`p` path and the root-to-`q` path part ways: the two paths share a prefix from the root down, and the last node of that shared prefix is the LCA. Every solution below finds that divergence point; they differ in how much of the tree they must inspect to locate it.
 
 1. **Start literal.** Build both root-to-target paths explicitly with a DFS,
-   then walk them in lockstep until they disagree. Two full searches and two
-   stored paths cost `O(n)` time and space: see
-   [Brute Force DFS](#brute-force-dfs).
+   then walk them in lockstep until they disagree. Two full searches and two stored paths cost `O(n)` time and space: see [Brute Force DFS](#brute-force-dfs).
 2. **Spot the waste.** The paths are only ever compared, never kept. One
-   post-order traversal can detect the split directly: a node whose left and
-   right subtrees each report one target is the divergence point. Still `O(n)`
-   time, but no path storage: see
-   [Generic Post-Order DFS](#generic-post-order-dfs).
+   post-order traversal can detect the split directly: a node whose left and right subtrees each report one target is the divergence point. Still `O(n)` time, but no path storage: see [Generic Post-Order DFS](#generic-post-order-dfs).
 3. **Use the ordering.** Both previous approaches ignore that this tree is a
-   BST. Comparing `p.val` and `q.val` against a node's value tells us which
-   side both targets lie on, so the divergence point can be found by walking a
-   single root-to-LCA path in `O(h)`: see
-   [Recursive Using BST Properties](#recursive-using-bst-properties).
+   BST. Comparing `p.val` and `q.val` against a node's value tells us which side both targets lie on, so the divergence point can be found by walking a single root-to-LCA path in `O(h)`: see [Recursive Using BST Properties](#recursive-using-bst-properties).
 4. **Drop the stack.** That descent is tail-recursive: each call makes at most
-   one further call and returns its result unchanged, so a simple loop
-   replaces the recursion and the `O(h)` call stack becomes `O(1)`: see
-   [Iterative Using BST Properties](#iterative-using-bst-properties).
+   one further call and returns its result unchanged, so a simple loop replaces the recursion and the `O(h)` call stack becomes `O(1)`: see [Iterative Using BST Properties](#iterative-using-bst-properties).
 
 ## Solutions
 
@@ -133,8 +119,7 @@ The paths agree on `6`, then diverge at `2` versus `8`, so the loop breaks. The 
 
 #### Solution
 
-The code is the walkthrough's three steps written down: two path searches,
-then the lockstep comparison.
+The code is the walkthrough's three steps written down: two path searches, then the lockstep comparison.
 
 ```python
 # Definition for a binary tree node.
@@ -206,8 +191,7 @@ Because a matching node short-circuits its subtree, a node that is itself an anc
 
 #### Walkthrough
 
-Let us run the single traversal on Example 1: `root = [6,2,8,0,4,7,9,null,null,3,5]`,
-`p = 2`, `q = 8`, the tree
+Let us run the single traversal on Example 1: `root = [6,2,8,0,4,7,9,null,null,3,5]`, `p = 2`, `q = 8`, the tree
 
 ```text
           6
@@ -219,8 +203,7 @@ Let us run the single traversal on Example 1: `root = [6,2,8,0,4,7,9,null,null,3
        3   5
 ```
 
-The indentation below shows the recursion; each call either matches a target
-and returns immediately, or waits for both children to report:
+The indentation below shows the recursion; each call either matches a target and returns immediately, or waits for both children to report:
 
 ```text
 lowestCommonAncestor(6)    6 is neither 2 nor 8; recurse into both sides
@@ -229,17 +212,11 @@ lowestCommonAncestor(6)    6 is neither 2 nor 8; recurse into both sides
 back at 6: left = 2, right = 8, both non-None -> return 6
 ```
 
-The left recursion stops the instant it lands on `2`: a matching node
-short-circuits its whole subtree, so `0`, `4`, `3`, `5` are never examined.
-Likewise the right recursion returns `8` without touching `7` or `9`. Back at
-the root, `left` and `right` are both non-`None`, meaning one target was found
-on each side, so `6` is the split point and is returned. That matches the
-expected Output `6`, with no path list ever built.
+The left recursion stops the instant it lands on `2`: a matching node short-circuits its whole subtree, so `0`, `4`, `3`, `5` are never examined. Likewise the right recursion returns `8` without touching `7` or `9`. Back at the root, `left` and `right` are both non-`None`, meaning one target was found on each side, so `6` is the split point and is returned. That matches the expected Output `6`, with no path list ever built.
 
 #### Solution
 
-The code is the walkthrough's report-and-combine step: match, recurse both
-sides, and return the node where both sides answer.
+The code is the walkthrough's report-and-combine step: match, recurse both sides, and return the node where both sides answer.
 
 ```python
 # Definition for a binary tree node.
@@ -300,9 +277,7 @@ Because the problem guarantees both nodes exist in the BST, the recursion always
 
 #### Walkthrough
 
-Let us descend through Example 2, which needs more than one step and exercises
-the ancestor-of-itself case: `root = [6,2,8,0,4,7,9,null,null,3,5]`, `p = 2`,
-`q = 4`, the tree
+Let us descend through Example 2, which needs more than one step and exercises the ancestor-of-itself case: `root = [6,2,8,0,4,7,9,null,null,3,5]`, `p = 2`, `q = 4`, the tree
 
 ```text
           6
@@ -314,26 +289,18 @@ the ancestor-of-itself case: `root = [6,2,8,0,4,7,9,null,null,3,5]`, `p = 2`,
        3   5
 ```
 
-Each call compares both target values against `root.val` and picks exactly one
-direction, or stops:
+Each call compares both target values against `root.val` and picks exactly one direction, or stops:
 
 ```text
 lowestCommonAncestor(6)    p.val=2 < 6 and q.val=4 < 6   both smaller -> recurse left
   lowestCommonAncestor(2)  p.val=2 < 2? no.  p.val=2 > 2? no.  -> split: return node 2
 ```
 
-At the root, both `2` and `4` are smaller than `6`, so the entire right half
-of the tree is dismissed without a glance and the search moves to `2`. There,
-neither comparison holds: `p.val` equals the node's value, so the targets no
-longer lie strictly on one side. That is the split condition, and `2` is
-returned: `p` is its own ancestor and `q = 4` sits in its right subtree. The
-result matches the expected Output `2`, reached after inspecting just two
-nodes.
+At the root, both `2` and `4` are smaller than `6`, so the entire right half of the tree is dismissed without a glance and the search moves to `2`. There, neither comparison holds: `p.val` equals the node's value, so the targets no longer lie strictly on one side. That is the split condition, and `2` is returned: `p` is its own ancestor and `q = 4` sits in its right subtree. The result matches the expected Output `2`, reached after inspecting just two nodes.
 
 #### Solution
 
-The code is the walkthrough's three-way comparison, applied once per level of
-the descent.
+The code is the walkthrough's three-way comparison, applied once per level of the descent.
 
 ```python
 # Definition for a binary tree node.
@@ -387,26 +354,18 @@ The loop is guaranteed to terminate at a real node because both targets exist in
 
 #### Walkthrough
 
-Let us re-run Example 2 as a loop: `root = [6,2,8,0,4,7,9,null,null,3,5]`,
-`p = 2`, `q = 4`, the same tree drawn in the recursive walkthrough above. The
-single pointer `current` starts at the root, and each line is one loop
-iteration:
+Let us re-run Example 2 as a loop: `root = [6,2,8,0,4,7,9,null,null,3,5]`, `p = 2`, `q = 4`, the same tree drawn in the recursive walkthrough above. The single pointer `current` starts at the root, and each line is one loop iteration:
 
 ```text
 current = 6   p.val=2 < 6 and q.val=4 < 6      -> current = current.left = 2
 current = 2   2 < 2? no.  2 > 2? no.           -> split: return current = 2
 ```
 
-The comparisons are identical to the recursive version; the only difference is
-that instead of a recursive call carrying the answer back up, `current` is
-reassigned in place. The loop stops at node `2`, where the targets no longer
-fall on one side, and returns it: the expected Output `2`, computed with one
-pointer and no stack.
+The comparisons are identical to the recursive version; the only difference is that instead of a recursive call carrying the answer back up, `current` is reassigned in place. The loop stops at node `2`, where the targets no longer fall on one side, and returns it: the expected Output `2`, computed with one pointer and no stack.
 
 #### Solution
 
-The code is the walkthrough's loop: reassign `current` while both targets sit
-on one side, return it at the split.
+The code is the walkthrough's loop: reassign `current` while both targets sit on one side, return it at the split.
 
 ```python
 # Definition for a binary tree node.

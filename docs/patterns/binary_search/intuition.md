@@ -348,8 +348,7 @@ That's your cue. The sentinels are ready. The space wants to shrink.
 
 ### Trace 1: Lower Bound Search
 
-**Problem**: Find first position where `arr[i] >= 5`
-**Input**: `arr = [1, 2, 4, 5, 5, 5, 8, 9]`
+**Problem**: Find first position where `arr[i] >= 5` **Input**: `arr = [1, 2, 4, 5, 5, 5, 8, 9]`
 
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
@@ -387,8 +386,7 @@ Result: 3 (arr[3] = 5, the first occurrence)
 
 ### Trace 2: Rotated Array Search
 
-**Problem**: Find target = 0 in rotated sorted array
-**Input**: `arr = [4, 5, 6, 7, 0, 1, 2]`
+**Problem**: Find target = 0 in rotated sorted array **Input**: `arr = [4, 5, 6, 7, 0, 1, 2]`
 
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
@@ -421,8 +419,7 @@ Result: 4 (arr[4] = 0)
 
 ### Trace 3: Binary Search on Answer Space
 
-**Problem**: Minimum eating speed to finish 4 piles in 8 hours
-**Input**: `piles = [3, 6, 7, 11]`, `h = 8`
+**Problem**: Minimum eating speed to finish 4 piles in 8 hours **Input**: `piles = [3, 6, 7, 11]`, `h = 8`
 
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
@@ -580,8 +577,7 @@ The variations come from:
 
 ### Pitfall 1: Wrong Loop Condition
 
-For boundary search (`right = mid`), use `left < right`.
-For exact match (`right = mid - 1`), use `left <= right`.
+For boundary search (`right = mid`), use `left < right`. For exact match (`right = mid - 1`), use `left <= right`.
 
 Mixing them causes infinite loops or missed answers.
 
@@ -643,9 +639,7 @@ Master binary search through this sequence:
 
 ## The Binary Search Mantra
 
-> **One invariant: the answer lies within.**
-> **One question: which half to eliminate?**
-> **One step: half the world vanishes forever.**
+> **One invariant: the answer lies within.** **One question: which half to eliminate?** **One step: half the world vanishes forever.**
 
 When you see sorted data or monotonic predicates, think of the shrinking universe. Ask your question. Watch half the candidates disappear. Repeat until only the answer remains.
 

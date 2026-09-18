@@ -1,20 +1,12 @@
 # Back-of-Envelope Estimation
 
-Estimation is the step that turns "design Twitter" from art into engineering.
-The goal is never precision: it is getting the *order of magnitude* right,
-fast, out loud, so the numbers can drive design decisions. If your estimate
-says 5,000 requests per second and reality is 8,000, your design does not
-change. If you are off by 100x, it does.
+Estimation is the step that turns "design Twitter" from art into engineering. The goal is never precision: it is getting the *order of magnitude* right, fast, out loud, so the numbers can drive design decisions. If your estimate says 5,000 requests per second and reality is 8,000, your design does not change. If you are off by 100x, it does.
 
-Two habits make this easy: round everything to the nearest power of ten, and
-finish every calculation with a conclusion ("so a single database handles
-this" or "so we need a CDN").
+Two habits make this easy: round everything to the nearest power of ten, and finish every calculation with a conclusion ("so a single database handles this" or "so we need a CDN").
 
 ## The latency numbers
 
-You need a feel for how long things take, because latency budgets decide
-what a request is allowed to touch. These are honest 2020s magnitudes;
-individual systems vary, but the *ratios* between rows are what matter.
+You need a feel for how long things take, because latency budgets decide what a request is allowed to touch. These are honest 2020s magnitudes; individual systems vary, but the *ratios* between rows are what matter.
 
 | Operation | Typical time | Handy comparison |
 |-----------|-------------:|------------------|
@@ -35,19 +27,13 @@ individual systems vary, but the *ratios* between rows are what matter.
 The conclusions worth memorizing, because they *are* design decisions:
 
 - **RAM is roughly 1,000x faster than SSD, which is roughly 100x faster
-  than a cross-country round trip.** Cache in memory, store on SSD, and
-  never make a user's click wait on more sequential cross-region hops than
-  you must.
+  than a cross-country round trip.** Cache in memory, store on SSD, and never make a user's click wait on more sequential cross-region hops than you must.
 - **A same-datacenter round trip (~0.5 ms) is cheap but not free.** A
-  request that fans out to 5 internal services sequentially has spent
-  2.5 ms before doing any work. Fan out in parallel.
+  request that fans out to 5 internal services sequentially has spent 2.5 ms before doing any work. Fan out in parallel.
 - **Geography is physics.** Light in fiber travels about 200,000 km/s, and
-  routes are not straight lines, so a 150 ms round trip to another
-  continent cannot be optimized away by better code. That single fact is
-  the entire justification for CDNs and multi-region deployments.
+  routes are not straight lines, so a 150 ms round trip to another continent cannot be optimized away by better code. That single fact is the entire justification for CDNs and multi-region deployments.
 - **A human notices ~100 ms.** A latency budget of 200 ms for a page leaves
-  room for one ocean crossing, or a handful of datacenter hops plus real
-  work, but not both.
+  room for one ocean crossing, or a handful of datacenter hops plus real work, but not both.
 
 ## Powers of two and unit shortcuts
 
@@ -61,16 +47,11 @@ Storage math runs on powers of two; do the conversions once and reuse them.
 | 2^40 | ~1.1 trillion | ~10^12 (trillion) | TB |
 | 2^50 | | ~10^15 | PB |
 
-The working rule: **treat 2^10 as 10^3 and never look back.** The error is
-under 3% per step, far below the noise in your other assumptions. Also worth
-knowing: 2^32 is about 4.3 billion, which is why 32-bit counters overflow
-and why IPv4 ran out; and a 64-bit number or pointer is 8 bytes, which is
-where most of your "per-row metadata" bytes go.
+The working rule: **treat 2^10 as 10^3 and never look back.** The error is under 3% per step, far below the noise in your other assumptions. Also worth knowing: 2^32 is about 4.3 billion, which is why 32-bit counters overflow and why IPv4 ran out; and a 64-bit number or pointer is 8 bytes, which is where most of your "per-row metadata" bytes go.
 
 ## QPS arithmetic
 
-Requests per second is the number that sizes almost everything. Three
-conversions cover it:
+Requests per second is the number that sizes almost everything. Three conversions cover it:
 
 | Fact | Rounded form | Use |
 |------|--------------|-----|
@@ -85,21 +66,18 @@ Which gives the single most-used shortcut in the room:
 1 billion per day  ≈ 12,000 per second
 ```
 
-(10^6 / 86,400 ≈ 11.6; round to 12, or to 10 if you are rounding the other
-inputs down anyway.)
+(10^6 / 86,400 ≈ 11.6; round to 12, or to 10 if you are rounding the other inputs down anyway.)
 
 Two adjustments turn an average into a real capacity number:
 
 - **Peak factor.** Traffic is not uniform. Peak-hour load is typically 2x
-  to 5x the daily average; state your factor ("I'll assume peak is 3x
-  average") rather than silently using the mean.
+  to 5x the daily average; state your factor ("I'll assume peak is 3x average") rather than silently using the mean.
 - **Read/write split.** Always compute reads and writes separately. A
   100:1 read-to-write ratio and a 1:1 ratio are different systems.
 
 ## Storage sizing: a walkthrough
 
-The pattern: items per day, times size per item, times retention, times
-replication. Worked for a Twitter-like service:
+The pattern: items per day, times size per item, times retention, times replication. Worked for a Twitter-like service:
 
 ```
 ┌────────────────────────────────────────────────────────────────┐
@@ -124,15 +102,11 @@ storage behind a CDN. The estimate just made an architecture
 decision for you.
 ```
 
-That last line is the point of the exercise. If an estimate does not end in
-a sentence starting with "so" or "therefore", it was arithmetic for its own
-sake.
+That last line is the point of the exercise. If an estimate does not end in a sentence starting with "so" or "therefore", it was arithmetic for its own sake.
 
 ## Bandwidth math
 
-Bandwidth is storage math with a clock attached: bytes per day divided by
-~10^5 seconds. One conversion trap to avoid out loud: storage is quoted in
-bytes, network links in *bits*. Multiply by 8.
+Bandwidth is storage math with a clock attached: bytes per day divided by ~10^5 seconds. One conversion trap to avoid out loud: storage is quoted in bytes, network links in *bits*. Multiply by 8.
 
 ```
 Media ingest from the walkthrough above:
@@ -140,19 +114,15 @@ Media ingest from the walkthrough above:
   × 3 peak factor       ≈ 7 Gbps at peak
 ```
 
-Egress is usually the bigger number (every upload is viewed many times) and
-is the CDN's job; see the first worked example below.
+Egress is usually the bigger number (every upload is viewed many times) and is the CDN's job; see the first worked example below.
 
 ## Worked estimation examples
 
-Do these yourself on paper before reading the traces. The style matches the
-worked traces in the pattern guides: every line is a step you could say out
-loud.
+Do these yourself on paper before reading the traces. The style matches the worked traces in the pattern guides: every line is a step you could say out loud.
 
 ### Example 1: Photo-sharing app, full pass (QPS, storage, bandwidth)
 
-**Prompt**: 50 million DAU. Average user views 20 photos/day; 1 in 5 users
-uploads one photo a day. Size the system.
+**Prompt**: 50 million DAU. Average user views 20 photos/day; 1 in 5 users uploads one photo a day. Size the system.
 
 ```
 ┌────────────────────────────────────────────────────────────────┐
@@ -183,9 +153,7 @@ upload path can be 100x less provisioned than the read path.
 
 ### Example 2: Cache sizing with the 80/20 rule
 
-**Prompt**: A news site has 10 million articles, ~50 KB each rendered, and
-serves 100 million article reads/day. How much cache memory buys a high hit
-rate?
+**Prompt**: A news site has 10 million articles, ~50 KB each rendered, and serves 100 million article reads/day. How much cache memory buys a high hit rate?
 
 ```
 ┌────────────────────────────────────────────────────────────────┐
@@ -211,8 +179,7 @@ day into a database load a single replica pair can carry.
 
 ### Example 3: How many app servers?
 
-**Prompt**: Peak load is 30,000 QPS of lightweight, IO-bound API requests
-(~50 ms each, mostly waiting on cache and DB). How many servers?
+**Prompt**: Peak load is 30,000 QPS of lightweight, IO-bound API requests (~50 ms each, mostly waiting on cache and DB). How many servers?
 
 ```
 ┌────────────────────────────────────────────────────────────────┐
@@ -241,11 +208,8 @@ gap between those two numbers is where reliability lives.
 Before moving on from any estimate, spend ten seconds cross-checking:
 
 - **Compare to something real.** "9 PB/year" should trigger a gut check:
-  large photo services do store exabytes over their lifetime, so the
-  magnitude is plausible. "9 PB/day of tweets" should trigger alarm.
+  large photo services do store exabytes over their lifetime, so the magnitude is plausible. "9 PB/day of tweets" should trigger alarm.
 - **Check the ratio, not just the value.** Reads should exceed writes for a
-  feed; ingest should be far below egress for anything media-heavy. If a
-  ratio comes out inverted, a step is wrong.
+  feed; ingest should be far below egress for anything media-heavy. If a ratio comes out inverted, a step is wrong.
 - **Redo one step in the other direction.** 12,000/s × 10^5 s should land
-  back near 1B/day. Round-tripping catches dropped zeros, which are the
-  only estimation errors that actually matter.
+  back near 1B/day. Round-tripping catches dropped zeros, which are the only estimation errors that actually matter.

@@ -32,28 +32,16 @@ Given two binary strings `a` and `b`, return their sum as a binary string.
 
 ## Deriving the Solution
 
-Binary addition is column addition in base two: at each position the two bits plus
-the incoming carry form a `total`, whose parity (`total % 2`) is the output bit and
-whose half (`total // 2`) is the carry passed leftward. Every solution below is
-that one rule in different clothing.
+Binary addition is column addition in base two: at each position the two bits plus the incoming carry form a `total`, whose parity (`total % 2`) is the output bit and whose half (`total // 2`) is the carry passed leftward. Every solution below is that one rule in different clothing.
 
 1. **Start literal.** Walk both strings from their last characters with indices
-   `i` and `j`, apply the column rule, collect bits in a list, and reverse once at
-   the end. This is already linear, `O(max(n, m))`, the best any approach here
-   achieves: see [Brute Force](#brute-force).
+   `i` and `j`, apply the column rule, collect bits in a list, and reverse once at the end. This is already linear, `O(max(n, m))`, the best any approach here achieves: see [Brute Force](#brute-force).
 2. **Same loop, costlier bookkeeping.** Two common variants keep the identical
-   column rule but build the result by prepending to a string, which copies the
-   whole result on every iteration and silently turns the loop quadratic: padding
-   the inputs to equal length first in
-   [Bit-by-bit Computation](#bit-by-bit-computation), or tracking indices without
-   padding in [Single-Loop Iterative Approach](#single-loop-iterative-approach).
+   column rule but build the result by prepending to a string, which copies the whole result on every iteration and silently turns the loop quadratic: padding the inputs to equal length first in [Bit-by-bit Computation](#bit-by-bit-computation), or tracking indices without padding in [Single-Loop Iterative Approach](#single-loop-iterative-approach).
 3. **Push the carry into bitwise operators.** Treating each whole number at once,
-   XOR is the carry-free sum and the shifted AND is exactly the carries; folding
-   the carry back in until it vanishes adds without ever using `+`: see
-   [Bit Manipulation](#bit-manipulation).
+   XOR is the carry-free sum and the shifted AND is exactly the carries; folding the carry back in until it vanishes adds without ever using `+`: see [Bit Manipulation](#bit-manipulation).
 4. **Delegate everything.** Python can parse, add, and format on its own:
-   `int(a, 2) + int(b, 2)` followed by `bin` hands the entire technique to the
-   library: see [Using Built-in Functions](#using-built-in-functions).
+   `int(a, 2) + int(b, 2)` followed by `bin` hands the entire technique to the library: see [Using Built-in Functions](#using-built-in-functions).
 
 ## Solutions
 
@@ -86,8 +74,7 @@ The bits were collected least-significant first, so `result` holds `["0", "0", "
 
 #### Solution
 
-The code is the column loop from the walkthrough: one pass from the least
-significant bits, with the loop condition flushing any final carry.
+The code is the column loop from the walkthrough: one pass from the least significant bits, with the loop condition flushing any final carry.
 
 ```python
 class Solution:
@@ -134,13 +121,7 @@ The result list holds at most `max(n, m) + 1` bits before it is joined into the 
 
 #### Derivation
 
-The brute force handles unequal lengths by testing each index inside the loop.
-This variant asks: what if the strings had equal lengths to begin with? Padding
-the shorter one with leading zeros makes every column hold two real bits, so the
-loop body needs no in-range tests and can walk a single index. The column rule is
-unchanged; what changes is the bookkeeping, and for the worse: each bit is
-prepended to the `result` string, which copies everything built so far on every
-iteration.
+The brute force handles unequal lengths by testing each index inside the loop. This variant asks: what if the strings had equal lengths to begin with? Padding the shorter one with leading zeros makes every column hold two real bits, so the loop body needs no in-range tests and can walk a single index. The column rule is unchanged; what changes is the bookkeeping, and for the worse: each bit is prepended to the `result` string, which copies everything built so far on every iteration.
 
 1. Pad `a` and `b` with leading zeros (`zfill`) to the longer length.
 2. Walk `i` from the last index down to `0`; each column's `bit_sum` is
@@ -150,9 +131,7 @@ iteration.
 
 #### Walkthrough
 
-Let us run this variant on Example 1: `a = "11"`, `b = "1"`, expected Output
-`"100"`. The padding step brings both strings to length `2`, so `b` becomes
-`"01"`, and a single index `i` walks the columns right to left:
+Let us run this variant on Example 1: `a = "11"`, `b = "1"`, expected Output `"100"`. The padding step brings both strings to length `2`, so `b` becomes `"01"`, and a single index `i` walks the columns right to left:
 
 ```text
 padding   a = "11"   b = "01"                     b gains one leading zero
@@ -161,15 +140,11 @@ i = 0     bit_sum = 1 + 0 + 1 = 2                 result = "00"   carry = 1
 after     carry = 1 still set                     result = "100"
 ```
 
-The loop ends with `carry = 1`, so the final `if carry` prepends the leading
-`'1'`. Note that each of those `result` updates copied the whole string built so
-far, which is the hidden quadratic cost. The returned string is `"100"`, matching
-the expected Output.
+The loop ends with `carry = 1`, so the final `if carry` prepends the leading `'1'`. Note that each of those `result` updates copied the whole string built so far, which is the hidden quadratic cost. The returned string is `"100"`, matching the expected Output.
 
 #### Solution
 
-The code is the padded column loop from the walkthrough, prepending each bit to
-`result`.
+The code is the padded column loop from the walkthrough, prepending each bit to `result`.
 
 ```python
 class Solution:
@@ -214,13 +189,7 @@ We create a new string to store the result, which has at most max(n, m) + 1 bits
 
 #### Derivation
 
-The padding variant spends a preliminary pass equalizing the strings and still
-needs a special case for the final carry. This version asks whether one loop can
-absorb both: keep separate indices `i` and `j`, read a bit as `0` once its index
-runs off the string, and let the loop condition `i >= 0 or j >= 0 or carry` run
-one extra pass to flush a trailing carry. The column rule is again unchanged, and
-so is the flaw it inherits: the result is still built by string prepending, so
-the loop remains quadratic.
+The padding variant spends a preliminary pass equalizing the strings and still needs a special case for the final carry. This version asks whether one loop can absorb both: keep separate indices `i` and `j`, read a bit as `0` once its index runs off the string, and let the loop condition `i >= 0 or j >= 0 or carry` run one extra pass to flush a trailing carry. The column rule is again unchanged, and so is the flaw it inherits: the result is still built by string prepending, so the loop remains quadratic.
 
 1. Start `i` and `j` at the last characters of `a` and `b`, with `carry = 0`.
 2. Loop while either index is in range or a carry remains; read `bit_a` and
@@ -232,8 +201,7 @@ the loop remains quadratic.
 
 #### Walkthrough
 
-Let us run this version on Example 2: `a = "1010"`, `b = "1011"`, expected Output
-`"10101"`. Both indices start at `3` and step left together:
+Let us run this version on Example 2: `a = "1010"`, `b = "1011"`, expected Output `"10101"`. Both indices start at `3` and step left together:
 
 ```text
 i=3  j=3    bit_a=0  bit_b=1  carry=0   current_sum=1   result = "1"      carry = 0
@@ -243,15 +211,11 @@ i=0  j=0    bit_a=1  bit_b=1  carry=0   current_sum=2   result = "0101"   carry 
 i=-1 j=-1   bit_a=0  bit_b=0  carry=1   current_sum=1   result = "10101"  carry = 0
 ```
 
-After the fourth pass both indices are exhausted, but `carry = 1` keeps the loop
-alive for one more pass, which reads both bits as `0` and writes the leading
-`1`. With `i < 0`, `j < 0`, and `carry == 0` the loop stops, returning
-`"10101"`, which matches the expected Output for Example 2.
+After the fourth pass both indices are exhausted, but `carry = 1` keeps the loop alive for one more pass, which reads both bits as `0` and writes the leading `1`. With `i < 0`, `j < 0`, and `carry == 0` the loop stops, returning `"10101"`, which matches the expected Output for Example 2.
 
 #### Solution
 
-The code is the trace written down: out-of-range bits read as `0`, and the carry
-keeps the loop alive for the final flush.
+The code is the trace written down: out-of-range bits read as `0`, and the carry keeps the loop alive for the final flush.
 
 ```python
 class Solution:
@@ -298,19 +262,9 @@ The space needed for the result string, which is at most max(n, m) + 1 bits.
 
 #### Derivation
 
-Every version so far processes one column per iteration. This approach asks
-whether the columns can all be processed at once, using the classic
-carry-propagation loop built entirely from
-[bitwise operators](https://en.wikipedia.org/wiki/Bitwise_operation). The XOR of
-two values gives their sum at each bit position while ignoring any carries, and
-the AND of the two values (shifted left by one) gives exactly the carry bits.
-Folding the carry back in repeatedly, the carry eventually becomes zero and `x`
-holds the final sum.
+Every version so far processes one column per iteration. This approach asks whether the columns can all be processed at once, using the classic carry-propagation loop built entirely from [bitwise operators](https://en.wikipedia.org/wiki/Bitwise_operation). The XOR of two values gives their sum at each bit position while ignoring any carries, and the AND of the two values (shifted left by one) gives exactly the carry bits. Folding the carry back in repeatedly, the carry eventually becomes zero and `x` holds the final sum.
 
-Being honest about the boundaries: `int(a, 2)` and `bin(...)` are still used for
-input parsing and output formatting, so the I/O is not bitwise. The arithmetic
-itself, however, never uses `+`: every bit of the sum is produced purely with
-XOR, AND, and shift.
+Being honest about the boundaries: `int(a, 2)` and `bin(...)` are still used for input parsing and output formatting, so the I/O is not bitwise. The arithmetic itself, however, never uses `+`: every bit of the sum is produced purely with XOR, AND, and shift.
 
 1. Parse `a` and `b` into integers `x` and `y` (I/O only; the addition never
    touches `+`).
@@ -322,16 +276,11 @@ XOR, AND, and shift.
 
 #### Formula
 
-Addition splits into a carry-free part and a carry part, each of which is a
-single bitwise operation:
+Addition splits into a carry-free part and a carry part, each of which is a single bitwise operation:
 
-$$
-x \oplus y \quad=\quad \text{sum at each bit, carries ignored}
-$$
+$$ x \oplus y \quad=\quad \text{sum at each bit, carries ignored} $$
 
-$$
-(x \wedge y) \ll 1 \quad=\quad \text{the carries, shifted into their next position}
-$$
+$$ (x \wedge y) \ll 1 \quad=\quad \text{the carries, shifted into their next position} $$
 
 ```text
 sum_without_carry = x ^ y            the sum at each bit, carries ignored
@@ -340,28 +289,19 @@ carry             = (x & y) << 1     the carries, shifted into their next positi
 
 Together they preserve the total, which is what makes iterating valid:
 
-$$
-x + y \;=\; (x \oplus y) \;+\; \bigl((x \wedge y) \ll 1\bigr)
-$$
+$$ x + y \;=\; (x \oplus y) \;+\; \bigl((x \wedge y) \ll 1\bigr) $$
 
 ```text
 x + y == (x ^ y) + ((x & y) << 1)
 ```
 
-Each pass replaces \((x, y)\) with that right-hand pair, leaving the sum
-unchanged while pushing carries leftward. The process terminates because the
-carry term gains at least one trailing zero every round, so after at most
-\(\max(n, m) + 1\) passes it reaches \(y = 0\) and \(x\) holds the answer.
+Each pass replaces \((x, y)\) with that right-hand pair, leaving the sum unchanged while pushing carries leftward. The process terminates because the carry term gains at least one trailing zero every round, so after at most \(\max(n, m) + 1\) passes it reaches \(y = 0\) and \(x\) holds the answer.
 
-This is a [ripple-carry adder](https://en.wikipedia.org/wiki/Adder_(electronics)#Ripple-carry_adder)
-written in software: \(\oplus\) is the half-adder's sum bit and \(\wedge\) its
-carry bit.
+This is a [ripple-carry adder](https://en.wikipedia.org/wiki/Adder_(electronics)#Ripple-carry_adder) written in software: \(\oplus\) is the half-adder's sum bit and \(\wedge\) its carry bit.
 
 #### Walkthrough
 
-Let us fold the carries on Example 2: `a = "1010"`, `b = "1011"`, expected Output
-`"10101"`. Parsing gives `x = 10` and `y = 11`; the trace below shows each value
-in five binary digits, since the answer needs five bits:
+Let us fold the carries on Example 2: `a = "1010"`, `b = "1011"`, expected Output `"10101"`. Parsing gives `x = 10` and `y = 11`; the trace below shows each value in five binary digits, since the answer needs five bits:
 
 ```text
 start     x = 01010 (10)    y = 01011 (11)
@@ -374,15 +314,11 @@ pass 2    sum_without_carry = 00001 ^ 10100 = 10101    no positions overlap
           x = 10101 (21)    y = 00000 (0)
 ```
 
-The invariant is visible at every line: `10 + 11 = 21` and `1 + 20 = 21`, so each
-pass preserves the total while the carry marches left. After the second pass
-`y = 0`, the loop exits, and `bin(21)[2:]` formats `x` as `"10101"`, matching
-the expected Output for Example 2.
+The invariant is visible at every line: `10 + 11 = 21` and `1 + 20 = 21`, so each pass preserves the total while the carry marches left. After the second pass `y = 0`, the loop exits, and `bin(21)[2:]` formats `x` as `"10101"`, matching the expected Output for Example 2.
 
 #### Solution
 
-The code is the fold from the walkthrough: XOR and shifted AND replace the pair
-until the carry dies out.
+The code is the fold from the walkthrough: XOR and shifted AND replace the pair until the carry dies out.
 
 ```python
 class Solution:
@@ -408,17 +344,11 @@ class Solution:
 
 ##### Time Complexity: `O(max(n, m)^2)` worst case
 
-The loop can run up to max(n, m) + 1 times (a carry can ripple one position per
-pass, as in `0b111...1 + 1`), and each XOR, AND, and shift on Python's
-arbitrary-precision integers costs `O(max(n, m))` bit operations when the values
-span up to 10^4 bits. The worst case is therefore quadratic in the input length,
-even though typical inputs resolve in far fewer passes.
+The loop can run up to max(n, m) + 1 times (a carry can ripple one position per pass, as in `0b111...1 + 1`), and each XOR, AND, and shift on Python's arbitrary-precision integers costs `O(max(n, m))` bit operations when the values span up to 10^4 bits. The worst case is therefore quadratic in the input length, even though typical inputs resolve in far fewer passes.
 
 ##### Space Complexity: `O(max(n, m))`
 
-Only a constant number of integer variables are used, but each holds an
-arbitrary-precision integer of up to max(n, m) + 1 bits, and the output string
-is proportional to the input sizes as well.
+Only a constant number of integer variables are used, but each holds an arbitrary-precision integer of up to max(n, m) + 1 bits, and the output string is proportional to the input sizes as well.
 
 #### Key Insights
 
@@ -432,10 +362,7 @@ is proportional to the input sizes as well.
 
 #### Derivation
 
-The last step is to delegate the whole task. Python already knows how to parse a
-binary string, add integers of any size, and format the result back, so the
-entire problem collapses into one expression. Nothing of the column rule remains
-visible; the library performs it internally.
+The last step is to delegate the whole task. Python already knows how to parse a binary string, add integers of any size, and format the result back, so the entire problem collapses into one expression. Nothing of the column rule remains visible; the library performs it internally.
 
 1. `int(a, 2)` and `int(b, 2)` parse the strings positionally: each character
    contributes its bit times the matching power of two.
@@ -444,8 +371,7 @@ visible; the library performs it internally.
 
 #### Walkthrough
 
-Here the built-ins are themselves the technique, so the trace opens them up on
-Example 1: `a = "11"`, `b = "1"`, expected Output `"100"`.
+Here the built-ins are themselves the technique, so the trace opens them up on Example 1: `a = "11"`, `b = "1"`, expected Output `"100"`.
 
 ```text
 int("11", 2)    1 * 2^1 + 1 * 2^0 = 3        positional parse of a
@@ -476,9 +402,7 @@ Converting the strings to integers and back to binary takes linear time.
 
 ##### Space Complexity: `O(max(n, m))`
 
-The parsed integers hold one bit per input character, and the output string is
-proportional to the input sizes, so the built-in conversion stores linear space
-like every other approach here.
+The parsed integers hold one bit per input character, and the output string is proportional to the input sizes, so the built-in conversion stores linear space like every other approach here.
 
 #### Key Insights
 

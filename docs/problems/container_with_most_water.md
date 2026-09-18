@@ -42,27 +42,16 @@ Return the maximum amount of water a container can store.
 
 ## Deriving the Solution
 
-Every candidate container is a pair of lines `i < j`, worth
-`(j - i) * min(height[i], height[j])`: the width times the shorter wall. The
-question every solution answers is how many of those pairs actually need to be
-measured.
+Every candidate container is a pair of lines `i < j`, worth `(j - i) * min(height[i], height[j])`: the width times the shorter wall. The question every solution answers is how many of those pairs actually need to be measured.
 
 1. **Start literal.** Measure every pair and keep the best. Correct, but there
-   are `n * (n - 1) / 2` pairs, so it costs `O(n^2)`: see
-   [Brute Force](#brute-force).
+   are `n * (n - 1) / 2` pairs, so it costs `O(n^2)`: see [Brute Force](#brute-force).
 2. **Spot the waste.** Consider the widest pair. Its area is capped by its
-   shorter wall, and any other pair that keeps that shorter wall is narrower
-   with the same cap or a lower one. Every such pair loses to the one just
-   measured, so it never needs to be checked.
+   shorter wall, and any other pair that keeps that shorter wall is narrower with the same cap or a lower one. Every such pair loses to the one just measured, so it never needs to be checked.
 3. **Discard in bulk.** Start at the two ends and repeatedly move the pointer
-   at the shorter wall inward: each move discards all pairs involving that
-   wall at once, leaving only `n - 1` measurements: see
-   [Two Pointers](#two-pointers).
+   at the shorter wall inward: each move discards all pairs involving that wall at once, leaving only `n - 1` measurements: see [Two Pointers](#two-pointers).
 4. **Skip whole runs.** The same argument condemns any line no taller than the
-   current limiting wall, so the pointer can jump past consecutive runs of
-   them instead of stepping one at a time. Same `O(n)` bound, fewer area
-   computations: see
-   [Two Pointers with Skip Optimization](#two-pointers-with-skip-optimization).
+   current limiting wall, so the pointer can jump past consecutive runs of them instead of stepping one at a time. Same `O(n)` bound, fewer area computations: see [Two Pointers with Skip Optimization](#two-pointers-with-skip-optimization).
 
 ## Solutions
 
@@ -70,11 +59,7 @@ measured.
 
 #### Derivation
 
-The most direct way to solve this is to consider every possible pair of lines as
-the two walls of the container. For each pair `(i, j)`, the amount of water it
-holds is limited by the shorter of the two lines, multiplied by the horizontal
-distance between them. Nothing more than the objective itself is needed:
-evaluate it everywhere and keep the best value seen.
+The most direct way to solve this is to consider every possible pair of lines as the two walls of the container. For each pair `(i, j)`, the amount of water it holds is limited by the shorter of the two lines, multiplied by the horizontal distance between them. Nothing more than the objective itself is needed: evaluate it everywhere and keep the best value seen.
 
 1. Iterate over every starting line `i`.
 2. For each `i`, iterate over every later line `j`.
@@ -82,51 +67,36 @@ evaluate it everywhere and keep the best value seen.
    and multiply them to get the pair's area.
 4. Track the maximum area seen across all pairs in `max_area` and return it.
 
-This examines all `n * (n - 1) / 2` pairs, guaranteeing the optimum is found, but
-the quadratic work makes it impractical for large inputs.
+This examines all `n * (n - 1) / 2` pairs, guaranteeing the optimum is found, but the quadratic work makes it impractical for large inputs.
 
 #### Formula
 
-A container is chosen by picking two lines \(i < j\). Its water is bounded by
-the shorter wall, so the objective is:
+A container is chosen by picking two lines \(i < j\). Its water is bounded by the shorter wall, so the objective is:
 
-$$
-\text{area}(i, j) = (j - i) \cdot \min\bigl(\text{height}[i],\ \text{height}[j]\bigr)
-$$
+$$ \text{area}(i, j) = (j - i) \cdot \min\bigl(\text{height}[i],\ \text{height}[j]\bigr) $$
 
-$$
-\text{answer} = \max_{0 \le i < j < n} \text{area}(i, j)
-$$
+$$ \text{answer} = \max_{0 \le i < j < n} \text{area}(i, j) $$
 
 ```text
 area(i, j) = (j - i) * min(height[i], height[j])
 answer     = max area(i, j) over all 0 <= i < j < n
 ```
 
-The brute force evaluates this maximum literally, over every pair. The number of
-pairs is
+The brute force evaluates this maximum literally, over every pair. The number of pairs is
 
-$$
-\binom{n}{2} = \frac{n(n-1)}{2}
-$$
+$$ \binom{n}{2} = \frac{n(n-1)}{2} $$
 
 ```text
 number of pairs = C(n, 2) = n * (n - 1) / 2
 ```
 
-which is the source of the \(O(n^2)\) bound. The two-pointer solution below
-discards pairs in bulk instead: moving the taller wall inward can only shrink
-both factors at once, so no pair it skips can beat the one just measured.
+which is the source of the \(O(n^2)\) bound. The two-pointer solution below discards pairs in bulk instead: moving the taller wall inward can only shrink both factors at once, so no pair it skips can beat the one just measured.
 
 #### Walkthrough
 
-Example 1 has 9 lines, which means 36 pairs to check: too many to follow by hand.
-To watch the nested loops actually run, trace the smaller input `height = [1,8,6,2]`
-instead. The outer loop fixes a left wall `i`, the inner loop sweeps every later
-right wall `j`, and `max_area` only grows when a pair beats every pair seen so far.
+Example 1 has 9 lines, which means 36 pairs to check: too many to follow by hand. To watch the nested loops actually run, trace the smaller input `height = [1,8,6,2]` instead. The outer loop fixes a left wall `i`, the inner loop sweeps every later right wall `j`, and `max_area` only grows when a pair beats every pair seen so far.
 
-Each row computes `width = j - i`, `current_height = min(height[i], height[j])`,
-and `area = width * current_height`:
+Each row computes `width = j - i`, `current_height = min(height[i], height[j])`, and `area = width * current_height`:
 
 | `i` | `j` | `width` (`j - i`) | `min(height[i], height[j])` | `area` | `max_area` after |
 | --- | --- | --- | --- | --- | --- |
@@ -137,15 +107,9 @@ and `area = width * current_height`:
 | 1 | 3 | 2 | `min(8, 2)` = 2 | 4 | 6 |
 | 2 | 3 | 1 | `min(6, 2)` = 2 | 2 | 6 |
 
-The loops have now exhausted all 6 pairs, so the function returns `max_area = 6`,
-the best container for `[1,8,6,2]`. Notice the limiting wall is always the shorter
-line: the pair `(1, 3)` has the tall line `8` on the left, yet its area is capped
-by the short `2` on the right.
+The loops have now exhausted all 6 pairs, so the function returns `max_area = 6`, the best container for `[1,8,6,2]`. Notice the limiting wall is always the shorter line: the pair `(1, 3)` has the tall line `8` on the left, yet its area is capped by the short `2` on the right.
 
-The full Example 1 runs the exact same nested sweep over all 36 pairs of
-`[1,8,6,2,5,4,8,3,7]`. The winning pair is `(i = 1, j = 8)`, with
-`width = 7` and `min(height[1], height[8]) = min(8, 7) = 7`, giving
-`area = 7 * 7 = 49`. So the function returns `49`, matching the expected Output.
+The full Example 1 runs the exact same nested sweep over all 36 pairs of `[1,8,6,2,5,4,8,3,7]`. The winning pair is `(i = 1, j = 8)`, with `width = 7` and `min(height[1], height[8]) = min(8, 7) = 7`, giving `area = 7 * 7 = 49`. So the function returns `49`, matching the expected Output.
 
 #### Solution
 
@@ -175,8 +139,7 @@ class Solution:
 
 ##### Time Complexity: `O(n^2)`
 
-The nested loops evaluate every pair of lines, which grows quadratically with the
-number of lines.
+The nested loops evaluate every pair of lines, which grows quadratically with the number of lines.
 
 ##### Space Complexity: `O(1)`
 
@@ -192,35 +155,21 @@ Only a few scalar variables are used regardless of input size.
 
 #### Derivation
 
-The brute force measures every pair even though most pairs cannot possibly win.
-The [two-pointer technique](https://usaco.guide/silver/two-pointers)
-turns that observation into a discard rule. Look at the widest pair, the two
-end lines: its area is `width * min(height[left], height[right])`, capped by
-the shorter wall. Now ask what any other pair keeping that shorter wall could
-do. It would be strictly narrower, and its height would still be capped at the
-same shorter wall or lower, so it can never beat the pair just measured. That
-means every remaining pair involving the shorter wall is dead, and the pointer
-standing on it can move inward, writing off all those pairs in one step.
+The brute force measures every pair even though most pairs cannot possibly win. The [two-pointer technique](https://usaco.guide/silver/two-pointers) turns that observation into a discard rule. Look at the widest pair, the two end lines: its area is `width * min(height[left], height[right])`, capped by the shorter wall. Now ask what any other pair keeping that shorter wall could do. It would be strictly narrower, and its height would still be capped at the same shorter wall or lower, so it can never beat the pair just measured. That means every remaining pair involving the shorter wall is dead, and the pointer standing on it can move inward, writing off all those pairs in one step.
 
-Repeating the argument at each new pair discards the pair space in bulk:
-moving the shorter wall's pointer is always safe, because the pairs it skips
-are provably no better than one already recorded. Only `n - 1` pairs are ever
-measured.
+Repeating the argument at each new pair discards the pair space in bulk: moving the shorter wall's pointer is always safe, because the pairs it skips are provably no better than one already recorded. Only `n - 1` pairs are ever measured.
 
 1. Start with `left = 0` and `right = len(height) - 1`, the widest container,
    and `max_area = 0`.
 2. Measure the current pair: `width = right - left`,
-   `current_height = min(height[left], height[right])`, and
-   `current_area = width * current_height`; fold it into `max_area`.
+   `current_height = min(height[left], height[right])`, and `current_area = width * current_height`; fold it into `max_area`.
 3. Move the pointer at the shorter wall inward: `left += 1` when
    `height[left] < height[right]`, otherwise `right -= 1`.
 4. Repeat until the pointers meet, then return `max_area`.
 
 #### Walkthrough
 
-Let us run the scan by hand on Example 1: `height = [1,8,6,2,5,4,8,3,7]`. Each
-line shows the pair measured and which pointer moves; `h[i]` abbreviates
-`height[i]`:
+Let us run the scan by hand on Example 1: `height = [1,8,6,2,5,4,8,3,7]`. Each line shows the pair measured and which pointer moves; `h[i]` abbreviates `height[i]`:
 
 ```text
 left=0 (h=1)  right=8 (h=7)   width=8  min=1  area=8    max_area=8    h[0]<h[8] -> left+=1
@@ -233,15 +182,11 @@ left=1 (h=8)  right=3 (h=2)   width=2  min=2  area=4    max_area=49   right-=1
 left=1 (h=8)  right=2 (h=6)   width=1  min=6  area=6    max_area=49   right-=1 -> pointers meet
 ```
 
-The first move retires the short wall of height `1`, and the very next pair
-(`left = 1`, `right = 8`) is the winner: `7 * min(8, 7) = 49`. Every later
-pair is narrower and never beats it, so the loop ends with `max_area = 49`,
-matching the expected Output for Example 1.
+The first move retires the short wall of height `1`, and the very next pair (`left = 1`, `right = 8`) is the winner: `7 * min(8, 7) = 49`. Every later pair is narrower and never beats it, so the loop ends with `max_area = 49`, matching the expected Output for Example 1.
 
 #### Solution
 
-The code is the walkthrough's loop: measure the pair, fold it into `max_area`,
-move the shorter wall inward.
+The code is the walkthrough's loop: measure the pair, fold it into `max_area`, move the shorter wall inward.
 
 ```python
 from typing import List
@@ -291,14 +236,7 @@ The algorithm uses only a constant amount of extra space for variables (`left`, 
 
 #### Derivation
 
-The plain [two-pointer scan](https://usaco.guide/silver/two-pointers)
-still advances one line at a time, even through lines its own discard argument
-has already condemned. After measuring a pair, the limiting wall is the shorter
-of the two, `current_height`. Any line on that side whose height is less than
-or equal to `current_height` cannot improve the answer: moving to it shrinks
-the width while the height stays capped at the same value or lower. So instead
-of a single step, the pointer may jump past the entire consecutive run of such
-lines in one inner loop.
+The plain [two-pointer scan](https://usaco.guide/silver/two-pointers) still advances one line at a time, even through lines its own discard argument has already condemned. After measuring a pair, the limiting wall is the shorter of the two, `current_height`. Any line on that side whose height is less than or equal to `current_height` cannot improve the answer: moving to it shrinks the width while the height stays capped at the same value or lower. So instead of a single step, the pointer may jump past the entire consecutive run of such lines in one inner loop.
 
 1. Measure the pair at `left` and `right`: fold
    `current_height * (right - left)` into `max_area`, exactly as before.
@@ -307,14 +245,11 @@ lines in one inner loop.
    `current_height`, guarding each step with `left < right`.
 4. Repeat until the pointers meet, then return `max_area`.
 
-The result is identical to the plain two-pointer scan; the inner skip loops
-simply collapse runs of useless positions into one move.
+The result is identical to the plain two-pointer scan; the inner skip loops simply collapse runs of useless positions into one move.
 
 #### Walkthrough
 
-Let us rerun Example 1, `height = [1,8,6,2,5,4,8,3,7]`, and watch the skip
-loops eat whole runs. Each measurement line is followed by the skip it
-triggers; `h[i]` abbreviates `height[i]`:
+Let us rerun Example 1, `height = [1,8,6,2,5,4,8,3,7]`, and watch the skip loops eat whole runs. Each measurement line is followed by the skip it triggers; `h[i]` abbreviates `height[i]`:
 
 ```text
 left=0 (h=1)  right=8 (h=7)   cap=1  area=8*1=8    max_area=8
@@ -326,10 +261,7 @@ left=1 (h=8)  right=6 (h=8)   cap=8  area=5*8=40   max_area=49
 left=1, right=1 -> pointers meet, loop ends
 ```
 
-The second skip discards indices `8` and `7` in one move, and the third
-discards the whole remaining run because no line left of index `6` exceeds the
-cap of `8`. Only 3 areas are computed instead of the plain scan's 8, and the
-function returns `max_area = 49`, matching the expected Output for Example 1.
+The second skip discards indices `8` and `7` in one move, and the third discards the whole remaining run because no line left of index `6` exceeds the cap of `8`. Only 3 areas are computed instead of the plain scan's 8, and the function returns `max_area = 49`, matching the expected Output for Example 1.
 
 #### Solution
 
@@ -365,22 +297,18 @@ class Solution:
 
 ##### Time Complexity: `O(n)`
 
-Each pointer only ever moves inward, and the inner skip loops advance the same
-pointers. Across the whole run every index is visited at most once, so the total
-work remains linear.
+Each pointer only ever moves inward, and the inner skip loops advance the same pointers. Across the whole run every index is visited at most once, so the total work remains linear.
 
 ##### Space Complexity: `O(1)`
 
-Only the two pointers and a couple of scalar variables are stored, independent of
-input size.
+Only the two pointers and a couple of scalar variables are stored, independent of input size.
 
 #### Key Insights
 
 - **Pruning runs of short lines**: A line no taller than the current limiting wall
   can never beat the area already recorded, so it is safe to skip past it
 - **Same asymptotic bound, smaller constant**: The skip loops do not change the
-  `O(n)` complexity but can reduce the number of area computations on inputs with
-  long plateaus or many short lines
+  `O(n)` complexity but can reduce the number of area computations on inputs with long plateaus or many short lines
 - **Correctness preserved**: Because skipped lines are provably non-improving, the
   optimized scan returns exactly the same maximum as the plain two-pointer version
 
