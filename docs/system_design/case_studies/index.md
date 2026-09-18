@@ -1,24 +1,15 @@
 # Case Studies
 
-These are scaffolded workthroughs, not finished essays. Each one runs the
-[6-step method](../method.md) on a classic interview prompt, gives you the
-requirements and architecture, hides the estimation answers behind
-collapsible blocks so you can attempt them first, sketches the deep dives in
-bullets rather than prose, and ends with a checklist of aspects deliberately
-left for you to work out. The gaps are the curriculum.
+These are scaffolded workthroughs, not finished essays. Each one runs the [6-step method](../method.md) on a classic interview prompt, gives you the requirements and architecture, hides the estimation answers behind collapsible blocks so you can attempt them first, sketches the deep dives in bullets rather than prose, and ends with a checklist of aspects deliberately left for you to work out. The gaps are the curriculum.
 
 ## How to use these
 
 1. **Attempt before revealing.** Every "Answer" block is collapsed for a
-   reason. Do the estimation on paper, then check. Being wrong first is the
-   fastest way to remember.
+   reason. Do the estimation on paper, then check. Being wrong first is the fastest way to remember.
 2. **Talk, don't read.** After working through a study once, redo it out
-   loud with a 45-minute timer and the page closed. The
-   [method's time budget](../method.md#the-time-budget) is your script.
+   loud with a 45-minute timer and the page closed. The [method's time budget](../method.md#the-time-budget) is your script.
 3. **Extend at least one.** Each study ends with an "extend this scaffold"
-   checklist. Picking two or three items and designing them yourself,
-   writing the tradeoffs down, is worth more than reading all five
-   studies twice.
+   checklist. Picking two or three items and designing them yourself, writing the tradeoffs down, is worth more than reading all five studies twice.
 4. **Keep [Building Blocks](../building_blocks.md) open** the first time
    through. The studies name components without re-explaining them.
 
@@ -36,21 +27,14 @@ Ordered by difficulty; each introduces concerns the previous one did not.
 
 ## Roadmap: case studies not yet written
 
-This section is a scaffold, and this list is the honest edge of it. These
-classics are planned but not yet written; each name links to nothing yet on
-purpose. Until they exist, attempting them yourself with the
-[method](../method.md) and the [building blocks](../building_blocks.md) is
-exactly the right exercise.
+This section is a scaffold, and this list is the honest edge of it. These classics are planned but not yet written; each name links to nothing yet on purpose. Until they exist, attempting them yourself with the [method](../method.md) and the [building blocks](../building_blocks.md) is exactly the right exercise.
 
 - **Search typeahead / autocomplete**: prefix data structures
-  ([tries](../../patterns/trie/intuition.md) at scale), precomputed top-k,
-  extreme read QPS on tiny payloads.
+  ([tries](../../patterns/trie/intuition.md) at scale), precomputed top-k, extreme read QPS on tiny payloads.
 - **Notification system**: multi-channel delivery (push, SMS, email),
-  batching and rate limits per user, at-least-once plus idempotency in the
-  wild.
+  batching and rate limits per user, at-least-once plus idempotency in the wild.
 - **Ticketmaster / seat booking**: the strong-consistency counterexample to
-  every feed system: contention on hot rows, holds and expiry, no
-  overselling.
+  every feed system: contention on hot rows, holds and expiry, no overselling.
 - **Nearby friends / proximity**: geospatial indexing (geohash, quadtrees),
   moving data with short TTLs, privacy boundaries.
 - **Video streaming**: upload pipelines, transcoding as async work, chunked

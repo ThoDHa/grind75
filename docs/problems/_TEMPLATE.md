@@ -16,8 +16,7 @@ code` for variable names and literal values.
 
 **Output:** `value`
 
-**Explanation:** Why this output follows from the input. Use `inline code` for
-values. Omit this line when the mapping is self-evident.
+**Explanation:** Why this output follows from the input. Use `inline code` for values. Omit this line when the mapping is self-evident.
 
 ### Example 2
 

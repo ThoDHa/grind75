@@ -107,20 +107,17 @@ Walk down along right → right--     Walk up along left → left++
 When you see these phrases, think **Simulation**:
 
 ### Signal: "Traverse in this specific order"
-> *"Return all elements of the matrix in spiral order"*
-> *"Visit the grid in a zigzag / diagonal / clockwise pattern"*
+> *"Return all elements of the matrix in spiral order"* *"Visit the grid in a zigzag / diagonal / clockwise pattern"*
 
 **Action**: Model the traversal directly with position state and explicit boundaries.
 
 ### Signal: "Perform these steps" / "Apply these operations"
-> *"Carry out the following sequence of moves"*
-> *"Process each instruction and report the final result"*
+> *"Carry out the following sequence of moves"* *"Process each instruction and report the final result"*
 
 **Action**: Translate each described step into a transition on your state.
 
 ### Signal: "Parse / convert this format"
-> *"Convert the string to an integer"*
-> *"Interpret this input according to these formatting rules"*
+> *"Convert the string to an integer"* *"Interpret this input according to these formatting rules"*
 
 **Action**: Build a state machine that walks the input phase by phase.
 
@@ -135,8 +132,7 @@ When you see these phrases, think **Simulation**:
 
 ### Trace 1: Boundary Shrinking: Spiral Matrix
 
-**Problem**: Return the elements of the matrix in spiral order.
-**Input**: rows `[1, 2, 3]`, `[4, 5, 6]`, `[7, 8, 9]`.
+**Problem**: Return the elements of the matrix in spiral order. **Input**: rows `[1, 2, 3]`, `[4, 5, 6]`, `[7, 8, 9]`.
 
 State: `top=0`, `bottom=2`, `left=0`, `right=2`. Output collected as we go.
 
@@ -181,8 +177,7 @@ def spiral_order(matrix):
 
 ### Trace 2: The State Machine: atoi
 
-**Problem**: Convert a string to a 32-bit signed integer.
-**Input**: `"   -042"`, then `"4193 with words"`, then `"99999999999"`.
+**Problem**: Convert a string to a 32-bit signed integer. **Input**: `"   -042"`, then `"4193 with words"`, then `"99999999999"`.
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
@@ -280,5 +275,4 @@ There is no trick waiting to be discovered. The whole problem is already written
 
 Before writing code, answer three questions: *What is my state? How does it change? When do I stop?* Get those right, and the implementation is mechanical. Get any one wrong, and no amount of cleverness will save you.
 
-> **Model the process exactly. Track the state honestly. Guard every boundary.**
-> **The machine does not improvise, and neither should you.**
+> **Model the process exactly. Track the state honestly. Guard every boundary.** **The machine does not improvise, and neither should you.**

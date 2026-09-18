@@ -92,26 +92,22 @@ When you read `dp[j]` before overwriting it, it still holds the value from the *
 When you see these phrases, think **Grid DP**.
 
 ### Signal: "Grid" or "Matrix"
-> *"You are given an m x n grid..."*
-> *"Starting at the top-left of a matrix..."*
+> *"You are given an m x n grid..."* *"Starting at the top-left of a matrix..."*
 
 **Action**: Set up a 2D table indexed by row and column.
 
 ### Signal: "Move only right or down"
-> *"You can only move down or right at any point in time"*
-> *"Restricted to moving toward the bottom-right"*
+> *"You can only move down or right at any point in time"* *"Restricted to moving toward the bottom-right"*
 
 **Action**: Each cell depends on the cell above and the cell to the left. Fill row by row.
 
 ### Signal: "Count the number of ways"
-> *"How many unique paths are there?"*
-> *"In how many ways can you reach the corner?"*
+> *"How many unique paths are there?"* *"In how many ways can you reach the corner?"*
 
 **Action**: Additive recurrence, `dp[i][j] = dp[i-1][j] + dp[i][j-1]`.
 
 ### Signal: "Minimum or maximum cost path"
-> *"Find a path that minimizes the sum of values"*
-> *"Maximize the gold collected along the way"*
+> *"Find a path that minimizes the sum of values"* *"Maximize the gold collected along the way"*
 
 **Action**: Optimizing recurrence, `dp[i][j] = grid[i][j] + best(dp[i-1][j], dp[i][j-1])`.
 

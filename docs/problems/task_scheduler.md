@@ -20,9 +20,7 @@ Return the least number of units of time that the CPU will take to finish all th
 
 **Output:** `8`
 
-**Explanation:**
-A -> B -> idle -> A -> B -> idle -> A -> B
-There is at least 2 units of time between any two same tasks.
+**Explanation:** A -> B -> idle -> A -> B -> idle -> A -> B There is at least 2 units of time between any two same tasks.
 
 ### Example 2
 
@@ -30,12 +28,7 @@ There is at least 2 units of time between any two same tasks.
 
 **Output:** `6`
 
-**Explanation:** On this case any permutation of size 6 would work since n = 0.
-`["A","A","A","B","B","B"]`
-`["A","B","A","B","A","B"]`
-`["B","B","B","A","A","A"]`
-...
-And so on.
+**Explanation:** On this case any permutation of size 6 would work since n = 0. `["A","A","A","B","B","B"]` `["A","B","A","B","A","B"]` `["B","B","B","A","A","A"]` ... And so on.
 
 ### Example 3
 
@@ -43,9 +36,7 @@ And so on.
 
 **Output:** `16`
 
-**Explanation:**
-One possible solution is
-A -> B -> C -> A -> D -> E -> A -> F -> G -> A -> idle -> idle -> A -> idle -> idle -> A
+**Explanation:** One possible solution is A -> B -> C -> A -> D -> E -> A -> F -> G -> A -> idle -> idle -> A -> idle -> idle -> A
 
 ## Constraints
 

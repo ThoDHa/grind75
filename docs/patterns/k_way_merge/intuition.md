@@ -4,8 +4,7 @@
 
 Imagine K snails racing on parallel tracks, each carrying numbered flags in ascending order. You need to announce the numbers in global sorted order.
 
-**Naive approach**: Wait for all snails to finish, collect all flags, sort them.
-*Problem*: You're ignoring the fact that each track is already sorted!
+**Naive approach**: Wait for all snails to finish, collect all flags, sort them. *Problem*: You're ignoring the fact that each track is already sorted!
 
 **Smart approach**: Look at the K snails currently in the lead, announce the smallest number, then that snail advances to show its next flag.
 

@@ -1002,12 +1002,9 @@ def grid_search_template(grid, target):
 
 > **Choose, Explore, Unchoose.**
 > 
-> Mark your path as you go.
-> When you've gone as far as you can, walk back and erase your marks.
-> The cave remains clean for the next path.
+> Mark your path as you go. When you've gone as far as you can, walk back and erase your marks. The cave remains clean for the next path.
 
-When you see a problem asking for *all* configurations, think of the cave.
-Unroll the thread. Mark the junctions. Collect the treasures. Rewind. Repeat.
+When you see a problem asking for *all* configurations, think of the cave. Unroll the thread. Mark the junctions. Collect the treasures. Rewind. Repeat.
 
 ---
 

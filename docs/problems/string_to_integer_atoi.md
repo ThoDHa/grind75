@@ -40,8 +40,7 @@ Step 3: "42" (characters "42" are read in)
            ^
 ```
 
-The parsed integer is 42.
-Since 42 is in the range `[-2^31, 2^31 - 1]`, the final result is 42.
+The parsed integer is 42. Since 42 is in the range `[-2^31, 2^31 - 1]`, the final result is 42.
 
 ### Example 2
 
@@ -60,8 +59,7 @@ Step 3: "   -42" (characters "42" are read in)
                ^
 ```
 
-The parsed integer is -42.
-Since -42 is in the range `[-2^31, 2^31 - 1]`, the final result is -42.
+The parsed integer is -42. Since -42 is in the range `[-2^31, 2^31 - 1]`, the final result is -42.
 
 ### Example 3
 
@@ -80,8 +78,7 @@ Step 3: "4193 with words" (characters "4193" are read in; reading stops because 
              ^
 ```
 
-The parsed integer is 4193.
-Since 4193 is in the range `[-2^31, 2^31 - 1]`, the final result is 4193.
+The parsed integer is 4193. Since 4193 is in the range `[-2^31, 2^31 - 1]`, the final result is 4193.
 
 ## Constraints
 

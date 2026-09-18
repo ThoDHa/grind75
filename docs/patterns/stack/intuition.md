@@ -109,26 +109,22 @@ Every recursive call quietly pushes a frame onto the program's call stack and po
 When you see these phrases, think **Stack**:
 
 ### Signal: "Balanced" or "Nested" or "Valid"
-> *"Determine if the brackets are valid"*
-> *"Check that tags are properly nested"*
+> *"Determine if the brackets are valid"* *"Check that tags are properly nested"*
 
 **Action**: Push openers, match and pop on closers, verify the stack is empty at the end.
 
 ### Signal: "Most recent unmatched" or "Last open"
-> *"Find the innermost unclosed scope"*
-> *"Remove the last added item"*
+> *"Find the innermost unclosed scope"* *"Remove the last added item"*
 
 **Action**: The top of the stack is exactly the most recent unmatched element.
 
 ### Signal: "Evaluate an expression"
-> *"Evaluate this postfix expression"*
-> *"Implement a basic calculator"*
+> *"Evaluate this postfix expression"* *"Implement a basic calculator"*
 
 **Action**: Push operands, apply operators to the top of the stack, push the result.
 
 ### Signal: "Undo" or "Backtrack to the last open item"
-> *"Process directory navigation like `..`"*
-> *"Simplify a path"*
+> *"Process directory navigation like `..`"* *"Simplify a path"*
 
 **Action**: Push on descent, pop to backtrack to the previous level.
 

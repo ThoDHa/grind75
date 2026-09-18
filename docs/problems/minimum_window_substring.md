@@ -34,8 +34,7 @@ The testcases will be generated such that the answer is **unique**.
 
 **Output:** `""`
 
-**Explanation:** Both 'a's from t must be included in the window.
-Since the largest window of s only has one 'a', return empty string.
+**Explanation:** Both 'a's from t must be included in the window. Since the largest window of s only has one 'a', return empty string.
 
 ## Constraints
 

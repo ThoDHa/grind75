@@ -133,8 +133,7 @@ Some problems don't look like knapsack but can be transformed:
 
 ### Target Sum Transformation
 
-**Problem**: Assign +/- to reach target.
-**Insight**: Let P = numbers with +, N = numbers with -.
+**Problem**: Assign +/- to reach target. **Insight**: Let P = numbers with +, N = numbers with -.
 - P - N = target
 - P + N = total
 
@@ -144,8 +143,7 @@ Now it's: "Count subsets summing to P": a standard 0/1 knapsack!
 
 ### Partition Transformation
 
-**Problem**: Can array be split into two equal halves?
-**Insight**: Each half must sum to total/2.
+**Problem**: Can array be split into two equal halves? **Insight**: Each half must sum to total/2.
 
 Now it's: "Can we select items summing to total/2?": 0/1 knapsack!
 

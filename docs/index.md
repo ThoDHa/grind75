@@ -6,11 +6,7 @@ All credit for the curated problem list goes to the [Tech Interview Handbook](ht
 
 !!! tip "New to algorithms or interviews?"
 
-    Start with the [Foundations](foundations/index.md) section. It teaches the
-    prerequisites the problem pages assume, Big-O notation, recursion, the core
-    data structures, and a method for approaching any problem, all from zero.
-    For the plan around the problems, time budgeting, and the non-coding
-    rounds, see the [Interview Prep](interview_prep/index.md) section.
+    Start with the [Foundations](foundations/index.md) section. It teaches the prerequisites the problem pages assume, Big-O notation, recursion, the core data structures, and a method for approaching any problem, all from zero. For the plan around the problems, time budgeting, and the non-coding rounds, see the [Interview Prep](interview_prep/index.md) section.
 
 Use the navigation sidebar (in canonical Grind75 order) or the table below.
 
