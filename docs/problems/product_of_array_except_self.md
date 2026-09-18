@@ -44,27 +44,16 @@ Can you solve the problem in `O(1)` extra space complexity? (The output array do
 
 ## Deriving the Solution
 
-The product of everything except `nums[i]` splits at `i` into two independent
-halves: everything to its left times everything to its right. Every solution
-below computes those two halves; they differ in how much work and memory the
-halves cost.
+The product of everything except `nums[i]` splits at `i` into two independent halves: everything to its left times everything to its right. Every solution below computes those two halves; they differ in how much work and memory the halves cost.
 
 1. **Start literal.** For each index, multiply every other element in a fresh
-   inner pass. Correct, but each pass recomputes products the previous pass
-   already knew, costing `O(n^2)`: see [Brute Force](#brute-force).
+   inner pass. Correct, but each pass recomputes products the previous pass already knew, costing `O(n^2)`: see [Brute Force](#brute-force).
 2. **Name the waste.** The inner pass rebuilds "product of the left part" and
-   "product of the right part" from scratch for every `i`, yet each of those
-   extends its neighbor by a single factor. Precompute them: a `prefix` array
-   rolled forward and a `suffix` array rolled backward give
-   `result[i] = prefix[i] * suffix[i]` in `O(n)` time and `O(n)` extra space:
-   see [Prefix and Suffix Arrays](#prefix-and-suffix-arrays).
+   "product of the right part" from scratch for every `i`, yet each of those extends its neighbor by a single factor. Precompute them: a `prefix` array rolled forward and a `suffix` array rolled backward give `result[i] = prefix[i] * suffix[i]` in `O(n)` time and `O(n)` extra space: see [Prefix and Suffix Arrays](#prefix-and-suffix-arrays).
 3. **Answer the follow-up.** The prefix array can live inside the output array,
-   and the suffix side never needs more than one running scalar folded in on a
-   reverse sweep, reaching `O(1)` extra space: see
-   [Constant-Space Prefix and Suffix](#constant-space-prefix-and-suffix).
+   and the suffix side never needs more than one running scalar folded in on a reverse sweep, reaching `O(1)` extra space: see [Constant-Space Prefix and Suffix](#constant-space-prefix-and-suffix).
 4. **The forbidden shortcut.** Dividing the total product by `nums[i]` looks
-   simpler, but the problem bans division, and zeros break it anyway; it is
-   included for contrast: see [Division Method](#division-method).
+   simpler, but the problem bans division, and zeros break it anyway; it is included for contrast: see [Division Method](#division-method).
 
 ## Solutions
 
@@ -72,17 +61,14 @@ halves cost.
 
 #### Derivation
 
-The brute force asks the problem's question verbatim: for each index `i`, what
-is the product of every element other than `nums[i]`? Nothing needs to be
-observed or reformulated; simply compute that product afresh for each position:
+The brute force asks the problem's question verbatim: for each index `i`, what is the product of every element other than `nums[i]`? Nothing needs to be observed or reformulated; simply compute that product afresh for each position:
 
 1. For each index `i`, start a running `product` of `1`.
 2. Walk the whole array with `j`, multiplying in every `nums[j]` where
    `j != i`.
 3. Append that `product` to `result`.
 
-It is correct and easy to read, but it recomputes overlapping products for
-every position, which makes it too slow for large arrays.
+It is correct and easy to read, but it recomputes overlapping products for every position, which makes it too slow for large arrays.
 
 #### Walkthrough
 
@@ -103,8 +89,7 @@ After the outer loop finishes all four indices, the function returns `result = [
 
 #### Solution
 
-The code is the nested loop pair from the walkthrough: fix `i`, multiply over
-every `j != i`.
+The code is the nested loop pair from the walkthrough: fix `i`, multiply over every `j != i`.
 
 ```python
 from typing import List
@@ -145,45 +130,29 @@ Only a single running-product variable is used, not counting the output array.
 
 #### Derivation
 
-The brute force's inner loop is the flaw: the products it computes overlap
-almost entirely between consecutive positions, yet each is rebuilt from
-scratch. Split the target product at the excluded index instead. Everything
-except `nums[i]` is (everything before `i`) times (everything after `i`), and
-each of those families grows by one factor per step, so both can be tabulated
-in a single linear pass apiece: the multiplicative analogue of a
-[prefix sum](https://en.wikipedia.org/wiki/Prefix_sum). Build the two pieces
-explicitly:
+The brute force's inner loop is the flaw: the products it computes overlap almost entirely between consecutive positions, yet each is rebuilt from scratch. Split the target product at the excluded index instead. Everything except `nums[i]` is (everything before `i`) times (everything after `i`), and each of those families grows by one factor per step, so both can be tabulated in a single linear pass apiece: the multiplicative analogue of a [prefix sum](https://en.wikipedia.org/wiki/Prefix_sum). Build the two pieces explicitly:
 
 1. **Prefix array**: `prefix[i]` holds the product of all elements before
-   index `i`. Seed `prefix[0] = 1` and roll forward with
-   `prefix[i] = prefix[i - 1] * nums[i - 1]`.
+   index `i`. Seed `prefix[0] = 1` and roll forward with `prefix[i] = prefix[i - 1] * nums[i - 1]`.
 2. **Suffix array**: `suffix[i]` holds the product of all elements after index
-   `i`. Seed `suffix[n - 1] = 1` and roll backward with
-   `suffix[i] = suffix[i + 1] * nums[i + 1]`.
+   `i`. Seed `suffix[n - 1] = 1` and roll backward with `suffix[i] = suffix[i + 1] * nums[i + 1]`.
 3. **Combine**: `result[i] = prefix[i] * suffix[i]`.
 
-Seeding the boundaries with `1` (the multiplicative identity) makes the first
-and last positions fall out correctly without special cases.
+Seeding the boundaries with `1` (the multiplicative identity) makes the first and last positions fall out correctly without special cases.
 
 #### Formula
 
 The target is a product that skips one index:
 
-$$
-\text{result}[i] = \prod_{\substack{0 \le j < n \\ j \ne i}} \text{nums}[j]
-$$
+$$ \text{result}[i] = \prod_{\substack{0 \le j < n \\ j \ne i}} \text{nums}[j] $$
 
 ```text
 result[i] = product of nums[j] over 0 <= j < n with j != i
 ```
 
-Splitting that product at `i` factors it into a left half and a right half.
-This is the multiplicative analogue of a [prefix sum](https://en.wikipedia.org/wiki/Prefix_sum),
-with \(\prod\) in place of \(\sum\) and `1` in place of `0` as the identity:
+Splitting that product at `i` factors it into a left half and a right half. This is the multiplicative analogue of a [prefix sum](https://en.wikipedia.org/wiki/Prefix_sum), with \(\prod\) in place of \(\sum\) and `1` in place of `0` as the identity:
 
-$$
-\text{result}[i] = \underbrace{\prod_{j<i} \text{nums}[j]}_{\text{prefix}[i]} \ \cdot \ \underbrace{\prod_{j>i} \text{nums}[j]}_{\text{suffix}[i]}
-$$
+$$ \text{result}[i] = \underbrace{\prod_{j<i} \text{nums}[j]}_{\text{prefix}[i]} \ \cdot \ \underbrace{\prod_{j>i} \text{nums}[j]}_{\text{suffix}[i]} $$
 
 ```text
 prefix[i] = product of nums[j] over j < i
@@ -193,11 +162,7 @@ result[i] = prefix[i] * suffix[i]
 
 Each side is a one-step recurrence, so both tables fill in linear time:
 
-$$
-\text{prefix}[i] = \text{prefix}[i-1] \cdot \text{nums}[i-1],
-\qquad
-\text{suffix}[i] = \text{suffix}[i+1] \cdot \text{nums}[i+1]
-$$
+$$ \text{prefix}[i] = \text{prefix}[i-1] \cdot \text{nums}[i-1], \qquad \text{suffix}[i] = \text{suffix}[i+1] \cdot \text{nums}[i+1] $$
 
 ```text
 prefix[0] = 1,  suffix[n - 1] = 1         (the empty product)
@@ -205,10 +170,7 @@ prefix[i] = prefix[i - 1] * nums[i - 1]   for i >= 1
 suffix[i] = suffix[i + 1] * nums[i + 1]   for i <= n - 2
 ```
 
-An empty product is `1`, which is why `prefix[0]` and `suffix[n-1]` are seeded
-there. Because the index `i` is never a factor on either side, this stays
-correct when `nums[i]` is zero: the reason it beats the division approach
-further down, which needs a special case for zeros.
+An empty product is `1`, which is why `prefix[0]` and `suffix[n-1]` are seeded there. Because the index `i` is never a factor on either side, this stays correct when `nums[i]` is zero: the reason it beats the division approach further down, which needs a special case for zeros.
 
 #### Walkthrough
 
@@ -241,9 +203,7 @@ result[2] = prefix[2]*suffix[2] = 2*4  = 8
 result[3] = prefix[3]*suffix[3] = 6*1  = 6
 ```
 
-`result = [24, 12, 8, 6]` matches the expected Output for Example 1: each entry
-is the product of everything left of `i` times everything right of `i`, with
-`nums[i]` itself never multiplied in.
+`result = [24, 12, 8, 6]` matches the expected Output for Example 1: each entry is the product of everything left of `i` times everything right of `i`, with `nums[i]` itself never multiplied in.
 
 #### Solution
 
@@ -294,27 +254,18 @@ Two auxiliary arrays of size `n` hold the prefix and suffix products, in additio
 
 #### Derivation
 
-The two auxiliary arrays are more memory than the idea needs, and the
-follow-up asks for their removal. Two observations eliminate them. First, the
-output array has to be filled anyway, so the forward pass can write the
-[prefix products](https://en.wikipedia.org/wiki/Prefix_sum) straight into
-`result`. Second, the backward pass only ever reads one suffix value at a
-time, so a single running scalar `suffix_product` replaces the whole suffix
-array:
+The two auxiliary arrays are more memory than the idea needs, and the follow-up asks for their removal. Two observations eliminate them. First, the output array has to be filled anyway, so the forward pass can write the [prefix products](https://en.wikipedia.org/wiki/Prefix_sum) straight into `result`. Second, the backward pass only ever reads one suffix value at a time, so a single running scalar `suffix_product` replaces the whole suffix array:
 
 1. **Pass 1**: store the prefix products directly in the output array, so
    `result[i]` becomes the product of everything before `i`.
 2. **Pass 2**: sweep right to left with `suffix_product = 1`; at each `i`,
-   multiply `result[i] *= suffix_product` first, then fold the current element
-   in with `suffix_product *= nums[i]`.
+   multiply `result[i] *= suffix_product` first, then fold the current element in with `suffix_product *= nums[i]`.
 
-The output array doubles as the prefix store, and the suffix only ever needs a
-single scalar, so no extra arrays are required.
+The output array doubles as the prefix store, and the suffix only ever needs a single scalar, so no extra arrays are required.
 
 #### Walkthrough
 
-Let us run both passes on Example 1: `nums = [1,2,3,4]`. Pass 1 is the prefix
-fill from the previous walkthrough, now landing in `result` itself:
+Let us run both passes on Example 1: `nums = [1,2,3,4]`. Pass 1 is the prefix fill from the previous walkthrough, now landing in `result` itself:
 
 ```text
 result = [1, 1, 1, 1]                        seeded with 1s
@@ -323,9 +274,7 @@ i = 2   result[2] = result[1]*nums[1] = 2    result = [1, 1, 2, 1]
 i = 3   result[3] = result[2]*nums[2] = 6    result = [1, 1, 2, 6]
 ```
 
-Pass 2 sweeps right to left. Entering each `i`, `suffix_product` holds the
-product of everything after `i`: multiply it in first, then fold `nums[i]`
-into it:
+Pass 2 sweeps right to left. Entering each `i`, `suffix_product` holds the product of everything after `i`: multiply it in first, then fold `nums[i]` into it:
 
 ```text
 suffix_product = 1
@@ -335,15 +284,11 @@ i = 1   result[1] *= 12 -> 12   suffix_product *= 2 -> 24   result = [1, 12, 8, 
 i = 0   result[0] *= 24 -> 24   suffix_product *= 1 -> 24   result = [24, 12, 8, 6]
 ```
 
-The ordering inside each step is the crux: `result[i]` must be scaled by the
-suffix *before* `nums[i]` joins it, or the excluded element would leak into its
-own answer. The final `result = [24, 12, 8, 6]` matches the expected Output for
-Example 1, now with no auxiliary arrays.
+The ordering inside each step is the crux: `result[i]` must be scaled by the suffix *before* `nums[i]` joins it, or the excluded element would leak into its own answer. The final `result = [24, 12, 8, 6]` matches the expected Output for Example 1, now with no auxiliary arrays.
 
 #### Solution
 
-The code is the two passes from the walkthrough: prefix products into
-`result`, suffix as a single scalar.
+The code is the two passes from the walkthrough: prefix products into `result`, suffix as a single scalar.
 
 ```python
 from typing import List
@@ -388,11 +333,7 @@ Only the scalar `suffix_product` is extra; the output array does not count towar
 
 #### Derivation
 
-There is a tempting shortcut the constraints exist to block: the product of
-everything except `nums[i]` is simply the total product divided by `nums[i]`.
-If division were allowed, one pass would compute `total_product` and a second
-would divide it out per position. The complication is zeros, which make
-division undefined, so they are handled by cases:
+There is a tempting shortcut the constraints exist to block: the product of everything except `nums[i]` is simply the total product divided by `nums[i]`. If division were allowed, one pass would compute `total_product` and a second would divide it out per position. The complication is zeros, which make division undefined, so they are handled by cases:
 
 1. Compute the product of all non-zero elements in `total_product` while
    counting zeros in `zero_count` and remembering `zero_index`.
@@ -402,13 +343,11 @@ division undefined, so they are handled by cases:
    the others); every other position is `0`.
 4. **No zeros**: divide `total_product` by each element.
 
-This approach violates the problem's explicit "no division" rule, so it is
-included for contrast rather than as a submission.
+This approach violates the problem's explicit "no division" rule, so it is included for contrast rather than as a submission.
 
 #### Walkthrough
 
-Example 2, `nums = [-1,1,0,-3,3]`, exercises the delicate branch: exactly one
-zero. The counting pass multiplies the non-zero elements and tracks the zero:
+Example 2, `nums = [-1,1,0,-3,3]`, exercises the delicate branch: exactly one zero. The counting pass multiplies the non-zero elements and tracks the zero:
 
 ```text
 i = 0   num = -1   total_product = -1
@@ -418,22 +357,17 @@ i = 3   num = -3   total_product = 3
 i = 4   num = 3    total_product = 9
 ```
 
-`zero_count` is exactly `1`, so the build pass hands `total_product` to the
-zero's position and `0` to every other position, since every other product
-includes the zero at index `2`:
+`zero_count` is exactly `1`, so the build pass hands `total_product` to the zero's position and `0` to every other position, since every other product includes the zero at index `2`:
 
 ```text
 result = [0, 0, 9, 0, 0]
 ```
 
-This matches the expected Output for Example 2. Had a second zero appeared, the
-counting pass would have returned `[0] * n` immediately; with no zeros at all,
-each position would receive `total_product // num` instead.
+This matches the expected Output for Example 2. Had a second zero appeared, the counting pass would have returned `[0] * n` immediately; with no zeros at all, each position would receive `total_product // num` instead.
 
 #### Solution
 
-The code is the count-then-dispatch structure from the walkthrough, one branch
-per zero count.
+The code is the count-then-dispatch structure from the walkthrough, one branch per zero count.
 
 ```python
 from typing import List

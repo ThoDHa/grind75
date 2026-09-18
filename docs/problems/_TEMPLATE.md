@@ -58,8 +58,7 @@ DERIVING THE SOLUTION (problem-level derivation arc):
 ==============================================================================
 -->
 
-One or two sentences framing the key reformulation or observation that every
-solution shares.
+One or two sentences framing the key reformulation or observation that every solution shares.
 
 1. **Start literal.** The most direct reading of the problem: try the obvious
    thing. It works, but costs `O(...)`: see [Brute Force](#brute-force).
@@ -251,8 +250,7 @@ CHOOSE ONE LAYOUT:
 
 #### Derivation
 
-Derivation prose: the question this approach asks, the observation that makes
-it work, and where the idea comes from. End with the concrete steps:
+Derivation prose: the question this approach asks, the observation that makes it work, and where the idea comes from. End with the concrete steps:
 
 1. First step.
 2. Second step.
@@ -268,26 +266,21 @@ when the solution has no relation worth writing down.
 
 Let `dp[i]` be <what the state means>:
 
-$$
-dp[i] =
-\begin{cases}
+$$ dp[i] = \begin{cases}
 <base case>, & i = 0 \\[4pt]
 <transition>, & i > 0
-\end{cases}
-$$
+\end{cases} $$
 
 ```text
 dp[0] = <base case>
 dp[i] = <transition>   for i > 0
 ```
 
-One or two sentences reading the formula back: what the base case encodes, why
-the bounds are what they are, and where the answer is read from.
+One or two sentences reading the formula back: what the base case encodes, why the bounds are what they are, and where the answer is read from.
 
 #### Walkthrough
 
-Hand-trace of the technique on a concrete input (see the WALKTHROUGH
-conventions above), showing the evolving state:
+Hand-trace of the technique on a concrete input (see the WALKTHROUGH conventions above), showing the evolving state:
 
 ```text
 step 1   state after step 1
@@ -373,8 +366,7 @@ Why the space bound holds.
 
 #### Derivation
 
-The flaw in the previous approach this one repairs, the observation that
-repairs it, and the steps that follow:
+The flaw in the previous approach this one repairs, the observation that repairs it, and the steps that follow:
 
 1. First step.
 2. Second step.

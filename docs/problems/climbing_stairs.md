@@ -217,23 +217,14 @@ The memoized recursion still starts at `n` and unwinds all the way down before p
 
 Let `dp[i]` be the number of distinct ways to reach step `i`:
 
-$$
-dp[i] =
-\begin{cases}
-1, & i \le 1 \\[4pt]
-dp[i-1] + dp[i-2], & i \ge 2
-\end{cases}
-$$
+$$ dp[i] = \begin{cases} 1, & i \le 1 \\[4pt] dp[i-1] + dp[i-2], & i \ge 2 \end{cases} $$
 
 ```text
 dp[i] = 1,                     for i <= 1
 dp[i] = dp[i-1] + dp[i-2],     for i >= 2
 ```
 
-This is the Fibonacci recurrence with the index shifted by one, so
-\(dp[n] = F(n+1)\) under the usual convention \(F(0)=0,\ F(1)=1\). That shift is
-why the two solutions further down, which compute Fibonacci numbers directly,
-read the answer off `F(n+1)` rather than `F(n)`.
+This is the Fibonacci recurrence with the index shifted by one, so \(dp[n] = F(n+1)\) under the usual convention \(F(0)=0,\ F(1)=1\). That shift is why the two solutions further down, which compute Fibonacci numbers directly, read the answer off `F(n+1)` rather than `F(n)`.
 
 #### Walkthrough
 
@@ -361,19 +352,9 @@ Compared to its neighbors on the ladder, this trades their `O(n)` scans for `O(l
 
 #### Closed Form (Matrix Power)
 
-One step of the recurrence is a single matrix-vector product, which stacks into
-a matrix power:
+One step of the recurrence is a single matrix-vector product, which stacks into a matrix power:
 
-$$
-\begin{pmatrix} F(n+1) \\ F(n) \end{pmatrix}
-=
-\begin{pmatrix} 1 & 1 \\ 1 & 0 \end{pmatrix}
-\begin{pmatrix} F(n) \\ F(n-1) \end{pmatrix}
-\qquad\Longrightarrow\qquad
-\begin{pmatrix} 1 & 1 \\ 1 & 0 \end{pmatrix}^{n}
-=
-\begin{pmatrix} F(n+1) & F(n) \\ F(n) & F(n-1) \end{pmatrix}
-$$
+$$ \begin{pmatrix} F(n+1) \\ F(n) \end{pmatrix} = \begin{pmatrix} 1 & 1 \\ 1 & 0 \end{pmatrix} \begin{pmatrix} F(n) \\ F(n-1) \end{pmatrix} \qquad\Longrightarrow\qquad \begin{pmatrix} 1 & 1 \\ 1 & 0 \end{pmatrix}^{n} = \begin{pmatrix} F(n+1) & F(n) \\ F(n) & F(n-1) \end{pmatrix} $$
 
 ```text
 [[1, 1], [1, 0]] * [F(n), F(n-1)] = [F(n+1), F(n)]     (column vectors)
@@ -381,13 +362,7 @@ $$
              with F(0) = 0, F(1) = 1
 ```
 
-Here \(F\) is the Fibonacci sequence under the usual convention
-\(F(0) = 0,\ F(1) = 1\), which also supplies the base of the identity: at
-\(n = 1\) it reads \(\begin{pmatrix} 1 & 1 \\ 1 & 0 \end{pmatrix} =
-\begin{pmatrix} F(2) & F(1) \\ F(1) & F(0) \end{pmatrix}\), true because
-\(F(2) = 1\). The answer `ways(n)` is \(F(n+1)\), the top-left entry. Binary
-exponentiation then evaluates the power in \(O(\log n)\) multiplications by
-squaring rather than multiplying the matrix in one copy at a time.
+Here \(F\) is the Fibonacci sequence under the usual convention \(F(0) = 0,\ F(1) = 1\), which also supplies the base of the identity: at \(n = 1\) it reads \(\begin{pmatrix} 1 & 1 \\ 1 & 0 \end{pmatrix} = \begin{pmatrix} F(2) & F(1) \\ F(1) & F(0) \end{pmatrix}\), true because \(F(2) = 1\). The answer `ways(n)` is \(F(n+1)\), the top-left entry. Binary exponentiation then evaluates the power in \(O(\log n)\) multiplications by squaring rather than multiplying the matrix in one copy at a time.
 
 #### Walkthrough
 
@@ -470,16 +445,9 @@ Even the matrix power still iterates, if only `O(log n)` times. The last refinem
 
 #### Closed Form
 
-[Binet's formula](https://en.wikipedia.org/wiki/Fibonacci_sequence#Closed-form_expression)
-gives the nth Fibonacci number with no iteration at all:
+[Binet's formula](https://en.wikipedia.org/wiki/Fibonacci_sequence#Closed-form_expression) gives the nth Fibonacci number with no iteration at all:
 
-$$
-F(n) = \frac{\varphi^{\,n} - \psi^{\,n}}{\sqrt{5}},
-\qquad
-\varphi = \frac{1 + \sqrt{5}}{2},
-\qquad
-\psi = \frac{1 - \sqrt{5}}{2}
-$$
+$$ F(n) = \frac{\varphi^{\,n} - \psi^{\,n}}{\sqrt{5}}, \qquad \varphi = \frac{1 + \sqrt{5}}{2}, \qquad \psi = \frac{1 - \sqrt{5}}{2} $$
 
 ```text
 F(n) = (phi**n - psi**n) / sqrt(5)
@@ -487,11 +455,7 @@ F(n) = (phi**n - psi**n) / sqrt(5)
        psi = (1 - sqrt(5)) / 2
 ```
 
-Since \(dp[n] = F(n+1)\), the code evaluates the expression at `n + 1`. The two
-roots \(\varphi\) and \(\psi\) are exactly the solutions of \(x^2 = x + 1\), the
-characteristic equation of the recurrence, which is why a sum of their powers
-satisfies it. Because \(|\psi| < 1\), the second term shrinks toward zero and
-\(F(n)\) is simply \(\varphi^{\,n}/\sqrt{5}\) rounded to the nearest integer.
+Since \(dp[n] = F(n+1)\), the code evaluates the expression at `n + 1`. The two roots \(\varphi\) and \(\psi\) are exactly the solutions of \(x^2 = x + 1\), the characteristic equation of the recurrence, which is why a sum of their powers satisfies it. Because \(|\psi| < 1\), the second term shrinks toward zero and \(F(n)\) is simply \(\varphi^{\,n}/\sqrt{5}\) rounded to the nearest integer.
 
 #### Walkthrough
 
@@ -508,11 +472,7 @@ fibn / sqrt5 = 3.0000000000000004
 round(3.0000000000000004) = 3
 ```
 
-The quotient lands a hair above the exact value `3` this time, but floating-point
-error can just as easily land a hair *below* it, where truncation would return one
-too few. Rounding to the nearest integer absorbs the error in both directions,
-which is why the code uses `round` rather than `int`. The method returns `3`,
-matching the expected Output for Example 2.
+The quotient lands a hair above the exact value `3` this time, but floating-point error can just as easily land a hair *below* it, where truncation would return one too few. Rounding to the nearest integer absorbs the error in both directions, which is why the code uses `round` rather than `int`. The method returns `3`, matching the expected Output for Example 2.
 
 #### Solution
 
@@ -550,15 +510,7 @@ class Solution:
 
 #### Derivation
 
-The [Top-Down Memoization](#top-down-memoization) solution stacks two separate
-things: the Fibonacci recurrence, and a dictionary that stops the recursion from
-recomputing a step it has already answered. Only the first is the algorithm.
-The second is pure bookkeeping, and the standard library already implements it.
-Decorating the function with
-[`functools.cache`](https://docs.python.org/3/library/functools.html#functools.cache)
-attaches an unbounded cache keyed by the call's arguments, consulted before the
-body runs and filled with whatever the body returns, so the recurrence and its
-base cases stay on the page exactly as the Brute Force wrote them:
+The [Top-Down Memoization](#top-down-memoization) solution stacks two separate things: the Fibonacci recurrence, and a dictionary that stops the recursion from recomputing a step it has already answered. Only the first is the algorithm. The second is pure bookkeeping, and the standard library already implements it. Decorating the function with [`functools.cache`](https://docs.python.org/3/library/functools.html#functools.cache) attaches an unbounded cache keyed by the call's arguments, consulted before the body runs and filled with whatever the body returns, so the recurrence and its base cases stay on the page exactly as the Brute Force wrote them:
 
 1. Keep `climb(step)` verbatim from the Brute Force: return 1 when `step <= 1`,
    otherwise return `climb(step - 1) + climb(step - 2)`
@@ -567,19 +519,13 @@ base cases stay on the page exactly as the Brute Force wrote them:
 3. Delete the three bookkeeping lines the decorator now owns: the `memo = {}`
    declaration, the `if step in memo` lookup, and the `memo[step] = ...` store
 4. Because `climb` is defined inside `climbStairs`, each call builds a fresh
-   function object with a fresh cache, so nothing leaks between inputs; a
-   `@cache` on a method or a module-level function would instead live for the
-   whole process
+   function object with a fresh cache, so nothing leaks between inputs; a `@cache` on a method or a module-level function would instead live for the whole process
 
-One behavioural difference follows from where the decorator sits. The
-hand-rolled version answers `step <= 1` before it ever consults `memo`, so the
-base cases are never stored; `@cache` wraps the entire body, so steps `0` and
-`1` are cached like any other step.
+One behavioural difference follows from where the decorator sits. The hand-rolled version answers `step <= 1` before it ever consults `memo`, so the base cases are never stored; `@cache` wraps the entire body, so steps `0` and `1` are cached like any other step.
 
 #### Walkthrough
 
-Run it on Example 2, `n = 3`. The trace indents one level per call and notes
-whether the decorator ran the body or answered from the cache:
+Run it on Example 2, `n = 3`. The trace indents one level per call and notes whether the decorator ran the body or answered from the cache:
 
 ```text
 climb(3)   miss, run the body
@@ -591,17 +537,11 @@ climb(3)   miss, run the body
 climb(3) -> 3         2 + 1, cached under key 3
 ```
 
-`climb(3)` needs both `climb(2)` and `climb(1)`. Resolving `climb(2)` first
-computes and caches `climb(1)`, so when `climb(3)` asks for `climb(1)` in its own
-right the decorator returns `1` immediately. The hand-rolled memo would have
-re-entered the function there, cheaply (it is a base case) but visibly, which is
-why that version needed `n = 4` before a hit appeared. The outer call returns
-`3`, matching the expected Output `3` for Example 2.
+`climb(3)` needs both `climb(2)` and `climb(1)`. Resolving `climb(2)` first computes and caches `climb(1)`, so when `climb(3)` asks for `climb(1)` in its own right the decorator returns `1` immediately. The hand-rolled memo would have re-entered the function there, cheaply (it is a base case) but visibly, which is why that version needed `n = 4` before a hit appeared. The outer call returns `3`, matching the expected Output `3` for Example 2.
 
 #### Solution
 
-The Brute Force recursion, unchanged, with one decorator standing in for the
-memo dictionary.
+The Brute Force recursion, unchanged, with one decorator standing in for the memo dictionary.
 
 ```python
 from functools import cache
@@ -643,14 +583,11 @@ class Solution:
 #### Key Insights
 
 - The algorithm is untouched: the recurrence and both base cases read exactly as
-  they do in the Brute Force, which makes plain that memoization is an execution
-  strategy rather than a change to the recursion
+  they do in the Brute Force, which makes plain that memoization is an execution strategy rather than a change to the recursion
 - `@cache` keys on the argument tuple, so it is a drop-in replacement only when
-  the arguments are hashable and the function is genuinely pure; `climb` reads
-  nothing but `step`, which is what licenses the substitution
+  the arguments are hashable and the function is genuinely pure; `climb` reads nothing but `step`, which is what licenses the substitution
 - Defining the cached function inside the method scopes the cache to a single
-  call, avoiding the stale-results and unbounded-growth hazards of decorating a
-  method or a module-level function
+  call, avoiding the stale-results and unbounded-growth hazards of decorating a method or a module-level function
 - Use `functools.lru_cache(maxsize=...)` instead when the key space is unbounded
   and eviction matters; `cache` is `lru_cache(maxsize=None)`, which never evicts
 
@@ -665,8 +602,7 @@ class Solution:
 - **Matrix Exponentiation**: `O(log n)` - Repeated squaring halves the exponent each iteration
 - **Closed-Form Formula**: `O(1)` - Constant time calculation
 - **Top-Down Memoization with functools.cache**: `O(n)`: the same
-  one-computation-per-step bound, with the decorator's lookup standing in for the
-  hand-written one
+  one-computation-per-step bound, with the decorator's lookup standing in for the hand-written one
 
 ### Space Complexity
 
@@ -677,8 +613,7 @@ class Solution:
 - **Matrix Exponentiation**: `O(1)` - Holds two fixed-size 2x2 matrices; the iterative loop avoids recursion stack
 - **Closed-Form Formula**: `O(1)` - Uses only a constant amount of extra space
 - **Top-Down Memoization with functools.cache**: `O(n)`: cache plus recursion
-  stack, as above, with `n + 1` cache entries because the decorator stores the
-  base cases the hand-rolled memo skipped
+  stack, as above, with `n + 1` cache entries because the decorator stores the base cases the hand-rolled memo skipped
 
 ### Trade-offs
 
@@ -689,9 +624,7 @@ class Solution:
 - **Matrix Exponentiation** beats every linear approach asymptotically and stays exact in integer arithmetic, but its per-step constant (a bundle of 2x2 multiplies) and extra code make it overkill at this problem's scale
 - **Closed-Form Formula** is theoretically most efficient but can have numerical precision issues
 - **Top-Down Memoization with functools.cache** keeps the recurrence and the
-  linear complexity of the hand-rolled version while cutting three lines of memo
-  plumbing, paying an import and giving up direct control over what the cache
-  keys on, how long it lives, and when it evicts
+  linear complexity of the hand-rolled version while cutting three lines of memo plumbing, paying an import and giving up direct control over what the cache keys on, how long it lives, and when it evicts
 
 ### When to Use Each
 
@@ -702,10 +635,7 @@ class Solution:
 - **Matrix Exponentiation**: When n is huge (millions or more) or an exact answer is required beyond floating-point range, such as computing the count modulo a large prime
 - **Closed-Form Formula**: When absolute performance is critical and n is within the range of floating-point precision
 - **Top-Down Memoization with functools.cache**: The Pythonic default whenever
-  the recursive framing is the one worth showing. Prefer it over the hand-rolled
-  memo for readability, and fall back to the explicit dictionary when an
-  interviewer asks to see the caching mechanism itself or when the cache needs
-  custom keying, eviction, or a lifetime you control
+  the recursive framing is the one worth showing. Prefer it over the hand-rolled memo for readability, and fall back to the explicit dictionary when an interviewer asks to see the caching mechanism itself or when the cache needs custom keying, eviction, or a lifetime you control
 
 ### Optimization Notes
 

@@ -50,33 +50,16 @@ Return the modified image after performing the flood fill.
 
 ## Deriving the Solution
 
-The pixels to recolor are exactly the connected component of `initial_color` pixels
-that contains `(sr, sc)`, so every solution is a graph traversal of that component,
-recoloring as it goes. All four share one structural trick: the recolor itself is
-the visited mark, which is why the `initial_color == color` early return is
-load-bearing in each of them.
+The pixels to recolor are exactly the connected component of `initial_color` pixels that contains `(sr, sc)`, so every solution is a graph traversal of that component, recoloring as it goes. All four share one structural trick: the recolor itself is the visited mark, which is why the `initial_color == color` early return is load-bearing in each of them.
 
 1. **Start literal.** The statement already describes a repeatable process: recolor
-   a pixel, then "perform the same process" on each same-colored neighbor. A
-   function that calls itself on its four neighbors is that process verbatim, a
-   recursive depth-first search: see [Recursive DFS](#recursive-dfs). Its cost: the
-   call stack grows as deep as the component, risking `RecursionError` on large,
-   snake-shaped regions.
+   a pixel, then "perform the same process" on each same-colored neighbor. A function that calls itself on its four neighbors is that process verbatim, a recursive depth-first search: see [Recursive DFS](#recursive-dfs). Its cost: the call stack grows as deep as the component, risking `RecursionError` on large, snake-shaped regions.
 2. **Own the stack.** The call stack is doing nothing but remembering which pixels
-   still await a visit, so replace it with an explicit list of coordinates. The
-   traversal is unchanged and the recursion limit disappears: see
-   [Iterative DFS](#iterative-dfs).
+   still await a visit, so replace it with an explicit list of coordinates. The traversal is unchanged and the recursion limit disappears: see [Iterative DFS](#iterative-dfs).
 3. **Change the order.** Nothing in the problem requires depth-first order.
-   Processing pixels in waves of increasing distance from the start covers the same
-   component breadth-first, either by recursing on whole levels at a time, in
-   [Recursive BFS](#recursive-bfs), or with a first-in-first-out queue, in
-   [Iterative BFS](#iterative-bfs). The queue variant hides a pitfall: `list.pop(0)`
-   shifts every remaining element, degrading the pass to `O(n²)`.
+   Processing pixels in waves of increasing distance from the start covers the same component breadth-first, either by recursing on whole levels at a time, in [Recursive BFS](#recursive-bfs), or with a first-in-first-out queue, in [Iterative BFS](#iterative-bfs). The queue variant hides a pitfall: `list.pop(0)` shifts every remaining element, degrading the pass to `O(n²)`.
 4. **Let the library hold the queue.** The wave order was already right; only the
-   container was wrong. Handing the queue to `deque` makes each dequeue `O(1)`
-   instead of `O(n)`, which repairs the pitfall rather than merely tidying the
-   code: the pass drops from `O(n²)` back to `O(n)` with a one-word change at the
-   dequeue site, see [Iterative BFS with Deque](#iterative-bfs-with-deque).
+   container was wrong. Handing the queue to `deque` makes each dequeue `O(1)` instead of `O(n)`, which repairs the pitfall rather than merely tidying the code: the pass drops from `O(n²)` back to `O(n)` with a one-word change at the dequeue site, see [Iterative BFS with Deque](#iterative-bfs-with-deque).
 
 ## Solutions
 
@@ -84,20 +67,9 @@ load-bearing in each of them.
 
 #### Derivation
 
-Read the problem statement as pseudocode: change the starting pixel, then perform
-"the same process" on each adjacent pixel of the original color. A process that
-invokes itself on its neighbors is a recursive
-[depth-first search (DFS)](https://en.wikipedia.org/wiki/Depth-first_search), so the
-most direct translation is a helper `fill` that recolors its pixel and recurses into
-the four neighbors.
+Read the problem statement as pseudocode: change the starting pixel, then perform "the same process" on each adjacent pixel of the original color. A process that invokes itself on its neighbors is a recursive [depth-first search (DFS)](https://en.wikipedia.org/wiki/Depth-first_search), so the most direct translation is a helper `fill` that recolors its pixel and recurses into the four neighbors.
 
-Two details need care. First, every traversal needs a visited mark, and this one has
-no set and no auxiliary grid: the write `image[sr][sc] = color` is itself the mark,
-and the guard `image[sr][sc] != initial_color` is what reads it back. Second, that
-choice makes the early check `initial_color == color` a termination requirement
-rather than an optimization: when the two colors are equal the recolor is a no-op,
-no pixel is ever marked, and the recursion never reaches its base case. The
-[Termination Condition](#termination-condition) below makes this precise. The steps:
+Two details need care. First, every traversal needs a visited mark, and this one has no set and no auxiliary grid: the write `image[sr][sc] = color` is itself the mark, and the guard `image[sr][sc] != initial_color` is what reads it back. Second, that choice makes the early check `initial_color == color` a termination requirement rather than an optimization: when the two colors are equal the recolor is a no-op, no pixel is ever marked, and the recursion never reaches its base case. The [Termination Condition](#termination-condition) below makes this precise. The steps:
 
 1. Record `initial_color = image[sr][sc]`. If it already equals `color`, return
    `image` unchanged.
@@ -109,43 +81,23 @@ no pixel is ever marked, and the recursion never reaches its base case. The
 
 #### Termination Condition
 
-The guard `if initial_color == color: return image` is not an optimization. It is
-what makes the recursion terminate at all.
+The guard `if initial_color == color: return image` is not an optimization. It is what makes the recursion terminate at all.
 
-Look for a visited marker in `fill` and there is none: no set, no auxiliary grid,
-no parent parameter. The only thing distinguishing a processed pixel from an
-unprocessed one is its own value. The write `image[sr][sc] = color` doubles as the
-visited mark, and the bounds-and-color guard that reads it back is the base case:
+Look for a visited marker in `fill` and there is none: no set, no auxiliary grid, no parent parameter. The only thing distinguishing a processed pixel from an unprocessed one is its own value. The write `image[sr][sc] = color` doubles as the visited mark, and the bounds-and-color guard that reads it back is the base case:
 
-$$
-\textit{image}[r][c] \ne \textit{initial\_color} \;\Longrightarrow\; \text{return}
-$$
+$$ \textit{image}[r][c] \ne \textit{initial\_color} \;\Longrightarrow\; \text{return} $$
 
 ```text
 image[r][c] != initial_color  implies  return
 ```
 
-Recursion bottoms out only when this fires, or when the coordinates leave the
-grid. Progress therefore requires that recoloring a pixel actually falsify the
-test for that pixel, which holds exactly when
-\(\textit{color} \ne \textit{initial\_color}\). Under that condition, every `fill`
-call that gets past the guard strictly decreases the number of pixels still equal
-to `initial_color`, and that count is a non-negative integer, so the recursion is
-finite.
+Recursion bottoms out only when this fires, or when the coordinates leave the grid. Progress therefore requires that recoloring a pixel actually falsify the test for that pixel, which holds exactly when \(\textit{color} \ne \textit{initial\_color}\). Under that condition, every `fill` call that gets past the guard strictly decreases the number of pixels still equal to `initial_color`, and that count is a non-negative integer, so the recursion is finite.
 
-When \(\textit{color} = \textit{initial\_color}\) the write is a no-op. The pixel
-still matches, so nothing is ever marked, the count never decreases, and
-`fill(sr, sc)` recurses up into `fill(sr - 1, sc)`, which recurses back down into
-`fill(sr, sc)`, and so on until Python raises `RecursionError`. Two adjacent
-matching pixels are enough to trap it; the four-way recursion never reaches a
-base case.
+When \(\textit{color} = \textit{initial\_color}\) the write is a no-op. The pixel still matches, so nothing is ever marked, the count never decreases, and `fill(sr, sc)` recurses up into `fill(sr - 1, sc)`, which recurses back down into `fill(sr, sc)`, and so on until Python raises `RecursionError`. Two adjacent matching pixels are enough to trap it; the four-way recursion never reaches a base case.
 
-The early return also happens to give the right answer on its own terms, since
-filling a region with the color it already holds changes nothing, which is what
-Example 2 shows. But answering correctly is the smaller half of its job.
+The early return also happens to give the right answer on its own terms, since filling a region with the color it already holds changes nothing, which is what Example 2 shows. But answering correctly is the smaller half of its job.
 
-Every other solution on this page marks visited pixels the same way, so the same
-guard is load-bearing in each of them for the same reason.
+Every other solution on this page marks visited pixels the same way, so the same guard is load-bearing in each of them for the same reason.
 
 #### Walkthrough
 
@@ -181,8 +133,7 @@ After every recursion unwinds, the image is `[[2,2,2],[2,2,0],[2,0,1]]`, which m
 
 #### Solution
 
-The code is the call tree from the walkthrough written down: the termination guard,
-the bounds-and-color base case, the recolor, then the four recursive calls.
+The code is the call tree from the walkthrough written down: the termination guard, the bounds-and-color base case, the recolor, then the four recursive calls.
 
 ```python
 from typing import List
@@ -234,37 +185,20 @@ class Solution:
 
 #### Derivation
 
-The recursive version has one weakness: its bookkeeping lives on the call stack,
-which grows one frame per pixel along a path and can hit Python's recursion limit on
-a large snake-shaped region. Ask what the call stack is actually doing: it only
-remembers which pixels still need visiting. A plain list of coordinate tuples can do
-that job explicitly, with no depth limit.
+The recursive version has one weakness: its bookkeeping lives on the call stack, which grows one frame per pixel along a path and can hit Python's recursion limit on a large snake-shaped region. Ask what the call stack is actually doing: it only remembers which pixels still need visiting. A plain list of coordinate tuples can do that job explicitly, with no depth limit.
 
-Popping from the end of the list visits the most recently discovered pixel first,
-so the traversal order is still
-[depth-first](https://en.wikipedia.org/wiki/Depth-first_search). One structural
-shift: the recursive version tested validity before recursing (the base case at the
-top of `fill`); here, neighbors are pushed unconditionally and the same
-bounds-and-color test runs when a coordinate is popped. Invalid or already-recolored
-entries are simply discarded at that point. The steps:
+Popping from the end of the list visits the most recently discovered pixel first, so the traversal order is still [depth-first](https://en.wikipedia.org/wiki/Depth-first_search). One structural shift: the recursive version tested validity before recursing (the base case at the top of `fill`); here, neighbors are pushed unconditionally and the same bounds-and-color test runs when a coordinate is popped. Invalid or already-recolored entries are simply discarded at that point. The steps:
 
 1. Record `initial_color` and return early when it equals `color`; recoloring is
    still the only visited mark, so the guard is as essential as before.
 2. Seed `stack = [(sr, sc)]` and cache `rows, cols`.
 3. While `stack` is non-empty, pop `(r, c)`. If it is in bounds and
-   `image[r][c] == initial_color`, set the pixel to `color` and append the four
-   neighbors, in the order down, up, right, left.
+   `image[r][c] == initial_color`, set the pixel to `color` and append the four neighbors, in the order down, up, right, left.
 4. When the stack drains, every reachable pixel has been recolored: return `image`.
 
 #### Walkthrough
 
-Let us run the pop loop on Example 1: `image = [[1,1,1],[1,1,0],[1,0,1]]`, `sr = 1`,
-`sc = 1`, `color = 2`. Since `initial_color = 1` differs from `2`, we seed
-`stack = [(1, 1)]`. The trace below shows one popped coordinate per line: `set 2`
-means the pixel passed the bounds-and-color check and was recolored (its four
-neighbors were then pushed), and `skip` means the pop was discarded. Because a pop
-takes the most recently pushed entry, the left neighbor (pushed last) is explored
-before right, up, and down.
+Let us run the pop loop on Example 1: `image = [[1,1,1],[1,1,0],[1,0,1]]`, `sr = 1`, `sc = 1`, `color = 2`. Since `initial_color = 1` differs from `2`, we seed `stack = [(1, 1)]`. The trace below shows one popped coordinate per line: `set 2` means the pixel passed the bounds-and-color check and was recolored (its four neighbors were then pushed), and `skip` means the pop was discarded. Because a pop takes the most recently pushed entry, the left neighbor (pushed last) is explored before right, up, and down.
 
 ```text
 pop (1,1)   set 2   push (2,1)(0,1)(1,2)(1,0)    image [[1,1,1],[1,2,0],[1,0,1]]
@@ -294,14 +228,11 @@ pop (0,1)   skip    now 2, not 1
 pop (2,1)   skip    value 0, not 1
 ```
 
-Six pops recolor a pixel, one per pixel of the component; every other pop is
-filtered by the same test the recursive base case performed. When the stack
-empties, the image is `[[2,2,2],[2,2,0],[2,0,1]]`, matching the expected Output.
+Six pops recolor a pixel, one per pixel of the component; every other pop is filtered by the same test the recursive base case performed. When the stack empties, the image is `[[2,2,2],[2,2,0],[2,0,1]]`, matching the expected Output.
 
 #### Solution
 
-The code is the pop loop from the walkthrough, with the recursive base case
-reappearing as the pop-time validity check.
+The code is the pop loop from the walkthrough, with the recursive base case reappearing as the pop-time validity check.
 
 ```python
 from typing import List
@@ -353,34 +284,20 @@ class Solution:
 
 #### Derivation
 
-Both DFS variants dive as deep as possible along one path before backing up. Nothing
-about flood fill requires that order: the component can equally be covered in
-concentric waves, visiting every pixel at distance 1 from the start, then every
-pixel at distance 2, and so on. That order is a
-[breadth-first search](https://en.wikipedia.org/wiki/Breadth-first_search), and it
-can still be expressed recursively by making each call process an entire wave, a
-`level` list of coordinates, rather than a single pixel. The recursion depth then
-equals the number of waves (the component's radius) instead of the length of the
-deepest path.
+Both DFS variants dive as deep as possible along one path before backing up. Nothing about flood fill requires that order: the component can equally be covered in concentric waves, visiting every pixel at distance 1 from the start, then every pixel at distance 2, and so on. That order is a [breadth-first search](https://en.wikipedia.org/wiki/Breadth-first_search), and it can still be expressed recursively by making each call process an entire wave, a `level` list of coordinates, rather than a single pixel. The recursion depth then equals the number of waves (the component's radius) instead of the length of the deepest path.
 
-A pixel can be appended to `next_level` twice within one wave when two of its
-neighbors are recolored in the same pass; the second occurrence fails the color
-check and is skipped, so the duplicate is harmless. The steps:
+A pixel can be appended to `next_level` twice within one wave when two of its neighbors are recolored in the same pass; the second occurrence fails the color check and is skipped, so the duplicate is harmless. The steps:
 
 1. Record `initial_color` and return early when it equals `color`; the recolor is
    still the only visited mark.
 2. Call `bfs_level` with the initial level `[(sr, sc)]`.
 3. In `bfs_level`, return when `level` is empty. Otherwise, for each `(r, c)` in
-   `level` that is in bounds and still equals `initial_color`, set it to `color`
-   and append its four neighbors (down, up, right, left) to `next_level`.
+   `level` that is in bounds and still equals `initial_color`, set it to `color` and append its four neighbors (down, up, right, left) to `next_level`.
 4. Recurse on `next_level`; the base case fires when a wave produces no new pixels.
 
 #### Walkthrough
 
-Let us run the level recursion on Example 1: `image = [[1,1,1],[1,1,0],[1,0,1]]`,
-`sr = 1`, `sc = 1`, `color = 2`. Each line below is one call to `bfs_level`,
-showing which pixels in `level` recolor (`set`) or fail the check (`skip`), the
-image after the wave, and the `next_level` handed to the next call.
+Let us run the level recursion on Example 1: `image = [[1,1,1],[1,1,0],[1,0,1]]`, `sr = 1`, `sc = 1`, `color = 2`. Each line below is one call to `bfs_level`, showing which pixels in `level` recolor (`set`) or fail the check (`skip`), the image after the wave, and the `next_level` handed to the next call.
 
 ```text
 level 0  [(1,1)]
@@ -400,15 +317,11 @@ level 3  every entry skips (value 0, now 2, or out of bounds)
 level 4  level is empty -> return
 ```
 
-Note the duplicate `(0,0)` in level 2: both `(0,1)` and `(1,0)` appended it during
-level 1. The first occurrence recolors it; the second fails the color check. After
-the empty level returns, the image is `[[2,2,2],[2,2,0],[2,0,1]]`, matching the
-expected Output.
+Note the duplicate `(0,0)` in level 2: both `(0,1)` and `(1,0)` appended it during level 1. The first occurrence recolors it; the second fails the color check. After the empty level returns, the image is `[[2,2,2],[2,2,0],[2,0,1]]`, matching the expected Output.
 
 #### Solution
 
-The code is the wave loop from the walkthrough: each `bfs_level` call processes one
-level and recurses on the pixels it discovered.
+The code is the wave loop from the walkthrough: each `bfs_level` call processes one level and recurses on the pixels it discovered.
 
 ```python
 from typing import List
@@ -467,32 +380,19 @@ class Solution:
 
 #### Derivation
 
-The level-list recursion is an unusual shape; the textbook way to get
-breadth-first order is a first-in-first-out queue. Where the Iterative DFS popped
-the newest entry, popping the *oldest* entry visits pixels in exactly the order
-they were discovered, which is the same wave-by-wave order as the level recursion
-with no level bookkeeping and no recursion at all.
+The level-list recursion is an unusual shape; the textbook way to get breadth-first order is a first-in-first-out queue. Where the Iterative DFS popped the newest entry, popping the *oldest* entry visits pixels in exactly the order they were discovered, which is the same wave-by-wave order as the level recursion with no level bookkeeping and no recursion at all.
 
-This implementation uses a plain Python list as the queue, which is where its flaw
-lives: `queue.pop(0)` removes the first element by shifting every remaining element
-one slot left, an `O(n)` operation per dequeue (a `collections.deque` would restore
-`O(1)`). The steps:
+This implementation uses a plain Python list as the queue, which is where its flaw lives: `queue.pop(0)` removes the first element by shifting every remaining element one slot left, an `O(n)` operation per dequeue (a `collections.deque` would restore `O(1)`). The steps:
 
 1. Record `initial_color` and return early when it equals `color`.
 2. Seed `queue = [(sr, sc)]`.
 3. While `queue` is non-empty, dequeue `r, c = queue.pop(0)`. If it is in bounds
-   and `image[r][c] == initial_color`, set it to `color` and append the four
-   neighbors: down, up, right, left.
+   and `image[r][c] == initial_color`, set it to `color` and append the four neighbors: down, up, right, left.
 4. When the queue drains, return `image`.
 
 #### Walkthrough
 
-Let us run the queue on Example 1: `image = [[1,1,1],[1,1,0],[1,0,1]]`, `sr = 1`,
-`sc = 1`, `color = 2`. We seed `queue = [(1, 1)]`. One dequeued coordinate per
-line; `set 2` recolors and appends four neighbors, `skip` discards. Because
-`pop(0)` takes the oldest entry, pixels leave the queue in discovery order:
-compare with the Iterative DFS trace, which recolored the same six pixels in a
-different order.
+Let us run the queue on Example 1: `image = [[1,1,1],[1,1,0],[1,0,1]]`, `sr = 1`, `sc = 1`, `color = 2`. We seed `queue = [(1, 1)]`. One dequeued coordinate per line; `set 2` recolors and appends four neighbors, `skip` discards. Because `pop(0)` takes the oldest entry, pixels leave the queue in discovery order: compare with the Iterative DFS trace, which recolored the same six pixels in a different order.
 
 ```text
 pop (1,1)   set 2   push (2,1)(0,1)(1,2)(1,0)    image [[1,1,1],[1,2,0],[1,0,1]]
@@ -522,14 +422,11 @@ pop (2,1)   skip    value 0, not 1
 pop (2,-1)  skip    out of bounds
 ```
 
-The recolors arrive in waves: `(1,1)` at distance 0; `(0,1)` and `(1,0)` at
-distance 1; `(0,2)`, `(0,0)`, `(2,0)` at distance 2. When the queue empties, the
-image is `[[2,2,2],[2,2,0],[2,0,1]]`, matching the expected Output.
+The recolors arrive in waves: `(1,1)` at distance 0; `(0,1)` and `(1,0)` at distance 1; `(0,2)`, `(0,0)`, `(2,0)` at distance 2. When the queue empties, the image is `[[2,2,2],[2,2,0],[2,0,1]]`, matching the expected Output.
 
 #### Solution
 
-The code is the dequeue loop from the walkthrough; the only change from Iterative
-DFS is `pop(0)` in place of `pop()`.
+The code is the dequeue loop from the walkthrough; the only change from Iterative DFS is `pop(0)` in place of `pop()`.
 
 ```python
 from typing import List
@@ -582,38 +479,20 @@ class Solution:
 
 #### Derivation
 
-The Iterative BFS has the right traversal and the wrong container. Nothing about
-its wave order needs fixing: pixels still leave the queue in discovery order,
-each pixel is still examined once, and the recolor is still the only visited
-mark. The single defect is that a Python list stores its elements in one
-contiguous block, so removing the front element with `pop(0)` must slide every
-surviving element one slot left, an `O(n)` shift on every dequeue.
+The Iterative BFS has the right traversal and the wrong container. Nothing about its wave order needs fixing: pixels still leave the queue in discovery order, each pixel is still examined once, and the recolor is still the only visited mark. The single defect is that a Python list stores its elements in one contiguous block, so removing the front element with `pop(0)` must slide every surviving element one slot left, an `O(n)` shift on every dequeue.
 
-[`collections.deque`](https://docs.python.org/3/library/collections.html#collections.deque)
-is a doubly linked sequence of blocks rather than one contiguous array, so it can
-detach an element from either end without touching the rest. Its `popleft` is
-`O(1)`, and that is the whole of the change: `deque([(sr, sc)])` in place of the
-list literal and `popleft()` in place of `pop(0)`. This is the one place on this
-page where the standard library moves the complexity class rather than leaving it
-alone. The traversal was already `O(n)` in pixel visits; the container was
-inflating it to `O(n²)`, and the swap restores the true `O(n)` BFS. The steps:
+[`collections.deque`](https://docs.python.org/3/library/collections.html#collections.deque) is a doubly linked sequence of blocks rather than one contiguous array, so it can detach an element from either end without touching the rest. Its `popleft` is `O(1)`, and that is the whole of the change: `deque([(sr, sc)])` in place of the list literal and `popleft()` in place of `pop(0)`. This is the one place on this page where the standard library moves the complexity class rather than leaving it alone. The traversal was already `O(n)` in pixel visits; the container was inflating it to `O(n²)`, and the swap restores the true `O(n)` BFS. The steps:
 
 1. Record `initial_color` and return early when it equals `color`; the recolor is
    still the only visited mark, so this guard remains a termination requirement.
 2. Seed `queue = deque([(sr, sc)])` and cache `rows, cols`.
 3. While `queue` is non-empty, dequeue `r, c = queue.popleft()`. If the pixel is
-   in bounds and equals `initial_color`, set it to `color` and append the four
-   neighbors, in the order down, up, right, left.
+   in bounds and equals `initial_color`, set it to `color` and append the four neighbors, in the order down, up, right, left.
 4. When the queue drains, return `image`.
 
 #### Walkthrough
 
-Let us run the deque on Example 1: `image = [[1,1,1],[1,1,0],[1,0,1]]`, `sr = 1`,
-`sc = 1`, `color = 2`. Since `initial_color = 1` differs from `2`, we seed
-`queue = deque([(1, 1)])`. One dequeued coordinate per line; `set 2` recolors and
-appends four neighbors, `skip` discards. Compare this trace line for line with
-the Iterative BFS trace above: it is identical, because `popleft` returns exactly
-what `pop(0)` returned, only without the shifting.
+Let us run the deque on Example 1: `image = [[1,1,1],[1,1,0],[1,0,1]]`, `sr = 1`, `sc = 1`, `color = 2`. Since `initial_color = 1` differs from `2`, we seed `queue = deque([(1, 1)])`. One dequeued coordinate per line; `set 2` recolors and appends four neighbors, `skip` discards. Compare this trace line for line with the Iterative BFS trace above: it is identical, because `popleft` returns exactly what `pop(0)` returned, only without the shifting.
 
 ```text
 popleft (1,1)   set 2   push (2,1)(0,1)(1,2)(1,0)    image [[1,1,1],[1,2,0],[1,0,1]]
@@ -643,17 +522,11 @@ popleft (2,1)   skip    value 0, not 1
 popleft (2,-1)  skip    out of bounds
 ```
 
-The recolors arrive in the same waves as before: `(1,1)` at distance 0; `(0,1)`
-and `(1,0)` at distance 1; `(0,2)`, `(0,0)`, `(2,0)` at distance 2. What differs
-is invisible in the trace and visible in the clock: each of these 25 dequeues now
-costs constant time instead of shifting the queue's remaining entries. When the
-queue empties, the image is `[[2,2,2],[2,2,0],[2,0,1]]`, matching the expected
-Output.
+The recolors arrive in the same waves as before: `(1,1)` at distance 0; `(0,1)` and `(1,0)` at distance 1; `(0,2)`, `(0,0)`, `(2,0)` at distance 2. What differs is invisible in the trace and visible in the clock: each of these 25 dequeues now costs constant time instead of shifting the queue's remaining entries. When the queue empties, the image is `[[2,2,2],[2,2,0],[2,0,1]]`, matching the expected Output.
 
 #### Solution
 
-The same dequeue loop as the Iterative BFS, with the queue delegated to the
-standard library.
+The same dequeue loop as the Iterative BFS, with the queue delegated to the standard library.
 
 ```python
 from collections import deque
@@ -688,32 +561,22 @@ class Solution:
 
 ##### Time Complexity: `O(n)`
 
-Each of the `n` pixels is recolored at most once and enqueues four neighbors, so
-the queue handles `O(n)` entries in total. Both `append` and `popleft` are `O(1)`
-on a deque, so no dequeue carries the `O(n)` shift that `list.pop(0)` performs.
-The total is linear, which is the bound the Iterative BFS aims for and misses.
+Each of the `n` pixels is recolored at most once and enqueues four neighbors, so the queue handles `O(n)` entries in total. Both `append` and `popleft` are `O(1)` on a deque, so no dequeue carries the `O(n)` shift that `list.pop(0)` performs. The total is linear, which is the bound the Iterative BFS aims for and misses.
 
 ##### Space Complexity: `O(n)`
 
-The queue holds at most a constant multiple of the pixel count, since each
-recolored pixel contributes four entries. A deque carries slightly more per-entry
-overhead than a list because of its block structure, which does not change the
-bound.
+The queue holds at most a constant multiple of the pixel count, since each recolored pixel contributes four entries. A deque carries slightly more per-entry overhead than a list because of its block structure, which does not change the bound.
 
 #### Key Insights
 
 - The algorithm is untouched: the dequeue order, the bounds-and-color test, and
-  the recolor-as-visited-mark are identical, which shows the `O(n²)` blowup was
-  never in the BFS but purely in the container holding it.
+  the recolor-as-visited-mark are identical, which shows the `O(n²)` blowup was never in the BFS but purely in the container holding it.
 - A deque is a linked sequence of blocks, so detaching the front element leaves
-  the remaining entries in place; a list must slide them, which is why `popleft`
-  is `O(1)` and `pop(0)` is `O(n)`.
+  the remaining entries in place; a list must slide them, which is why `popleft` is `O(1)` and `pop(0)` is `O(n)`.
 - This is the only approach on the page where reaching for the standard library
-  improves the asymptotic bound rather than only the line count, taking the pass
-  from `O(n²)` to `O(n)`.
+  improves the asymptotic bound rather than only the line count, taking the pass from `O(n²)` to `O(n)`.
 - Write `deque` reflexively whenever a queue is needed: the list version reads
-  almost identically, so the cost is invisible at the call site and only shows up
-  as a timeout on large inputs.
+  almost identically, so the cost is invisible at the call site and only shows up as a timeout on large inputs.
 
 ## Comparison of Solutions
 

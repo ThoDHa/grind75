@@ -44,23 +44,16 @@ Return the head of the merged linked list.
 
 ## Deriving the Solution
 
-Both inputs arrive already sorted, and the observation every fast solution
-shares is that the head of the merged list must be the smaller of the two input
-heads. The rest is deciding how to repeat that one choice.
+Both inputs arrive already sorted, and the observation every fast solution shares is that the head of the merged list must be the smaller of the two input heads. The rest is deciding how to repeat that one choice.
 
 1. **Start literal.** Ignore the sortedness: dump every value into an array and
-   repeatedly extract the minimum by hand, selection-sort style. Correct but
-   `O((n + m)^2)`: see [Brute Force](#brute-force).
+   repeatedly extract the minimum by hand, selection-sort style. Correct but `O((n + m)^2)`: see [Brute Force](#brute-force).
 2. **Spot the waste.** The scan for the minimum is pointless. Each list is
-   sorted, so the smallest remaining value overall is always one of the two
-   current heads: a single comparison replaces the whole scan.
+   sorted, so the smallest remaining value overall is always one of the two current heads: a single comparison replaces the whole scan.
 3. **Splice instead of copy.** Walk both lists with a tail pointer, linking the
-   smaller head into the result and advancing its list; a dummy head removes
-   the first-node special case, and the leftover list attaches in one step.
-   `O(n + m)` time and `O(1)` space: see [Iterative](#iterative).
+   smaller head into the result and advancing its list; a dummy head removes the first-node special case, and the leftover list attaches in one step. `O(n + m)` time and `O(1)` space: see [Iterative](#iterative).
 4. **Say it as a recurrence.** The same choice reads naturally as recursion:
-   the merged list is the smaller head followed by the merge of what remains.
-   Elegant, at the cost of `O(n + m)` call stack: see [Recursive](#recursive).
+   the merged list is the smaller head followed by the merge of what remains. Elegant, at the cost of `O(n + m)` call stack: see [Recursive](#recursive).
 
 ## Solutions
 
@@ -68,11 +61,7 @@ heads. The rest is deciding how to repeat that one choice.
 
 #### Derivation
 
-The most direct idea ignores the gift that both inputs are sorted and treats the
-problem as "produce a sorted list from a bag of numbers." Collect every value
-into an array, then build the answer one node at a time by scanning for the
-minimum remaining value and removing it, [selection-sort style](https://en.wikipedia.org/wiki/Sorting_algorithm). This never
-exploits the sorted order, which is exactly why it is the brute force.
+The most direct idea ignores the gift that both inputs are sorted and treats the problem as "produce a sorted list from a bag of numbers." Collect every value into an array, then build the answer one node at a time by scanning for the minimum remaining value and removing it, [selection-sort style](https://en.wikipedia.org/wiki/Sorting_algorithm). This never exploits the sorted order, which is exactly why it is the brute force.
 
 1. Walk both lists and append every node's value to an array.
 2. Repeatedly scan the array for the smallest remaining value, remove it, and
@@ -81,16 +70,11 @@ exploits the sorted order, which is exactly why it is the brute force.
 
 #### Walkthrough
 
-Let us watch the Brute Force run on Example 1: `list1 = [1,2,4]` and
-`list2 = [1,3,4]`.
+Let us watch the Brute Force run on Example 1: `list1 = [1,2,4]` and `list2 = [1,3,4]`.
 
-First the code walks both lists and dumps every value into `values`, in order:
-first `list1` then `list2`, giving `values = [1, 2, 4, 1, 3, 4]`.
+First the code walks both lists and dumps every value into `values`, in order: first `list1` then `list2`, giving `values = [1, 2, 4, 1, 3, 4]`.
 
-Now the main loop repeatedly scans for the smallest remaining value, pops it, and
-appends a fresh node to the result. The `smallest` index starts at `0` each round
-and only moves when a strictly smaller value is found, so on ties the leftmost
-minimum wins. Each row below shows one pop:
+Now the main loop repeatedly scans for the smallest remaining value, pops it, and appends a fresh node to the result. The `smallest` index starts at `0` each round and only moves when a strictly smaller value is found, so on ties the leftmost minimum wins. Each row below shows one pop:
 
 | Step | `smallest` index | value popped | `result` so far | `values` remaining |
 |------|------------------|--------------|-----------------|--------------------|
@@ -101,15 +85,11 @@ minimum wins. Each row below shows one pop:
 | 5    | `0`              | `4`          | `[1, 1, 2, 3, 4]` | `[4]`            |
 | 6    | `0`              | `4`          | `[1, 1, 2, 3, 4, 4]` | `[]`          |
 
-In step 1 both `1`s are tied, so the scan keeps index `0` (the first one) and pops
-it. In step 2 the remaining `1` now sits at index `2`, so `smallest` walks there.
-Once `values` is empty the loop stops, and the code returns `dummy.next`: the
-merged list `[1, 1, 2, 3, 4, 4]`, which matches the expected Output.
+In step 1 both `1`s are tied, so the scan keeps index `0` (the first one) and pops it. In step 2 the remaining `1` now sits at index `2`, so `smallest` walks there. Once `values` is empty the loop stops, and the code returns `dummy.next`: the merged list `[1, 1, 2, 3, 4, 4]`, which matches the expected Output.
 
 #### Solution
 
-The code is the walkthrough's two phases: the dump into `values`, then the
-scan-pop-append loop.
+The code is the walkthrough's two phases: the dump into `values`, then the scan-pop-append loop.
 
 ```python
 # Definition for singly-linked list.
@@ -150,14 +130,11 @@ class Solution:
 
 ##### Time Complexity: `O((n + m)^2)`
 
-Let `k = n + m` be the total number of values. Each of the `k` output nodes
-requires a linear scan to find the smallest remaining value, giving quadratic
-work overall.
+Let `k = n + m` be the total number of values. Each of the `k` output nodes requires a linear scan to find the smallest remaining value, giving quadratic work overall.
 
 ##### Space Complexity: `O(n + m)`
 
-The `values` array holds all `k` numbers, and the result list allocates `k`
-brand-new nodes rather than reusing the input nodes.
+The `values` array holds all `k` numbers, and the result list allocates `k` brand-new nodes rather than reusing the input nodes.
 
 #### Key Insights
 
@@ -172,27 +149,19 @@ brand-new nodes rather than reusing the input nodes.
 
 #### Derivation
 
-The brute force pays quadratic time for ignoring a gift: each input is already
-sorted, so the smallest remaining value is always the smaller of the two current
-heads. One comparison replaces the entire minimum scan, and it also removes the
-need for fresh nodes, since the winning node can be [spliced](https://en.wikipedia.org/wiki/Merge_algorithm)
-directly into the result. A `current` pointer builds the merged list while both
-inputs are traversed simultaneously:
+The brute force pays quadratic time for ignoring a gift: each input is already sorted, so the smallest remaining value is always the smaller of the two current heads. One comparison replaces the entire minimum scan, and it also removes the need for fresh nodes, since the winning node can be [spliced](https://en.wikipedia.org/wiki/Merge_algorithm) directly into the result. A `current` pointer builds the merged list while both inputs are traversed simultaneously:
 
 1. Create `dummy` and point `current` at it; the dummy absorbs the special case
    of inserting the very first node.
 2. While both `list1` and `list2` are non-empty, compare their head values:
-   link the smaller node with `current.next`, advance that list's pointer, then
-   advance `current`.
+   link the smaller node with `current.next`, advance that list's pointer, then advance `current`.
 3. When one list empties, attach the other in a single step
    (`current.next = list1 if list1 else list2`); it is already sorted.
 4. Return `dummy.next`, the real head sitting behind the dummy.
 
 #### Walkthrough
 
-Let us splice the lists of Example 1 by hand: `list1 = [1,2,4]` and
-`list2 = [1,3,4]`. `current` starts at `dummy`; each line compares the two
-current heads, links the smaller node, and advances two pointers:
+Let us splice the lists of Example 1 by hand: `list1 = [1,2,4]` and `list2 = [1,3,4]`. `current` starts at `dummy`; each line compares the two current heads, links the smaller node, and advances two pointers:
 
 ```text
 list1=1  list2=1    1 <= 1   splice list1's 1   merged: 1               list1 = 2->4
@@ -203,10 +172,7 @@ list1=4  list2=4    4 <= 4   splice list1's 4   merged: 1->1->2->3->4   list1 = 
 list1 empty: current.next = list2   merged: 1->1->2->3->4->4
 ```
 
-Both ties (`1 <= 1` and `4 <= 4`) splice the node from `list1`, keeping the
-merge stable. When `list1` runs out, the loop exits and the remainder of
-`list2` (its final `4`) attaches in one step. The method returns `dummy.next`,
-the list `[1, 1, 2, 3, 4, 4]`, matching the expected Output for Example 1.
+Both ties (`1 <= 1` and `4 <= 4`) splice the node from `list1`, keeping the merge stable. When `list1` runs out, the loop exits and the remainder of `list2` (its final `4`) attaches in one step. The method returns `dummy.next`, the list `[1, 1, 2, 3, 4, 4]`, matching the expected Output for Example 1.
 
 #### Solution
 
@@ -268,23 +234,15 @@ We only use a constant amount of extra space for pointers. The solution reuses t
 
 #### Derivation
 
-The iterative loop makes the same decision at every step, which suggests
-expressing the merge as a [recurrence](https://en.wikipedia.org/wiki/Recursion_(computer_science)): the smaller of the two heads
-is the head of the merged list, and its `next` is the merge of the remainder of
-that list with the entire other list. The recursion bottoms out when either
-list becomes empty, at which point the other list is already sorted and can be
-returned as-is.
+The iterative loop makes the same decision at every step, which suggests expressing the merge as a [recurrence](https://en.wikipedia.org/wiki/Recursion_(computer_science)): the smaller of the two heads is the head of the merged list, and its `next` is the merge of the remainder of that list with the entire other list. The recursion bottoms out when either list becomes empty, at which point the other list is already sorted and can be returned as-is.
 
 1. If `list1` is empty, the merge is simply `list2`, and vice versa
 2. Otherwise compare the heads, splice the smaller node onto the front of the
-   recursively merged tail (`list1.next = self.mergeTwoLists(list1.next,
-   list2)`), and return that node as the new head
+   recursively merged tail (`list1.next = self.mergeTwoLists(list1.next, list2)`), and return that node as the new head
 
 #### Walkthrough
 
-Let us unwind the recursion on Example 1: `list1 = [1,2,4]` and
-`list2 = [1,3,4]`. Indentation follows the call depth; each call keeps its
-smaller head and recurses on what remains:
+Let us unwind the recursion on Example 1: `list1 = [1,2,4]` and `list2 = [1,3,4]`. Indentation follows the call depth; each call keeps its smaller head and recurses on what remains:
 
 ```text
 mergeTwoLists(1->2->4, 1->3->4)    1 <= 1: keep list1's 1
@@ -300,16 +258,11 @@ mergeTwoLists(1->2->4, 1->3->4)    1 <= 1: keep list1's 1
 returns 1->1->2->3->4->4
 ```
 
-Descending, each call chooses a head; the base case hands back the leftover
-`4` from `list2` untouched. Ascending, every frame sets its kept node's `next`
-to the list returned from below and passes the result upward, so the answer
-assembles back to front. The outermost call returns the list
-`[1, 1, 2, 3, 4, 4]`, matching the expected Output for Example 1.
+Descending, each call chooses a head; the base case hands back the leftover `4` from `list2` untouched. Ascending, every frame sets its kept node's `next` to the list returned from below and passes the result upward, so the answer assembles back to front. The outermost call returns the list `[1, 1, 2, 3, 4, 4]`, matching the expected Output for Example 1.
 
 #### Solution
 
-The code is the walkthrough's call tree: two base cases, then the splice of the
-smaller head onto the merged remainder.
+The code is the walkthrough's call tree: two base cases, then the splice of the smaller head onto the merged remainder.
 
 ```python
 # Definition for singly-linked list.
@@ -342,14 +295,11 @@ class Solution:
 
 ##### Time Complexity: `O(n + m)`
 
-Each recursive call consumes exactly one node from one of the lists, so the
-total number of calls equals the combined length of both lists.
+Each recursive call consumes exactly one node from one of the lists, so the total number of calls equals the combined length of both lists.
 
 ##### Space Complexity: `O(n + m)`
 
-The recursion stack grows one frame per node consumed, reaching depth `n + m`
-in the worst case before any frame returns. Unlike the iterative version, this
-does not achieve constant space.
+The recursion stack grows one frame per node consumed, reaching depth `n + m` in the worst case before any frame returns. Unlike the iterative version, this does not achieve constant space.
 
 #### Key Insights
 

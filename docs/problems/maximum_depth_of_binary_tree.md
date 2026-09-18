@@ -41,28 +41,16 @@ A binary tree's **maximum depth** is the number of nodes along the longest path 
 
 ## Deriving the Solution
 
-A tree's depth is defined by its subtrees: a node sits one level above the deeper
-of its two children, and an empty tree has depth `0`. Every solution below is a
-full `O(n)` traversal; they differ only in who keeps track of how deep each node
-sits.
+A tree's depth is defined by its subtrees: a node sits one level above the deeper of its two children, and an empty tree has depth `0`. Every solution below is a full `O(n)` traversal; they differ only in who keeps track of how deep each node sits.
 
 1. **Start literal.** The definition is already a recurrence,
-   `depth(node) = 1 + max(depth(left), depth(right))` with `depth(None) = 0`,
-   so transcribe it as a post-order recursion and let the call stack carry the
-   depth bookkeeping. Clean and short, at `O(h)` stack space: see
-   [Recursive DFS](#recursive-dfs).
+   `depth(node) = 1 + max(depth(left), depth(right))` with `depth(None) = 0`, so transcribe it as a post-order recursion and let the call stack carry the depth bookkeeping. Clean and short, at `O(h)` stack space: see [Recursive DFS](#recursive-dfs).
 2. **Name the risk.** The call stack is borrowed from the language: on a
-   degenerate chain of `10^4` nodes the recursion can exceed Python's default
-   recursion limit. The remaining approaches keep the same traversal but manage
-   the bookkeeping themselves.
+   degenerate chain of `10^4` nodes the recursion can exceed Python's default recursion limit. The remaining approaches keep the same traversal but manage the bookkeeping themselves.
 3. **Count levels instead of paths.** Depth is also the number of levels, so
-   walk the tree one level at a time with a queue and count how many levels
-   drain. Recursion-free, but the queue holds an entire level, up to `O(w)`
-   nodes on wide trees: see [Iterative BFS](#iterative-bfs).
+   walk the tree one level at a time with a queue and count how many levels drain. Recursion-free, but the queue holds an entire level, up to `O(w)` nodes on wide trees: see [Iterative BFS](#iterative-bfs).
 4. **Keep depth-first, add an explicit stack.** Simulate the recursion with a
-   stack of `(node, depth)` pairs and track the maximum depth popped. This
-   removes the recursion limit while restoring the depth-first `O(h)` space
-   profile: see [Iterative DFS with Stack](#iterative-dfs-with-stack).
+   stack of `(node, depth)` pairs and track the maximum depth popped. This removes the recursion limit while restoring the depth-first `O(h)` space profile: see [Iterative DFS with Stack](#iterative-dfs-with-stack).
 
 ## Solutions
 
@@ -70,13 +58,7 @@ sits.
 
 #### Derivation
 
-Ask what the depth of a tree is in terms of its parts. The problem's own
-definition answers: the longest root-to-leaf path passes through whichever child
-subtree is deeper, so a node's depth is one more than the larger of its
-children's depths, and an empty subtree contributes `0`. A definition phrased in
-terms of smaller instances of itself is precisely what recursion executes, so a
-recursive [depth-first search](https://en.wikipedia.org/wiki/Depth-first_search)
-transcribes it directly:
+Ask what the depth of a tree is in terms of its parts. The problem's own definition answers: the longest root-to-leaf path passes through whichever child subtree is deeper, so a node's depth is one more than the larger of its children's depths, and an empty subtree contributes `0`. A definition phrased in terms of smaller instances of itself is precisely what recursion executes, so a recursive [depth-first search](https://en.wikipedia.org/wiki/Depth-first_search) transcribes it directly:
 
 1. If `root` is `None`, the subtree is empty and its depth is `0`.
 2. Otherwise, recursively compute `self.maxDepth(root.left)` and
@@ -84,22 +66,13 @@ transcribes it directly:
 3. Return `1 + max(...)` of those two subtree depths, where the `1` counts the
    current node.
 
-Because each node's result is combined only after both children return, this
-follows the post-order pattern: children are fully processed before the parent
-produces its answer.
+Because each node's result is combined only after both children return, this follows the post-order pattern: children are fully processed before the parent produces its answer.
 
 #### Recurrence
 
-Depth is defined on a node in terms of its children, which is exactly a
-recurrence:
+Depth is defined on a node in terms of its children, which is exactly a recurrence:
 
-$$
-\text{depth}(v) =
-\begin{cases}
-0, & v = \text{null} \\[4pt]
-1 + \max\bigl(\text{depth}(v.\text{left}),\ \text{depth}(v.\text{right})\bigr), & \text{otherwise}
-\end{cases}
-$$
+$$ \text{depth}(v) = \begin{cases} 0, & v = \text{null} \\[4pt] 1 + \max\bigl(\text{depth}(v.\text{left}),\ \text{depth}(v.\text{right})\bigr), & \text{otherwise} \end{cases} $$
 
 ```text
 maxDepth(None) = 0
@@ -107,12 +80,7 @@ maxDepth(root) = 1 + max(maxDepth(root.left), maxDepth(root.right))
                  for root != None
 ```
 
-The empty tree contributing `0` is the base case, and the `+1` charges one level
-for the node itself. This is the smallest complete example of tree DP: the
-answer at a node needs nothing but the answers at its children, so a single
-post-order pass computes it. Swapping \(\max\) for \(\min\) gives minimum depth,
-and swapping it for \(+\) gives the node count: same traversal, different
-combiner.
+The empty tree contributing `0` is the base case, and the `+1` charges one level for the node itself. This is the smallest complete example of tree DP: the answer at a node needs nothing but the answers at its children, so a single post-order pass computes it. Swapping \(\max\) for \(\min\) gives minimum depth, and swapping it for \(+\) gives the node count: same traversal, different combiner.
 
 #### Walkthrough
 
@@ -153,8 +121,7 @@ The call returns `3`, which matches the expected Output of `3`.
 
 #### Solution
 
-The code is the recurrence from the walkthrough written down: one base case and
-one combining line.
+The code is the recurrence from the walkthrough written down: one base case and one combining line.
 
 ```python
 # Definition for a binary tree node.
@@ -193,26 +160,16 @@ The space is the depth of the recursion stack, which equals the height of the tr
 
 #### Derivation
 
-The recursion above leans on the language's call stack, and a degenerate tree
-deep enough can exhaust it. To drop recursion entirely, change what is counted:
-depth is also the number of levels in the tree, and
-[breadth-first search](https://en.wikipedia.org/wiki/Breadth-first_search)
-visits the tree exactly one level at a time. If the traversal can tell where one
-level ends and the next begins, counting drained levels counts the depth. The
-boundary comes from a snapshot: the nodes in the queue at the top of an
-iteration are precisely one level, so dequeuing exactly that many processes the
-level while their children, enqueued behind them, form the next one:
+The recursion above leans on the language's call stack, and a degenerate tree deep enough can exhaust it. To drop recursion entirely, change what is counted: depth is also the number of levels in the tree, and [breadth-first search](https://en.wikipedia.org/wiki/Breadth-first_search) visits the tree exactly one level at a time. If the traversal can tell where one level ends and the next begins, counting drained levels counts the depth. The boundary comes from a snapshot: the nodes in the queue at the top of an iteration are precisely one level, so dequeuing exactly that many processes the level while their children, enqueued behind them, form the next one:
 
 1. If the root is `None`, return `0`.
 2. Seed `queue` with the root and start a `depth` counter at `0`.
 3. On each outer iteration, increment `depth`, record the current `len(queue)`,
-   then dequeue exactly that many nodes with `popleft`, enqueuing each node's
-   existing children.
+   then dequeue exactly that many nodes with `popleft`, enqueuing each node's existing children.
 4. When `queue` empties, `depth` equals the number of levels, which is the
    maximum depth; return it.
 
-Snapshotting `len(queue)` before the inner loop is what isolates one level from
-the next, since children added during the loop belong to the following level.
+Snapshotting `len(queue)` before the inner loop is what isolates one level from the next, since children added during the loop belong to the following level.
 
 #### Walkthrough
 
@@ -226,8 +183,7 @@ Let us drain Example 1 level by level: `root = [3,9,20,null,null,15,7]`, the tre
         15   7
 ```
 
-Each outer iteration bumps `depth`, snapshots the queue length, and dequeues
-exactly that many nodes, appending their children behind:
+Each outer iteration bumps `depth`, snapshots the queue length, and dequeues exactly that many nodes, appending their children behind:
 
 ```text
 start      queue = [3]        depth = 0
@@ -239,13 +195,11 @@ level 3    snapshot len = 2: pop 15 (leaf), pop 7 (leaf)
            queue = []         depth = 3
 ```
 
-After the third level drains, the queue is empty and the loop exits. Three
-levels were processed, so `depth = 3`, matching the expected Output of `3`.
+After the third level drains, the queue is empty and the loop exits. Three levels were processed, so `depth = 3`, matching the expected Output of `3`.
 
 #### Solution
 
-The code is the level drain from the walkthrough: snapshot, dequeue that many,
-count the level.
+The code is the level drain from the walkthrough: snapshot, dequeue that many, count the level.
 
 ```python
 # Definition for a binary tree node.
@@ -298,27 +252,18 @@ The queue holds at most one full level at a time, so the space is bounded by the
 
 #### Derivation
 
-BFS removed the recursion risk but pays for it in width: on a bushy tree the
-queue holds an entire level, up to half the nodes. The recursive traversal only
-ever held one root-to-leaf path. To keep that `O(h)` footprint without
-recursion, simulate the recursion with an explicit
-[stack](https://en.wikipedia.org/wiki/Stack_(abstract_data_type)). One thing the
-call stack provided for free must now be carried by hand: each frame knew its
-own depth, so the stack stores `(node, depth)` pairs, and the answer is the
-largest depth ever popped:
+BFS removed the recursion risk but pays for it in width: on a bushy tree the queue holds an entire level, up to half the nodes. The recursive traversal only ever held one root-to-leaf path. To keep that `O(h)` footprint without recursion, simulate the recursion with an explicit [stack](https://en.wikipedia.org/wiki/Stack_(abstract_data_type)). One thing the call stack provided for free must now be carried by hand: each frame knew its own depth, so the stack stores `(node, depth)` pairs, and the answer is the largest depth ever popped:
 
 1. If the root is `None`, return `0`.
 2. Push `(root, 1)` onto `stack` and initialize `max_depth` to `0`.
 3. Pop a `(node, depth)` pair, update `max_depth` with `depth`, and push each
-   existing child paired with `depth + 1`, right child before left so the left
-   subtree is visited first.
+   existing child paired with `depth + 1`, right child before left so the left subtree is visited first.
 4. Continue until `stack` is empty; `max_depth` then holds the deepest path
    length seen. Return it.
 
 #### Walkthrough
 
-Let us run the explicit stack on Example 1: `root = [3,9,20,null,null,15,7]`,
-the tree
+Let us run the explicit stack on Example 1: `root = [3,9,20,null,null,15,7]`, the tree
 
 ```
         3
@@ -328,8 +273,7 @@ the tree
         15   7
 ```
 
-Each line pops one `(node, depth)` pair, folds its depth into `max_depth`, and
-pushes the children one level deeper (right first, left on top):
+Each line pops one `(node, depth)` pair, folds its depth into `max_depth`, and pushes the children one level deeper (right first, left on top):
 
 ```text
 start         stack = [(3, 1)]            max_depth = 0
@@ -345,13 +289,11 @@ pop (7, 3)    leaf, nothing pushed        max_depth = 3
               stack = []
 ```
 
-The stack empties after five pops, one per node. The deepest pairs popped were
-`(15, 3)` and `(7, 3)`, so `max_depth = 3`, matching the expected Output of `3`.
+The stack empties after five pops, one per node. The deepest pairs popped were `(15, 3)` and `(7, 3)`, so `max_depth = 3`, matching the expected Output of `3`.
 
 #### Solution
 
-The code is the pop-update-push loop from the walkthrough, with depths carried
-explicitly on the stack.
+The code is the pop-update-push loop from the walkthrough, with depths carried explicitly on the stack.
 
 ```python
 # Definition for a binary tree node.

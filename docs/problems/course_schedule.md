@@ -40,31 +40,16 @@ Return `true` if you can finish all courses. Otherwise, return `false`.
 
 ## Deriving the Solution
 
-Each prerequisite pair is a directed edge, so the courses form a directed
-graph, and every course is finishable exactly when that graph has no cycle: a
-cycle is a set of courses that all wait on one another. The solutions differ
-only in how they hunt for that cycle.
+Each prerequisite pair is a directed edge, so the courses form a directed graph, and every course is finishable exactly when that graph has no cycle: a cycle is a set of courses that all wait on one another. The solutions differ only in how they hunt for that cycle.
 
 1. **Start literal.** Simulate a student: repeatedly take any course whose
-   prerequisites are all finished, and stop when a full round takes nothing.
-   Courses left over are trapped in a cycle. Correct, but each round re-checks
-   everything, costing `O(V^2 + V * E)`: see [Brute Force](#brute-force).
+   prerequisites are all finished, and stop when a full round takes nothing. Courses left over are trapped in a cycle. Correct, but each round re-checks everything, costing `O(V^2 + V * E)`: see [Brute Force](#brute-force).
 2. **Spot the waste.** Every sweep re-examines prerequisites that have not
-   changed since the last sweep; almost all of that checking is repeated
-   verbatim.
+   changed since the last sweep; almost all of that checking is repeated verbatim.
 3. **Follow the edges.** Walk the graph directly with a depth-first search: a
-   cycle is precisely a back edge into the path the recursion is currently
-   standing on, which needs a third state beyond visited/unvisited. One
-   traversal of each vertex and edge decides the answer in `O(V + E)`. The
-   same idea wears two bookkeeping styles, a color array in
-   [DFS Three-Color](#dfs-three-color) and a pair of explicit sets in
-   [DFS with Recursion Stack](#dfs-with-recursion-stack).
+   cycle is precisely a back edge into the path the recursion is currently standing on, which needs a third state beyond visited/unvisited. One traversal of each vertex and edge decides the answer in `O(V + E)`. The same idea wears two bookkeeping styles, a color array in [DFS Three-Color](#dfs-three-color) and a pair of explicit sets in [DFS with Recursion Stack](#dfs-with-recursion-stack).
 4. **Count instead of re-scan.** Record each course's prerequisite count once,
-   and touch a course again only when one of its prerequisites completes.
-   Repeatedly taking courses whose count has hit zero peels the graph layer by
-   layer; any shortfall at the end is a cycle. This is Kahn's topological
-   sort, also `O(V + E)`, and its processing order is a valid schedule: see
-   [Kahn's Algorithm](#kahns-algorithm).
+   and touch a course again only when one of its prerequisites completes. Repeatedly taking courses whose count has hit zero peels the graph layer by layer; any shortfall at the end is a cycle. This is Kahn's topological sort, also `O(V + E)`, and its processing order is a valid schedule: see [Kahn's Algorithm](#kahns-algorithm).
 
 ## Solutions
 
@@ -72,11 +57,7 @@ only in how they hunt for that cycle.
 
 #### Derivation
 
-The most direct simulation mirrors how a student actually clears a degree:
-keep taking any course whose prerequisites are already finished, and repeat
-until no new course can be taken. If every course eventually gets taken, the
-schedule is feasible; if a round ever passes without taking anything while
-courses remain, the leftovers depend on one another in a cycle.
+The most direct simulation mirrors how a student actually clears a degree: keep taking any course whose prerequisites are already finished, and repeat until no new course can be taken. If every course eventually gets taken, the schedule is feasible; if a round ever passes without taking anything while courses remain, the leftovers depend on one another in a cycle.
 
 1. For each course, record the list of prerequisites it still needs in
    `remaining`.
@@ -86,25 +67,18 @@ courses remain, the leftovers depend on one another in a cycle.
 4. When a sweep makes no progress, stop and compare `taken_count` against
    `numCourses`.
 
-A course stuck forever is one whose prerequisites can never all be satisfied,
-which is exactly a cycle. The loop terminates because each round either takes at
-least one new course or ends the process.
+A course stuck forever is one whose prerequisites can never all be satisfied, which is exactly a cycle. The loop terminates because each round either takes at least one new course or ends the process.
 
 #### Walkthrough
 
-Trace the Brute Force on Example 1: `numCourses = 2`,
-`prerequisites = [[1,0]]`. The pair `[1, 0]` means course `1` needs course `0`
-first.
+Trace the Brute Force on Example 1: `numCourses = 2`, `prerequisites = [[1,0]]`. The pair `[1, 0]` means course `1` needs course `0` first.
 
-First, build `remaining` so each entry lists the prerequisites that course still
-needs:
+First, build `remaining` so each entry lists the prerequisites that course still needs:
 
 - `remaining[0] = []`: course `0` has no prerequisites.
 - `remaining[1] = [0]`: course `1` needs course `0`.
 
-Start with `taken = [False, False]` and `taken_count = 0`. Now sweep, taking any
-untaken course whose prerequisites are all taken. Each row below is one course
-check inside a sweep:
+Start with `taken = [False, False]` and `taken_count = 0`. Now sweep, taking any untaken course whose prerequisites are all taken. Each row below is one course check inside a sweep:
 
 | Sweep | course | `remaining[course]` | All prereqs taken? | Action | `taken` | `taken_count` |
 |-------|--------|---------------------|--------------------|--------|---------|---------------|
@@ -113,17 +87,13 @@ check inside a sweep:
 | 2 | `0` | `[]` | already taken: skip | none | `[True, True]` | `2` |
 | 2 | `1` | `[0]` | already taken: skip | none | `[True, True]` | `2` |
 
-Sweep `1` took two courses, so `progress` stayed `True` and another sweep ran.
-Sweep `2` took nothing (both courses already taken), so `progress` became
-`False` and the loop stopped.
+Sweep `1` took two courses, so `progress` stayed `True` and another sweep ran. Sweep `2` took nothing (both courses already taken), so `progress` became `False` and the loop stopped.
 
-Finally, compare `taken_count == numCourses`: `2 == 2` is `True`, so the function
-returns `True`, which matches the example's expected Output.
+Finally, compare `taken_count == numCourses`: `2 == 2` is `True`, so the function returns `True`, which matches the example's expected Output.
 
 #### Solution
 
-The code is the walkthrough's sweep loop: keep taking courses until a round
-takes nothing.
+The code is the walkthrough's sweep loop: keep taking courses until a round takes nothing.
 
 ```python
 from typing import List
@@ -158,15 +128,11 @@ class Solution:
 
 ##### Time Complexity: `O(V^2 + V * E)`
 
-Each sweep is `O(V + E)` because it re-checks every course's full prerequisite
-list, and in the worst case only one course is taken per sweep, forcing up to
-`V` sweeps. That gives `O(V^2 + V * E)` overall, far more work than the linear
-methods below because the same prerequisites are re-examined every round.
+Each sweep is `O(V + E)` because it re-checks every course's full prerequisite list, and in the worst case only one course is taken per sweep, forcing up to `V` sweeps. That gives `O(V^2 + V * E)` overall, far more work than the linear methods below because the same prerequisites are re-examined every round.
 
 ##### Space Complexity: `O(V + E)`
 
-The `remaining` lists store all `E` prerequisite edges, and the `taken` array
-uses `O(V)`.
+The `remaining` lists store all `E` prerequisite edges, and the `taken` array uses `O(V)`.
 
 #### Key Insights
 
@@ -175,26 +141,15 @@ uses `O(V)`.
 - The wasted work is re-scanning every course's prerequisites on every round,
   even courses and prerequisites that have not changed.
 - The next solutions remove that waste either by following edges directly (DFS)
-  or by counting prerequisites once and only revisiting a course when one of its
-  prerequisites is taken (Kahn's Algorithm).
+  or by counting prerequisites once and only revisiting a course when one of its prerequisites is taken (Kahn's Algorithm).
 
 ### DFS Three-Color
 
 #### Derivation
 
-The brute force re-checks unchanged prerequisites every round because it never
-follows the dependency structure; it only polls it. Model the courses as a
-directed graph instead: each course is a vertex, and a prerequisite pair
-`[a, b]` becomes an edge from `b` to `a`. Every course can be finished if and
-only if this graph has no cycle, so the polling loop can be replaced by one
-walk of the graph that looks for a cycle directly.
+The brute force re-checks unchanged prerequisites every round because it never follows the dependency structure; it only polls it. Model the courses as a directed graph instead: each course is a vertex, and a prerequisite pair `[a, b]` becomes an edge from `b` to `a`. Every course can be finished if and only if this graph has no cycle, so the polling loop can be replaced by one walk of the graph that looks for a cycle directly.
 
-The subtlety is that a plain visited flag cannot recognize a cycle in a
-directed graph: reaching an already-visited vertex is harmless when it was
-finished by an earlier branch, and fatal only when it is an ancestor still on
-the current recursion path. A
-[depth-first search](https://en.wikipedia.org/wiki/Depth-first_search) with
-three states per vertex captures that distinction:
+The subtlety is that a plain visited flag cannot recognize a cycle in a directed graph: reaching an already-visited vertex is harmless when it was finished by an earlier branch, and fatal only when it is an ancestor still on the current recursion path. A [depth-first search](https://en.wikipedia.org/wiki/Depth-first_search) with three states per vertex captures that distinction:
 
 1. Build the adjacency list `graph`, pointing each prerequisite at the courses
    that depend on it.
@@ -206,18 +161,13 @@ three states per vertex captures that distinction:
 5. After exploring all of a vertex's neighbors, paint it `BLACK` to record that
    it is fully processed and can never participate in a cycle reached later.
 
-If no search ever revisits a `GRAY` vertex, the graph is acyclic and every
-course can be finished.
+If no search ever revisits a `GRAY` vertex, the graph is acyclic and every course can be finished.
 
 #### Walkthrough
 
-Example 2 is the one with a cycle, so it exercises the back-edge detection:
-`numCourses = 2`, `prerequisites = [[1,0],[0,1]]`. Building the adjacency list
-gives `graph[0] = [1]` and `graph[1] = [0]` (each prerequisite points at the
-course depending on it), with `color = [WHITE, WHITE]`.
+Example 2 is the one with a cycle, so it exercises the back-edge detection: `numCourses = 2`, `prerequisites = [[1,0],[0,1]]`. Building the adjacency list gives `graph[0] = [1]` and `graph[1] = [0]` (each prerequisite points at the course depending on it), with `color = [WHITE, WHITE]`.
 
-The outer loop starts at vertex `0`, and the trace indents one level per
-recursive call:
+The outer loop starts at vertex `0`, and the trace indents one level per recursive call:
 
 ```text
 has_cycle(0)     color[0] = GRAY               path: 0
@@ -227,16 +177,11 @@ has_cycle(0)     color[0] = GRAY               path: 0
 has_cycle(0)     -> True
 ```
 
-Following the edge `0 -> 1` and then `1 -> 0` lands the search on vertex `0`
-while it is still `GRAY`, meaning still on the active path: the recursion has
-looped back onto its own ancestor, which is the cycle
-`0 -> 1 -> 0`. The `True` bubbles up, the outer loop sees the cycle, and the
-function returns `False`, matching the expected Output for Example 2.
+Following the edge `0 -> 1` and then `1 -> 0` lands the search on vertex `0` while it is still `GRAY`, meaning still on the active path: the recursion has looped back onto its own ancestor, which is the cycle `0 -> 1 -> 0`. The `True` bubbles up, the outer loop sees the cycle, and the function returns `False`, matching the expected Output for Example 2.
 
 #### Solution
 
-The code is the walkthrough's colored search: `GRAY` on entry, `BLACK` on
-exit, back edge on meeting `GRAY`.
+The code is the walkthrough's colored search: `GRAY` on entry, `BLACK` on exit, back edge on meeting `GRAY`.
 
 ```python
 from typing import List
@@ -276,20 +221,16 @@ class Solution:
 
 ##### Time Complexity: `O(V + E)`
 
-Where `V` is `numCourses` and `E` is the number of prerequisite pairs. Building
-the graph touches each edge once, and the three-color DFS visits each vertex and
-traverses each edge at most once.
+Where `V` is `numCourses` and `E` is the number of prerequisite pairs. Building the graph touches each edge once, and the three-color DFS visits each vertex and traverses each edge at most once.
 
 ##### Space Complexity: `O(V + E)`
 
-The adjacency list stores all `E` edges, the color array uses `O(V)`, and the
-recursion stack reaches depth `O(V)` in the worst case.
+The adjacency list stores all `E` edges, the color array uses `O(V)`, and the recursion stack reaches depth `O(V)` in the worst case.
 
 #### Key Insights
 
 - A simple binary visited flag is not enough for a directed graph; the distinct
-  `GRAY` state is what distinguishes a back edge (cycle) from a cross or forward
-  edge into an already finished branch.
+  `GRAY` state is what distinguishes a back edge (cycle) from a cross or forward edge into an already finished branch.
 - Painting a vertex `BLACK` lets later searches skip work that is known to be
   cycle-free, which keeps the traversal linear.
 - The check naturally covers disconnected graphs because the outer loop starts a
@@ -299,21 +240,14 @@ recursion stack reaches depth `O(V)` in the worst case.
 
 #### Derivation
 
-The three-color search packs two different facts into one array: "this vertex
-is on the active path" and "this vertex is fully done". Splitting them into
-two explicit sets states each fact by name, which some find clearer to reason
-about than color codes. This variant also orients the graph the other way,
-from each course to its prerequisites, so the recursion walks dependencies
-before the course that needs them; the cycle test is unaffected by the
-direction.
+The three-color search packs two different facts into one array: "this vertex is on the active path" and "this vertex is fully done". Splitting them into two explicit sets states each fact by name, which some find clearer to reason about than color codes. This variant also orients the graph the other way, from each course to its prerequisites, so the recursion walks dependencies before the course that needs them; the cycle test is unaffected by the direction.
 
 1. Build the adjacency list `graph` mapping each course to the courses it
    requires.
 2. Keep a `visited` set of fully processed courses and a `path` set of courses
    currently on the recursion stack.
 3. For each unvisited course, run
-   [DFS](https://en.wikipedia.org/wiki/Depth-first_search) via `has_cycle`.
-   Add the course to both sets on entry.
+   [DFS](https://en.wikipedia.org/wiki/Depth-first_search) via `has_cycle`. Add the course to both sets on entry.
 4. If the search reaches a course already in `path`, the recursion has looped
    back on itself, so a cycle exists and the answer is `false`.
 5. After exploring a course's prerequisites, remove it from `path` (backtrack)
@@ -321,10 +255,7 @@ direction.
 
 #### Walkthrough
 
-Example 1 is acyclic, which is the case that exercises both the backtrack and
-the `visited` skip: `numCourses = 2`, `prerequisites = [[1,0]]`. With this
-orientation the adjacency list maps each course to its prerequisites:
-`graph[0] = []` and `graph[1] = [0]`. Both sets start empty.
+Example 1 is acyclic, which is the case that exercises both the backtrack and the `visited` skip: `numCourses = 2`, `prerequisites = [[1,0]]`. With this orientation the adjacency list maps each course to its prerequisites: `graph[0] = []` and `graph[1] = [0]`. Both sets start empty.
 
 ```text
 course 0: has_cycle(0)    path = {0}, visited = {0}
@@ -336,17 +267,11 @@ course 1: has_cycle(1)    path = {1}, visited = {0, 1}
 no cycle found -> return True
 ```
 
-Course `0` enters and leaves the path without finding a loop, staying in
-`visited`. When course `1` follows its prerequisite edge to `0`, the `visited`
-check answers immediately: `0` is done and cycle-free, and crucially it is no
-longer in `path`, so it is not mistaken for a cycle. Both calls return
-`False`, so the function returns `True`, matching the expected Output for
-Example 1.
+Course `0` enters and leaves the path without finding a loop, staying in `visited`. When course `1` follows its prerequisite edge to `0`, the `visited` check answers immediately: `0` is done and cycle-free, and crucially it is no longer in `path`, so it is not mistaken for a cycle. Both calls return `False`, so the function returns `True`, matching the expected Output for Example 1.
 
 #### Solution
 
-The code is the walkthrough's search with the two sets: `path` for the active
-branch, `visited` for finished courses.
+The code is the walkthrough's search with the two sets: `path` for the active branch, `visited` for finished courses.
 
 ```python
 from typing import List
@@ -386,13 +311,11 @@ class Solution:
 
 ##### Time Complexity: `O(V + E)`
 
-Each course and prerequisite edge is processed at most once across the whole
-traversal.
+Each course and prerequisite edge is processed at most once across the whole traversal.
 
 ##### Space Complexity: `O(V + E)`
 
-The adjacency list holds `O(V + E)`, the `visited` and `path` sets each hold up
-to `O(V)` entries, and the recursion stack reaches `O(V)` depth.
+The adjacency list holds `O(V + E)`, the `visited` and `path` sets each hold up to `O(V)` entries, and the recursion stack reaches `O(V)` depth.
 
 #### Key Insights
 
@@ -407,82 +330,53 @@ to `O(V)` entries, and the recursion stack reaches `O(V)` depth.
 
 #### Derivation
 
-The DFS solutions fix the brute force by following edges, but there is a second
-repair: fix the counting. The brute force re-derives "are all prerequisites
-taken?" from scratch each round; instead, count each course's outstanding
-prerequisites once, and update that count only when one of its prerequisites
-actually completes. This is
-[Kahn's algorithm](https://en.wikipedia.org/wiki/Topological_sorting#Kahn%27s_algorithm),
-a [topological sort](https://en.wikipedia.org/wiki/Topological_sorting)
-performed with BFS. The key observation is that in an acyclic dependency graph
-there is always at least one course with no remaining prerequisites, so
-courses can be finished one in-degree-zero layer at a time:
+The DFS solutions fix the brute force by following edges, but there is a second repair: fix the counting. The brute force re-derives "are all prerequisites taken?" from scratch each round; instead, count each course's outstanding prerequisites once, and update that count only when one of its prerequisites actually completes. This is [Kahn's algorithm](https://en.wikipedia.org/wiki/Topological_sorting#Kahn%27s_algorithm), a [topological sort](https://en.wikipedia.org/wiki/Topological_sorting) performed with BFS. The key observation is that in an acyclic dependency graph there is always at least one course with no remaining prerequisites, so courses can be finished one in-degree-zero layer at a time:
 
 1. Build the adjacency list `graph` and an `in_degree` array counting how many
    prerequisites each course still needs.
 2. Seed a `queue` with every course whose in-degree is `0`.
 3. Pop a course, count it in `completed`, and decrement the in-degree of each
-   course that depended on it. Whenever a dependent course drops to in-degree
-   `0`, enqueue it.
+   course that depended on it. Whenever a dependent course drops to in-degree `0`, enqueue it.
 4. Continue until the queue empties, then return `completed == numCourses`.
 
-If every course was completed, a full topological order exists and the graph is
-acyclic. If some courses never reached in-degree `0`, they are trapped in a
-cycle, so return `false`.
+If every course was completed, a full topological order exists and the graph is acyclic. If some courses never reached in-degree `0`, they are trapped in a cycle, so return `false`.
 
 #### Termination Condition
 
 The in-degree of a course counts its outstanding prerequisites:
 
-$$
-\deg^{-}(v) = \bigl|\{\, u : (u \to v) \in E \,\}\bigr|
-$$
+$$ \deg^{-}(v) = \bigl|\{\, u : (u \to v) \in E \,\}\bigr| $$
 
 ```text
 in_degree[v] = number of edges u -> v in the graph
 ```
 
-A course is takeable once that reaches zero. The queue holds exactly the
-currently takeable set, and removing a course decrements the in-degree of
-everything depending on it, peeling the graph one layer at a time.
+A course is takeable once that reaches zero. The queue holds exactly the currently takeable set, and removing a course decrements the in-degree of everything depending on it, peeling the graph one layer at a time.
 
 The correctness rests on a property of finite directed graphs:
 
-$$
-G \text{ is acyclic} \iff \text{every non-empty subgraph of } G \text{ has a vertex with } \deg^{-} = 0
-$$
+$$ G \text{ is acyclic} \iff \text{every non-empty subgraph of } G \text{ has a vertex with } \deg^{-} = 0 $$
 
 ```text
 graph is acyclic  if and only if  every non-empty subgraph of it
                                   has a vertex with in_degree == 0
 ```
 
-Forward: a DAG has a topological order, whose first vertex has no incoming
-edges. Backward: if some subgraph had no such vertex, every vertex would have a
-predecessor, and walking backwards through a finite graph must eventually
-revisit a vertex: a cycle.
+Forward: a DAG has a topological order, whose first vertex has no incoming edges. Backward: if some subgraph had no such vertex, every vertex would have a predecessor, and walking backwards through a finite graph must eventually revisit a vertex: a cycle.
 
-So the queue empties early precisely when a non-empty set of courses remains in
-which every course still waits on another, which is a cycle. That makes the
-final check a cycle test rather than mere bookkeeping:
+So the queue empties early precisely when a non-empty set of courses remains in which every course still waits on another, which is a cycle. That makes the final check a cycle test rather than mere bookkeeping:
 
-$$
-\text{all courses finishable} \iff \textit{completed} = \textit{numCourses}
-$$
+$$ \text{all courses finishable} \iff \textit{completed} = \textit{numCourses} $$
 
 ```text
 all courses finishable  if and only if  completed == numCourses
 ```
 
-Each vertex enters the queue at most once (only on the decrement that brings it
-to zero) and each edge is relaxed exactly once, giving `O(V + E)`.
+Each vertex enters the queue at most once (only on the decrement that brings it to zero) and each edge is relaxed exactly once, giving `O(V + E)`.
 
 #### Walkthrough
 
-Trace the peeling on Example 1: `numCourses = 2`, `prerequisites = [[1,0]]`.
-Building the structures gives `graph[0] = [1]` (course `1` depends on `0`) and
-`in_degree = [0, 1]`. Course `0` starts takeable, so the queue is seeded with
-it:
+Trace the peeling on Example 1: `numCourses = 2`, `prerequisites = [[1,0]]`. Building the structures gives `graph[0] = [1]` (course `1` depends on `0`) and `in_degree = [0, 1]`. Course `0` starts takeable, so the queue is seeded with it:
 
 ```text
 setup    graph[0] = [1]    in_degree = [0, 1]      queue = [0]   completed = 0
@@ -491,17 +385,11 @@ pop 1    completed = 2     no dependents           queue = []
 queue empty -> completed == numCourses is 2 == 2 -> return True
 ```
 
-Taking course `0` removes the only outstanding prerequisite of course `1`,
-whose in-degree drops to `0` at that exact moment, so it enters the queue and
-is taken next. Both courses complete, so the function returns `True`, matching
-the expected Output for Example 1. On Example 2 both in-degrees start at `1`,
-the queue starts empty, `completed` stays `0`, and `0 == 2` fails, so the
-function returns `False` there.
+Taking course `0` removes the only outstanding prerequisite of course `1`, whose in-degree drops to `0` at that exact moment, so it enters the queue and is taken next. Both courses complete, so the function returns `True`, matching the expected Output for Example 1. On Example 2 both in-degrees start at `1`, the queue starts empty, `completed` stays `0`, and `0 == 2` fails, so the function returns `False` there.
 
 #### Solution
 
-The code is the walkthrough's peel: pop a takeable course, decrement its
-dependents, enqueue any that hit zero.
+The code is the walkthrough's peel: pop a takeable course, decrement its dependents, enqueue any that hit zero.
 
 ```python
 from collections import deque
@@ -536,13 +424,11 @@ class Solution:
 
 ##### Time Complexity: `O(V + E)`
 
-Building the graph is `O(E)`, and the BFS dequeues each course once and relaxes
-each edge once, for `O(V + E)` overall.
+Building the graph is `O(E)`, and the BFS dequeues each course once and relaxes each edge once, for `O(V + E)` overall.
 
 ##### Space Complexity: `O(V + E)`
 
-The adjacency list uses `O(V + E)`, while the in-degree array and the queue each
-use `O(V)`.
+The adjacency list uses `O(V + E)`, while the in-degree array and the queue each use `O(V)`.
 
 #### Key Insights
 
@@ -601,13 +487,10 @@ use `O(V)`.
 ### Optimization Notes
 
 - The brute-force simulation's waste is re-scanning prerequisites that have not
-  changed; Kahn's Algorithm fixes this by counting prerequisites once and only
-  revisiting a course when one of its prerequisites is taken.
+  changed; Kahn's Algorithm fixes this by counting prerequisites once and only revisiting a course when one of its prerequisites is taken.
 - The three-state coloring is essential: a node found in the `GRAY` state signals
-  a cycle, whereas a plain visited flag would miss back edges in a directed
-  graph.
+  a cycle, whereas a plain visited flag would miss back edges in a directed graph.
 - Union-Find is not appropriate here. It detects cycles in undirected graphs and
-  cannot distinguish `[a, b]` from `[b, a]`, so it would report false cycles or
-  miss real ones for directed prerequisites.
+  cannot distinguish `[a, b]` from `[b, a]`, so it would report false cycles or miss real ones for directed prerequisites.
 - For graphs near the constraint limit, Kahn's iterative BFS sidesteps the
   recursion-depth risk that the DFS approaches carry on long dependency chains.

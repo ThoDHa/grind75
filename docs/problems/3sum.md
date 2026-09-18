@@ -50,27 +50,16 @@ The distinct triplets are `[-1, 0, 1]` and `[-1, -1, 2]`. Notice that the order 
 
 ## Deriving the Solution
 
-Every solution rests on the same reformulation: once the first number `nums[i]` is
-fixed, the rest of the problem is Two Sum, finding a pair that sums to `-nums[i]`.
-The approaches differ in how that pair is found and in how duplicate triplets are
-suppressed.
+Every solution rests on the same reformulation: once the first number `nums[i]` is fixed, the rest of the problem is Two Sum, finding a pair that sums to `-nums[i]`. The approaches differ in how that pair is found and in how duplicate triplets are suppressed.
 
 1. **Start literal.** Enumerate every index triple `i < j < k`, keep the zero
-   sums, and collapse repeats through a canonical tuple. Correct, but `C(n, 3)`
-   triples cost `O(n^3)`: see [Brute Force](#brute-force).
+   sums, and collapse repeats through a canonical tuple. Correct, but `C(n, 3)` triples cost `O(n^3)`: see [Brute Force](#brute-force).
 2. **Spot the waste.** Once `nums[i]` and `nums[j]` are chosen, the third value is
-   fully determined: it must equal `-(nums[i] + nums[j])`. The innermost loop is a
-   linear search for a value already known.
+   fully determined: it must equal `-(nums[i] + nums[j])`. The innermost loop is a linear search for a value already known.
 3. **Sort and converge.** Sorting lets the pair search run with two pointers
-   walking inward: a sum that is too small moves `left` right, one too large moves
-   `right` left, and sortedness proves no valid pair is ever skipped. Sorting also
-   places equal values side by side, so duplicates are skipped by comparing
-   neighbors. Total cost `O(n^2)` with constant extra space: see
-   [Sorting and Two Pointers](#sorting-and-two-pointers).
+   walking inward: a sum that is too small moves `left` right, one too large moves `right` left, and sortedness proves no valid pair is ever skipped. Sorting also places equal values side by side, so duplicates are skipped by comparing neighbors. Total cost `O(n^2)` with constant extra space: see [Sorting and Two Pointers](#sorting-and-two-pointers).
 4. **Or look the complement up.** The determined third value can instead be found
-   in a hash set of values already scanned, the direct Two Sum transplant. Same
-   `O(n^2)` time, at the cost of `O(n)` extra space per fixed element: see
-   [Hash Set](#hash-set).
+   in a hash set of values already scanned, the direct Two Sum transplant. Same `O(n^2)` time, at the cost of `O(n)` extra space per fixed element: see [Hash Set](#hash-set).
 
 ## Solutions
 
@@ -104,8 +93,7 @@ After all index combinations are exhausted, the function returns `[[-1, 0, 1], [
 
 #### Solution
 
-The code is the triple loop from the walkthrough, with the hand-rolled
-three-element sort producing the canonical tuple keyed into `seen`.
+The code is the triple loop from the walkthrough, with the hand-rolled three-element sort producing the canonical tuple keyed into `seen`.
 
 ```python
 from typing import List
@@ -158,20 +146,12 @@ The `seen` set can hold up to one entry per distinct zero-sum triplet, which is 
 
 #### Derivation
 
-The brute force wastes its innermost loop searching for a value that is already
-fully determined: with `nums[i]` and `nums[j]` fixed, only `-(nums[i] + nums[j])`
-can complete the triplet. The question this approach asks is how to find pairs
-summing to a known target without scanning blindly, and the answer is the
-[two-pointer technique](https://usaco.guide/silver/two-pointers)
-on a sorted array: fix one number, then converge two pointers toward pairs that
-sum to the negative of the fixed number.
+The brute force wastes its innermost loop searching for a value that is already fully determined: with `nums[i]` and `nums[j]` fixed, only `-(nums[i] + nums[j])` can complete the triplet. The question this approach asks is how to find pairs summing to a known target without scanning blindly, and the answer is the [two-pointer technique](https://usaco.guide/silver/two-pointers) on a sorted array: fix one number, then converge two pointers toward pairs that sum to the negative of the fixed number.
 
 1. **Sort the array**: this enables the two pointers and makes duplicate handling
    easy, since equal values become adjacent.
 2. **Fix the first number**: iterate `i` through the array, using each element as
-   the first number of the triplet. Only indices up to `n - 2` need checking,
-   since two more elements must follow. Skip `nums[i]` when it equals
-   `nums[i - 1]` to avoid repeated first numbers.
+   the first number of the triplet. Only indices up to `n - 2` need checking, since two more elements must follow. Skip `nums[i]` when it equals `nums[i - 1]` to avoid repeated first numbers.
 3. **Two-pointer search**: for each fixed `nums[i]`, set `left = i + 1` and
    `right = n - 1` and seek pairs with `nums[left] + nums[right] = -nums[i]`.
 4. **Adjust pointers based on `current_sum`**:
@@ -179,72 +159,38 @@ sum to the negative of the fixed number.
     - If the sum is less than 0: increase it by moving `left` right.
     - If the sum is greater than 0: decrease it by moving `right` left.
 5. **Handle duplicates after a hit**: skip repeated second and third numbers. The
-   two skip loops leave `left` and `right` sitting on the *last* copy of each
-   repeated value, so the unconditional `left += 1` and `right -= 1` that follow
-   them are what actually advance past the recorded pair; without those two lines
-   a triplet with no adjacent duplicates would be appended forever.
+   two skip loops leave `left` and `right` sitting on the *last* copy of each repeated value, so the unconditional `left += 1` and `right -= 1` that follow them are what actually advance past the recorded pair; without those two lines a triplet with no adjacent duplicates would be appended forever.
 
-Step 4 is exhaustive rather than merely greedy because the array is sorted: when
-`nums[i] + nums[left] + nums[right] < 0`, every remaining pair that uses `left` is
-at most as large as the one just tested, so discarding `left` cannot discard an
-answer. The Invariant below states both properties formally.
+Step 4 is exhaustive rather than merely greedy because the array is sorted: when `nums[i] + nums[left] + nums[right] < 0`, every remaining pair that uses `left` is at most as large as the one just tested, so discarding `left` cannot discard an answer. The Invariant below states both properties formally.
 
 #### Invariant
 
-Two properties carry this solution, and the less obvious one is the duplicate
-skipping.
+Two properties carry this solution, and the less obvious one is the duplicate skipping.
 
-The two inner `while` loops do not advance *past* a repeated value; they advance
-*to the last copy of it*. The condition
-`left < right and nums[left] == nums[left + 1]` tests the element ahead, so the
-loop exits with `left` still parked on the final element of that run, holding the
-same value it started on. That is why the unconditional `left += 1` and
-`right -= 1` follow the skip loops rather than replace them: the skip loops
-*position* the pointers, and only the increments *move off* the pair just
-recorded. Delete the increments and a triplet whose neighbors are all distinct
-leaves both pointers where they were, so the same triplet is appended forever.
-Delete the skip loops instead and the code still terminates, but a repeated value
-can emit its triplet more than once, once for each pass that lands the two pointers
-back on the same pair of values.
+The two inner `while` loops do not advance *past* a repeated value; they advance *to the last copy of it*. The condition `left < right and nums[left] == nums[left + 1]` tests the element ahead, so the loop exits with `left` still parked on the final element of that run, holding the same value it started on. That is why the unconditional `left += 1` and `right -= 1` follow the skip loops rather than replace them: the skip loops *position* the pointers, and only the increments *move off* the pair just recorded. Delete the increments and a triplet whose neighbors are all distinct leaves both pointers where they were, so the same triplet is appended forever. Delete the skip loops instead and the code still terminates, but a repeated value can emit its triplet more than once, once for each pass that lands the two pointers back on the same pair of values.
 
-The second property is what makes the sign test exhaustive rather than a
-heuristic. With `nums[i]` fixed, the pair search seeks
+The second property is what makes the sign test exhaustive rather than a heuristic. With `nums[i]` fixed, the pair search seeks
 
-$$
-\textit{nums}[\textit{left}] + \textit{nums}[\textit{right}] = -\,\textit{nums}[i]
-$$
+$$ \textit{nums}[\textit{left}] + \textit{nums}[\textit{right}] = -\,\textit{nums}[i] $$
 
 ```text
 nums[left] + nums[right] == -nums[i]     (nums[i] fixed)
 ```
 
-and the loop maintains that no valid pair lies outside `[left, right]`. Suppose
-the current sum falls short. Sortedness gives
-\(\textit{nums}[j] \le \textit{nums}[\textit{right}]\) for every \(j\) with
-\(\textit{left} < j < \textit{right}\), so
+and the loop maintains that no valid pair lies outside `[left, right]`. Suppose the current sum falls short. Sortedness gives \(\textit{nums}[j] \le \textit{nums}[\textit{right}]\) for every \(j\) with \(\textit{left} < j < \textit{right}\), so
 
-$$
-\textit{nums}[\textit{left}] + \textit{nums}[j]
-\;\le\; \textit{nums}[\textit{left}] + \textit{nums}[\textit{right}]
-\;<\; -\,\textit{nums}[i]
-$$
+$$ \textit{nums}[\textit{left}] + \textit{nums}[j] \;\le\; \textit{nums}[\textit{left}] + \textit{nums}[\textit{right}] \;<\; -\,\textit{nums}[i] $$
 
 ```text
 nums[left] + nums[j] <= nums[left] + nums[right] < -nums[i]
         for every j with left < j < right
 ```
 
-Every pair still available that uses `left` is at most as large as the one just
-tested, hence also too small. So `left += 1` discards a whole set of candidates
-*proven* impossible, not merely unpromising, and the mirrored argument justifies
-`right -= 1`. At `left == right` the window contains no pair, and the invariant
-reads: no pair completing `nums[i]` was ever skipped.
+Every pair still available that uses `left` is at most as large as the one just tested, hence also too small. So `left += 1` discards a whole set of candidates *proven* impossible, not merely unpromising, and the mirrored argument justifies `right -= 1`. At `left == right` the window contains no pair, and the invariant reads: no pair completing `nums[i]` was ever skipped.
 
 #### Walkthrough
 
-Let us trace the pointers on Example 1. After `nums.sort()` the array is
-`[-4, -1, -1, 0, 1, 2]` (indices `0` through `5`). Each line shows the fixed
-element, the pointer positions, and the decision `current_sum` forces:
+Let us trace the pointers on Example 1. After `nums.sort()` the array is `[-4, -1, -1, 0, 1, 2]` (indices `0` through `5`). Each line shows the fixed element, the pointer positions, and the decision `current_sum` forces:
 
 ```text
 i=0 (-4)  left=1 (-1)  right=5 (2)   current_sum = -3 < 0    left += 1
@@ -261,22 +207,13 @@ i=3 (0)   left=4 (1)   right=5 (2)   current_sum = 3 > 0     right -= 1
           left=4 == right                                    pair search ends
 ```
 
-The `i=0` block shows the invariant in action: every sum is too small, so `left`
-marches right until the window closes, and no pair is skipped unproven. At `i=1`,
-the first hit checks `nums[left] == nums[left + 1]` (`-1` vs `0`) and
-`nums[right] == nums[right - 1]` (`2` vs `1`); neither fires, so only the
-unconditional increments move the pointers inward to find the second hit. At
-`i=2` the duplicate first value `-1` is skipped entirely, preventing a repeat of
-both triplets.
+The `i=0` block shows the invariant in action: every sum is too small, so `left` marches right until the window closes, and no pair is skipped unproven. At `i=1`, the first hit checks `nums[left] == nums[left + 1]` (`-1` vs `0`) and `nums[right] == nums[right - 1]` (`2` vs `1`); neither fires, so only the unconditional increments move the pointers inward to find the second hit. At `i=2` the duplicate first value `-1` is skipped entirely, preventing a repeat of both triplets.
 
 The function returns `[[-1, -1, 2], [-1, 0, 1]]`, matching the expected Output.
 
 #### Solution
 
-The code is the pointer trace written down: the sign of `current_sum` drives the
-pointers, and the skip loops fire only after a recorded triplet. Because the
-array is sorted, a positive `nums[i]` means every remaining number is positive
-too, so no further triplet can reach zero and the outer loop stops early.
+The code is the pointer trace written down: the sign of `current_sum` drives the pointers, and the skip loops fire only after a recorded triplet. Because the array is sorted, a positive `nums[i]` means every remaining number is positive too, so no further triplet can reach zero and the outer loop stops early.
 
 ```python
 from typing import List
@@ -348,36 +285,22 @@ class Solution:
 
 #### Derivation
 
-The two-pointer scan is one way to answer the inner question "has a value that
-completes this triplet already appeared?"; a [hash set](https://en.wikipedia.org/wiki/Hash_table)
-answers it directly, the way Two Sum does. Instead of converging two pointers,
-walk the remainder of the array once and, for every `nums[j]`, ask whether the
-complement `-(nums[i] + nums[j])` has already been seen. This trades the
-two-pointer version's constant auxiliary space for a set, in exchange for the
-more familiar lookup pattern. The array is still sorted first, because adjacency
-remains the cleanest way to skip duplicate first and second numbers.
+The two-pointer scan is one way to answer the inner question "has a value that completes this triplet already appeared?"; a [hash set](https://en.wikipedia.org/wiki/Hash_table) answers it directly, the way Two Sum does. Instead of converging two pointers, walk the remainder of the array once and, for every `nums[j]`, ask whether the complement `-(nums[i] + nums[j])` has already been seen. This trades the two-pointer version's constant auxiliary space for a set, in exchange for the more familiar lookup pattern. The array is still sorted first, because adjacency remains the cleanest way to skip duplicate first and second numbers.
 
 1. **Sort the array**: sorting makes duplicate skipping straightforward because
    identical values become adjacent.
 2. **Fix the first number**: iterate `i` through the array, skipping any value
    equal to the previous one to avoid repeated triplets.
 3. **Scan with a set**: for each fixed element, maintain a `seen` set of values
-   encountered so far in the inner loop. Walking `j` from `i + 1` to the end,
-   compute `complement = -(nums[i] + nums[j])`. If that complement is already in
-   `seen`, the three values sum to zero: record
-   `[nums[i], complement, nums[j]]`.
+   encountered so far in the inner loop. Walking `j` from `i + 1` to the end, compute `complement = -(nums[i] + nums[j])`. If that complement is already in `seen`, the three values sum to zero: record `[nums[i], complement, nums[j]]`.
 4. **Skip duplicate triplets**: after recording a triplet, advance `j` past any
-   consecutive equal values so the same triplet is not added twice. A `while`
-   loop is used here (rather than a `for` loop) precisely so this manual advance
-   of `j` persists.
+   consecutive equal values so the same triplet is not added twice. A `while` loop is used here (rather than a `for` loop) precisely so this manual advance of `j` persists.
 5. **Record the current value**: add `nums[j]` to `seen` before moving on, so
    future iterations can pair against it.
 
 #### Walkthrough
 
-Let us trace the set scan on Example 1, again with the sorted array
-`[-4, -1, -1, 0, 1, 2]`. For each fixed `nums[i]`, `seen` starts empty and every
-inner step computes `complement = -(nums[i] + nums[j])` before adding `nums[j]`:
+Let us trace the set scan on Example 1, again with the sorted array `[-4, -1, -1, 0, 1, 2]`. For each fixed `nums[i]`, `seen` starts empty and every inner step computes `complement = -(nums[i] + nums[j])` before adding `nums[j]`:
 
 ```text
 i=0 (-4)  j=1 (-1)  complement 5    not in seen {}           add -1
@@ -395,20 +318,13 @@ i=3 (0)   j=4 (1)   complement -1   not in seen {}           add 1
           j=5 (2)   complement -2   not in seen {1}          add 2
 ```
 
-Both hits land while `i` fixes the first `-1`. At `j=4`, the complement `0` was
-recorded two steps earlier, so `[nums[i], complement, nums[j]] = [-1, 0, 1]` is
-appended; the duplicate check `nums[j] == nums[j + 1]` (`1` vs `2`) does not
-fire. At `j=5`, the complement `-1` has been in `seen` since `j=2`, yielding
-`[-1, -1, 2]`. The `i=2` pass is skipped entirely, which is what prevents both
-triplets from being found a second time.
+Both hits land while `i` fixes the first `-1`. At `j=4`, the complement `0` was recorded two steps earlier, so `[nums[i], complement, nums[j]] = [-1, 0, 1]` is appended; the duplicate check `nums[j] == nums[j + 1]` (`1` vs `2`) does not fire. At `j=5`, the complement `-1` has been in `seen` since `j=2`, yielding `[-1, -1, 2]`. The `i=2` pass is skipped entirely, which is what prevents both triplets from being found a second time.
 
-The function returns `[[-1, 0, 1], [-1, -1, 2]]`, matching the expected Output
-(the order of triplets does not matter).
+The function returns `[[-1, 0, 1], [-1, -1, 2]]`, matching the expected Output (the order of triplets does not matter).
 
 #### Solution
 
-The code is the scan from the walkthrough: one `seen` set per fixed element, a
-membership test per `j`, and a duplicate skip after each hit.
+The code is the scan from the walkthrough: one `seen` set per fixed element, a membership test per `j`, and a duplicate skip after each hit.
 
 ```python
 from typing import List

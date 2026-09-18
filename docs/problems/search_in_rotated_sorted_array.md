@@ -46,26 +46,14 @@ You must write an algorithm with `O(log n)` runtime complexity.
 
 ## Deriving the Solution
 
-Rotating a sorted array of distinct values leaves two ascending runs laid end to
-end, with a single descending step at the pivot. Every logarithmic solution below
-exploits the consequence of that shape: any midpoint splits the array so that at
-least one of the two halves is fully sorted, and a sorted half can be tested
-against its endpoints.
+Rotating a sorted array of distinct values leaves two ascending runs laid end to end, with a single descending step at the pivot. Every logarithmic solution below exploits the consequence of that shape: any midpoint splits the array so that at least one of the two halves is fully sorted, and a sorted half can be tested against its endpoints.
 
 1. **Start literal.** Ignore the structure and scan for `target` element by
-   element. Always correct, but `O(n)` violates the required `O(log n)` bound:
-   see [Linear Scan](#linear-scan).
+   element. Always correct, but `O(n)` violates the required `O(log n)` bound: see [Linear Scan](#linear-scan).
 2. **Restore the order first.** The pivot (the index of the minimum) is itself
-   findable by a binary search, and it splits the array into two plain sorted
-   runs. Binary search the runs with the standard algorithm: `O(log n)`, at the
-   cost of two or three separate passes: see
-   [Find Pivot then Binary Search](#find-pivot-then-binary-search).
+   findable by a binary search, and it splits the array into two plain sorted runs. Binary search the runs with the standard algorithm: `O(log n)`, at the cost of two or three separate passes: see [Find Pivot then Binary Search](#find-pivot-then-binary-search).
 3. **Handle the rotation inside one search.** The two-phase split pays a
-   constant factor to avoid thinking about the pivot during the lookup. The
-   sharper observation is that no pivot-finding is needed: at every probe, at
-   least one half around `mid` is sorted, and comparing `target` against that
-   half's exact endpoint bounds tells which half to discard. One pass, same
-   `O(log n)`: see [Modified Binary Search](#modified-binary-search).
+   constant factor to avoid thinking about the pivot during the lookup. The sharper observation is that no pivot-finding is needed: at every probe, at least one half around `mid` is sorted, and comparing `target` against that half's exact endpoint bounds tells which half to discard. One pass, same `O(log n)`: see [Modified Binary Search](#modified-binary-search).
 
 ## Solutions
 
@@ -83,8 +71,7 @@ This always produces the correct answer and is the natural starting point, but i
 
 #### Walkthrough
 
-Let us scan Example 1 by hand: `nums = [4,5,6,7,0,1,2]`, `target = 0`. The loop
-compares each element to `target` in index order and stops at the first match:
+Let us scan Example 1 by hand: `nums = [4,5,6,7,0,1,2]`, `target = 0`. The loop compares each element to `target` in index order and stops at the first match:
 
 ```text
 i = 0   num = 4   4 != 0, continue
@@ -94,14 +81,11 @@ i = 3   num = 7   7 != 0, continue
 i = 4   num = 0   0 == 0, return 4
 ```
 
-The scan walks straight past the pivot without noticing it and returns `4`, the
-expected Output. The cost is visible in the trace: five comparisons where the
-binary-search solutions below need three.
+The scan walks straight past the pivot without noticing it and returns `4`, the expected Output. The cost is visible in the trace: five comparisons where the binary-search solutions below need three.
 
 #### Solution
 
-The code is the scan from the walkthrough: one comparison per element until the
-first match.
+The code is the scan from the walkthrough: one comparison per element until the first match.
 
 ```python
 from typing import List
@@ -135,14 +119,7 @@ Only a loop index and the current value are stored.
 
 #### Derivation
 
-The Linear Scan discards the one guarantee the input offers: apart from a single
-descending step at the pivot, the array is sorted. If that step's position were
-known, the problem would collapse into ordinary
-[binary search](https://en.wikipedia.org/wiki/Binary_search_algorithm) territory.
-So ask: can the pivot itself be found in `O(log n)`? It can, because the pivot is
-the unique minimum, and comparing `nums[mid]` to `nums[right]` always tells which
-side of `mid` it lies on. That decomposes the problem into two independent
-phases, each a familiar binary search:
+The Linear Scan discards the one guarantee the input offers: apart from a single descending step at the pivot, the array is sorted. If that step's position were known, the problem would collapse into ordinary [binary search](https://en.wikipedia.org/wiki/Binary_search_algorithm) territory. So ask: can the pivot itself be found in `O(log n)`? It can, because the pivot is the unique minimum, and comparing `nums[mid]` to `nums[right]` always tells which side of `mid` it lies on. That decomposes the problem into two independent phases, each a familiar binary search:
 
 1. Locate the rotation pivot, the index of the smallest element. If `nums[left] <= nums[right]` the array is not rotated and the pivot is index `0`. Otherwise binary search for the point where the descending step occurs: when `nums[mid] > nums[right]` the pivot lies to the right, so move `left = mid + 1`; otherwise the pivot is at `mid` or to its left, so set `right = mid`.
 2. The pivot splits the array into two sorted runs, `[0, pivot - 1]` and `[pivot, n - 1]`. Run a standard binary search over the first run, and if the target is not found there, run it over the second.
@@ -181,8 +158,7 @@ The search returns `4`, which matches the expected Output of `4`.
 
 #### Solution
 
-The code is the two phases from the walkthrough as helper closures: `find_pivot`
-first, then `binary_search` over each sorted run.
+The code is the two phases from the walkthrough as helper closures: `find_pivot` first, then `binary_search` over each sorted run.
 
 ```python
 from typing import List
@@ -256,38 +232,24 @@ Every decision is made against the exact bounds of a provably sorted half, so th
 
 A rotation by \(r\) of a sorted array means:
 
-$$
-\text{nums}[i] = \text{sorted}\bigl[(i + r) \bmod n\bigr]
-$$
+$$ \text{nums}[i] = \text{sorted}\bigl[(i + r) \bmod n\bigr] $$
 
 ```text
 nums[i] = sorted[(i + r) mod n]   for 0 <= i < n
           where r is the rotation amount and n = len(nums)
 ```
 
-so the array is two ascending runs laid end to end, with a single descending
-step at the pivot. Any split point `mid` therefore leaves the pivot in at most
-one of the two halves. That gives the property the search rests on:
+so the array is two ascending runs laid end to end, with a single descending step at the pivot. Any split point `mid` therefore leaves the pivot in at most one of the two halves. That gives the property the search rests on:
 
-$$
-\text{at least one of } [\textit{left},\ \textit{mid}] \text{ and } [\textit{mid},\ \textit{right}] \text{ is fully sorted}
-$$
+$$ \text{at least one of } [\textit{left},\ \textit{mid}] \text{ and } [\textit{mid},\ \textit{right}] \text{ is fully sorted} $$
 
 ```text
 at least one of nums[left .. mid] and nums[mid .. right] is fully sorted
 ```
 
-The test `nums[left] <= nums[mid]` identifies which. It holds exactly when the
-left half contains no pivot, so that half is ascending and its contents are
-bounded by its endpoints. For a target known to sit somewhere in the current
-window, membership in that sorted range is then a two-sided comparison:
+The test `nums[left] <= nums[mid]` identifies which. It holds exactly when the left half contains no pivot, so that half is ascending and its contents are bounded by its endpoints. For a target known to sit somewhere in the current window, membership in that sorted range is then a two-sided comparison:
 
-$$
-\text{if } \text{nums}[\textit{left}] \le \text{nums}[\textit{mid}]
-\text{ and } \textit{target} \in \text{nums}[\,\textit{left} .. \textit{right}\,], \text{ then }
-\bigl(\text{its index lies in } [\,\textit{left},\ \textit{mid}\,)
-\iff \text{nums}[\textit{left}] \le \textit{target} < \text{nums}[\textit{mid}]\bigr)
-$$
+$$ \text{if } \text{nums}[\textit{left}] \le \text{nums}[\textit{mid}] \text{ and } \textit{target} \in \text{nums}[\,\textit{left} .. \textit{right}\,], \text{ then } \bigl(\text{its index lies in } [\,\textit{left},\ \textit{mid}\,) \iff \text{nums}[\textit{left}] \le \textit{target} < \text{nums}[\textit{mid}]\bigr) $$
 
 ```text
 if nums[left] <= nums[mid]                  (the left half is sorted)
@@ -295,37 +257,15 @@ if nums[left] <= nums[mid]                  (the left half is sorted)
        target lies in nums[left .. mid - 1]  <=>  nums[left] <= target < nums[mid]
 ```
 
-Both hypotheses are load-bearing. Without presence, the right-hand side can be
-satisfied by a value that is absent from the array: in `[1, 3, 5]` with
-`left = 0` and `mid = 2`, the comparison `1 <= 2 < 5` passes, yet `2` occurs
-nowhere in `nums[0 .. 1]`. Without sortedness the failure runs the other way, since
-the endpoints no longer bound the half: in `[4, 5, 1, 2, 3]` with `left = 0`,
-`mid = 2` and `right = 4`, the target `5` does sit in `nums[0 .. 1]`, yet
-`4 <= 5 < 1` is false. Two facts license the equivalence once both hold. The loop
-invariant carried over from plain binary search guarantees that a target present
-in `nums` is present in the current window, and the values are distinct, so a
-target inside the sorted half's value range cannot also lie in the other half
-(every element of the unsorted half is either above `nums[mid]` or below
-`nums[left]`).
+Both hypotheses are load-bearing. Without presence, the right-hand side can be satisfied by a value that is absent from the array: in `[1, 3, 5]` with `left = 0` and `mid = 2`, the comparison `1 <= 2 < 5` passes, yet `2` occurs nowhere in `nums[0 .. 1]`. Without sortedness the failure runs the other way, since the endpoints no longer bound the half: in `[4, 5, 1, 2, 3]` with `left = 0`, `mid = 2` and `right = 4`, the target `5` does sit in `nums[0 .. 1]`, yet `4 <= 5 < 1` is false. Two facts license the equivalence once both hold. The loop invariant carried over from plain binary search guarantees that a target present in `nums` is present in the current window, and the values are distinct, so a target inside the sorted half's value range cannot also lie in the other half (every element of the unsorted half is either above `nums[mid]` or below `nums[left]`).
 
-Each iteration discards a half only after proving the target cannot be in it: by
-exact bounds when that half is sorted, and by elimination otherwise. Both
-directions do work. The forward direction discards the sorted half when the
-comparison fails, and the reverse direction, the one needing presence,
-discards the other half when it holds. The loop invariant is preserved
-unchanged, so the \(O(\log n)\) bound carries over.
+Each iteration discards a half only after proving the target cannot be in it: by exact bounds when that half is sorted, and by elimination otherwise. Both directions do work. The forward direction discards the sorted half when the comparison fails, and the reverse direction, the one needing presence, discards the other half when it holds. The loop invariant is preserved unchanged, so the \(O(\log n)\) bound carries over.
 
-The non-strict `<=` in the sortedness test matters at `left == mid`, which
-happens whenever the window narrows to one or two elements. Using `<` there
-would misclassify a single-element half as unsorted and send the search down the
-wrong branch.
+The non-strict `<=` in the sortedness test matters at `left == mid`, which happens whenever the window narrows to one or two elements. Using `<` there would misclassify a single-element half as unsorted and send the search down the wrong branch.
 
 #### Walkthrough
 
-Let us run the single-pass search on Example 1: `nums = [4,5,6,7,0,1,2]`,
-`target = 0`. Each probe computes `mid`, checks for a direct hit, identifies
-the sorted half with `nums[left] <= nums[mid]`, and tests `target` against that
-half's endpoint bounds:
+Let us run the single-pass search on Example 1: `nums = [4,5,6,7,0,1,2]`, `target = 0`. Each probe computes `mid`, checks for a direct hit, identifies the sorted half with `nums[left] <= nums[mid]`, and tests `target` against that half's endpoint bounds:
 
 ```text
 left=0  right=6  mid=3   nums[mid]=7 != 0
@@ -337,16 +277,11 @@ left=4  right=6  mid=5   nums[mid]=1 != 0
 left=4  right=4  mid=4   nums[mid]=0 == target, return 4
 ```
 
-The first probe lands in the left run `[4,5,6,7]`; the bound test proves `0`
-cannot be there, so the whole run is discarded in one step. The second probe's
-window `[0,1,2]` no longer contains the pivot, so the search behaves exactly
-like plain binary search from there. The direct hit at `mid = 4` returns `4`,
-matching the expected Output of `4`.
+The first probe lands in the left run `[4,5,6,7]`; the bound test proves `0` cannot be there, so the whole run is discarded in one step. The second probe's window `[0,1,2]` no longer contains the pivot, so the search behaves exactly like plain binary search from there. The direct hit at `mid = 4` returns `4`, matching the expected Output of `4`.
 
 #### Solution
 
-The code is the probe loop from the walkthrough: hit check, sorted-half test,
-then the two-sided bound comparison.
+The code is the probe loop from the walkthrough: hit check, sorted-half test, then the two-sided bound comparison.
 
 ```python
 from typing import List

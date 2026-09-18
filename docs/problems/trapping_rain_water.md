@@ -36,33 +36,18 @@ Given `n` non-negative integers representing an elevation map where the width of
 
 ## Deriving the Solution
 
-Water above bar `i` rises exactly to `min(left_max, right_max)`, the shorter of the
-tallest walls to its left and right, and the bar itself fills `height[i]` of that
-column. Every solution below computes `min(left_max, right_max) - height[i]` in some
-form; they differ only in how the two wall heights are obtained.
+Water above bar `i` rises exactly to `min(left_max, right_max)`, the shorter of the tallest walls to its left and right, and the bar itself fills `height[i]` of that column. Every solution below computes `min(left_max, right_max) - height[i]` in some form; they differ only in how the two wall heights are obtained.
 
 1. **Start literal.** For each bar, rescan the whole array for the tallest wall on
-   its left and the tallest on its right, then add the difference. Correct, but the
-   two full scans per bar cost `O(n^2)`: see [Brute Force](#brute-force).
+   its left and the tallest on its right, then add the difference. Correct, but the two full scans per bar cost `O(n^2)`: see [Brute Force](#brute-force).
 2. **Cache the scans.** The rescans keep recomputing the same maxima, which obey
-   one-step recurrences (`left_max[i] = max(left_max[i - 1], height[i])`). Two
-   linear sweeps precompute every wall once, cutting time to `O(n)` for two `O(n)`
-   arrays: see [Prefix and Suffix Maximums](#prefix-and-suffix-maximums).
+   one-step recurrences (`left_max[i] = max(left_max[i - 1], height[i])`). Two linear sweeps precompute every wall once, cutting time to `O(n)` for two `O(n)` arrays: see [Prefix and Suffix Maximums](#prefix-and-suffix-maximums).
 3. **Account by layers instead of columns.** The same water can be summed
-   horizontally: keep a stack of bars in decreasing height (unresolved dips), and
-   let each taller arrival close a basin and settle one layer. Still `O(n)` time
-   and `O(n)` space, but the per-basin amounts come out as a bonus: see
-   [Monotonic Stack](#monotonic-stack).
+   horizontally: keep a stack of bars in decreasing height (unresolved dips), and let each taller arrival close a basin and settle one layer. Still `O(n)` time and `O(n)` space, but the per-basin amounts come out as a bonus: see [Monotonic Stack](#monotonic-stack).
 4. **Drop the arrays.** Only the smaller of the two maxima decides the water level,
-   and walking inward from both ends always knows which side is smaller. Two
-   pointers with two running maxima reach `O(n)` time and `O(1)` space: see
-   [Two Pointers](#two-pointers).
+   and walking inward from both ends always knows which side is smaller. Two pointers with two running maxima reach `O(n)` time and `O(1)` space: see [Two Pointers](#two-pointers).
 5. **Hand the sweeps to the library.** Both prefix-maximum loops are the same fold
-   of `max` over a sequence, which is what `itertools.accumulate` is for. Swapping
-   them out deletes the seeding, the index arithmetic, and the descending range,
-   while the `min(left_max[i], right_max[i]) - height[i]` summation stays written
-   out in full: see
-   [Prefix and Suffix Maximums with accumulate](#prefix-and-suffix-maximums-with-accumulate).
+   of `max` over a sequence, which is what `itertools.accumulate` is for. Swapping them out deletes the seeding, the index arithmetic, and the descending range, while the `min(left_max[i], right_max[i]) - height[i]` summation stays written out in full: see [Prefix and Suffix Maximums with accumulate](#prefix-and-suffix-maximums-with-accumulate).
 
 ## Solutions
 
@@ -70,28 +55,18 @@ form; they differ only in how the two wall heights are obtained.
 
 #### Derivation
 
-The question to ask first is local: how much water sits directly above bar `i`?
-Water can only rest there if taller bars hem it in on both sides, and it rises to
-the level of the shorter of those two walls. So for each bar, find the tallest bar
-on its left and the tallest on its right, take the smaller of the two, and subtract
-the bar's own height. Nothing beyond those two walls matters, and the literal way to
-find them is to scan for them:
+The question to ask first is local: how much water sits directly above bar `i`? Water can only rest there if taller bars hem it in on both sides, and it rises to the level of the shorter of those two walls. So for each bar, find the tallest bar on its left and the tallest on its right, take the smaller of the two, and subtract the bar's own height. Nothing beyond those two walls matters, and the literal way to find them is to scan for them:
 
 1. For every index `i`, scan left from the start to find `left_max`, the tallest
    bar at or before `i`.
 2. Scan right to the end to find `right_max`, the tallest bar at or after `i`.
 3. Add `min(left_max, right_max) - height[i]` to the running `trapped` total.
 
-Because `left_max` and `right_max` both include `height[i]` itself, the contribution
-is never negative: a bar that is the tallest on one side traps nothing and adds `0`.
+Because `left_max` and `right_max` both include `height[i]` itself, the contribution is never negative: a bar that is the tallest on one side traps nothing and adds `0`.
 
 #### Walkthrough
 
-Let us run the Brute Force on Example 1: `height = [0,1,0,2,1,0,1,3,2,1,2,1]`. For every
-bar `i` we scan left to find `left_max` (tallest at or before `i`), scan right to find
-`right_max` (tallest at or after `i`), and add `min(left_max, right_max) - height[i]` to
-`trapped`. Both maxima include `height[i]` itself, so a bar that is its own side's tallest
-contributes `0`.
+Let us run the Brute Force on Example 1: `height = [0,1,0,2,1,0,1,3,2,1,2,1]`. For every bar `i` we scan left to find `left_max` (tallest at or before `i`), scan right to find `right_max` (tallest at or after `i`), and add `min(left_max, right_max) - height[i]` to `trapped`. Both maxima include `height[i]` itself, so a bar that is its own side's tallest contributes `0`.
 
 | `i` | `height[i]` | `left_max` | `right_max` | `min - height[i]` | `trapped` |
 |-----|-------------|------------|-------------|-------------------|-----------|
@@ -108,16 +83,11 @@ contributes `0`.
 | 10 | 2 | 3 | 2 | `2 - 2 = 0` | 6 |
 | 11 | 1 | 3 | 1 | `1 - 1 = 0` | 6 |
 
-Notice the deep dip from `i = 2` through `i = 6`: those low bars sit between the wall of
-height `2` on the left (at `i = 3`) and the wall of height `3` on the right (at `i = 7`),
-so each one banks water up to the shorter wall, height `2`. Past the tallest bar at
-`i = 7`, `right_max` drops to `2` and the remaining bars trap little. The loop ends with
-`trapped = 6`, which matches the expected Output of `6`.
+Notice the deep dip from `i = 2` through `i = 6`: those low bars sit between the wall of height `2` on the left (at `i = 3`) and the wall of height `3` on the right (at `i = 7`), so each one banks water up to the shorter wall, height `2`. Past the tallest bar at `i = 7`, `right_max` drops to `2` and the remaining bars trap little. The loop ends with `trapped = 6`, which matches the expected Output of `6`.
 
 #### Solution
 
-The code is the walkthrough's table computed row by row: two scans and one
-subtraction per bar.
+The code is the walkthrough's table computed row by row: two scans and one subtraction per bar.
 
 ```python
 from typing import List
@@ -149,8 +119,7 @@ class Solution:
 
 ##### Time Complexity: `O(n^2)`
 
-For each of the `n` bars we rescan the entire array to recompute both maxima, so the work
-is quadratic.
+For each of the `n` bars we rescan the entire array to recompute both maxima, so the work is quadratic.
 
 ##### Space Complexity: `O(1)`
 
@@ -169,83 +138,54 @@ Only a few scalar accumulators are tracked; no auxiliary array is allocated.
 
 #### Derivation
 
-The brute force recomputes the same information over and over: `left_max` at `i`
-differs from `left_max` at `i - 1` by at most one comparison, yet every bar rebuilds
-it from scratch. That one-step dependence is the signature of
-[dynamic programming](https://en.wikipedia.org/wiki/Dynamic_programming): `left_max`
-and `right_max` are DP tables in which each entry comes from its neighbor
-(`left_max[i] = max(left_max[i - 1], height[i])`), so two linear sweeps cache every
-wall height the trapping formula needs, and a third pass sums the water:
+The brute force recomputes the same information over and over: `left_max` at `i` differs from `left_max` at `i - 1` by at most one comparison, yet every bar rebuilds it from scratch. That one-step dependence is the signature of [dynamic programming](https://en.wikipedia.org/wiki/Dynamic_programming): `left_max` and `right_max` are DP tables in which each entry comes from its neighbor (`left_max[i] = max(left_max[i - 1], height[i])`), so two linear sweeps cache every wall height the trapping formula needs, and a third pass sums the water:
 
 1. Build `left_max` in a forward sweep: `left_max[0] = height[0]`, then each entry
    is `max(left_max[i - 1], height[i])`.
 2. Build `right_max` in a backward sweep, the mirror image.
 3. For each bar, add `min(left_max[i], right_max[i]) - height[i]` to `trapped`.
 
-It refines the brute force by computing each prefix and suffix maximum once and
-reusing it, turning the quadratic rescans into two linear sweeps, at the cost of two
-auxiliary arrays.
+It refines the brute force by computing each prefix and suffix maximum once and reusing it, turning the quadratic rescans into two linear sweeps, at the cost of two auxiliary arrays.
 
 #### Formula
 
 Water above a single bar is decided locally, by the tallest wall on each side:
 
-$$
-L[i] = \max_{0 \le k \le i} \text{height}[k],
-\qquad
-R[i] = \max_{i \le k < n} \text{height}[k]
-$$
+$$ L[i] = \max_{0 \le k \le i} \text{height}[k], \qquad R[i] = \max_{i \le k < n} \text{height}[k] $$
 
 ```text
 left_max[i]  = max(height[0 .. i])
 right_max[i] = max(height[i .. n - 1])
 ```
 
-$$
-\text{water}[i] = \max\bigl(0,\ \min(L[i], R[i]) - \text{height}[i]\bigr),
-\qquad
-\text{total} = \sum_{i=0}^{n-1} \text{water}[i]
-$$
+$$ \text{water}[i] = \max\bigl(0,\ \min(L[i], R[i]) - \text{height}[i]\bigr), \qquad \text{total} = \sum_{i=0}^{n-1} \text{water}[i] $$
 
 ```text
 water[i] = max(0, min(left_max[i], right_max[i]) - height[i])
 trapped  = sum over i = 0 .. n - 1 of water[i]
 ```
 
-The \(\min\) is the water level: a column can only hold up to its shorter wall,
-since anything above that spills over the lower side. Both prefix maxima satisfy
-one-step recurrences, which is what makes the precomputation linear:
+The \(\min\) is the water level: a column can only hold up to its shorter wall, since anything above that spills over the lower side. Both prefix maxima satisfy one-step recurrences, which is what makes the precomputation linear:
 
-$$
-L[0] = \text{height}[0],
-\qquad
-L[i] = \max\bigl(L[i-1],\ \text{height}[i]\bigr) \quad (1 \le i < n)
-$$
+$$ L[0] = \text{height}[0], \qquad L[i] = \max\bigl(L[i-1],\ \text{height}[i]\bigr) \quad (1 \le i < n) $$
 
 ```text
 left_max[0] = height[0]
 left_max[i] = max(left_max[i - 1], height[i])   for 1 <= i < n
 ```
 
-$$
-R[n-1] = \text{height}[n-1],
-\qquad
-R[i] = \max\bigl(R[i+1],\ \text{height}[i]\bigr) \quad (0 \le i \le n-2)
-$$
+$$ R[n-1] = \text{height}[n-1], \qquad R[i] = \max\bigl(R[i+1],\ \text{height}[i]\bigr) \quad (0 \le i \le n-2) $$
 
 ```text
 right_max[n - 1] = height[n - 1]
 right_max[i] = max(right_max[i + 1], height[i])   for 0 <= i <= n - 2
 ```
 
-The outer \(\max(0, \cdot)\) is redundant here: \(\min(L[i], R[i]) \ge
-\text{height}[i]\) always holds, because `height[i]` is itself a candidate in
-both maxima, which is why the code adds the difference unguarded.
+The outer \(\max(0, \cdot)\) is redundant here: \(\min(L[i], R[i]) \ge \text{height}[i]\) always holds, because `height[i]` is itself a candidate in both maxima, which is why the code adds the difference unguarded.
 
 #### Walkthrough
 
-Let us fill the arrays on Example 2: `height = [4,2,0,3,2,5]`. The forward sweep
-carries the running maximum left to right, the backward sweep right to left:
+Let us fill the arrays on Example 2: `height = [4,2,0,3,2,5]`. The forward sweep carries the running maximum left to right, the backward sweep right to left:
 
 ```text
 height       [4, 2, 0, 3, 2, 5]
@@ -253,9 +193,7 @@ left_max     [4, 4, 4, 4, 4, 5]     forward: tallest so far from the left
 right_max    [5, 5, 5, 5, 5, 5]     backward: tallest so far from the right
 ```
 
-The tallest bar `5` sits at the right edge, so `right_max` is `5` everywhere and
-every column's water level is set by `left_max`. The summation pass then applies the
-formula bar by bar:
+The tallest bar `5` sits at the right edge, so `right_max` is `5` everywhere and every column's water level is set by `left_max`. The summation pass then applies the formula bar by bar:
 
 ```text
 i=0   min(4, 5) - 4 = 0    trapped = 0
@@ -266,14 +204,11 @@ i=4   min(4, 5) - 2 = 2    trapped = 9
 i=5   min(5, 5) - 5 = 0    trapped = 9
 ```
 
-The dip between the wall of height `4` at `i = 0` and the wall of height `5` at
-`i = 5` fills up to level `4`, giving `2 + 4 + 1 + 2 = 9` units. The final
-`trapped = 9` matches Example 2's Output.
+The dip between the wall of height `4` at `i = 0` and the wall of height `5` at `i = 5` fills up to level `4`, giving `2 + 4 + 1 + 2 = 9` units. The final `trapped = 9` matches Example 2's Output.
 
 #### Solution
 
-The code is the three passes from the walkthrough: forward sweep, backward
-sweep, then the summation.
+The code is the three passes from the walkthrough: forward sweep, backward sweep, then the summation.
 
 ```python
 from typing import List
@@ -324,31 +259,20 @@ Two arrays of size `n` store the prefix and suffix maxima.
 
 #### Derivation
 
-Both approaches so far account for water column by column, which forces each column
-to know its two walls. Flip the accounting: fill the water in horizontal layers, and
-settle each layer the moment its right wall arrives. The
-[stack](https://usaco.guide/gold/stacks)
-holds indices of bars whose heights are decreasing from bottom to top, so the top is
-always the most recent unresolved dip. When a bar taller than the stack top arrives,
-it acts as a right wall: the popped top becomes the `floor` of a basin, and the new
-stack top (if any) is the `left` wall.
+Both approaches so far account for water column by column, which forces each column to know its two walls. Flip the accounting: fill the water in horizontal layers, and settle each layer the moment its right wall arrives. The [stack](https://usaco.guide/gold/stacks) holds indices of bars whose heights are decreasing from bottom to top, so the top is always the most recent unresolved dip. When a bar taller than the stack top arrives, it acts as a right wall: the popped top becomes the `floor` of a basin, and the new stack top (if any) is the `left` wall.
 
 1. Walk left to right, treating the stack as a record of unresolved dips.
 2. While the current bar `h` is taller than the bar at the top of the stack, pop
    the top as `floor`.
 3. If the stack is now empty there is no left wall, so that water escapes;
-   otherwise the settled layer holds
-   `(i - left - 1) * (min(height[left], h) - height[floor])` units: the width
-   between the walls times the depth of the shorter wall above the floor.
+   otherwise the settled layer holds `(i - left - 1) * (min(height[left], h) - height[floor])` units: the width between the walls times the depth of the shorter wall above the floor.
 4. Push the current index `i` and continue.
 
-A single bar may settle several layers as it pops successively taller floors, and
-each index is pushed and popped at most once.
+A single bar may settle several layers as it pops successively taller floors, and each index is pushed and popped at most once.
 
 #### Walkthrough
 
-Let us run the stack on Example 2: `height = [4,2,0,3,2,5]`. Each line is one event:
-a push, or a pop that settles a layer of `width * bounded` water:
+Let us run the stack on Example 2: `height = [4,2,0,3,2,5]`. Each line is one event: a push, or a pop that settles a layer of `width * bounded` water:
 
 ```text
 i=0 h=4   push 0                                      stack [0]      heights [4]
@@ -364,18 +288,11 @@ i=5 h=5   pop floor=4  left=3  1 * (min(3,5)-2) = 1   trapped 5
           push 5                                      stack [5]      heights [5]
 ```
 
-The bar of height `3` at `i = 3` settles two layers on arrival: first the thin layer
-above the floor of height `0` up to its left wall of height `2`, then the wider
-layer above the floor of height `2`, capped at `min(4, 3) = 3`. The final bar of
-height `5` settles the remaining layers the same way, and when it pops the bar of
-height `4` with nothing left beneath it, the empty-stack check discards that water:
-with no left wall it would spill off the edge. The total is `trapped = 9`, matching
-Example 2's Output.
+The bar of height `3` at `i = 3` settles two layers on arrival: first the thin layer above the floor of height `0` up to its left wall of height `2`, then the wider layer above the floor of height `2`, capped at `min(4, 3) = 3`. The final bar of height `5` settles the remaining layers the same way, and when it pops the bar of height `4` with nothing left beneath it, the empty-stack check discards that water: with no left wall it would spill off the edge. The total is `trapped = 9`, matching Example 2's Output.
 
 #### Solution
 
-The code is the event log above: the `while` loop performs the pops that
-settle layers, and every index is pushed exactly once.
+The code is the event log above: the `while` loop performs the pops that settle layers, and every index is pushed exactly once.
 
 ```python
 from typing import List
@@ -412,13 +329,11 @@ class Solution:
 
 ##### Time Complexity: `O(n)`
 
-Each index is pushed onto the stack once and popped at most once, so the total work
-across the whole scan is linear.
+Each index is pushed onto the stack once and popped at most once, so the total work across the whole scan is linear.
 
 ##### Space Complexity: `O(n)`
 
-In the worst case (a strictly decreasing elevation map) every index sits on the stack at
-once before any pops occur.
+In the worst case (a strictly decreasing elevation map) every index sits on the stack at once before any pops occur.
 
 #### Key Insights
 
@@ -433,33 +348,20 @@ once before any pops occur.
 
 #### Derivation
 
-The prefix and suffix arrays store every wall height, yet the formula only ever
-consumes `min(left_max[i], right_max[i])`: the larger side is computed and then
-ignored. The [two-pointer method](https://usaco.guide/silver/two-pointers)
-exploits that slack. Walk inward from both ends carrying just two running maxima. If
-`left_max <= right_max`, the water level at the left pointer is already decided:
-some bar on the right reaches `right_max >= left_max`, so the true minimum at that
-position is `left_max` no matter what stands between the pointers. The symmetric
-claim holds on the right, so whichever side carries the smaller running max can be
-settled and stepped inward immediately:
+The prefix and suffix arrays store every wall height, yet the formula only ever consumes `min(left_max[i], right_max[i])`: the larger side is computed and then ignored. The [two-pointer method](https://usaco.guide/silver/two-pointers) exploits that slack. Walk inward from both ends carrying just two running maxima. If `left_max <= right_max`, the water level at the left pointer is already decided: some bar on the right reaches `right_max >= left_max`, so the true minimum at that position is `left_max` no matter what stands between the pointers. The symmetric claim holds on the right, so whichever side carries the smaller running max can be settled and stepped inward immediately:
 
 1. Place `left` and `right` at the two ends and seed `left_max` / `right_max` with
    the endpoint heights.
 2. While `left < right`, compare the running maxima. If `left_max <= right_max`,
-   advance `left`, fold the new bar into `left_max`, and add
-   `left_max - height[left]`; otherwise mirror the step on the right side.
+   advance `left`, fold the new bar into `left_max`, and add `left_max - height[left]`; otherwise mirror the step on the right side.
 3. Stop when the pointers meet: every column has been settled from one side or the
    other.
 
-This computes the correct trapped water in a single pass with constant extra
-memory.
+This computes the correct trapped water in a single pass with constant extra memory.
 
 #### Walkthrough
 
-Let us walk the pointers on Example 1: `height = [0,1,0,2,1,0,1,3,2,1,2,1]`. Start
-with `left = 0`, `right = 11`, `left_max = 0`, `right_max = 1`. Each line shows the
-`left_max <= right_max` comparison, the pointer that moves, and the water settled at
-its new position:
+Let us walk the pointers on Example 1: `height = [0,1,0,2,1,0,1,3,2,1,2,1]`. Start with `left = 0`, `right = 11`, `left_max = 0`, `right_max = 1`. Each line shows the `left_max <= right_max` comparison, the pointer that moves, and the water settled at its new position:
 
 ```text
 0 <= 1   left  -> 1    left_max 1    + 1-1 = 0   trapped 0
@@ -475,17 +377,11 @@ its new position:
 3 >  2   right -> 7    right_max 3   + 3-3 = 0   trapped 6
 ```
 
-The left pointer settles the deep dip at indices `2` through `6` using only
-`left_max = 2`, which is safe because `right_max = 2` guarantees a wall at least
-that tall further right. Once `left_max` reaches `3` at the tallest bar, the right
-side becomes the smaller one and settles indices `10` down to `8`. The pointers meet
-at `i = 7`, the tallest bar, which is its own wall and contributes `0` from either
-side. The loop exits with `trapped = 6`, matching Example 1's Output.
+The left pointer settles the deep dip at indices `2` through `6` using only `left_max = 2`, which is safe because `right_max = 2` guarantees a wall at least that tall further right. Once `left_max` reaches `3` at the tallest bar, the right side becomes the smaller one and settles indices `10` down to `8`. The pointers meet at `i = 7`, the tallest bar, which is its own wall and contributes `0` from either side. The loop exits with `trapped = 6`, matching Example 1's Output.
 
 #### Solution
 
-The code is the two-branch step from the walkthrough, repeated until the
-pointers meet.
+The code is the two-branch step from the walkthrough, repeated until the pointers meet.
 
 ```python
 from typing import List
@@ -536,37 +432,20 @@ Only a fixed number of scalars are tracked regardless of input size.
 
 #### Derivation
 
-The two sweeps in [Prefix and Suffix Maximums](#prefix-and-suffix-maximums) are
-both instances of one shape: seed an accumulator with the first element, then fold
-each next element into it with `max`. That fold is precisely
-[`itertools.accumulate`](https://docs.python.org/3/library/itertools.html#itertools.accumulate)
-with `max` as the binary operation. Substituting it changes nothing about the
-algorithm: `left_max` and `right_max` hold the same values they held before, and
-the water is still summed column by column with the explicit
-`min(left_max[i], right_max[i]) - height[i]`. What disappears is the index
-arithmetic, the manual seeding of `left_max[0]` and `right_max[n - 1]`, and the
-descending `range(n - 2, -1, -1)` that is easy to get wrong by one.
+The two sweeps in [Prefix and Suffix Maximums](#prefix-and-suffix-maximums) are both instances of one shape: seed an accumulator with the first element, then fold each next element into it with `max`. That fold is precisely [`itertools.accumulate`](https://docs.python.org/3/library/itertools.html#itertools.accumulate) with `max` as the binary operation. Substituting it changes nothing about the algorithm: `left_max` and `right_max` hold the same values they held before, and the water is still summed column by column with the explicit `min(left_max[i], right_max[i]) - height[i]`. What disappears is the index arithmetic, the manual seeding of `left_max[0]` and `right_max[n - 1]`, and the descending `range(n - 2, -1, -1)` that is easy to get wrong by one.
 
 1. Build `left_max = list(accumulate(height, max))`. `accumulate` yields the
    running maximum of every prefix, which is the forward sweep verbatim.
 2. Build the suffix maxima by accumulating over `reversed(height)` and reversing
-   the result with `[::-1]`. Running maxima always flow left to right, so a suffix
-   maximum is a prefix maximum of the reversed array, read back in the original
-   order.
+   the result with `[::-1]`. Running maxima always flow left to right, so a suffix maximum is a prefix maximum of the reversed array, read back in the original order.
 3. Sum `min(left_max[i], right_max[i]) - height[i]` over every index, unchanged
    from the hand-rolled version.
 
-The reversal is the one place this form asks something of the reader that the
-explicit loop did not. It buys a genuine simplification anyway: the backward loop
-it replaces carried both a descending range and a seeded final slot, two separate
-chances for an off-by-one.
+The reversal is the one place this form asks something of the reader that the explicit loop did not. It buys a genuine simplification anyway: the backward loop it replaces carried both a descending range and a seeded final slot, two separate chances for an off-by-one.
 
 #### Walkthrough
 
-Let us build the arrays on Example 1: `height = [0,1,0,2,1,0,1,3,2,1,2,1]`. The
-forward `accumulate` gives the prefix maxima directly. For the suffix maxima, the
-middle row below shows what `accumulate(reversed(height), max)` produces, and the
-last row shows it after `[::-1]` puts it back in index order:
+Let us build the arrays on Example 1: `height = [0,1,0,2,1,0,1,3,2,1,2,1]`. The forward `accumulate` gives the prefix maxima directly. For the suffix maxima, the middle row below shows what `accumulate(reversed(height), max)` produces, and the last row shows it after `[::-1]` puts it back in index order:
 
 ```text
 height                          [0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1]
@@ -575,10 +454,7 @@ left_max   accumulate(height)   [0, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 3]
 right_max  reversed back        [3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 1]
 ```
 
-Reading the middle row right to left is the same as reading `right_max` left to
-right, which is what the trailing `[::-1]` performs. The tallest bar `3` sits at
-`i = 7`, so `right_max` is `3` for every index up to it and then falls away to the
-right. The summation pass applies the formula bar by bar:
+Reading the middle row right to left is the same as reading `right_max` left to right, which is what the trailing `[::-1]` performs. The tallest bar `3` sits at `i = 7`, so `right_max` is `3` for every index up to it and then falls away to the right. The summation pass applies the formula bar by bar:
 
 ```text
 i=0    min(0, 3) - 0 = 0    trapped = 0
@@ -595,16 +471,11 @@ i=10   min(3, 2) - 2 = 0    trapped = 6
 i=11   min(3, 1) - 1 = 0    trapped = 6
 ```
 
-Index `2` is capped by its own weak left wall, the `1` at `i = 1`, so it holds a
-single unit. Indices `4` through `6` sit in the wide dip between the `2` at
-`i = 3` and the `3` at `i = 7`, filling to the shorter of those walls for
-`1 + 2 + 1 = 4` units. Index `9` adds the last unit, banked behind the `2` at
-`i = 10`. The final `trapped = 6` matches Example 1's Output.
+Index `2` is capped by its own weak left wall, the `1` at `i = 1`, so it holds a single unit. Indices `4` through `6` sit in the wide dip between the `2` at `i = 3` and the `3` at `i = 7`, filling to the shorter of those walls for `1 + 2 + 1 = 4` units. Index `9` adds the last unit, banked behind the `2` at `i = 10`. The final `trapped = 6` matches Example 1's Output.
 
 #### Solution
 
-The same three passes, with the two running-max recurrences delegated to the
-standard library.
+The same three passes, with the two running-max recurrences delegated to the standard library.
 
 ```python
 from itertools import accumulate
@@ -631,32 +502,22 @@ class Solution:
 
 ##### Time Complexity: `O(n)`
 
-Still three linear passes: one `accumulate` forward, one `accumulate` backward
-plus its `[::-1]` copy, and one summation. The reversal and the slice each cost
-`O(n)` and fold into the same linear bound, and `accumulate` runs its `max` fold
-in C rather than through a Python-level loop.
+Still three linear passes: one `accumulate` forward, one `accumulate` backward plus its `[::-1]` copy, and one summation. The reversal and the slice each cost `O(n)` and fold into the same linear bound, and `accumulate` runs its `max` fold in C rather than through a Python-level loop.
 
 ##### Space Complexity: `O(n)`
 
-Two arrays of size `n` hold the prefix and suffix maxima, exactly as the
-hand-rolled version allocates. The backward pass briefly holds one extra `n`-sized
-list, the pre-reversal accumulation, before `[::-1]` produces the final
-`right_max`, which leaves the bound at `O(n)`.
+Two arrays of size `n` hold the prefix and suffix maxima, exactly as the hand-rolled version allocates. The backward pass briefly holds one extra `n`-sized list, the pre-reversal accumulation, before `[::-1]` produces the final `right_max`, which leaves the bound at `O(n)`.
 
 #### Key Insights
 
 - A running maximum is a fold, so `accumulate(height, max)` is not a shortcut
-  around the recurrence but a direct spelling of it: `left_max[i] =
-  max(left_max[i - 1], height[i])` is what `accumulate` computes.
+  around the recurrence but a direct spelling of it: `left_max[i] = max(left_max[i - 1], height[i])` is what `accumulate` computes.
 - The trapping formula stays fully explicit. `accumulate` absorbs only how the wall
-  heights are obtained, which is exactly the part that was identical in both
-  directions and therefore the part worth factoring out.
+  heights are obtained, which is exactly the part that was identical in both directions and therefore the part worth factoring out.
 - `accumulate` seeds itself from the first element, so the manual `left_max[0]` and
-  `right_max[n - 1]` assignments and the `if n == 0` guard all become unnecessary:
-  an empty input yields empty arrays and a `trapped` of `0`.
+  `right_max[n - 1]` assignments and the `if n == 0` guard all become unnecessary: an empty input yields empty arrays and a `trapped` of `0`.
 - Suffix maxima have no direct `accumulate` form, so the backward sweep costs a
-  `reversed` going in and a `[::-1]` coming out. That asymmetry is the honest price
-  of this version and the one line a reader must pause on.
+  `reversed` going in and a `[::-1]` coming out. That asymmetry is the honest price of this version and the one line a reader must pause on.
 
 ## Comparison of Solutions
 
@@ -689,9 +550,7 @@ list, the pre-reversal accumulation, before `[::-1]` produces the final
 - The Two Pointers approach achieves optimal constant space but relies on the subtler invariant
   that the smaller running max bounds its side's water level.
 - The accumulate variant keeps the prefix and suffix approach's transparency and its
-  `O(n)` space while removing the two most error-prone lines of it, the seeded final
-  slot and the descending range. It charges for that a `reversed` and a `[::-1]` on
-  the backward sweep, which is one idiom a reader has to recognize.
+  `O(n)` space while removing the two most error-prone lines of it, the seeded final slot and the descending range. It charges for that a `reversed` and a `[::-1]` on the backward sweep, which is one idiom a reader has to recognize.
 
 ### When to Use Each
 
@@ -704,11 +563,7 @@ list, the pre-reversal accumulation, before `[::-1]` produces the final
 - **Two Pointers**: When memory is constrained or the interviewer asks
   for the optimal space solution.
 - **Prefix and Suffix Maximums with accumulate**: The Pythonic default whenever the
-  `O(n)` space is acceptable and readability is the deciding factor, since it states
-  both sweeps as the folds they are and leaves only the trapping formula to read.
-  Prefer the explicit loops when the reversal idiom would obscure things for the
-  audience, such as teaching the recurrence itself or porting to a language with no
-  equivalent helper.
+  `O(n)` space is acceptable and readability is the deciding factor, since it states both sweeps as the folds they are and leaves only the trapping formula to read. Prefer the explicit loops when the reversal idiom would obscure things for the audience, such as teaching the recurrence itself or porting to a language with no equivalent helper.
 
 ### Optimization Notes
 
@@ -717,11 +572,8 @@ list, the pre-reversal accumulation, before `[::-1]` produces the final
 - The four linear approaches differ only in space and in how the trapped water is
   accounted for (per column, per layer, or implicitly).
 - The Prefix and Suffix Maximums and Two Pointers solutions short-circuit on an empty
-  input to avoid indexing errors, while the Monotonic Stack handles it naturally because
-  the loop body never runs.
+  input to avoid indexing errors, while the Monotonic Stack handles it naturally because the loop body never runs.
 - The accumulate variant needs no empty-input guard either: `accumulate` seeds itself
-  from the first element, so an empty `height` yields empty maxima arrays and the
-  summation loop never runs.
+  from the first element, so an empty `height` yields empty maxima arrays and the summation loop never runs.
 - The accumulate variant is a constant-factor optimization rather than an asymptotic
-  one: both `max` folds and the reversal run in C instead of a Python-level loop,
-  while the summation stays interpreted.
+  one: both `max` folds and the reversal run in C instead of a Python-level loop, while the summation stays interpreted.

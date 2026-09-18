@@ -36,15 +36,11 @@ Every 1D DP problem follows the same skeleton:
 
 ## Reading the Notation
 
-Write-ups state transitions with \(\sum\) (capital sigma). It is a `for` loop
-with an accumulator, nothing more:
+Write-ups state transitions with \(\sum\) (capital sigma). It is a `for` loop with an accumulator, nothing more:
 
-$$
-\sum_{j\,=\,a}^{b} f(j)
-$$
+$$ \sum_{j\,=\,a}^{b} f(j) $$
 
-Three parts: `j = a` is the loop variable and its start, `b` is the end
-**inclusive**, and \(f(j)\) is the body evaluated once per `j`. In code:
+Three parts: `j = a` is the loop variable and its start, `b` is the end **inclusive**, and \(f(j)\) is the body evaluated once per `j`. In code:
 
 ```python
 total = 0
@@ -52,15 +48,11 @@ for j in range(a, b + 1):   # +1 because the upper bound is inclusive
     total += f(j)
 ```
 
-That `+ 1` is the most common slip when moving from math to Python: math bounds
-include both ends, `range` excludes the right one.
+That `+ 1` is the most common slip when moving from math to Python: math bounds include both ends, `range` excludes the right one.
 
-A transition with a \(\sum\) in it becomes a nested loop. The outer loop fills
-the table, the inner loop *is* the sum:
+A transition with a \(\sum\) in it becomes a nested loop. The outer loop fills the table, the inner loop *is* the sum:
 
-$$
-dp[i] = \sum_{j=0}^{i-1} dp[j] \cdot dp[i-1-j]
-$$
+$$ dp[i] = \sum_{j=0}^{i-1} dp[j] \cdot dp[i-1-j] $$
 
 ```python
 for i in range(1, n + 1):
@@ -70,8 +62,7 @@ for i in range(1, n + 1):
 
 ### The Same Shape, Different Combiners
 
-DP reuses this structure with other operators. Only the starting value and the
-operation change:
+DP reuses this structure with other operators. Only the starting value and the operation change:
 
 | Notation | Init | Body |
 |----------|------|------|
@@ -82,18 +73,13 @@ operation change:
 | \(\bigvee\) any / or | `False` | `ok = ok or x` |
 | \(\bigwedge\) all / and | `True` | `ok = ok and x` |
 
-Each init is the **identity** for its operator, the value that leaves the
-result unchanged. That is why Coin Change seeds its table with infinity and
-Word Break seeds its with `False`: an empty range must collapse to the identity,
-so an unreachable state stays unreachable.
+Each init is the **identity** for its operator, the value that leaves the result unchanged. That is why Coin Change seeds its table with infinity and Word Break seeds its with `False`: an empty range must collapse to the identity, so an unreachable state stays unreachable.
 
 ### Conditions Under the Sum
 
 A filter on the index becomes an `if`:
 
-$$
-dp[i] = \sum_{\substack{c \,\in\, \text{coins} \\ c \,\le\, i}} dp[i - c]
-$$
+$$ dp[i] = \sum_{\substack{c \,\in\, \text{coins} \\ c \,\le\, i}} dp[i - c] $$
 
 ```python
 for c in coins:
@@ -103,15 +89,11 @@ for c in coins:
 
 ### Reading Complexity Off the Formula
 
-The range of the \(\sum\) is the inner loop's cost. A sum from `0` to `i-1`
-nested inside a loop over `i` up to `n` runs
+The range of the \(\sum\) is the inner loop's cost. A sum from `0` to `i-1` nested inside a loop over `i` up to `n` runs
 
-$$
-\sum_{i=1}^{n} i = \frac{n(n+1)}{2} = O(n^2)
-$$
+$$ \sum_{i=1}^{n} i = \frac{n(n+1)}{2} = O(n^2) $$
 
-times, while a sum over a fixed coin list is \(O(n \cdot |\text{coins}|)\).
-Nested sums multiply their ranges.
+times, while a sum over a fixed coin list is \(O(n \cdot |\text{coins}|)\). Nested sums multiply their ranges.
 
 ---
 

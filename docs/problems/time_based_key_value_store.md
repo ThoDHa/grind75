@@ -55,28 +55,16 @@ timeMap.get("foo", 5);         // return "bar2"
 
 ## Deriving the Solution
 
-All three designs share one storage decision: per key, keep the history of
-`(timestamp, value)` pairs in a list. Because the problem guarantees that `set`
-arrives with strictly increasing timestamps, a plain append keeps each history
-sorted by time for free. `get` then becomes a single classic question on a
-sorted list: find the rightmost entry whose timestamp does not exceed the
-query. The solutions differ only in how they answer it.
+All three designs share one storage decision: per key, keep the history of `(timestamp, value)` pairs in a list. Because the problem guarantees that `set` arrives with strictly increasing timestamps, a plain append keeps each history sorted by time for free. `get` then becomes a single classic question on a sorted list: find the rightmost entry whose timestamp does not exceed the query. The solutions differ only in how they answer it.
 
 1. **Start literal.** Append on `set`; on `get`, walk the history backward and
-   return the first entry old enough. Correct and dependency-free, but a lookup
-   may inspect every stored version, `O(n)` per `get`: see
-   [Linear Scan](#linear-scan).
+   return the first entry old enough. Correct and dependency-free, but a lookup may inspect every stored version, `O(n)` per `get`: see [Linear Scan](#linear-scan).
 2. **Spot the waste.** The backward walk never uses the fact that the list is
-   sorted. Sortedness means one probe in the middle tells which half holds the
-   answer, so half the candidates can be discarded at once instead of one at a
-   time.
+   sorted. Sortedness means one probe in the middle tells which half holds the answer, so half the candidates can be discarded at once instead of one at a time.
 3. **Halve it by hand.** A hand-written binary search finds the first index
-   whose timestamp is strictly greater than the query; the entry just before it
-   is the answer. `O(log n)` per `get`: see
-   [Manual Binary Search](#manual-binary-search).
+   whose timestamp is strictly greater than the query; the entry just before it is the answer. `O(log n)` per `get`: see [Manual Binary Search](#manual-binary-search).
 4. **Delegate the search.** The pattern "rightmost entry `<=` query" is exactly
-   what the standard library's `bisect_right` computes on a sorted list of
-   timestamps: see [Binary Search with bisect](#binary-search-with-bisect).
+   what the standard library's `bisect_right` computes on a sorted list of timestamps: see [Binary Search with bisect](#binary-search-with-bisect).
 
 ## Solutions
 
@@ -84,14 +72,7 @@ query. The solutions differ only in how they answer it.
 
 #### Derivation
 
-The class must support two calls: record a value under a key at a timestamp,
-and fetch the newest value at or before a queried timestamp. The design
-question is what storage shape makes both cheap. Each key accumulates a history
-of `(timestamp, value)` entries, and because the problem guarantees that `set`
-is called with strictly increasing timestamps, the history for any key is
-already sorted by time. The most recent valid value is therefore the last entry
-whose timestamp does not exceed the query, which the most literal `get` finds
-by walking the history backward:
+The class must support two calls: record a value under a key at a timestamp, and fetch the newest value at or before a queried timestamp. The design question is what storage shape makes both cheap. Each key accumulates a history of `(timestamp, value)` entries, and because the problem guarantees that `set` is called with strictly increasing timestamps, the history for any key is already sorted by time. The most recent valid value is therefore the last entry whose timestamp does not exceed the query, which the most literal `get` finds by walking the history backward:
 
 1. Store, per key, a list of `(timestamp, value)` pairs in insertion order.
 2. On `set`, append the pair; the increasing-timestamp guarantee keeps the list
@@ -104,10 +85,7 @@ This brute-force scan uses no library helpers: just a backward walk over the lis
 
 #### Walkthrough
 
-Trace the Linear Scan through Example 1, replaying each call in order. The only
-state is `self.store`, the dict mapping each key to its history of
-`(timestamp, value)` pairs. After each call below, the right column shows what
-`self.store` holds and what the call returns.
+Trace the Linear Scan through Example 1, replaying each call in order. The only state is `self.store`, the dict mapping each key to its history of `(timestamp, value)` pairs. After each call below, the right column shows what `self.store` holds and what the call returns.
 
 | Call | What happens | `self.store` after | Returns |
 | --- | --- | --- | --- |
@@ -118,10 +96,7 @@ state is `self.store`, the dict mapping each key to its history of
 | `get("foo", 4)` | Scan backward, newest first: `4 <= 4`, so return `(4, "bar2")`'s value. | unchanged | `"bar2"` |
 | `get("foo", 5)` | Scan backward: `4 <= 5`, so the newest entry qualifies immediately. | unchanged | `"bar2"` |
 
-The `get("foo", 3)` step shows why the backward walk works: timestamp `3` was
-never written, so the scan skips past nothing newer and lands on `(1, "bar")`,
-the largest stored timestamp not exceeding `3`. The collected returns are
-`[null, null, "bar", "bar", null, "bar2", "bar2"]`, matching the expected Output.
+The `get("foo", 3)` step shows why the backward walk works: timestamp `3` was never written, so the scan skips past nothing newer and lands on `(1, "bar")`, the largest stored timestamp not exceeding `3`. The collected returns are `[null, null, "bar", "bar", null, "bar2", "bar2"]`, matching the expected Output.
 
 #### Solution
 
@@ -166,8 +141,7 @@ class TimeMap:
 
 ##### Space Complexity: `O(n)`
 
-Across all keys, every `set` stores one `(timestamp, value)` pair, so total storage
-is linear in the number of `set` calls.
+Across all keys, every `set` stores one `(timestamp, value)` pair, so total storage is linear in the number of `set` calls.
 
 #### Key Insights
 
@@ -182,31 +156,20 @@ is linear in the number of `set` calls.
 
 #### Derivation
 
-The Linear Scan's `get` may touch every stored version of a key, yet it walks a
-list it knows to be sorted. Sorted order is precisely what
-[binary search](https://en.wikipedia.org/wiki/Binary_search_algorithm) exploits: one probe in the middle reveals which half holds the
-answer, so each step discards half the candidates. The storage and `set` logic
-stay identical to the Linear Scan; only `get` changes. The search is aimed at
-the first index whose timestamp is strictly greater than the query: that index
-equals the number of entries with timestamp `<=` the query, so the entry just
-before it holds the largest qualifying timestamp:
+The Linear Scan's `get` may touch every stored version of a key, yet it walks a list it knows to be sorted. Sorted order is precisely what [binary search](https://en.wikipedia.org/wiki/Binary_search_algorithm) exploits: one probe in the middle reveals which half holds the answer, so each step discards half the candidates. The storage and `set` logic stay identical to the Linear Scan; only `get` changes. The search is aimed at the first index whose timestamp is strictly greater than the query: that index equals the number of entries with timestamp `<=` the query, so the entry just before it holds the largest qualifying timestamp:
 
 1. Keep the Linear Scan's storage: on `set`, append `(timestamp, value)` to the
    key's `history`.
 2. On `get`, search with `lo, hi = 0, len(history)`, probing
    `mid = lo + (hi - lo) // 2` while `lo < hi`.
 3. If `history[mid][0] <= timestamp`, the first strictly-greater entry lies
-   further right, so set `lo = mid + 1`; otherwise it is at `mid` or earlier,
-   so set `hi = mid`.
+   further right, so set `lo = mid + 1`; otherwise it is at `mid` or earlier, so set `hi = mid`.
 4. At loop exit, `lo` is the count of entries with timestamp `<=` the query.
-   Return `""` when `lo == 0` (nothing is old enough), else
-   `history[lo - 1][1]`.
+   Return `""` when `lo == 0` (nothing is old enough), else `history[lo - 1][1]`.
 
 #### Walkthrough
 
-Trace the class through Example 1, replaying each call and, for every `get`,
-each probe of the search. `set` appends exactly as in the Linear Scan; the
-searches below show `lo`, `hi`, and `mid` narrowing until `lo == hi`:
+Trace the class through Example 1, replaying each call and, for every `get`, each probe of the search. `set` appends exactly as in the Linear Scan; the searches below show `lo`, `hi`, and `mid` narrowing until `lo == hi`:
 
 ```text
 set("foo", "bar", 1)    store = {"foo": [(1, "bar")]}
@@ -221,19 +184,11 @@ get("foo", 5)           lo=0 hi=2  mid=1: 4 <= 5 -> lo=2
                         stop; history[1][1] = "bar2"
 ```
 
-In every search, `lo` finishes as the count of entries with timestamp `<=` the
-query, so `history[lo - 1]` is the newest qualifying entry; a query older than
-the whole history would leave `lo == 0` and return `""`. On these short
-histories each search settles in a single probe (the `hi = mid` branch fires
-when the probed timestamp exceeds the query), but the count of probes grows
-only logarithmically as a key's history lengthens. The collected returns are
-`[null, null, "bar", "bar", null, "bar2", "bar2"]`, matching the expected
-Output.
+In every search, `lo` finishes as the count of entries with timestamp `<=` the query, so `history[lo - 1]` is the newest qualifying entry; a query older than the whole history would leave `lo == 0` and return `""`. On these short histories each search settles in a single probe (the `hi = mid` branch fires when the probed timestamp exceeds the query), but the count of probes grows only logarithmically as a key's history lengthens. The collected returns are `[null, null, "bar", "bar", null, "bar2", "bar2"]`, matching the expected Output.
 
 #### Solution
 
-The code is the `lo`/`hi` search from the walkthrough, wrapped in the Linear
-Scan's storage.
+The code is the `lo`/`hi` search from the walkthrough, wrapped in the Linear Scan's storage.
 
 ```python
 from collections import defaultdict
@@ -285,8 +240,7 @@ class TimeMap:
 
 ##### Space Complexity: `O(n)`
 
-Across all keys, every `set` stores one `(timestamp, value)` pair, so total storage
-is linear in the number of `set` calls.
+Across all keys, every `set` stores one `(timestamp, value)` pair, so total storage is linear in the number of `set` calls.
 
 #### Key Insights
 
@@ -301,16 +255,10 @@ is linear in the number of `set` calls.
 
 #### Derivation
 
-The hand-written search implements a textbook pattern, and Python ships that
-exact pattern as [`bisect`](https://docs.python.org/3/library/bisect.html): `bisect_right` returns the insertion point just
-past every element `<=` the probe, which is the same count the manual search
-computes as `lo`. The only adjustment is to storage: `bisect` searches a plain
-sorted list, so the timestamps move into their own list, with the values kept
-in a parallel list at matching indices:
+The hand-written search implements a textbook pattern, and Python ships that exact pattern as [`bisect`](https://docs.python.org/3/library/bisect.html): `bisect_right` returns the insertion point just past every element `<=` the probe, which is the same count the manual search computes as `lo`. The only adjustment is to storage: `bisect` searches a plain sorted list, so the timestamps move into their own list, with the values kept in a parallel list at matching indices:
 
 1. Per key, keep two parallel lists: `self.times[key]` for timestamps and
-   `self.values[key]` for values, appended together on `set`. The
-   increasing-timestamp guarantee keeps `times` sorted.
+   `self.values[key]` for values, appended together on `set`. The increasing-timestamp guarantee keeps `times` sorted.
 2. On `get`, compute `idx = bisect.bisect_right(self.times[key], timestamp)`,
    the count of timestamps `<=` the query.
 3. Return `""` when `idx == 0`, else `self.values[key][idx - 1]`, the value
@@ -318,9 +266,7 @@ in a parallel list at matching indices:
 
 #### Walkthrough
 
-Trace the class through Example 1. Here `bisect_right` is itself the technique
-being delegated to: each `get` line shows the sorted timestamp list it probes
-and the insertion point it returns:
+Trace the class through Example 1. Here `bisect_right` is itself the technique being delegated to: each `get` line shows the sorted timestamp list it probes and the insertion point it returns:
 
 ```text
 set("foo", "bar", 1)    times["foo"] = [1]     values["foo"] = ["bar"]
@@ -331,16 +277,11 @@ get("foo", 4)           bisect_right([1, 4], 4) = 2  idx=2 -> values["foo"][1] =
 get("foo", 5)           bisect_right([1, 4], 5) = 2  idx=2 -> values["foo"][1] = "bar2"
 ```
 
-Each `idx` equals the count of stored timestamps not exceeding the query, so
-`values["foo"][idx - 1]` is the newest qualifying value; a query before the
-first timestamp would yield `idx == 0` and return `""`. The collected returns
-are `[null, null, "bar", "bar", null, "bar2", "bar2"]`, matching the expected
-Output.
+Each `idx` equals the count of stored timestamps not exceeding the query, so `values["foo"][idx - 1]` is the newest qualifying value; a query before the first timestamp would yield `idx == 0` and return `""`. The collected returns are `[null, null, "bar", "bar", null, "bar2", "bar2"]`, matching the expected Output.
 
 #### Solution
 
-The code is the walkthrough's parallel-list bookkeeping with one
-`bisect_right` call per lookup.
+The code is the walkthrough's parallel-list bookkeeping with one `bisect_right` call per lookup.
 
 ```python
 import bisect
@@ -388,8 +329,7 @@ class TimeMap:
 
 ##### Space Complexity: `O(n)`
 
-Across all keys, every `set` stores one timestamp and one value, so total storage is
-linear in the number of `set` calls.
+Across all keys, every `set` stores one timestamp and one value, so total storage is linear in the number of `set` calls.
 
 #### Key Insights
 
@@ -443,5 +383,4 @@ linear in the number of `set` calls.
 - The only algorithmic difference is the `get` lookup; the storage shape is otherwise a
   free choice.
 - A single list of `(timestamp, value)` tuples (used by the first two approaches) and
-  parallel timestamp/value lists (used by the bisect approach) are equivalent in cost;
-  the parallel layout exists only so `bisect` can search the timestamps directly.
+  parallel timestamp/value lists (used by the bisect approach) are equivalent in cost; the parallel layout exists only so `bisect` can search the timestamps directly.

@@ -37,29 +37,16 @@ Given an array of integers `heights` representing the histogram's bar height whe
 
 ## Deriving the Solution
 
-Any rectangle drawn inside the histogram is capped by the shortest bar it
-covers, so every candidate is described by a limiting bar and how far that
-bar's height extends left and right before something shorter blocks it. Every
-solution below searches that space; they differ in what drives the enumeration.
+Any rectangle drawn inside the histogram is capped by the shortest bar it covers, so every candidate is described by a limiting bar and how far that bar's height extends left and right before something shorter blocks it. Every solution below searches that space; they differ in what drives the enumeration.
 
 1. **Start literal.** Try every bar as the limiting one: fix its height as the
-   ceiling and expand left and right until a strictly shorter bar blocks each
-   side. Correct, but the expansions rescan overlapping spans, costing `O(n²)`:
-   see [Brute Force: Expand Around Each Bar](#brute-force-expand-around-each-bar).
+   ceiling and expand left and right until a strictly shorter bar blocks each side. Correct, but the expansions rescan overlapping spans, costing `O(n²)`: see [Brute Force: Expand Around Each Bar](#brute-force-expand-around-each-bar).
 2. **Flip the enumeration.** Enumerate spans instead of bars: every subarray
-   supports one maximal rectangle, its running minimum times its width. The
-   sweep is more uniform, with constant work per span, but there are `O(n²)`
-   spans to visit: see
-   [Brute Force over All Subarrays](#brute-force-over-all-subarrays).
+   supports one maximal rectangle, its running minimum times its width. The sweep is more uniform, with constant work per span, but there are `O(n²)` spans to visit: see [Brute Force over All Subarrays](#brute-force-over-all-subarrays).
 3. **Prune with the minimum.** The minimum bar of a range is the only bar that
-   can span it fully, so the best rectangle either uses the minimum across the
-   whole range or avoids it entirely on one side. Recursing on that split costs
-   `O(n log n)` when the minima balance the halves, but degrades to `O(n²)` on
-   sorted input: see [Divide and Conquer](#divide-and-conquer).
+   can span it fully, so the best rectangle either uses the minimum across the whole range or avoids it entirely on one side. Recursing on that split costs `O(n log n)` when the minima balance the halves, but degrades to `O(n²)` on sorted input: see [Divide and Conquer](#divide-and-conquer).
 4. **Resolve boundaries in one pass.** All any bar needs is its nearest shorter
-   bar on each side. A stack of indices kept in increasing height order answers
-   both questions the moment a shorter bar arrives, giving each bar one push
-   and one pop: `O(n)` total: see [Monotonic Stack](#monotonic-stack).
+   bar on each side. A stack of indices kept in increasing height order answers both questions the moment a shorter bar arrives, giving each bar one push and one pop: `O(n)` total: see [Monotonic Stack](#monotonic-stack).
 
 ## Solutions
 
@@ -67,13 +54,7 @@ solution below searches that space; they differ in what drives the enumeration.
 
 #### Derivation
 
-What does a rectangle in a histogram look like? Its height is capped by the
-shortest bar inside its span: anything taller would poke above that bar. So
-every candidate rectangle is described by the bar that limits it, and the widest
-rectangle limited by bar `i` stretches from the first strictly shorter bar on
-its left to the first strictly shorter bar on its right. That dictates the most
-literal enumeration: treat each bar in turn as the limiting one and measure how
-far it reaches.
+What does a rectangle in a histogram look like? Its height is capped by the shortest bar inside its span: anything taller would poke above that bar. So every candidate rectangle is described by the bar that limits it, and the widest rectangle limited by bar `i` stretches from the first strictly shorter bar on its left to the first strictly shorter bar on its right. That dictates the most literal enumeration: treat each bar in turn as the limiting one and measure how far it reaches.
 
 1. For each bar `i`, fix `current_height = heights[i]` as the rectangle's
    ceiling.
@@ -157,13 +138,7 @@ Uses only a constant amount of extra space.
 
 #### Derivation
 
-The expansion approach rediscovers the same spans repeatedly: adjacent bars of
-equal height expand to the identical rectangle, and each expansion rescans bars
-that earlier expansions already visited. A more uniform enumeration flips the
-roles: instead of picking the limiting bar and finding its span, pick the span
-and find its limiting bar. Every contiguous subarray `[i, j]` supports exactly
-one maximal rectangle, whose height is the minimum bar inside it, and growing
-`j` rightward lets that minimum be maintained in constant time per step.
+The expansion approach rediscovers the same spans repeatedly: adjacent bars of equal height expand to the identical rectangle, and each expansion rescans bars that earlier expansions already visited. A more uniform enumeration flips the roles: instead of picking the limiting bar and finding its span, pick the span and find its limiting bar. Every contiguous subarray `[i, j]` supports exactly one maximal rectangle, whose height is the minimum bar inside it, and growing `j` rightward lets that minimum be maintained in constant time per step.
 
 1. Fix a left boundary `i`.
 2. Extend the right boundary `j` one bar at a time.
@@ -172,9 +147,7 @@ one maximal rectangle, whose height is the minimum bar inside it, and growing
 
 #### Walkthrough
 
-Trace the double loop on Example 1: `heights = [2,1,5,6,2,3]`. Each line is one
-`(i, j)` pair; runs where nothing decisive happens are condensed to their area
-sequence:
+Trace the double loop on Example 1: `heights = [2,1,5,6,2,3]`. Each line is one `(i, j)` pair; runs where nothing decisive happens are condensed to their area sequence:
 
 ```text
 i=0  j=0   min_height=2  width=1  area=2    max_area=2
@@ -193,16 +166,11 @@ i=4  j=4..5  areas 2, 4                                   max_area=10
 i=5  j=5   min_height=3  width=1  area=3    max_area=10
 ```
 
-The decisive pair is `(i=2, j=3)`: the span covers the two tall bars `5` and
-`6`, `min_height` stays `5`, and the area `5 * 2 = 10` becomes the maximum.
-Widening the same start to `j=4` drags `min_height` down to `2`, showing how one
-short bar caps every span that includes it. After all pairs, `max_area = 10`,
-matching Example 1's expected Output.
+The decisive pair is `(i=2, j=3)`: the span covers the two tall bars `5` and `6`, `min_height` stays `5`, and the area `5 * 2 = 10` becomes the maximum. Widening the same start to `j=4` drags `min_height` down to `2`, showing how one short bar caps every span that includes it. After all pairs, `max_area = 10`, matching Example 1's expected Output.
 
 #### Solution
 
-The code is the walkthrough's double loop with `min_height` maintained
-incrementally as `j` grows.
+The code is the walkthrough's double loop with `min_height` maintained incrementally as `j` grows.
 
 ```python
 from typing import List
@@ -245,15 +213,7 @@ Uses only a constant amount of extra space.
 
 #### Derivation
 
-The subarray sweep pays for its uniformity: it evaluates all `O(n²)` spans even
-though most cannot be optimal. A sharper observation prunes the space. Within
-any range, the minimum bar is the only bar that can support a rectangle spanning
-the entire range, because every span containing it is capped at its height. So
-the best rectangle in a range either uses that minimum across the full width, or
-avoids the minimum entirely and lies wholly in the sub-range to its left or to
-its right. That three-way split is a
-**[divide and conquer](https://en.wikipedia.org/wiki/Divide-and-conquer_algorithm)**
-recursion anchored on the minimum.
+The subarray sweep pays for its uniformity: it evaluates all `O(n²)` spans even though most cannot be optimal. A sharper observation prunes the space. Within any range, the minimum bar is the only bar that can support a rectangle spanning the entire range, because every span containing it is capped at its height. So the best rectangle in a range either uses that minimum across the full width, or avoids the minimum entirely and lies wholly in the sub-range to its left or to its right. That three-way split is a **[divide and conquer](https://en.wikipedia.org/wiki/Divide-and-conquer_algorithm)** recursion anchored on the minimum.
 
 1. Find the index `min_idx` of the minimum bar in `[start, end]`.
 2. Compute `area_with_min`, the rectangle that uses that bar across the full
@@ -264,9 +224,7 @@ recursion anchored on the minimum.
 
 #### Walkthrough
 
-Trace `calculate_area` on Example 1: `heights = [2,1,5,6,2,3]`. Each line shows
-one call, indented by recursion depth; calls on empty ranges return `0` and are
-left implicit:
+Trace `calculate_area` on Example 1: `heights = [2,1,5,6,2,3]`. Each line shows one call, indented by recursion depth; calls on empty ranges return `0` and are left implicit:
 
 ```text
 calculate_area(0, 5)   min_idx=1, height 1   area_with_min = 1 * 6 = 6
@@ -280,16 +238,11 @@ calculate_area(0, 5)   min_idx=1, height 1   area_with_min = 1 * 6 = 6
   -> max(6, 2, 10) = 10
 ```
 
-The global minimum (bar `1`, height `1`) splits the histogram into `[0, 0]` and
-`[2, 5]`. Inside `[2, 5]` the minimum is bar `4` (height `2`), and its left
-segment `[2, 3]` holds the winner: the two tall bars with
-`area_with_min = 5 * 2 = 10`. The maxima bubble back up through each `max`, and
-the top-level call returns `10`, matching Example 1's expected Output.
+The global minimum (bar `1`, height `1`) splits the histogram into `[0, 0]` and `[2, 5]`. Inside `[2, 5]` the minimum is bar `4` (height `2`), and its left segment `[2, 3]` holds the winner: the two tall bars with `area_with_min = 5 * 2 = 10`. The maxima bubble back up through each `max`, and the top-level call returns `10`, matching Example 1's expected Output.
 
 #### Solution
 
-The code is the recursion from the walkthrough: scan for the minimum, then take
-the best of the three candidates.
+The code is the recursion from the walkthrough: scan for the minimum, then take the best of the three candidates.
 
 ```python
 from typing import List
@@ -339,17 +292,7 @@ Recursion depth tracks how balanced the splits are, from logarithmic in the bala
 
 #### Derivation
 
-The divide and conquer still pays a linear scan to locate every minimum, and its
-balance is at the input's mercy: sorted heights peel off one bar per level and
-degrade to `O(n²)`. Step back to what each bar actually needs: the nearest
-strictly shorter bar on its left and on its right, since those two walls fix
-the widest rectangle at that bar's height. Both walls can be found for every
-bar in one left-to-right sweep with a
-**[monotonic stack](https://usaco.guide/gold/stacks)**
-of indices kept in increasing height order. While bars keep rising, nothing is
-resolved and indices are pushed. The moment the current bar `i` is shorter than
-the bar on top of the stack, that top bar has just met its right wall (`i`),
-and its left wall is whatever sits beneath it on the stack: pop it and measure.
+The divide and conquer still pays a linear scan to locate every minimum, and its balance is at the input's mercy: sorted heights peel off one bar per level and degrade to `O(n²)`. Step back to what each bar actually needs: the nearest strictly shorter bar on its left and on its right, since those two walls fix the widest rectangle at that bar's height. Both walls can be found for every bar in one left-to-right sweep with a **[monotonic stack](https://usaco.guide/gold/stacks)** of indices kept in increasing height order. While bars keep rising, nothing is resolved and indices are pushed. The moment the current bar `i` is shorter than the bar on top of the stack, that top bar has just met its right wall (`i`), and its left wall is whatever sits beneath it on the stack: pop it and measure.
 
 1. Iterate over the bars, maintaining a stack whose heights increase from bottom to top.
 2. When the current bar is shorter than the stack top, pop it: the current index is its right boundary and the new stack top is its left boundary.
@@ -358,14 +301,9 @@ and its left wall is whatever sits beneath it on the stack: pop it and measure.
 
 #### Formula
 
-Every maximal rectangle is capped by some bar's full height, so it is enough to
-ask, for each bar, how far it can extend before hitting something shorter:
+Every maximal rectangle is capped by some bar's full height, so it is enough to ask, for each bar, how far it can extend before hitting something shorter:
 
-$$
-L(i) = \max\bigl\{\, j < i \ :\ \text{heights}[j] < \text{heights}[i] \,\bigr\},
-\qquad
-R(i) = \min\bigl\{\, j > i \ :\ \text{heights}[j] < \text{heights}[i] \,\bigr\}
-$$
+$$ L(i) = \max\bigl\{\, j < i \ :\ \text{heights}[j] < \text{heights}[i] \,\bigr\}, \qquad R(i) = \min\bigl\{\, j > i \ :\ \text{heights}[j] < \text{heights}[i] \,\bigr\} $$
 
 ```text
 L(i) = greatest index j < i with heights[j] < heights[i],  or -1 if none
@@ -374,28 +312,18 @@ R(i) = least index j > i with heights[j] < heights[i],     or n if none
 
 The rectangle anchored at `i` spans the open interval between them:
 
-$$
-\text{area}(i) = \text{heights}[i] \cdot \bigl(R(i) - L(i) - 1\bigr),
-\qquad
-\text{answer} = \max_{0 \le i < n} \text{area}(i)
-$$
+$$ \text{area}(i) = \text{heights}[i] \cdot \bigl(R(i) - L(i) - 1\bigr), \qquad \text{answer} = \max_{0 \le i < n} \text{area}(i) $$
 
 ```text
 area(i)  = heights[i] * (R(i) - L(i) - 1)
 max_area = max area(i) over all 0 <= i < n
 ```
 
-The \(-1\) excludes both boundary bars, which are strictly shorter and therefore
-not part of the rectangle. \(L\) and \(R\) are the previous and next *smaller*
-elements, the canonical monotonic-stack query. The stack resolves both at once:
-a bar is popped exactly when the current index becomes its \(R\), and whatever
-sits beneath it on the stack is its \(L\).
+The \(-1\) excludes both boundary bars, which are strictly shorter and therefore not part of the rectangle. \(L\) and \(R\) are the previous and next *smaller* elements, the canonical monotonic-stack query. The stack resolves both at once: a bar is popped exactly when the current index becomes its \(R\), and whatever sits beneath it on the stack is its \(L\).
 
 #### Walkthrough
 
-Trace the stack on Example 1: `heights = [2,1,5,6,2,3]`, `n = 6`. The stack
-holds indices; each event line shows a push, or a pop with the rectangle it
-measures:
+Trace the stack on Example 1: `heights = [2,1,5,6,2,3]`, `n = 6`. The stack holds indices; each event line shows a push, or a pop with the rectangle it measures:
 
 ```text
 i=0  h=2   stack empty -> push 0                                        stack = [0]
@@ -413,12 +341,7 @@ flush      pop 5: height=3, width=6-4-1=1, area=3                       max_area
            pop 1: height=1, stack empty -> width = n = 6, area=6        max_area=10
 ```
 
-The decisive event is the second pop at `i=4`: bar `2` (height `5`) meets its
-right wall at index `4` and finds its left wall at the new stack top, index `1`,
-so `width = 4 - 1 - 1 = 2` and `area = 10`: the red rectangle from the figure.
-The flush then measures the bars that never met a shorter bar to their right,
-using `n = 6` as their right boundary. The final `max_area = 10` matches
-Example 1's expected Output.
+The decisive event is the second pop at `i=4`: bar `2` (height `5`) meets its right wall at index `4` and finds its left wall at the new stack top, index `1`, so `width = 4 - 1 - 1 = 2` and `area = 10`: the red rectangle from the figure. The flush then measures the bars that never met a shorter bar to their right, using `n = 6` as their right boundary. The final `max_area = 10` matches Example 1's expected Output.
 
 #### Solution
 

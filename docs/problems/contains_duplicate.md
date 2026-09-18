@@ -43,28 +43,18 @@ Given an integer array `nums`, return `true` if any value appears **at least twi
 
 ## Deriving the Solution
 
-A duplicate exists exactly when some value is seen a second time, so every
-solution is a strategy for answering "have I seen this value before?": by
-re-scanning, by remembering, or by rearranging.
+A duplicate exists exactly when some value is seen a second time, so every solution is a strategy for answering "have I seen this value before?": by re-scanning, by remembering, or by rearranging.
 
 1. **Start literal.** Compare every element against every other element and
-   report the first match. Correct with no extra memory, but there are
-   `n * (n - 1) / 2` pairs, so it costs `O(n^2)`: see
-   [Brute Force](#brute-force).
+   report the first match. Correct with no extra memory, but there are `n * (n - 1) / 2` pairs, so it costs `O(n^2)`: see [Brute Force](#brute-force).
 2. **Spot the waste.** Each new element is re-compared against the same prefix
-   the previous elements already scanned; the answer to "was this value seen?"
-   is re-derived from scratch every time instead of being remembered.
+   the previous elements already scanned; the answer to "was this value seen?" is re-derived from scratch every time instead of being remembered.
 3. **Remember instead.** Keep the values seen so far in a hash set, where
-   membership is an `O(1)` average lookup. One pass answers the question in
-   `O(n)` time at the cost of `O(n)` space: see [Hash Set](#hash-set).
+   membership is an `O(1)` average lookup. One pass answers the question in `O(n)` time at the cost of `O(n)` space: see [Hash Set](#hash-set).
 4. **Rearrange instead.** Sorting places equal values next to each other, so a
-   single adjacent-pair scan finds any duplicate. That trades the hash memory
-   for an `O(n log n)` sort: see [Sorting](#sorting).
+   single adjacent-pair scan finds any duplicate. That trades the hash memory for an `O(n log n)` sort: see [Sorting](#sorting).
 5. **Delegate to the library.** The same hash idea can be handed entirely to
-   built-ins: construct a `set` and compare sizes, or tally frequencies with
-   `Counter` and look for a count above one. These rank last because the
-   library does the core work: see
-   [Set Length Comparison](#set-length-comparison) and [Counter](#counter).
+   built-ins: construct a `set` and compare sizes, or tally frequencies with `Counter` and look for a count above one. These rank last because the library does the core work: see [Set Length Comparison](#set-length-comparison) and [Counter](#counter).
 
 ## Solutions
 
@@ -94,8 +84,7 @@ At step 3 the element at index `0` (value `1`) matches the element at index `3` 
 
 #### Solution
 
-The code is the walkthrough's pair scan written down: two nested loops and an
-equality test.
+The code is the walkthrough's pair scan written down: two nested loops and an equality test.
 
 ```python
 from typing import List
@@ -131,12 +120,7 @@ Only a couple of loop counters are used; no storage grows with the input.
 
 #### Derivation
 
-The brute force forgets everything between iterations: element `i` re-scans the
-same prefix that elements before it already scanned. The repair is to remember.
-If the values seen so far live in a [hash set](https://en.wikipedia.org/wiki/Hash_table),
-the question "was this value seen before?" becomes a single membership test,
-constant time on average, and one pass over the array settles the whole
-problem:
+The brute force forgets everything between iterations: element `i` re-scans the same prefix that elements before it already scanned. The repair is to remember. If the values seen so far live in a [hash set](https://en.wikipedia.org/wiki/Hash_table), the question "was this value seen before?" becomes a single membership test, constant time on average, and one pass over the array settles the whole problem:
 
 1. Initialize an empty set `seen`.
 2. Iterate through `nums`. For each `num`, check whether it is already in `seen`.
@@ -144,14 +128,11 @@ problem:
 4. Otherwise add `num` to `seen` and continue.
 5. If the loop finishes without a hit, every element was distinct, so return `False`.
 
-Membership tests and insertions on a hash set are constant time on average,
-which keeps the whole scan linear. The early return means the work stops the
-moment the first duplicate appears.
+Membership tests and insertions on a hash set are constant time on average, which keeps the whole scan linear. The early return means the work stops the moment the first duplicate appears.
 
 #### Walkthrough
 
-Trace the scan on Example 1: `nums = [1,2,3,1]`. Each line shows one element
-and the state of `seen` after handling it:
+Trace the scan on Example 1: `nums = [1,2,3,1]`. Each line shows one element and the state of `seen` after handling it:
 
 ```text
 num = 1   not in seen -> add it     seen = {1}
@@ -160,9 +141,7 @@ num = 3   not in seen -> add it     seen = {1, 2, 3}
 num = 1   in seen -> return True
 ```
 
-The second `1` is caught by a single membership test against `seen`, with no
-re-scan of the earlier elements. The function returns `True`, matching the
-expected Output for Example 1.
+The second `1` is caught by a single membership test against `seen`, with no re-scan of the earlier elements. The function returns `True`, matching the expected Output for Example 1.
 
 #### Solution
 
@@ -202,12 +181,7 @@ In the worst case (all distinct values), the set grows to hold every element.
 
 #### Derivation
 
-The Hash Set spends `O(n)` extra memory to remember what it has seen. When that
-memory is the constraint, rearrange the array instead:
-[sorting](https://en.wikipedia.org/wiki/Sorting_algorithm) brings equal values
-next to each other, so any duplicate, however far apart its occurrences started,
-ends up as an adjacent pair. One scan comparing neighbors then decides the
-question:
+The Hash Set spends `O(n)` extra memory to remember what it has seen. When that memory is the constraint, rearrange the array instead: [sorting](https://en.wikipedia.org/wiki/Sorting_algorithm) brings equal values next to each other, so any duplicate, however far apart its occurrences started, ends up as an adjacent pair. One scan comparing neighbors then decides the question:
 
 1. Sort a copy of `nums` into ascending order.
 2. Walk from the second element to the last, comparing each element with its predecessor.
@@ -218,19 +192,14 @@ This trades the extra hash-set memory for the cost of sorting. It is useful when
 
 #### Walkthrough
 
-Trace the technique on Example 1: `nums = [1,2,3,1]`. Sorting is the core of
-this approach, and its effect is what matters: the two `1`s, originally at
-indices `0` and `3`, become neighbors:
+Trace the technique on Example 1: `nums = [1,2,3,1]`. Sorting is the core of this approach, and its effect is what matters: the two `1`s, originally at indices `0` and `3`, become neighbors:
 
 ```text
 sorted nums = [1, 1, 2, 3]          the 1s from indices 0 and 3 are now adjacent
 i = 1   nums[1] = 1 == nums[0] = 1  -> return True
 ```
 
-The very first neighbor comparison finds the duplicate pair that the sort
-created, so the function returns `True`, matching the expected Output for
-Example 1. On a duplicate-free input such as Example 2 the scan would compare
-every adjacent pair, find no match, and return `False`.
+The very first neighbor comparison finds the duplicate pair that the sort created, so the function returns `True`, matching the expected Output for Example 1. On a duplicate-free input such as Example 2 the scan would compare every adjacent pair, find no match, and return `False`.
 
 #### Solution
 
@@ -269,11 +238,7 @@ Sorting a copy uses `O(n)` space; sorting the input in place keeps the extra spa
 
 #### Derivation
 
-The Hash Set solution builds its set one element at a time so it can stop at
-the first repeat. If early exit is given up, the language can do the whole
-build in one expression: a [`set`](https://en.wikipedia.org/wiki/Hash_table)
-constructor discards duplicate values by definition, so the sizes alone answer
-the question:
+The Hash Set solution builds its set one element at a time so it can stop at the first repeat. If early exit is given up, the language can do the whole build in one expression: a [`set`](https://en.wikipedia.org/wiki/Hash_table) constructor discards duplicate values by definition, so the sizes alone answer the question:
 
 1. Build a set from `nums`, which keeps only distinct values.
 2. If the set is smaller than the original list, at least one value was dropped as a duplicate, so return `True`.
@@ -283,9 +248,7 @@ The built-in `set` does the core deduplication work here, which is why this conc
 
 #### Walkthrough
 
-Follow what `set(nums)` does internally on Example 1: `nums = [1,2,3,1]`. The
-constructor inserts each element in turn, and an insert of a value already
-present changes nothing:
+Follow what `set(nums)` does internally on Example 1: `nums = [1,2,3,1]`. The constructor inserts each element in turn, and an insert of a value already present changes nothing:
 
 ```text
 insert 1   new value, kept        set = {1}
@@ -295,14 +258,11 @@ insert 1   already present        set stays {1, 2, 3}
 len(set) = 3  <  len(nums) = 4    -> return True
 ```
 
-The duplicate `1` is exactly the element the set silently dropped, so the size
-comparison `3 < 4` detects it. The function returns `True`, matching the
-expected Output for Example 1.
+The duplicate `1` is exactly the element the set silently dropped, so the size comparison `3 < 4` detects it. The function returns `True`, matching the expected Output for Example 1.
 
 #### Solution
 
-The code is the walkthrough compressed into one expression: build the set,
-compare the lengths.
+The code is the walkthrough compressed into one expression: build the set, compare the lengths.
 
 ```python
 from typing import List
@@ -333,11 +293,7 @@ The set stores all distinct values, up to `n` of them.
 
 #### Derivation
 
-The set-based forms only record whether a value has appeared. Counting how
-many times each value appears answers a strictly stronger question, and
-[`collections.Counter`](https://docs.python.org/3/library/collections.html#collections.Counter)
-builds that tally in one call. A duplicate then shows up as any count above
-one:
+The set-based forms only record whether a value has appeared. Counting how many times each value appears answers a strictly stronger question, and [`collections.Counter`](https://docs.python.org/3/library/collections.html#collections.Counter) builds that tally in one call. A duplicate then shows up as any count above one:
 
 1. Build a `Counter` over `nums` to map each value to its frequency.
 2. Scan the frequency values and return `True` as soon as one exceeds `1`.
@@ -347,9 +303,7 @@ This leans most heavily on the standard library, so it sits last among the appro
 
 #### Walkthrough
 
-Follow the tally on Example 1: `nums = [1,2,3,1]`. The `Counter` walks the
-array once, incrementing a per-value count; the second `1` raises its count to
-`2`:
+Follow the tally on Example 1: `nums = [1,2,3,1]`. The `Counter` walks the array once, incrementing a per-value count; the second `1` raises its count to `2`:
 
 ```text
 tally 1    counts = {1: 1}
@@ -359,9 +313,7 @@ tally 1    counts = {1: 2, 2: 1, 3: 1}
 scan values: 2 > 1 -> any(...) short-circuits -> return True
 ```
 
-The values are scanned in insertion order, so the first count examined is
-`2` for the value `1`, and `any` stops there. The function returns `True`,
-matching the expected Output for Example 1.
+The values are scanned in insertion order, so the first count examined is `2` for the value `1`, and `any` stops there. The function returns `True`, matching the expected Output for Example 1.
 
 #### Solution
 

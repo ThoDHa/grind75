@@ -43,36 +43,18 @@ A mapping of digits to letters (just like on the telephone buttons) is given bel
 
 ## Deriving the Solution
 
-Every combination picks exactly one letter for each digit, in digit order, so
-the answer is the [Cartesian product](https://en.wikipedia.org/wiki/Cartesian_product)
-of the per-digit letter sets (the [Formula](#formula) below states it). The
-output itself is exponential in the number of digits, so every approach shares
-the same complexity; what separates them is the order in which they visit the
-product and the intermediate state they carry.
+Every combination picks exactly one letter for each digit, in digit order, so the answer is the [Cartesian product](https://en.wikipedia.org/wiki/Cartesian_product) of the per-digit letter sets (the [Formula](#formula) below states it). The output itself is exponential in the number of digits, so every approach shares the same complexity; what separates them is the order in which they visit the product and the intermediate state they carry.
 
 1. **Start literal.** Build the product one digit at a time: keep the list of
-   all combinations of the digits processed so far, and extend every entry by
-   every letter of the next digit: see
-   [Iterative Build-up](#iterative-build-up). It holds an entire generation of
-   partial combinations at every step.
+   all combinations of the digits processed so far, and extend every entry by every letter of the next digit: see [Iterative Build-up](#iterative-build-up). It holds an entire generation of partial combinations at every step.
 2. **Write the product as an equation.** The same product can be stated
-   recursively: the combinations for `digits[index:]` are each letter of
-   `digits[index]` prepended to every combination of `digits[index + 1:]`. The
-   code becomes a transcription of the math, at the cost of recursion and a
-   suffix list per level: see
-   [Recursive Suffix Expansion](#recursive-suffix-expansion).
+   recursively: the combinations for `digits[index:]` are each letter of `digits[index]` prepended to every combination of `digits[index + 1:]`. The code becomes a transcription of the math, at the cost of recursion and a suffix list per level: see [Recursive Suffix Expansion](#recursive-suffix-expansion).
 3. **Make the tree explicit.** The build-up is really a level-order walk of a
-   choice tree, one level per digit; a queue makes the levels concrete, at the
-   cost of queue management: see [Queue-based BFS](#queue-based-bfs).
+   choice tree, one level per digit; a queue makes the levels concrete, at the cost of queue management: see [Queue-based BFS](#queue-based-bfs).
 4. **Carry one path instead of a generation.** All of the above keep every
-   partial combination of the current length alive at once. Walking the same
-   tree depth-first with a single shared `path` buffer keeps only one partial
-   alive beside the finished results, and is the canonical interview form: see
-   [Backtracking](#backtracking).
+   partial combination of the current length alive at once. Walking the same tree depth-first with a single shared `path` buffer keeps only one partial alive beside the finished results, and is the canonical interview form: see [Backtracking](#backtracking).
 5. **Let the library do it.** The Cartesian product is a standard-library
-   primitive, so the entire enumeration collapses to one call, at the cost of
-   demonstrating no algorithm at all: see
-   [Built-in itertools.product](#built-in-itertoolsproduct).
+   primitive, so the entire enumeration collapses to one call, at the cost of demonstrating no algorithm at all: see [Built-in itertools.product](#built-in-itertoolsproduct).
 
 ## Solutions
 
@@ -80,11 +62,7 @@ product and the intermediate state they carry.
 
 #### Derivation
 
-Build the combinations one digit at a time. Start with a single empty
-combination, then for each digit replace the current list with an expanded list
-that [appends every letter of that digit to every existing combination](https://en.wikipedia.org/wiki/Cartesian_product).
-The invariant is that after processing a prefix of the digits, the working list
-holds exactly the combinations of that prefix.
+Build the combinations one digit at a time. Start with a single empty combination, then for each digit replace the current list with an expanded list that [appends every letter of that digit to every existing combination](https://en.wikipedia.org/wiki/Cartesian_product). The invariant is that after processing a prefix of the digits, the working list holds exactly the combinations of that prefix.
 
 1. Return `[]` immediately for empty input, since no combinations exist.
 2. Seed `combinations` with one empty string.
@@ -95,13 +73,9 @@ holds exactly the combinations of that prefix.
 
 #### Formula
 
-The answer is the [Cartesian product](https://en.wikipedia.org/wiki/Cartesian_product)
-of the letter sets, one factor per digit:
+The answer is the [Cartesian product](https://en.wikipedia.org/wiki/Cartesian_product) of the letter sets, one factor per digit:
 
-$$
-\text{answer} = L(d_1) \times L(d_2) \times \dots \times L(d_n)
-= \prod_{i=1}^{n} L(d_i)
-$$
+$$ \text{answer} = L(d_1) \times L(d_2) \times \dots \times L(d_n) = \prod_{i=1}^{n} L(d_i) $$
 
 ```text
 answer = digit_to_letters[digits[0]] x digit_to_letters[digits[1]]
@@ -111,29 +85,17 @@ answer = digit_to_letters[digits[0]] x digit_to_letters[digits[1]]
 
 where \(L(d)\) is the letter set for digit `d`. Its size multiplies:
 
-$$
-\bigl|\text{answer}\bigr| = \prod_{i=1}^{n} \bigl|L(d_i)\bigr|
-$$
+$$ \bigl|\text{answer}\bigr| = \prod_{i=1}^{n} \bigl|L(d_i)\bigr| $$
 
 ```text
 len(answer) = product over i in 0..n-1 of len(digit_to_letters[digits[i]])
 ```
 
-Since each digit maps to 3 or 4 letters, the count sits between \(3^n\) and
-\(4^n\), exponential. If \(m\) of the \(n\) digits map to four letters and the
-rest to three, the exact count is \(3^{n-m} \cdot 4^m\). The analyses below
-write \(n\) for the three-letter count and \(m\) for the four-letter count,
-under which the same count reads \(3^n \cdot 4^m\), reported as `O(3^n * 4^m)`
-in each solution's analysis, one factor per combination produced. Assembling
-each string costs work proportional to its length that every solution pays
-equally, so the analyses state the combination count alone.
+Since each digit maps to 3 or 4 letters, the count sits between \(3^n\) and \(4^n\), exponential. If \(m\) of the \(n\) digits map to four letters and the rest to three, the exact count is \(3^{n-m} \cdot 4^m\). The analyses below write \(n\) for the three-letter count and \(m\) for the four-letter count, under which the same count reads \(3^n \cdot 4^m\), reported as `O(3^n * 4^m)` in each solution's analysis, one factor per combination produced. Assembling each string costs work proportional to its length that every solution pays equally, so the analyses state the combination count alone.
 
-This solution computes the product left to right, using the fact that a
-Cartesian product can be built one factor at a time:
+This solution computes the product left to right, using the fact that a Cartesian product can be built one factor at a time:
 
-$$
-\prod_{i=1}^{k} L(d_i) = \left( \prod_{i=1}^{k-1} L(d_i) \right) \times L(d_k)
-$$
+$$ \prod_{i=1}^{k} L(d_i) = \left( \prod_{i=1}^{k-1} L(d_i) \right) \times L(d_k) $$
 
 ```text
 combinations(k) = combinations(k - 1) x digit_to_letters[digits[k - 1]]
@@ -141,21 +103,15 @@ combinations(0) = [""]
                   (combinations(k) is the value of combinations after k passes)
 ```
 
-The seed `[""]` is the identity for that operation: the product of zero sets is
-the single empty tuple, not the empty set. Starting from `[]` instead would
-annihilate everything, since anything crossed with the empty set stays empty.
+The seed `[""]` is the identity for that operation: the product of zero sets is the single empty tuple, not the empty set. Starting from `[]` instead would annihilate everything, since anything crossed with the empty set stays empty.
 
 #### Walkthrough
 
-Trace the **Iterative Build-up** solution on Example 1: `digits = "23"`. The key
-state is `combinations`, the working list that gets replaced once per digit.
+Trace the **Iterative Build-up** solution on Example 1: `digits = "23"`. The key state is `combinations`, the working list that gets replaced once per digit.
 
-We start before the loop with a single empty string: `combinations = [""]`. Now
-we process each digit, expanding every current combination by every letter.
+We start before the loop with a single empty string: `combinations = [""]`. Now we process each digit, expanding every current combination by every letter.
 
-**Pass 1: digit `"2"`** (`letters = "abc"`). We loop over `combinations`, which is
-just `[""]`, and for each combination append every letter. The table shows
-`new_combinations` filling up:
+**Pass 1: digit `"2"`** (`letters = "abc"`). We loop over `combinations`, which is just `[""]`, and for each combination append every letter. The table shows `new_combinations` filling up:
 
 | `combination` | `letter` | append | `new_combinations` so far |
 |---------------|----------|--------|---------------------------|
@@ -165,8 +121,7 @@ just `[""]`, and for each combination append every letter. The table shows
 
 After the pass, `combinations = ["a", "b", "c"]`.
 
-**Pass 2: digit `"3"`** (`letters = "def"`). Now every one of the three current
-combinations is extended by each of `d`, `e`, `f`:
+**Pass 2: digit `"3"`** (`letters = "def"`). Now every one of the three current combinations is extended by each of `d`, `e`, `f`:
 
 | `combination` | `letter` | append | `new_combinations` so far |
 |---------------|----------|--------|---------------------------|
@@ -182,9 +137,7 @@ combinations is extended by each of `d`, `e`, `f`:
 
 After the pass, `combinations = ["ad", "ae", "af", "bd", "be", "bf", "cd", "ce", "cf"]`.
 
-No digits remain, so we return `combinations`, which is
-`["ad","ae","af","bd","be","bf","cd","ce","cf"]`. This matches the expected
-Output for Example 1.
+No digits remain, so we return `combinations`, which is `["ad","ae","af","bd","be","bf","cd","ce","cf"]`. This matches the expected Output for Example 1.
 
 #### Solution
 
@@ -220,14 +173,11 @@ class Solution:
 
 ##### Time Complexity: `O(3^n * 4^m)`
 
-Where `n` is the count of digits mapping to three letters and `m` the count
-mapping to four letters. The expansion produces exactly this many combinations,
-and each is built incrementally.
+Where `n` is the count of digits mapping to three letters and `m` the count mapping to four letters. The expansion produces exactly this many combinations, and each is built incrementally.
 
 ##### Space Complexity: `O(3^n * 4^m)`
 
-The working list holds every intermediate and final combination during the
-build-up, which is dominated by the final result size.
+The working list holds every intermediate and final combination during the build-up, which is dominated by the final result size.
 
 #### Key Insights
 
@@ -241,13 +191,7 @@ build-up, which is dominated by the final result size.
 
 #### Derivation
 
-The iterative build assembles the product front to back with explicit loops.
-The same product can instead be written as the equation it satisfies, in
-[divide and conquer](https://en.wikipedia.org/wiki/Divide-and-conquer_algorithm)
-style: the combinations for `digits[index:]` equal each letter of
-`digits[index]` prepended to every combination of `digits[index + 1:]`. The
-code becomes a direct transcription of that equation, at the cost of recursion
-and a suffix list per level.
+The iterative build assembles the product front to back with explicit loops. The same product can instead be written as the equation it satisfies, in [divide and conquer](https://en.wikipedia.org/wiki/Divide-and-conquer_algorithm) style: the combinations for `digits[index:]` equal each letter of `digits[index]` prepended to every combination of `digits[index + 1:]`. The code becomes a direct transcription of that equation, at the cost of recursion and a suffix list per level.
 
 1. The base case at `index == len(digits)` returns `[""]`, a single empty suffix.
 2. Recurse on the remaining digits to obtain all `suffixes`.
@@ -256,8 +200,7 @@ and a suffix list per level.
 
 #### Walkthrough
 
-Trace `generate` on Example 1: `digits = "23"`. The recursion dives to the base
-case first, then builds combinations on the way back up:
+Trace `generate` on Example 1: `digits = "23"`. The recursion dives to the base case first, then builds combinations on the way back up:
 
 ```text
 generate(0)   digit '2': needs suffixes from generate(1)
@@ -269,15 +212,11 @@ generate(0)   letters = "abc", prepend each to ["d", "e", "f"]
               -> ["ad","ae","af","bd","be","bf","cd","ce","cf"]
 ```
 
-The base case returns `[""]` rather than `[]`: prepending `"d"` to the single
-empty suffix yields `"d"`, while an empty list would leave nothing to prepend
-to and collapse every level to empty. The top-level call returns the nine
-combinations, matching the expected Output for Example 1.
+The base case returns `[""]` rather than `[]`: prepending `"d"` to the single empty suffix yields `"d"`, while an empty list would leave nothing to prepend to and collapse every level to empty. The top-level call returns the nine combinations, matching the expected Output for Example 1.
 
 #### Solution
 
-The code is the equation from the walkthrough: one recursive call for the
-suffixes, one comprehension to prepend the letters.
+The code is the equation from the walkthrough: one recursive call for the suffixes, one comprehension to prepend the letters.
 
 ```python
 from typing import List
@@ -307,13 +246,11 @@ class Solution:
 
 ##### Time Complexity: `O(3^n * 4^m)`
 
-Each combination is produced exactly once, with additional linear work combining
-suffixes at every recursion level.
+Each combination is produced exactly once, with additional linear work combining suffixes at every recursion level.
 
 ##### Space Complexity: `O(3^n * 4^m)`
 
-The combined lists hold every combination, plus `O(k)` recursion-stack depth for
-`k = len(digits)`.
+The combined lists hold every combination, plus `O(k)` recursion-stack depth for `k = len(digits)`.
 
 #### Key Insights
 
@@ -328,14 +265,7 @@ The combined lists hold every combination, plus `O(k)` recursion-stack depth for
 
 #### Derivation
 
-The recursion builds the product from the last digit back toward the first. The
-same choice tree can be walked from the top instead, level by level, in
-[breadth-first](https://en.wikipedia.org/wiki/Breadth-first_search) order: the
-queue holds all combinations of the current length, and processing one digit
-advances every entry to the next length. The one subtlety is keeping levels
-separate: snapshotting `len(queue)` before the inner loop guarantees each entry
-of the current level is dequeued exactly once and never re-extended within the
-same digit's pass.
+The recursion builds the product from the last digit back toward the first. The same choice tree can be walked from the top instead, level by level, in [breadth-first](https://en.wikipedia.org/wiki/Breadth-first_search) order: the queue holds all combinations of the current length, and processing one digit advances every entry to the next length. The one subtlety is keeping levels separate: snapshotting `len(queue)` before the inner loop guarantees each entry of the current level is dequeued exactly once and never re-extended within the same digit's pass.
 
 1. Return `[]` for empty input.
 2. Seed the queue with one empty string.
@@ -359,16 +289,11 @@ digit '3'    snapshot len = 3
              queue = ["ad", "ae", "af", "bd", "be", "bf", "cd", "ce", "cf"]
 ```
 
-Mid-pass the queue mixes lengths: after `"a"` is processed it holds
-`["b", "c", "ad", "ae", "af"]`. The snapshot of `3` is what stops the loop from
-dequeuing `"ad"` in the same pass and extending it twice. When the loop ends,
-`list(queue)` is the nine combinations, matching the expected Output for
-Example 1.
+Mid-pass the queue mixes lengths: after `"a"` is processed it holds `["b", "c", "ad", "ae", "af"]`. The snapshot of `3` is what stops the loop from dequeuing `"ad"` in the same pass and extending it twice. When the loop ends, `list(queue)` is the nine combinations, matching the expected Output for Example 1.
 
 #### Solution
 
-The code is the walkthrough's level advance, one snapshot-bounded pass per
-digit.
+The code is the walkthrough's level advance, one snapshot-bounded pass per digit.
 
 ```python
 from collections import deque
@@ -404,8 +329,7 @@ The level-by-level expansion enqueues each combination exactly once.
 
 ##### Space Complexity: `O(3^n * 4^m)`
 
-The queue holds all combinations of the current length, which grows to the full
-result size.
+The queue holds all combinations of the current length, which grows to the full result size.
 
 #### Key Insights
 
@@ -420,15 +344,7 @@ result size.
 
 #### Derivation
 
-Every approach so far keeps a whole generation of partial combinations alive at
-once, up to the full result size. Walking the same choice tree
-[depth-first](https://en.wikipedia.org/wiki/Depth-first_search) needs only one
-partial at a time: a single shared `path` list accumulates the current choice
-for each digit, and finished combinations are copied out at the leaves. The
-choose / explore / unchoose discipline (push a letter, recurse, pop it)
-restores `path` before the next branch, so one buffer serves the entire tree.
-Each digit position has its own independent set of choices, so no
-visited-tracking is needed, unlike permutation problems.
+Every approach so far keeps a whole generation of partial combinations alive at once, up to the full result size. Walking the same choice tree [depth-first](https://en.wikipedia.org/wiki/Depth-first_search) needs only one partial at a time: a single shared `path` list accumulates the current choice for each digit, and finished combinations are copied out at the leaves. The choose / explore / unchoose discipline (push a letter, recurse, pop it) restores `path` before the next branch, so one buffer serves the entire tree. Each digit position has its own independent set of choices, so no visited-tracking is needed, unlike permutation problems.
 
 1. Return `[]` for empty input.
 2. At `index == n`, join the accumulated `path` and append it to `result`.
@@ -437,9 +353,7 @@ visited-tracking is needed, unlike permutation problems.
 
 #### Walkthrough
 
-Trace the push and pop events on Example 1: `digits = "23"`, `n = 2`. The `'a'`
-branch is shown in full; the `'b'` and `'c'` branches repeat the identical
-pattern:
+Trace the push and pop events on Example 1: `digits = "23"`, `n = 2`. The `'a'` branch is shown in full; the `'b'` and `'c'` branches repeat the identical pattern:
 
 ```text
 push 'a'        path = ['a']
@@ -454,16 +368,11 @@ push 'b'        ... records "bd", "be", "bf" the same way
 push 'c'        ... records "cd", "ce", "cf" the same way
 ```
 
-Every recursive call is bracketed by a push and a pop, so `path` returns to its
-previous state before the next letter is tried; that is why one list can serve
-all nine leaves. `result` accumulates the combinations in the order
-`["ad","ae","af","bd","be","bf","cd","ce","cf"]`, matching the expected Output
-for Example 1.
+Every recursive call is bracketed by a push and a pop, so `path` returns to its previous state before the next letter is tried; that is why one list can serve all nine leaves. `result` accumulates the combinations in the order `["ad","ae","af","bd","be","bf","cd","ce","cf"]`, matching the expected Output for Example 1.
 
 #### Solution
 
-The code is the walkthrough's choose / explore / unchoose loop around one
-shared `path`.
+The code is the walkthrough's choose / explore / unchoose loop around one shared `path`.
 
 ```python
 from typing import List
@@ -499,13 +408,11 @@ class Solution:
 
 ##### Time Complexity: `O(3^n * 4^m)`
 
-Every leaf of the decision tree corresponds to one combination, and each is
-produced once.
+Every leaf of the decision tree corresponds to one combination, and each is produced once.
 
 ##### Space Complexity: `O(3^n * 4^m)`
 
-The result stores all combinations, plus `O(k)` for the recursion stack and the
-shared `path` of length `k = len(digits)`.
+The result stores all combinations, plus `O(k)` for the recursion stack and the shared `path` of length `k = len(digits)`.
 
 #### Key Insights
 
@@ -520,10 +427,7 @@ shared `path` of length `k = len(digits)`.
 
 #### Derivation
 
-The Formula in the Iterative Build-up section names the answer outright: the
-Cartesian product of the per-digit letter sets. The standard library computes
-exactly that, so the whole enumeration collapses to a single
-[`itertools.product`](https://docs.python.org/3/library/itertools.html) call.
+The Formula in the Iterative Build-up section names the answer outright: the Cartesian product of the per-digit letter sets. The standard library computes exactly that, so the whole enumeration collapses to a single [`itertools.product`](https://docs.python.org/3/library/itertools.html) call.
 
 1. Return `[]` for empty input.
 2. Map each digit to its letter group.
@@ -532,9 +436,7 @@ exactly that, so the whole enumeration collapses to a single
 
 #### Walkthrough
 
-Here the library call is the technique, so the trace shows what `product`
-receives and the order in which it yields tuples: rightmost factor fastest,
-like an odometer. On Example 1, `digits = "23"`:
+Here the library call is the technique, so the trace shows what `product` receives and the order in which it yields tuples: rightmost factor fastest, like an odometer. On Example 1, `digits = "23"`:
 
 ```text
 letter_groups = ["abc", "def"]
@@ -545,9 +447,7 @@ product(*letter_groups) yields:
 join each tuple -> ["ad","ae","af","bd","be","bf","cd","ce","cf"]
 ```
 
-Each row is one first-digit letter crossed with all three second-digit letters.
-Joining the tuples gives the nine combinations, matching the expected Output
-for Example 1.
+Each row is one first-digit letter crossed with all three second-digit letters. Joining the tuples gives the nine combinations, matching the expected Output for Example 1.
 
 #### Solution
 
@@ -628,8 +528,6 @@ The returned list stores every combination.
 - All approaches share the same asymptotic complexity because the work is bounded
   by producing the output; they differ mainly in intermediate space and clarity.
 - String concatenation with `+` allocates a new string each time. For the
-  constrained input (at most four digits) this is negligible, but accumulating
-  characters in a list and joining once (as in the backtracking solution) scales
-  better for longer inputs.
+  constrained input (at most four digits) this is negligible, but accumulating characters in a list and joining once (as in the backtracking solution) scales better for longer inputs.
 - Prefer `itertools.product` in production for conciseness and speed, but choose a
   from-scratch approach in interviews where demonstrating the algorithm matters.

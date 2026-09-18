@@ -41,43 +41,24 @@ The test cases are generated so that the answer will be less than or equal to `2
 
 ## Deriving the Solution
 
-A path is nothing but a sequence of down and right steps, and the number of paths
-onward from any cell depends only on that cell, never on how the robot arrived
-there. Every solution below exploits that one observation, ending with a
-formulation that skips the grid entirely.
+A path is nothing but a sequence of down and right steps, and the number of paths onward from any cell depends only on that cell, never on how the robot arrived there. Every solution below exploits that one observation, ending with a formulation that skips the grid entirely.
 
 1. **Start literal.** From any cell the robot steps down or right, so the count
-   from a cell is the count from the cell below plus the count from the cell to
-   its right. Recurse on both choices: correct but `O(2^(m + n))`, since nothing
-   is remembered: see [Recursion](#recursion).
+   from a cell is the count from the cell below plus the count from the cell to its right. Recurse on both choices: correct but `O(2^(m + n))`, since nothing is remembered: see [Recursion](#recursion).
 2. **Spot the waste.** Many distinct routes pass through the same cell, and the
-   recursion re-derives that cell's count once per route. The answer from
-   `(i, j)` never changes, yet it is recomputed exponentially often.
+   recursion re-derives that cell's count once per route. The answer from `(i, j)` never changes, yet it is recomputed exponentially often.
 3. **Cache it.** Store each cell's count the first time it is computed and answer
-   every later visit from the cache. Only `m × n` distinct cells exist, so the
-   work collapses to `O(m × n)`: see
-   [Top-Down Memoization](#top-down-memoization).
+   every later visit from the cache. Only `m × n` distinct cells exist, so the work collapses to `O(m × n)`: see [Top-Down Memoization](#top-down-memoization).
 4. **Fill the table directly.** The memo is a table filled lazily in whatever
-   order the recursion demands. Filling it row by row with an explicit loop
-   removes the recursion and its stack entirely: see
-   [Bottom-Up DP](#bottom-up-dp).
+   order the recursion demands. Filling it row by row with an explicit loop removes the recursion and its stack entirely: see [Bottom-Up DP](#bottom-up-dp).
 5. **Shrink the table.** Each row of that table reads only the row above it, so a
-   single reusable row of `n` counts is enough: see
-   [Space-Optimized DP](#space-optimized-dp).
+   single reusable row of `n` counts is enough: see [Space-Optimized DP](#space-optimized-dp).
 6. **Count instead of build.** Every path is exactly `m - 1` downs and `n - 1`
-   rights in some order, so the answer is the number of ways to place the downs
-   among `m + n - 2` moves: one binomial coefficient, computed in
-   `O(min(m, n))` time: see [Combinatorics](#combinatorics).
+   rights in some order, so the answer is the number of ways to place the downs among `m + n - 2` moves: one binomial coefficient, computed in `O(min(m, n))` time: see [Combinatorics](#combinatorics).
 7. **Let the library hold the cache.** The memo's membership test and store are
-   a mechanical wrapper around the recursion, and `functools.cache` is exactly
-   that wrapper. Decorating `count` deletes the dictionary bookkeeping while the
-   recurrence, the two base cases, and the top-down framing stay visible: see
-   [Top-Down Memoization with `functools.cache`](#top-down-memoization-with-functoolscache).
+   a mechanical wrapper around the recursion, and `functools.cache` is exactly that wrapper. Decorating `count` deletes the dictionary bookkeeping while the recurrence, the two base cases, and the top-down framing stay visible: see [Top-Down Memoization with `functools.cache`](#top-down-memoization-with-functoolscache).
 8. **Let the library evaluate the coefficient.** With the binomial derived and
-   proved in step 6, the multiply-then-divide loop is only a strategy for
-   evaluating it in exact integers, and `math.comb` already implements that
-   strategy, collapsing the solution to a single call: see
-   [Library One-Liner with `math.comb`](#library-one-liner-with-mathcomb).
+   proved in step 6, the multiply-then-divide loop is only a strategy for evaluating it in exact integers, and `math.comb` already implements that strategy, collapsing the solution to a single call: see [Library One-Liner with `math.comb`](#library-one-liner-with-mathcomb).
 
 ## Solutions
 
@@ -126,8 +107,7 @@ The root `count(0, 0)` adds its down branch (`2`) and its right branch (`1`) to 
 
 #### Solution
 
-The code is the call tree from the walkthrough: two base cases, then the down
-branch plus the right branch.
+The code is the call tree from the walkthrough: two base cases, then the down branch plus the right branch.
 
 ```python
 class Solution:
@@ -178,11 +158,7 @@ The pure recursion pays for its honesty: it re-solves `count(i, j)` on every rou
 
 #### Walkthrough
 
-Like the Recursion walkthrough, this trace uses Example 2 (`m = 3`, `n = 2`),
-which is small enough to draw and reaches the same cell along two different
-routes, so it exercises the memo. The trace indents one level per call; base
-cases (corner, off grid) return before the memo is consulted, so only interior
-cells are stored:
+Like the Recursion walkthrough, this trace uses Example 2 (`m = 3`, `n = 2`), which is small enough to draw and reaches the same cell along two different routes, so it exercises the memo. The trace indents one level per call; base cases (corner, off grid) return before the memo is consulted, so only interior cells are stored:
 
 ```text
 count(0,0)                       compute
@@ -203,15 +179,11 @@ count(0,0)                       compute
 memo[(0,0)] = 2 + 1 = 3
 ```
 
-The cell `(1, 1)` is reached twice: once through the down branch `(1, 0)` and
-once through the right branch `(0, 1)`. The pure recursion re-expanded it both
-times; here the second visit answers from `memo[(1, 1)]` without recursing. The
-call returns `3`, matching the expected Output for Example 2.
+The cell `(1, 1)` is reached twice: once through the down branch `(1, 0)` and once through the right branch `(0, 1)`. The pure recursion re-expanded it both times; here the second visit answers from `memo[(1, 1)]` without recursing. The call returns `3`, matching the expected Output for Example 2.
 
 #### Solution
 
-The code is the Recursion solution with the memo lookup and store wrapped around
-the branch; nothing else changes.
+The code is the Recursion solution with the memo lookup and store wrapped around the branch; nothing else changes.
 
 ```python
 class Solution:
@@ -268,31 +240,20 @@ The memoized recursion still carries a call stack and fills its table in an orde
 
 #### Recurrence
 
-Let `dp[i][j]` be the number of distinct paths from the origin to cell
-\((i, j)\). The robot only moves down or right, so it arrives from exactly one
-of two cells:
+Let `dp[i][j]` be the number of distinct paths from the origin to cell \((i, j)\). The robot only moves down or right, so it arrives from exactly one of two cells:
 
-$$
-dp[i][j] =
-\begin{cases}
-1, & i = 0 \ \text{ or } \ j = 0 \\[4pt]
-dp[i-1][j] + dp[i][j-1], & i, j \ge 1
-\end{cases}
-$$
+$$ dp[i][j] = \begin{cases} 1, & i = 0 \ \text{ or } \ j = 0 \\[4pt] dp[i-1][j] + dp[i][j-1], & i, j \ge 1 \end{cases} $$
 
 ```text
 dp[i][j] = 1                            for i == 0 or j == 0
 dp[i][j] = dp[i - 1][j] + dp[i][j - 1]  for i >= 1 and j >= 1
 ```
 
-The first row and first column are `1` because there is a single monotone path
-along an edge. The answer is \(dp[m-1][n-1]\).
+The first row and first column are `1` because there is a single monotone path along an edge. The answer is \(dp[m-1][n-1]\).
 
 #### Walkthrough
 
-Let us fill the table by hand on Example 1: `m = 3`, `n = 7`, expected Output
-`28`. The table starts as three rows of `1`s; row `0` and column `0` keep those
-values, and each later cell becomes the cell above plus the cell to the left:
+Let us fill the table by hand on Example 1: `m = 3`, `n = 7`, expected Output `28`. The table starts as three rows of `1`s; row `0` and column `0` keep those values, and each later cell becomes the cell above plus the cell to the left:
 
 ```text
 start   dp[0] = [1, 1, 1, 1,  1,  1,  1]    one path along the top edge
@@ -302,16 +263,13 @@ i = 1   dp[1] = [1, 2, 3, 4,  5,  6,  7]    dp[1][j] = dp[0][j] + dp[1][j-1]
 i = 2   dp[2] = [1, 3, 6, 10, 15, 21, 28]   dp[2][j] = dp[1][j] + dp[2][j-1]
 ```
 
-Two cells in detail: `dp[1][1] = dp[0][1] + dp[1][0] = 1 + 1 = 2`, and the final
-cell `dp[2][6] = dp[1][6] + dp[2][5] = 7 + 21 = 28`.
+Two cells in detail: `dp[1][1] = dp[0][1] + dp[1][0] = 1 + 1 = 2`, and the final cell `dp[2][6] = dp[1][6] + dp[2][5] = 7 + 21 = 28`.
 
-The function returns `dp[2][6] = 28`, matching the expected Output for
-Example 1.
+The function returns `dp[2][6] = 28`, matching the expected Output for Example 1.
 
 #### Solution
 
-The code is the row fill from the walkthrough: seed the table with `1`s, then
-sweep the interior cells in order.
+The code is the row fill from the walkthrough: seed the table with `1`s, then sweep the interior cells in order.
 
 ```python
 class Solution:
@@ -356,9 +314,7 @@ The 2D table wastes memory: once row `i` is filled, row `i - 1` is never read ag
 
 #### Walkthrough
 
-Let us run the single row on Example 1 again: `m = 3`, `n = 7`. Each pass of the
-outer loop turns the row for grid row `i - 1` into the row for grid row `i`,
-overwriting it left to right:
+Let us run the single row on Example 1 again: `m = 3`, `n = 7`. Each pass of the outer loop turns the row for grid row `i - 1` into the row for grid row `i`, overwriting it left to right:
 
 ```text
 start   dp = [1, 1, 1, 1, 1, 1, 1]         row 0: one path to each cell
@@ -369,9 +325,7 @@ i = 1   j = 1: dp[1] = 1 + 1 = 2           old dp[1] is the cell above,
 i = 2   dp = [1, 3, 6, 10, 15, 21, 28]     row 2 overwrites row 1 in place
 ```
 
-The rows that appear are exactly the rows of the 2D table, computed without ever
-storing more than one of them. The function returns `dp[6] = 28`, matching the
-expected Output for Example 1.
+The rows that appear are exactly the rows of the 2D table, computed without ever storing more than one of them. The function returns `dp[6] = 28`, matching the expected Output for Example 1.
 
 #### Solution
 
@@ -418,14 +372,9 @@ Every DP above still touches all `m × n` cells, but the grid is scaffolding: a 
 
 #### Closed Form
 
-Every path is a sequence of \(m-1\) down moves and \(n-1\) right moves in some
-order, so a path is fully determined by choosing which of the \(m+n-2\)
-positions hold the down moves:
+Every path is a sequence of \(m-1\) down moves and \(n-1\) right moves in some order, so a path is fully determined by choosing which of the \(m+n-2\) positions hold the down moves:
 
-$$
-\text{paths}(m, n) = \binom{m+n-2}{\,m-1\,} = \binom{m+n-2}{\,n-1\,}
-= \frac{(m+n-2)!}{(m-1)!\,(n-1)!}
-$$
+$$ \text{paths}(m, n) = \binom{m+n-2}{\,m-1\,} = \binom{m+n-2}{\,n-1\,} = \frac{(m+n-2)!}{(m-1)!\,(n-1)!} $$
 
 ```text
 paths(m, n) = (m + n - 2) choose (m - 1)
@@ -433,29 +382,20 @@ paths(m, n) = (m + n - 2) choose (m - 1)
             = (m + n - 2)! / ((m - 1)! * (n - 1)!)
 ```
 
-The two binomials are equal by the symmetry \(\binom{a}{b} = \binom{a}{a-b}\),
-which is what lets the loop iterate over the smaller of \(m-1\) and \(n-1\).
-The coefficient can be built one factor at a time:
+The two binomials are equal by the symmetry \(\binom{a}{b} = \binom{a}{a-b}\), which is what lets the loop iterate over the smaller of \(m-1\) and \(n-1\). The coefficient can be built one factor at a time:
 
-$$
-\binom{a}{k} = \prod_{i=0}^{k-1} \frac{a - i}{i + 1}
-$$
+$$ \binom{a}{k} = \prod_{i=0}^{k-1} \frac{a - i}{i + 1} $$
 
 ```text
 (a choose k) = product over i = 0 .. k - 1 of (a - i) / (i + 1)
                (empty product is 1, so (a choose 0) = 1)
 ```
 
-Building it that way keeps every partial result an exact integer, because the product of any \(i+1\)
-consecutive integers is divisible by \((i+1)!\). That is why the code can use
-floor division inside the loop without ever losing a remainder.
+Building it that way keeps every partial result an exact integer, because the product of any \(i+1\) consecutive integers is divisible by \((i+1)!\). That is why the code can use floor division inside the loop without ever losing a remainder.
 
 #### Walkthrough
 
-Let us evaluate the formula on Example 1: `m = 3`, `n = 7`. The path has
-`m - 1 = 2` downs and `n - 1 = 6` rights, and the loop builds the coefficient one
-factor at a time; after each iteration `i`, `result` equals
-`C(total_moves, i + 1)`:
+Let us evaluate the formula on Example 1: `m = 3`, `n = 7`. The path has `m - 1 = 2` downs and `n - 1 = 6` rights, and the loop builds the coefficient one factor at a time; after each iteration `i`, `result` equals `C(total_moves, i + 1)`:
 
 ```text
 total_moves = 3 + 7 - 2 = 8        8 moves: 2 downs and 6 rights
@@ -464,8 +404,7 @@ i = 0   result = 1 * 8 // 1 = 8    C(8, 1)
 i = 1   result = 8 * 7 // 2 = 28   C(8, 2)
 ```
 
-The loop ends with `result = C(8, 2) = 28`: there are 28 ways to place the two
-down moves among eight positions, matching the expected Output for Example 1.
+The loop ends with `result = C(8, 2) = 28`: there are 28 ways to place the two down moves among eight positions, matching the expected Output for Example 1.
 
 #### Solution
 
@@ -507,38 +446,21 @@ We use only a constant number of variables.
 
 #### Derivation
 
-The memoized recursion spends four of its lines on bookkeeping that has nothing
-to do with counting paths: allocating `memo`, testing membership, assigning the
-computed value, and returning it.
-[`functools.cache`](https://docs.python.org/3/library/functools.html#functools.cache)
-performs exactly that lookup-compute-store cycle, keyed on the call's argument
-tuple, so decorating `count` deletes all four lines while the recurrence, the two
-base cases, and the top-down framing stay on the page unchanged. What moves is
-the dictionary handling; what stays is every line that expresses the algorithm,
-which is why this is the memoization above rather than a new idea.
+The memoized recursion spends four of its lines on bookkeeping that has nothing to do with counting paths: allocating `memo`, testing membership, assigning the computed value, and returning it. [`functools.cache`](https://docs.python.org/3/library/functools.html#functools.cache) performs exactly that lookup-compute-store cycle, keyed on the call's argument tuple, so decorating `count` deletes all four lines while the recurrence, the two base cases, and the top-down framing stay on the page unchanged. What moves is the dictionary handling; what stays is every line that expresses the algorithm, which is why this is the memoization above rather than a new idea.
 
-One detail changes substance rather than style. The decorator wraps the entire
-function, so the corner and off-grid answers are cached too, whereas the
-hand-rolled memo returned from its base cases before ever consulting the
-dictionary. The cache therefore holds a few boundary cells the memo never stored,
-and repeat visits to those cells now answer from the cache instead of re-running
-the two comparisons.
+One detail changes substance rather than style. The decorator wraps the entire function, so the corner and off-grid answers are cached too, whereas the hand-rolled memo returned from its base cases before ever consulting the dictionary. The cache therefore holds a few boundary cells the memo never stored, and repeat visits to those cells now answer from the cache instead of re-running the two comparisons.
 
 1. Keep the `count(i, j)` recursion, its two base cases, and its
    down-plus-right sum exactly as in the Top-Down Memoization solution.
 2. Define `count` inside `uniquePaths` and decorate it with `@cache`, so a fresh
-   cache is created on every call and the closure captures this call's `m` and
-   `n`.
+   cache is created on every call and the closure captures this call's `m` and `n`.
 3. Delete the `memo` dictionary, the `(i, j) in memo` test, and the store: the
    decorator keys on `(i, j)` and serves every repeat call from its own table.
 4. The answer is still `count(0, 0)`.
 
 #### Walkthrough
 
-This trace uses Example 2 (`m = 3`, `n = 2`, expected Output `3`), the same case
-the Top-Down Memoization walkthrough traced, so the two can be compared line for
-line. Indentation is one level per call, and every call is now routed through the
-cache before the body runs:
+This trace uses Example 2 (`m = 3`, `n = 2`, expected Output `3`), the same case the Top-Down Memoization walkthrough traced, so the two can be compared line for line. Indentation is one level per call, and every call is now routed through the cache before the body runs:
 
 ```text
 count(0,0)                       miss, compute
@@ -559,18 +481,11 @@ count(0,0)                       miss, compute
 count(0,0) = 2 + 1 = 3           cached
 ```
 
-The cell `(1, 1)` is reached twice and answered from the cache the second time,
-just as in the hand-rolled version. The visible difference is `(2, 1)`, the
-corner: the manual memo re-ran its base-case test on the second visit because
-base cases returned before the lookup, while `@cache` serves it as a hit. The
-cache ends holding nine entries: the five interior cells the manual memo stored,
-plus the corner and the three off-grid cells it never did. The call returns `3`,
-matching the expected Output for Example 2.
+The cell `(1, 1)` is reached twice and answered from the cache the second time, just as in the hand-rolled version. The visible difference is `(2, 1)`, the corner: the manual memo re-ran its base-case test on the second visit because base cases returned before the lookup, while `@cache` serves it as a hit. The cache ends holding nine entries: the five interior cells the manual memo stored, plus the corner and the three off-grid cells it never did. The call returns `3`, matching the expected Output for Example 2.
 
 #### Solution
 
-The Top-Down Memoization code with the dictionary handling replaced by the
-decorator; the recursion body is untouched.
+The Top-Down Memoization code with the dictionary handling replaced by the decorator; the recursion body is untouched.
 
 ```python
 from functools import cache
@@ -599,61 +514,39 @@ class Solution:
 
 ##### Time Complexity: `O(m × n)`
 
-The recurrence is unchanged, so each of the `m × n` cells still runs its body at
-most once and every repeated visit is a constant-time hit. The decorator's hit
-path hashes the `(i, j)` tuple and reads a dictionary, the same two operations
-the hand-rolled memo performed inline, so the constant factor is comparable
-rather than free.
+The recurrence is unchanged, so each of the `m × n` cells still runs its body at most once and every repeated visit is a constant-time hit. The decorator's hit path hashes the `(i, j)` tuple and reads a dictionary, the same two operations the hand-rolled memo performed inline, so the constant factor is comparable rather than free.
 
 ##### Space Complexity: `O(m × n)`
 
-The cache holds one entry per cell the recursion reaches, which is the `m × n`
-interior cells plus the `O(m + n)` boundary cells just past the last row and
-column, so it is `O(m × n)` overall. The recursion stack adds `O(m + n)` frames,
-at most 198 under the constraints. `cache` is unbounded by design, but the
-closure is discarded when `uniquePaths` returns, so nothing survives the call.
+The cache holds one entry per cell the recursion reaches, which is the `m × n` interior cells plus the `O(m + n)` boundary cells just past the last row and column, so it is `O(m × n)` overall. The recursion stack adds `O(m + n)` frames, at most 198 under the constraints. `cache` is unbounded by design, but the closure is discarded when `uniquePaths` returns, so nothing survives the call.
 
 #### Key Insights
 
 - Only the bookkeeping moves to the library: the recurrence, the base cases, and
-  the fact that a cell's count depends on the cell alone are what make `(i, j)` a
-  valid cache key, and none of that is something `@cache` supplies.
+  the fact that a cell's count depends on the cell alone are what make `(i, j)` a valid cache key, and none of that is something `@cache` supplies.
 - Decorating the inner closure is a correctness requirement, not a style choice.
-  A cached method or module-level function keyed on `(i, j)` alone would carry
-  results across calls with different `m` and `n` and answer for the wrong grid.
+  A cached method or module-level function keyed on `(i, j)` alone would carry results across calls with different `m` and `n` and answer for the wrong grid.
 - `@cache` memoizes the base cases as well, which the hand-rolled memo skipped by
-  returning early: nine cached entries against five on the 3 x 2 grid, buying the
-  deletion of the lookup and store lines.
+  returning early: nine cached entries against five on the 3 x 2 grid, buying the deletion of the lookup and store lines.
 - The cache grows without bound, which is harmless here because `m, n <= 100`
-  caps it near `10^4` entries and it dies with the enclosing call; a long-lived
-  cached function would want `functools.lru_cache(maxsize=...)` instead.
+  caps it near `10^4` entries and it dies with the enclosing call; a long-lived cached function would want `functools.lru_cache(maxsize=...)` instead.
 
 ### Library One-Liner with `math.comb`
 
 #### Derivation
 
-The Combinatorics section does the load-bearing work: it derives that a path is
-determined by choosing which `m - 1` of the `m + n - 2` moves are downs, and
-proves that building `C(m+n-2, m-1)` one factor at a time keeps every partial
-value an exact integer. What remains after that derivation is arithmetic, and
-[`math.comb`](https://docs.python.org/3/library/math.html#math.comb) evaluates
-binomial coefficients exactly. So the loop, the `min(m - 1, n - 1)` symmetry
-reduction, and the multiply-before-divide ordering all move into the library,
-leaving one line that states the closed form and nothing else.
+The Combinatorics section does the load-bearing work: it derives that a path is determined by choosing which `m - 1` of the `m + n - 2` moves are downs, and proves that building `C(m+n-2, m-1)` one factor at a time keeps every partial value an exact integer. What remains after that derivation is arithmetic, and [`math.comb`](https://docs.python.org/3/library/math.html#math.comb) evaluates binomial coefficients exactly. So the loop, the `min(m - 1, n - 1)` symmetry reduction, and the multiply-before-divide ordering all move into the library, leaving one line that states the closed form and nothing else.
 
 1. Read the closed form off the Combinatorics derivation: the answer is
    `C(m + n - 2, m - 1)`, the number of ways to place the down moves.
 2. Pass those two numbers to `math.comb(m + n - 2, m - 1)`, which computes the
    coefficient in exact integer arithmetic.
 3. Return that value. No `min(m - 1, n - 1)` selection is written, because
-   `math.comb` applies the symmetry `C(a, b) = C(a, a - b)` internally and
-   iterates the smaller side itself.
+   `math.comb` applies the symmetry `C(a, b) = C(a, a - b)` internally and iterates the smaller side itself.
 
 #### Walkthrough
 
-There is no loop left to trace, so the trace is what the two arguments mean and
-what the library evaluates. On Example 1 (`m = 3`, `n = 7`, expected Output
-`28`):
+There is no loop left to trace, so the trace is what the two arguments mean and what the library evaluates. On Example 1 (`m = 3`, `n = 7`, expected Output `28`):
 
 ```text
 m + n - 2 = 3 + 7 - 2 = 8      8 moves in total: 2 downs and 6 rights
@@ -661,9 +554,7 @@ m - 1     = 3 - 1     = 2      choose the 2 positions holding the down moves
 math.comb(8, 2) = 8! / (2! * 6!) = (8 * 7) / (2 * 1) = 28
 ```
 
-The single call returns `28`, matching the expected Output for Example 1. The
-symmetric form agrees, as the derivation promised: `math.comb(8, 6)` is also
-`28`, so writing `n - 1` in place of `m - 1` would be equally correct.
+The single call returns `28`, matching the expected Output for Example 1. The symmetric form agrees, as the derivation promised: `math.comb(8, 6)` is also `28`, so writing `n - 1` in place of `m - 1` would be equally correct.
 
 #### Solution
 
@@ -684,29 +575,20 @@ class Solution:
 
 ##### Time Complexity: `O(min(m, n))`
 
-`math.comb(a, k)` reduces `k` to `min(k, a - k)` and then combines that many
-factors, which is the same `min(m - 1, n - 1)` factor count the hand-rolled loop
-performs, so the two carry the same bound. CPython implements the combination in
-C over exact integers rather than in a Python loop, so the constant factor is
-far smaller even though the asymptotics match.
+`math.comb(a, k)` reduces `k` to `min(k, a - k)` and then combines that many factors, which is the same `min(m - 1, n - 1)` factor count the hand-rolled loop performs, so the two carry the same bound. CPython implements the combination in C over exact integers rather than in a Python loop, so the constant factor is far smaller even though the asymptotics match.
 
 ##### Space Complexity: `O(1)`
 
-A single integer result and a couple of intermediate values, with no table,
-cache, or recursion stack. The answer is bounded by `2 * 10^9` per the problem
-statement, so it fits in one machine word's worth of digits.
+A single integer result and a couple of intermediate values, with no table, cache, or recursion stack. The answer is bounded by `2 * 10^9` per the problem statement, so it fits in one machine word's worth of digits.
 
 #### Key Insights
 
 - The one-liner is only legitimate because the section above it derives the
-  binomial: `math.comb` evaluates a formula it cannot explain, and being able to
-  explain why the count is `C(m+n-2, m-1)` is what an interviewer is testing.
+  binomial: `math.comb` evaluates a formula it cannot explain, and being able to explain why the count is `C(m+n-2, m-1)` is what an interviewer is testing.
 - It hides both things the hand-rolled loop existed to get right: the symmetry
-  reduction to the smaller of `m - 1` and `n - 1`, and the multiply-then-divide
-  ordering that keeps every partial product an exact integer.
+  reduction to the smaller of `m - 1` and `n - 1`, and the multiply-then-divide ordering that keeps every partial product an exact integer.
 - Python's unbounded integers mean neither version can overflow; the same
-  formula in a fixed-width language still needs the loop's ordering to keep
-  intermediate values in range.
+  formula in a fixed-width language still needs the loop's ordering to keep intermediate values in range.
 - `math.comb` requires Python 3.8 or newer, so the explicit loop remains the
   portable form on older interpreters.
 

@@ -45,28 +45,16 @@ The distance between two adjacent cells is `1`.
 
 ## Deriving the Solution
 
-Every solution reads the problem as computing a shortest-distance field: each cell
-needs the length of the shortest four-directional path to some `0`. The approaches
-differ only in who does the searching: each `1`-cell on its own, a pair of
-directional sweeps, or all the `0`-cells at once.
+Every solution reads the problem as computing a shortest-distance field: each cell needs the length of the shortest four-directional path to some `0`. The approaches differ only in who does the searching: each `1`-cell on its own, a pair of directional sweeps, or all the `0`-cells at once.
 
 1. **Start literal.** Ask the question cell by cell: from each `1`, search outward
-   level by level until a `0` appears. Correct, but each search can scan the whole
-   grid, costing `O((mn)^2)`: see
-   [Single-Source BFS from Each Cell](#single-source-bfs-from-each-cell).
+   level by level until a `0` appears. Correct, but each search can scan the whole grid, costing `O((mn)^2)`: see [Single-Source BFS from Each Cell](#single-source-bfs-from-each-cell).
 2. **Spot the waste.** Neighboring `1`-cells explore nearly the same region, and
-   none of that work is shared. The distance field obeys a local rule (a cell's
-   distance is one more than its closest neighbor's), yet every BFS recomputes it
-   from nothing.
+   none of that work is shared. The distance field obeys a local rule (a cell's distance is one more than its closest neighbor's), yet every BFS recomputes it from nothing.
 3. **Evaluate the local rule with sweeps.** The rule is circular as written (each
-   cell depends on all four neighbors), but splitting the neighbors by direction
-   breaks the cycle: a top-left-to-bottom-right pass and a bottom-right-to-top-left
-   pass settle every cell in `O(mn)`: see
-   [Two-Pass Dynamic Programming](#two-pass-dynamic-programming).
+   cell depends on all four neighbors), but splitting the neighbors by direction breaks the cycle: a top-left-to-bottom-right pass and a bottom-right-to-top-left pass settle every cell in `O(mn)`: see [Two-Pass Dynamic Programming](#two-pass-dynamic-programming).
 4. **Flip the search instead.** Return to BFS but reverse its direction: one search
-   that starts from every `0` simultaneously grows the distance field outward in
-   lockstep, finalizing each cell the first time the frontier reaches it, also in
-   `O(mn)`: see [Multi-Source BFS](#multi-source-bfs).
+   that starts from every `0` simultaneously grows the distance field outward in lockstep, finalizing each cell the first time the frontier reaches it, also in `O(mn)`: see [Multi-Source BFS](#multi-source-bfs).
 
 ## Solutions
 
@@ -74,12 +62,7 @@ directional sweeps, or all the `0`-cells at once.
 
 #### Derivation
 
-The problem asks, for each cell, "how far is the nearest `0`?", so the most literal
-idea is to answer exactly that question, one cell at a time. Expanding outward from
-a `1`-cell ring by ring visits cells in order of increasing distance, which is
-precisely what [breadth-first search](https://en.wikipedia.org/wiki/Breadth-first_search)
-does: the first `0` it dequeues is therefore guaranteed to be the nearest one,
-which makes the per-cell answer correct.
+The problem asks, for each cell, "how far is the nearest `0`?", so the most literal idea is to answer exactly that question, one cell at a time. Expanding outward from a `1`-cell ring by ring visits cells in order of increasing distance, which is precisely what [breadth-first search](https://en.wikipedia.org/wiki/Breadth-first_search) does: the first `0` it dequeues is therefore guaranteed to be the nearest one, which makes the per-cell answer correct.
 
 1. Allocate a `dist` matrix of zeros; cells that already hold `0` keep distance `0`.
 2. For every cell containing `1`, run a `bfs` starting at that cell, tracking a
@@ -90,12 +73,7 @@ which makes the per-cell answer correct.
 
 #### Walkthrough
 
-Let us watch this first solution run on Example 2, since Example 1 has only a
-single `1`-cell that resolves in one step. The input is
-`mat = [[0,0,0],[0,1,0],[1,1,1]]`, so the four `1`-cells are at `(1,1)`, `(2,0)`,
-`(2,1)`, and `(2,2)`. The outer loops set `dist` to `0` for every `0`-cell and
-launch a `bfs` from each `1`-cell. Cells are tried in row-major order, and each
-`bfs` enqueues neighbors in the order `up, down, left, right`.
+Let us watch this first solution run on Example 2, since Example 1 has only a single `1`-cell that resolves in one step. The input is `mat = [[0,0,0],[0,1,0],[1,1,1]]`, so the four `1`-cells are at `(1,1)`, `(2,0)`, `(2,1)`, and `(2,2)`. The outer loops set `dist` to `0` for every `0`-cell and launch a `bfs` from each `1`-cell. Cells are tried in row-major order, and each `bfs` enqueues neighbors in the order `up, down, left, right`.
 
 **`bfs` from `(1,1)`:** start the queue with `(1,1, d=0)`, marked visited.
 
@@ -115,8 +93,7 @@ So `dist[1][1] = 1`.
 
 So `dist[2][0] = 1`.
 
-**`bfs` from `(2,1)`:** start with `(2,1, 0)`. This is the deep case, the cell two
-steps from any `0`.
+**`bfs` from `(2,1)`:** start with `(2,1, 0)`. This is the deep case, the cell two steps from any `0`.
 
 | pop `(x,y,d)` | `mat[x][y]` | action |
 | --- | --- | --- |
@@ -126,9 +103,7 @@ steps from any `0`.
 | `(2,2, 1)` | `1` | (no new unvisited neighbors) |
 | `(0,1, 2)` | `0` | hit a `0`: return `2` |
 
-So `dist[2][1] = 2`. Notice BFS exhausts every cell at distance `1` (all still
-`1`-cells) before reaching the `0` at distance `2`, which is exactly why the first
-`0` dequeued is guaranteed to be the nearest.
+So `dist[2][1] = 2`. Notice BFS exhausts every cell at distance `1` (all still `1`-cells) before reaching the `0` at distance `2`, which is exactly why the first `0` dequeued is guaranteed to be the nearest.
 
 **`bfs` from `(2,2)`:** start with `(2,2, 0)`.
 
@@ -139,13 +114,11 @@ So `dist[2][1] = 2`. Notice BFS exhausts every cell at distance `1` (all still
 
 So `dist[2][2] = 1`.
 
-Filling these answers into the all-zero `dist` matrix gives
-`[[0,0,0],[0,1,0],[1,2,1]]`, which matches the expected Output.
+Filling these answers into the all-zero `dist` matrix gives `[[0,0,0],[0,1,0],[1,2,1]]`, which matches the expected Output.
 
 #### Solution
 
-The code is the walkthrough's per-cell search: the outer loops visit every
-`1`-cell and `bfs` returns the level of the first `0` dequeued.
+The code is the walkthrough's per-cell search: the outer loops visit every `1`-cell and `bfs` returns the level of the first `0` dequeued.
 
 ```python
 from collections import deque
@@ -182,13 +155,11 @@ class Solution:
 
 ##### Time Complexity: `O((mn)^2)`
 
-Each of the up to `mn` cells containing `1` launches a BFS that can visit every
-one of the `mn` cells, so the total work is `O(mn * mn) = O((mn)^2)`.
+Each of the up to `mn` cells containing `1` launches a BFS that can visit every one of the `mn` cells, so the total work is `O(mn * mn) = O((mn)^2)`.
 
 ##### Space Complexity: `O(mn)`
 
-Each BFS allocates a fresh `visited` matrix and a queue, both bounded by the grid
-size `mn`. The allocation is reused per call, so peak auxiliary space is `O(mn)`.
+Each BFS allocates a fresh `visited` matrix and a queue, both bounded by the grid size `mn`. The allocation is reused per call, so peak auxiliary space is `O(mn)`.
 
 #### Key Insights
 
@@ -202,15 +173,7 @@ size `mn`. The allocation is reused per call, so peak auxiliary space is `O(mn)`
 
 #### Derivation
 
-The per-cell BFS pays for every cell separately: adjacent `1`-cells re-explore the
-same region and share none of the work. The repair is to ask what one cell's answer
-tells us about its neighbor's. The shortest route from a cell to a `0` steps first
-into some neighbor, whose own distance must be exactly one smaller, so the distance
-field satisfies a local rule: a cell's distance is `1 +` the minimum of its four
-neighbors' distances (and `0` on a `0`-cell). That rule is circular as written,
-since each cell depends on neighbors not yet computed, but splitting the
-neighborhood by direction breaks the cycle: a forward sweep resolves the up and
-left dependencies, and a backward sweep the down and right ones.
+The per-cell BFS pays for every cell separately: adjacent `1`-cells re-explore the same region and share none of the work. The repair is to ask what one cell's answer tells us about its neighbor's. The shortest route from a cell to a `0` steps first into some neighbor, whose own distance must be exactly one smaller, so the distance field satisfies a local rule: a cell's distance is `1 +` the minimum of its four neighbors' distances (and `0` on a `0`-cell). That rule is circular as written, since each cell depends on neighbors not yet computed, but splitting the neighborhood by direction breaks the cycle: a forward sweep resolves the up and left dependencies, and a backward sweep the down and right ones.
 
 1. Initialize `dist` to infinity everywhere; set each `0`-cell to distance `0`.
 2. First pass moves top-left to bottom-right, considering only the top and left
@@ -219,34 +182,21 @@ left dependencies, and a backward sweep the down and right ones.
    right neighbors: `dist[i][j] = min(dist[i][j], dist[i+1][j] + 1, dist[i][j+1] + 1)`.
 4. After both passes every cell has seen the best path from all four directions.
 
-The shortest path to a `0` is monotone in Manhattan steps, so splitting it into a
-forward pass (top and left) and a backward pass (bottom and right) captures every
-possible approach direction.
+The shortest path to a `0` is monotone in Manhattan steps, so splitting it into a forward pass (top and left) and a backward pass (bottom and right) captures every possible approach direction.
 
 #### Recurrence
 
-The quantity being computed is a distance transform under the
-[taxicab metric](https://en.wikipedia.org/wiki/Taxicab_geometry):
+The quantity being computed is a distance transform under the [taxicab metric](https://en.wikipedia.org/wiki/Taxicab_geometry):
 
-$$
-\text{dist}[i][j] = \min_{\substack{(a,b) \\ \text{mat}[a][b] = 0}}
-\bigl(|i - a| + |j - b|\bigr)
-$$
+$$ \text{dist}[i][j] = \min_{\substack{(a,b) \\ \text{mat}[a][b] = 0}} \bigl(|i - a| + |j - b|\bigr) $$
 
 ```text
 dist[i][j] = min(abs(i - a) + abs(j - b)) over all (a, b) with mat[a][b] == 0
 ```
 
-Stated that way it looks quadratic, but the shortest route to a `0` steps
-through a neighbor whose own distance is one smaller, which gives a local rule:
+Stated that way it looks quadratic, but the shortest route to a `0` steps through a neighbor whose own distance is one smaller, which gives a local rule:
 
-$$
-\text{dist}[i][j] =
-\begin{cases}
-0, & \text{mat}[i][j] = 0 \\[4pt]
-1 + \displaystyle\min_{(a,b)\,\in\,N(i,j)} \text{dist}[a][b], & \text{otherwise}
-\end{cases}
-$$
+$$ \text{dist}[i][j] = \begin{cases} 0, & \text{mat}[i][j] = 0 \\[4pt] 1 + \displaystyle\min_{(a,b)\,\in\,N(i,j)} \text{dist}[a][b], & \text{otherwise} \end{cases} $$
 
 ```text
 dist[i][j] = 0,                     if mat[i][j] == 0
@@ -254,20 +204,11 @@ dist[i][j] = 1 + min(dist[a][b]),   otherwise
              (min over the four neighbors (a, b) of (i, j))
 ```
 
-where \(N(i,j)\) is the four-neighborhood. This is circular as written (each
-cell depends on all four neighbors, including ones not yet computed), so it
-cannot be evaluated in a single sweep. Splitting the neighborhood by direction
-breaks the cycle: the forward pass resolves the up and left dependencies, and
-the backward pass the down and right ones. Every shortest path is monotone in
-each axis, so one pass in each direction suffices.
+where \(N(i,j)\) is the four-neighborhood. This is circular as written (each cell depends on all four neighbors, including ones not yet computed), so it cannot be evaluated in a single sweep. Splitting the neighborhood by direction breaks the cycle: the forward pass resolves the up and left dependencies, and the backward pass the down and right ones. Every shortest path is monotone in each axis, so one pass in each direction suffices.
 
 #### Walkthrough
 
-On both official Examples the forward pass alone already produces the final
-answer, because every `1`-cell has a nearest `0` above or to its left, so the
-backward pass never changes a cell. To see the second pass earn its keep we use a
-small tailored input instead: `mat = [[1,1],[0,1]]`, whose only `0` sits below and
-left of the top row.
+On both official Examples the forward pass alone already produces the final answer, because every `1`-cell has a nearest `0` above or to its left, so the backward pass never changes a cell. To see the second pass earn its keep we use a small tailored input instead: `mat = [[1,1],[0,1]]`, whose only `0` sits below and left of the top row.
 
 The forward pass walks row-major, reading only the top and left neighbors:
 
@@ -279,9 +220,7 @@ init         dist = [[inf, inf], [inf, inf]]    only 0-cells would start at 0
 (1,1) mat=1  min(top inf + 1, left 0 + 1)       dist[1][1] = 1
 ```
 
-After the forward pass `dist = [[inf, inf], [0, 1]]`: the whole top row is still
-infinite, because no `0` lies above or to the left of it. The backward pass walks
-bottom-right to top-left, reading only the bottom and right neighbors:
+After the forward pass `dist = [[inf, inf], [0, 1]]`: the whole top row is still infinite, because no `0` lies above or to the left of it. The backward pass walks bottom-right to top-left, reading only the bottom and right neighbors:
 
 ```text
 (1,1)        no bottom, no right                dist[1][1] stays 1
@@ -290,15 +229,11 @@ bottom-right to top-left, reading only the bottom and right neighbors:
 (0,0)        min(bottom 0 + 1, right 2 + 1)     dist[0][0] = 1
 ```
 
-The final matrix is `[[1, 2], [0, 1]]`, and each value is the Manhattan distance
-to the lone `0` at `(1,0)`: for instance `(0,1)` is `|0-1| + |1-0| = 2` away. The
-forward pass left both top cells at infinity and the backward pass repaired both,
-which is exactly why the two passes are only correct together.
+The final matrix is `[[1, 2], [0, 1]]`, and each value is the Manhattan distance to the lone `0` at `(1,0)`: for instance `(0,1)` is `|0-1| + |1-0| = 2` away. The forward pass left both top cells at infinity and the backward pass repaired both, which is exactly why the two passes are only correct together.
 
 #### Solution
 
-The code is the two sweeps from the walkthrough: the forward pass reads the top
-and left neighbors, the backward pass the bottom and right ones.
+The code is the two sweeps from the walkthrough: the forward pass reads the top and left neighbors, the backward pass the bottom and right ones.
 
 ```python
 from typing import List
@@ -332,13 +267,11 @@ class Solution:
 
 ##### Time Complexity: `O(mn)`
 
-Two sweeps over the grid, each visiting every cell once and doing constant work
-per cell, give `O(mn)`.
+Two sweeps over the grid, each visiting every cell once and doing constant work per cell, give `O(mn)`.
 
 ##### Space Complexity: `O(mn)`
 
-A single `dist` matrix of size `mn` is allocated; no queue or recursion stack is
-used.
+A single `dist` matrix of size `mn` is allocated; no queue or recursion stack is used.
 
 #### Key Insights
 
@@ -351,32 +284,20 @@ used.
 
 #### Derivation
 
-The two-pass DP reaches `O(mn)` but gives up the shortest-path mental model that
-made the per-cell BFS easy to trust. There is a repair that keeps the model: the
-waste in the first approach is not the searching itself but its direction. Many
-searches run from the `1`-cells toward the `0`s; run one
-[BFS](https://en.wikipedia.org/wiki/Breadth-first_search) the other way instead,
-starting from every `0`-cell at the same time, and let the distance field grow
-outward in lockstep.
+The two-pass DP reaches `O(mn)` but gives up the shortest-path mental model that made the per-cell BFS easy to trust. There is a repair that keeps the model: the waste in the first approach is not the searching itself but its direction. Many searches run from the `1`-cells toward the `0`s; run one [BFS](https://en.wikipedia.org/wiki/Breadth-first_search) the other way instead, starting from every `0`-cell at the same time, and let the distance field grow outward in lockstep.
 
 1. Initialize `dist` to infinity, then set every `0`-cell to `0` and enqueue it.
 2. Pop a cell and relax each of its four neighbors: if reaching the neighbor
-   through the current cell is shorter (`dist[ni][nj] > dist[i][j] + 1`), update
-   its distance and enqueue it.
+   through the current cell is shorter (`dist[ni][nj] > dist[i][j] + 1`), update its distance and enqueue it.
 3. Because all sources start at distance `0` and the queue processes cells in
-   non-decreasing distance order, the first time a `1`-cell is finalized it holds
-   the minimum distance to any `0`.
+   non-decreasing distance order, the first time a `1`-cell is finalized it holds the minimum distance to any `0`.
 4. Continue until the queue drains, then return `dist`.
 
-Conceptually this is a single BFS over a graph augmented with a virtual super-source
-connected to all zeros, which yields the shortest distance to the nearest `0` for
-every cell at once.
+Conceptually this is a single BFS over a graph augmented with a virtual super-source connected to all zeros, which yields the shortest distance to the nearest `0` for every cell at once.
 
 #### Walkthrough
 
-Let us run the seeded search on Example 2: `mat = [[0,0,0],[0,1,0],[1,1,1]]`. The
-seeding loop sets the five `0`-cells to distance `0` and enqueues them in row-major
-order, leaving the four `1`-cells at infinity:
+Let us run the seeded search on Example 2: `mat = [[0,0,0],[0,1,0],[1,1,1]]`. The seeding loop sets the five `0`-cells to distance `0` and enqueues them in row-major order, leaving the four `1`-cells at infinity:
 
 ```text
 seed         queue = (0,0) (0,1) (0,2) (1,0) (1,2)    all at dist 0
@@ -391,19 +312,13 @@ pop (2,2)    (2,1): 2 not > 1 + 1                      no change
 pop (2,1)    every neighbor already closer             queue drains
 ```
 
-The queue processes all five distance-`0` cells before any distance-`1` cell, so
-each `1`-cell is finalized the first time the frontier touches it: `(1,1)`,
-`(2,0)`, and `(2,2)` at distance `1`, then `(2,1)` at distance `2` through
-`(1,1)`. When `(2,0)` and `(2,2)` later offer `(2,1)` the same distance `2`, the
-`>` test rejects the update, so no cell is ever enqueued twice with a worse value.
+The queue processes all five distance-`0` cells before any distance-`1` cell, so each `1`-cell is finalized the first time the frontier touches it: `(1,1)`, `(2,0)`, and `(2,2)` at distance `1`, then `(2,1)` at distance `2` through `(1,1)`. When `(2,0)` and `(2,2)` later offer `(2,1)` the same distance `2`, the `>` test rejects the update, so no cell is ever enqueued twice with a worse value.
 
-The final field is `dist = [[0,0,0],[0,1,0],[1,2,1]]`, matching the expected
-Output.
+The final field is `dist = [[0,0,0],[0,1,0],[1,2,1]]`, matching the expected Output.
 
 #### Solution
 
-The code is the walkthrough's seeded queue: every `0`-cell starts at distance `0`
-and each pop relaxes its four neighbors.
+The code is the walkthrough's seeded queue: every `0`-cell starts at distance `0` and each pop relaxes its four neighbors.
 
 ```python
 from collections import deque
@@ -436,13 +351,11 @@ class Solution:
 
 ##### Time Complexity: `O(mn)`
 
-Every cell is enqueued and dequeued at most once, and each dequeue inspects four
-neighbors, so the total work is linear in the grid size `mn`.
+Every cell is enqueued and dequeued at most once, and each dequeue inspects four neighbors, so the total work is linear in the grid size `mn`.
 
 ##### Space Complexity: `O(mn)`
 
-The `dist` matrix is size `mn`, and the queue can hold up to `mn` cells in the
-worst case.
+The `dist` matrix is size `mn`, and the queue can hold up to `mn` cells in the worst case.
 
 #### Key Insights
 
@@ -470,11 +383,9 @@ worst case.
 ### Trade-offs
 
 - The single-source BFS from each 1 gains conceptual simplicity (treat each
-  1-cell independently) but gives up all practicality, collapsing to quadratic
-  time and causing Time Limit Exceeded on large grids.
+  1-cell independently) but gives up all practicality, collapsing to quadratic time and causing Time Limit Exceeded on large grids.
 - The two-pass DP and multi-source BFS both reach the optimal `O(mn)` bound; the
-  BFS is the more natural fit for a shortest-path framing, while the DP trades the
-  queue for two simple directional sweeps.
+  BFS is the more natural fit for a shortest-path framing, while the DP trades the queue for two simple directional sweeps.
 - The two-pass DP gives up the shortest-path mental model in exchange for a purely
   iterative, queue-free implementation.
 - Multi-source BFS gains intuitiveness and an obvious correctness argument but pays

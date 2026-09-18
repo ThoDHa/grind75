@@ -43,30 +43,16 @@ A **valid BST** is defined as follows:
 
 ## Deriving the Solution
 
-The BST definition constrains every node against all of its ancestors, not just
-its parent: "the left subtree contains only smaller keys" reaches down to the
-deepest descendant. Every solution below is a different way of enforcing that
-global constraint; they differ in how much work each node repeats.
+The BST definition constrains every node against all of its ancestors, not just its parent: "the left subtree contains only smaller keys" reaches down to the deepest descendant. Every solution below is a different way of enforcing that global constraint; they differ in how much work each node repeats.
 
 1. **Start literal.** Apply the definition word for word: at every node, scan
-   its entire left subtree for values below `node.val`, scan its entire right
-   subtree for values above it, then recurse into both children. Correct, but
-   each descendant is rescanned once per ancestor, `O(n^2)` on a skewed tree:
-   see [Brute Force](#brute-force).
+   its entire left subtree for values below `node.val`, scan its entire right subtree for values above it, then recurse into both children. Correct, but each descendant is rescanned once per ancestor, `O(n^2)` on a skewed tree: see [Brute Force](#brute-force).
 2. **Spot the waste.** By the time the traversal reaches a node, its ancestors
-   have already dictated everything it must satisfy: stay above the last
-   ancestor it descended right from, stay below the last ancestor it descended
-   left from. Two numbers summarize every ancestor constraint, so the repeated
-   subtree scans re-derive information the path down already carried.
+   have already dictated everything it must satisfy: stay above the last ancestor it descended right from, stay below the last ancestor it descended left from. Two numbers summarize every ancestor constraint, so the repeated subtree scans re-derive information the path down already carried.
 3. **Carry the bounds down.** Pass an open interval `(low, high)` into each
-   recursive call, tightening one side per descent, and check each node once
-   against its interval. One `O(n)` pass: see
-   [Recursive Bounds](#recursive-bounds).
+   recursive call, tightening one side per descent, and check each node once against its interval. One `O(n)` pass: see [Recursive Bounds](#recursive-bounds).
 4. **Use the sorted-order property.** An inorder traversal of a valid BST
-   visits values in strictly increasing order, and the converse holds too.
-   Checking that each visited value exceeds the previous one validates the
-   tree in one pass while tracking a single number: see
-   [Inorder Traversal](#inorder-traversal).
+   visits values in strictly increasing order, and the converse holds too. Checking that each visited value exceeds the previous one validates the tree in one pass while tracking a single number: see [Inorder Traversal](#inorder-traversal).
 
 ## Solutions
 
@@ -109,8 +95,7 @@ The top-level `valid(root)` returns `True`, which matches the example's expected
 
 #### Solution
 
-The code is the walkthrough's three helpers written down: the two subtree
-scans and the recursive `valid` that applies them at every node.
+The code is the walkthrough's three helpers written down: the two subtree scans and the recursive `valid` that applies them at every node.
 
 ```python
 # Definition for a binary tree node.
@@ -185,60 +170,33 @@ Passing the bounds downward propagates every ancestor's constraint to the deepes
 
 #### Invariant
 
-Each call carries an open interval and guarantees it for the whole subtree, not
-just for the node at hand:
+Each call carries an open interval and guarantees it for the whole subtree, not just for the node at hand:
 
-$$
-\forall\, v \in \text{subtree}(\textit{node}):\quad
-\textit{low} < v < \textit{high}
-$$
+$$ \forall\, v \in \text{subtree}(\textit{node}):\quad \textit{low} < v < \textit{high} $$
 
 ```text
 for all v in subtree(node):  low < v < high
     root call: low = -infinity, high = +infinity
 ```
 
-Here `low` is the largest ancestor value the subtree must stay above and `high`
-the smallest it must stay below, so the interval is the intersection of every
-constraint the ancestors impose. The root starts at \((-\infty,\ +\infty)\),
-which constrains nothing.
+Here `low` is the largest ancestor value the subtree must stay above and `high` the smallest it must stay below, so the interval is the intersection of every constraint the ancestors impose. The root starts at \((-\infty,\ +\infty)\), which constrains nothing.
 
-Both recursive calls preserve it. Descending left, every value below `node` must
-also be smaller than `node.val`, so the upper bound tightens while `low` is
-inherited unchanged; descending right is the mirror image:
+Both recursive calls preserve it. Descending left, every value below `node` must also be smaller than `node.val`, so the upper bound tightens while `low` is inherited unchanged; descending right is the mirror image:
 
-$$
-(\textit{low},\ \textit{node.val})
-\quad\text{left},\qquad
-(\textit{node.val},\ \textit{high})
-\quad\text{right}
-$$
+$$ (\textit{low},\ \textit{node.val}) \quad\text{left},\qquad (\textit{node.val},\ \textit{high}) \quad\text{right} $$
 
 ```text
 left  child inherits (low,      node.val)
 right child inherits (node.val, high)
 ```
 
-Passing the node's own value as the *other* side's bound is what carries a
-constraint past the immediate child: a bound is never dropped on the way down,
-only intersected with tighter ones. The comparison `low < node.val < high` is
-strict, so equal values fail as the definition requires.
+Passing the node's own value as the *other* side's bound is what carries a constraint past the immediate child: a bound is never dropped on the way down, only intersected with tighter ones. The comparison `low < node.val < high` is strict, so equal values fail as the definition requires.
 
-This is precisely what defeats the common wrong answer of comparing a node only
-against its two children, which asserts one edge at a time and says nothing about
-a grandchild. Take `[5,1,6,null,null,3,7]`: node `3` is the left child of `6` and
-`3 < 6` passes the child-only test, yet `3` sits in the root's right subtree and
-must exceed `5`. The bounds version reaches that call with `low = 5` inherited
-from the root, so `5 < 3` fails and the tree is correctly rejected.
+This is precisely what defeats the common wrong answer of comparing a node only against its two children, which asserts one edge at a time and says nothing about a grandchild. Take `[5,1,6,null,null,3,7]`: node `3` is the left child of `6` and `3 < 6` passes the child-only test, yet `3` sits in the root's right subtree and must exceed `5`. The bounds version reaches that call with `low = 5` inherited from the root, so `5 < 3` fails and the tree is correctly rejected.
 
 #### Walkthrough
 
-Example 2 fails at the root's own right child (`5 < 4 < +inf` is false on the
-very first check below the root), a violation even the flawed child-only
-comparison would catch. The mechanism worth seeing is a bound carried past the
-immediate parent, so we trace the tailored tree from the Invariant discussion
-instead: `root = [5,1,6,null,null,3,7]`, built so the violation sits at a
-grandchild:
+Example 2 fails at the root's own right child (`5 < 4 < +inf` is false on the very first check below the root), a violation even the flawed child-only comparison would catch. The mechanism worth seeing is a bound carried past the immediate parent, so we trace the tailored tree from the Invariant discussion instead: `root = [5,1,6,null,null,3,7]`, built so the violation sits at a grandchild:
 
 ```text
         5
@@ -248,8 +206,7 @@ grandchild:
         3   7
 ```
 
-Each call checks its node against its inherited `(low, high)` interval, then
-descends with one side tightened:
+Each call checks its node against its inherited `(low, high)` interval, then descends with one side tightened:
 
 ```text
 validate(5, -inf, +inf)    -inf < 5 < +inf   ok; children get (-inf, 5) and (5, +inf)
@@ -260,18 +217,11 @@ validate(5, -inf, +inf)    -inf < 5 < +inf   ok; children get (-inf, 5) and (5, 
     validate(3, 5, 6)      5 < 3   fails     -> False
 ```
 
-Node `3` passes the local test its parent would run (`3 < 6`), but its interval
-`(5, 6)` remembers the root: descending right at `5` set `low = 5`, and
-descending left at `6` tightened only `high`, inheriting `low` unchanged. The
-check `5 < 3 < 6` fails on its left side, so the call returns `False`, the
-`and` in `validate(6, ...)` short-circuits without ever visiting node `7`, and
-`False` propagates up to the root call. The function returns `False`: the tree
-is not a valid BST.
+Node `3` passes the local test its parent would run (`3 < 6`), but its interval `(5, 6)` remembers the root: descending right at `5` set `low = 5`, and descending left at `6` tightened only `high`, inheriting `low` unchanged. The check `5 < 3 < 6` fails on its left side, so the call returns `False`, the `and` in `validate(6, ...)` short-circuits without ever visiting node `7`, and `False` propagates up to the root call. The function returns `False`: the tree is not a valid BST.
 
 #### Solution
 
-The code is the interval check from the walkthrough, with each recursive call
-tightening one side of the bounds.
+The code is the interval check from the walkthrough, with each recursive call tightening one side of the bounds.
 
 ```python
 from typing import Optional
@@ -323,8 +273,7 @@ This avoids threading bounds through the recursion; instead it leans on the stru
 
 #### Walkthrough
 
-Trace the traversal on Example 2: `root = [5,1,4,null,null,3,6]`, expected
-output `false`:
+Trace the traversal on Example 2: `root = [5,1,4,null,null,3,6]`, expected output `false`:
 
 ```text
         5
@@ -334,10 +283,7 @@ output `false`:
         3   6
 ```
 
-Inorder visits each node between its left and right subtrees, so a valid BST
-would emit its values in ascending order. The trace below indents one level per
-recursive call; "visit" marks the moment a node's value is compared against
-`prev` after its left subtree returns:
+Inorder visits each node between its left and right subtrees, so a valid BST would emit its values in ascending order. The trace below indents one level per recursive call; "visit" marks the moment a node's value is compared against `prev` after its left subtree returns:
 
 ```text
 inorder(5)                       descend left first
@@ -354,15 +300,11 @@ inorder(5)                       descend left first
 inorder(5) right call False      -> False
 ```
 
-The visited sequence begins `1, 5, 3`: the moment `3` follows `5`, the strictly
-increasing order breaks, and the `node.val <= prev` test fires. `False`
-propagates straight up without visiting nodes `4` or `6`, and the function
-returns `False`, matching the expected Output for Example 2.
+The visited sequence begins `1, 5, 3`: the moment `3` follows `5`, the strictly increasing order breaks, and the `node.val <= prev` test fires. `False` propagates straight up without visiting nodes `4` or `6`, and the function returns `False`, matching the expected Output for Example 2.
 
 #### Solution
 
-The code is the inorder visit from the walkthrough, with `prev` as the only
-carried state.
+The code is the inorder visit from the walkthrough, with `prev` as the only carried state.
 
 ```python
 from typing import Optional

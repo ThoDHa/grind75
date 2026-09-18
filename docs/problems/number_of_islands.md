@@ -53,35 +53,18 @@ grid = [
 
 ## Deriving the Solution
 
-Reading "island" as a graph term does all the work: every land cell is a node,
-horizontally or vertically adjacent land cells share an edge, and an island is a
-connected component of that implicit graph. Every solution below counts connected
-components; they differ only in how a component is traversed and how visited land
-is remembered.
+Reading "island" as a graph term does all the work: every land cell is a node, horizontally or vertically adjacent land cells share an edge, and an island is a connected component of that implicit graph. Every solution below counts connected components; they differ only in how a component is traversed and how visited land is remembered.
 
 1. **Start literal.** Scan the grid cell by cell. Every `'1'` not yet visited is
-   the first cell of a brand-new island, so count it, then flood fill outward to
-   mark the rest of its component before scanning on. Sinking visited land to
-   `'0'` makes the grid itself the visited marker, and recursive DFS is the
-   shortest way to write the fill: see
-   [DFS with Grid Modification](#dfs-with-grid-modification).
+   the first cell of a brand-new island, so count it, then flood fill outward to mark the rest of its component before scanning on. Sinking visited land to `'0'` makes the grid itself the visited marker, and recursive DFS is the shortest way to write the fill: see [DFS with Grid Modification](#dfs-with-grid-modification).
 2. **Bound the memory.** The recursion descends once per cell of a snake-shaped
-   island, so the call stack can hold all `m × n` cells. Exploring the component
-   as an expanding frontier with a queue caps the extra memory at the wavefront,
-   `O(min(m, n))`: see [BFS with Grid Modification](#bfs-with-grid-modification).
+   island, so the call stack can hold all `m × n` cells. Exploring the component as an expanding frontier with a queue caps the extra memory at the wavefront, `O(min(m, n))`: see [BFS with Grid Modification](#bfs-with-grid-modification).
 3. **Stop mutating the input.** Both fills destroy the grid. When the caller
-   needs it intact, move the visited marker into a separate boolean matrix and
-   leave the grid read-only, paying `O(m × n)` extra space: see
-   [DFS with Separate Visited Array](#dfs-with-separate-visited-array).
+   needs it intact, move the visited marker into a separate boolean matrix and leave the grid read-only, paying `O(m × n)` extra space: see [DFS with Separate Visited Array](#dfs-with-separate-visited-array).
 4. **Drop the recursion, keep the order.** Python's recursion limit is a real
-   hazard at `300 × 300`. Replacing the call stack with an explicit list keeps
-   the depth-first fill without any recursion at all: see
-   [Iterative DFS with Stack](#iterative-dfs-with-stack).
+   hazard at `300 × 300`. Replacing the call stack with an explicit list keeps the depth-first fill without any recursion at all: see [Iterative DFS with Stack](#iterative-dfs-with-stack).
 5. **Count components without traversing.** Connectivity can also be computed
-   algebraically: start with every cell as its own component, merge each land
-   cell with its land neighbors, and subtract the water cells from the final
-   component count. This pays off when the grid changes dynamically: see
-   [Union-Find](#union-find).
+   algebraically: start with every cell as its own component, merge each land cell with its land neighbors, and subtract the water cells from the final component count. This pays off when the grid changes dynamically: see [Union-Find](#union-find).
 
 ## Solutions
 
@@ -89,26 +72,15 @@ is remembered.
 
 #### Derivation
 
-The question to ask first is the literal one: how many times does a scan of the
-grid step onto land that belongs to no island counted so far? Each such cell is
-the seed of exactly one new island, so the whole problem reduces to two duties:
-detect a fresh land cell, then mark the rest of its island as seen before the
-scan continues.
+The question to ask first is the literal one: how many times does a scan of the grid step onto land that belongs to no island counted so far? Each such cell is the seed of exactly one new island, so the whole problem reduces to two duties: detect a fresh land cell, then mark the rest of its island as seen before the scan continues.
 
-The marking duty is a flood fill over an implicit graph in which each land cell
-is a node, adjacent land cells (horizontally and vertically) are connected by
-edges, and each connected component is one island.
-[DFS](https://en.wikipedia.org/wiki/Depth-first_search) naturally explores an
-entire connected component before returning, and sinking every visited cell to
-`'0'` turns the grid itself into the visited marker, so no extra bookkeeping
-structure is needed:
+The marking duty is a flood fill over an implicit graph in which each land cell is a node, adjacent land cells (horizontally and vertically) are connected by edges, and each connected component is one island. [DFS](https://en.wikipedia.org/wiki/Depth-first_search) naturally explores an entire connected component before returning, and sinking every visited cell to `'0'` turns the grid itself into the visited marker, so no extra bookkeeping structure is needed:
 
 1. Scan every cell with a double loop over `rows` and `cols`.
 2. When `grid[row][col] == '1'`, a new island starts: increment `islands` and
    call `dfs(row, col)`.
 3. `dfs` returns immediately when the cell is out of bounds or `'0'`; otherwise
-   it sinks the cell (`grid[row][col] = '0'`) and recurses into all four
-   neighbors from `directions` (right, down, left, up).
+   it sinks the cell (`grid[row][col] = '0'`) and recurses into all four neighbors from `directions` (right, down, left, up).
 4. After the scan completes, return `islands`.
 
 #### Walkthrough
@@ -162,8 +134,7 @@ When the main loop finishes, `islands` is `2`, which is the returned value. (For
 
 #### Solution
 
-The code is the walkthrough's scan and flood fill: the main loop seeds each
-island and `dfs` sinks it.
+The code is the walkthrough's scan and flood fill: the main loop seeds each island and `dfs` sinks it.
 
 ```python
 from typing import List
@@ -224,32 +195,20 @@ In the worst case (single snake-like island), the recursion stack can be as deep
 
 #### Derivation
 
-The recursive fill has one weakness: its memory is the call stack. On a
-snake-shaped island the recursion descends once per cell, so the stack can grow
-to `m × n` frames, deep enough to threaten the interpreter's recursion limit.
-The fix is to change the exploration order: instead of following one path as
-deep as it goes, expand the island as a widening frontier. A
-[BFS](https://en.wikipedia.org/wiki/Breadth-first_search) queue holds only the
-current wavefront, which stays within `O(min(m, n))` cells, and its
-distance-ordered exploration also serves extensions such as shortest paths
-within a component:
+The recursive fill has one weakness: its memory is the call stack. On a snake-shaped island the recursion descends once per cell, so the stack can grow to `m × n` frames, deep enough to threaten the interpreter's recursion limit. The fix is to change the exploration order: instead of following one path as deep as it goes, expand the island as a widening frontier. A [BFS](https://en.wikipedia.org/wiki/Breadth-first_search) queue holds only the current wavefront, which stays within `O(min(m, n))` cells, and its distance-ordered exploration also serves extensions such as shortest paths within a component:
 
 1. The main scan is unchanged: every unvisited `'1'` increments `islands` and
    starts a fill, now `bfs(row, col)`.
 2. `bfs` seeds a `queue` with `(start_row, start_col)` and sinks that cell to
    `'0'` immediately.
 3. While the queue is non-empty, `popleft` a cell and inspect its four
-   neighbors; every in-bounds neighbor still holding `'1'` is sunk and
-   appended.
+   neighbors; every in-bounds neighbor still holding `'1'` is sunk and appended.
 4. Sinking at enqueue time (not at dequeue time) guarantees no cell enters the
    queue twice.
 
 #### Walkthrough
 
-Let us sink the first island of Example 2 by hand. The scan reaches `(0, 0)`,
-finds `'1'`, sets `islands = 1`, and calls `bfs(0, 0)`, which sinks the seed
-and enqueues it. Each line below is one queue event; neighbors are checked in
-the order right, down, left, up:
+Let us sink the first island of Example 2 by hand. The scan reaches `(0, 0)`, finds `'1'`, sets `islands = 1`, and calls `bfs(0, 0)`, which sinks the seed and enqueues it. Each line below is one queue event; neighbors are checked in the order right, down, left, up:
 
 ```text
 seed (0,0)   sink, queue = [(0,0)]
@@ -263,17 +222,11 @@ pop (1,1)    all four neighbors water, sunk, or out of bounds
              queue = []  -> bfs returns
 ```
 
-The 2 × 2 block in the top-left corner is now entirely `'0'`, sunk in expanding
-rings around the seed rather than along one deep path. The scan continues,
-finds `'1'` at `(2, 2)` (`islands = 2`, a lone cell whose fill enqueues no
-neighbors), and then `'1'` at `(3, 3)` (`islands = 3`, whose fill sinks
-`(3, 4)` the same way). The function returns `3`, matching the expected Output
-for Example 2.
+The 2 × 2 block in the top-left corner is now entirely `'0'`, sunk in expanding rings around the seed rather than along one deep path. The scan continues, finds `'1'` at `(2, 2)` (`islands = 2`, a lone cell whose fill enqueues no neighbors), and then `'1'` at `(3, 3)` (`islands = 3`, whose fill sinks `(3, 4)` the same way). The function returns `3`, matching the expected Output for Example 2.
 
 #### Solution
 
-The code is the queue discipline from the walkthrough: sink at enqueue time,
-expand at dequeue time.
+The code is the queue discipline from the walkthrough: sink at enqueue time, expand at dequeue time.
 
 ```python
 from collections import deque
@@ -341,29 +294,18 @@ In the worst case (rectangle-shaped island), the BFS queue contains at most `O(m
 
 #### Derivation
 
-Both previous fills share a side effect: they destroy the input. Sinking land
-to `'0'` is elegant, but the caller may need the grid afterward, or the grid
-may be read-only. The repair is to separate the two roles the grid was playing:
-keep `grid` as pure input and record "already counted" in a parallel boolean
-matrix `visited`. The traversal is otherwise identical to
-[DFS with Grid Modification](#dfs-with-grid-modification):
+Both previous fills share a side effect: they destroy the input. Sinking land to `'0'` is elegant, but the caller may need the grid afterward, or the grid may be read-only. The repair is to separate the two roles the grid was playing: keep `grid` as pure input and record "already counted" in a parallel boolean matrix `visited`. The traversal is otherwise identical to [DFS with Grid Modification](#dfs-with-grid-modification):
 
 1. Allocate `visited`, an `m × n` matrix of `False`.
 2. The scan counts a new island at every cell where `grid[row][col] == '1'`
    and `visited[row][col]` is still `False`.
 3. `dfs` returns when the cell is out of bounds, already visited, or water;
-   otherwise it sets `visited[row][col] = True` and recurses into the four
-   neighbors.
+   otherwise it sets `visited[row][col] = True` and recurses into the four neighbors.
 4. The grid is never written, so it survives the call unchanged.
 
 #### Walkthrough
 
-We reuse the tailored two-island grid from the
-[DFS with Grid Modification](#dfs-with-grid-modification) walkthrough, chosen
-so the identical traversal is easy to compare with the sinking version:
-`grid = [["1","1","0"], ["1","0","0"], ["0","0","1"]]`. This time the grid
-never changes; each line shows the cells of `visited` holding `True` after the
-event:
+We reuse the tailored two-island grid from the [DFS with Grid Modification](#dfs-with-grid-modification) walkthrough, chosen so the identical traversal is easy to compare with the sinking version: `grid = [["1","1","0"], ["1","0","0"], ["0","0","1"]]`. This time the grid never changes; each line shows the cells of `visited` holding `True` after the event:
 
 ```text
 scan (0,0)   grid '1', not visited -> islands = 1, dfs(0, 0)
@@ -376,16 +318,11 @@ scan (2,2)   grid '1', not visited -> islands = 2, dfs(2, 2)
   dfs(2,2)   visited = {(0,0), (0,1), (1,0), (2,2)}
 ```
 
-The visit order `(0,0)`, `(0,1)`, `(1,0)` matches the sinking DFS exactly; only
-the marker moved. The decisive beat is the scan reaching `(0, 1)`: the cell
-still reads `'1'` in the untouched grid, and only the `visited[0][1]` check
-stops it from being counted as a second island. The loop ends with
-`islands = 2` while `grid` still holds its original characters.
+The visit order `(0,0)`, `(0,1)`, `(1,0)` matches the sinking DFS exactly; only the marker moved. The decisive beat is the scan reaching `(0, 1)`: the cell still reads `'1'` in the untouched grid, and only the `visited[0][1]` check stops it from being counted as a second island. The loop ends with `islands = 2` while `grid` still holds its original characters.
 
 #### Solution
 
-The code is the same flood fill with every visited mark redirected from `grid`
-into `visited`.
+The code is the same flood fill with every visited mark redirected from `grid` into `visited`.
 
 ```python
 from typing import List
@@ -448,12 +385,7 @@ Requires additional space for the visited matrix plus recursion stack space.
 
 #### Derivation
 
-The recursive fills all inherit the interpreter's recursion limit: a snake
-island threading a `300 × 300` grid is 90,000 calls deep, far beyond Python's
-default limit of 1,000. The observation that removes the risk is that the call
-stack contributes nothing but a to-do list of cells, so DFS only needs *some*
-stack, not the interpreter's. Replace it with an explicit list used as a
-[stack](https://en.wikipedia.org/wiki/Stack_(abstract_data_type)):
+The recursive fills all inherit the interpreter's recursion limit: a snake island threading a `300 × 300` grid is 90,000 calls deep, far beyond Python's default limit of 1,000. The observation that removes the risk is that the call stack contributes nothing but a to-do list of cells, so DFS only needs *some* stack, not the interpreter's. Replace it with an explicit list used as a [stack](https://en.wikipedia.org/wiki/Stack_(abstract_data_type)):
 
 1. `iterative_dfs` seeds `stack` with the starting cell.
 2. Loop while the stack is non-empty: `pop` a cell, and skip it when it is out
@@ -465,10 +397,7 @@ stack, not the interpreter's. Replace it with an explicit list used as a
 
 #### Walkthrough
 
-We reuse the tailored two-island grid
-`grid = [["1","1","0"], ["1","0","0"], ["0","0","1"]]` so the stack's visit
-order can be compared with the recursive DFS on the same input. The scan finds
-`(0, 0)`, sets `islands = 1`, and starts the fill. Each line is one pop:
+We reuse the tailored two-island grid `grid = [["1","1","0"], ["1","0","0"], ["0","0","1"]]` so the stack's visit order can be compared with the recursive DFS on the same input. The scan finds `(0, 0)`, sets `islands = 1`, and starts the fill. Each line is one pop:
 
 ```text
 seed (0,0)    stack = [(0,0)]
@@ -487,18 +416,11 @@ pop (1,1)     water -> skip
 pop (0,2)     water -> skip                 stack = [] -> fill done
 ```
 
-Because the stack is LIFO and neighbors are pushed right, down, left, up, the
-last push is examined first: the sink order is `(0,0)`, `(1,0)`, `(0,1)`,
-different from the recursive order `(0,0)`, `(0,1)`, `(1,0)`, which changes
-nothing about the count. Note `(0, 0)` re-enters the stack twice and is
-discarded by the guard both times. The scan then finds `(2, 2)`, whose fill
-sinks the lone cell and skips its four pushed neighbors, and the function
-returns `islands = 2`.
+Because the stack is LIFO and neighbors are pushed right, down, left, up, the last push is examined first: the sink order is `(0,0)`, `(1,0)`, `(0,1)`, different from the recursive order `(0,0)`, `(0,1)`, `(1,0)`, which changes nothing about the count. Note `(0, 0)` re-enters the stack twice and is discarded by the guard both times. The scan then finds `(2, 2)`, whose fill sinks the lone cell and skips its four pushed neighbors, and the function returns `islands = 2`.
 
 #### Solution
 
-The code is the pop, guard, sink, push loop from the walkthrough, wrapped in
-the usual scan.
+The code is the pop, guard, sink, push loop from the walkthrough, wrapped in the usual scan.
 
 ```python
 from typing import List
@@ -564,34 +486,20 @@ In the worst case, the explicit stack might contain all cells (for a snake-like 
 
 #### Derivation
 
-Every approach so far answers "how many islands?" by walking each island.
-[Union-Find](https://en.wikipedia.org/wiki/Disjoint-set_data_structure) asks a
-different question: if every cell starts as its own component, how many
-components remain after gluing all adjacent land together? Merging components
-is exactly what a disjoint-set structure does in near-constant time, and it
-keeps working when the grid is built dynamically or when connectivity between
-arbitrary cells must be queried, which a one-shot traversal cannot support
-without re-running:
+Every approach so far answers "how many islands?" by walking each island. [Union-Find](https://en.wikipedia.org/wiki/Disjoint-set_data_structure) asks a different question: if every cell starts as its own component, how many components remain after gluing all adjacent land together? Merging components is exactly what a disjoint-set structure does in near-constant time, and it keeps working when the grid is built dynamically or when connectivity between arbitrary cells must be queried, which a one-shot traversal cannot support without re-running:
 
 1. Build `uf = UnionFind(rows * cols)` over all cells, flattening coordinates
-   with `get_index(row, col) = row * cols + col`; `components` starts at the
-   total cell count.
+   with `get_index(row, col) = row * cols + col`; `components` starts at the total cell count.
 2. Scan the grid. Count each `'0'` in `water_cells`; for each `'1'`, union it
-   with its right and down land neighbors only, so every adjacent pair is
-   processed exactly once.
+   with its right and down land neighbors only, so every adjacent pair is processed exactly once.
 3. Each `union` of two different roots decrements `components`; `find` applies
-   path compression and `union` applies union by rank to keep both operations
-   nearly constant.
+   path compression and `union` applies union by rank to keep both operations nearly constant.
 4. Water cells never union with anything, so each stays a singleton component;
    subtracting them, `uf.get_components() - water_cells` is the island count.
 
 #### Walkthrough
 
-The tailored two-island grid from the earlier walkthroughs,
-`grid = [["1","1","0"], ["1","0","0"], ["0","0","1"]]`, keeps the component
-arithmetic small: 9 cells indexed `0` to `8` by
-`get_index(row, col) = row * 3 + col`, with land at indices `0`, `1`, `3`, `8`.
-`components` starts at `9`, and the scan visits cells in row-major order:
+The tailored two-island grid from the earlier walkthroughs, `grid = [["1","1","0"], ["1","0","0"], ["0","0","1"]]`, keeps the component arithmetic small: 9 cells indexed `0` to `8` by `get_index(row, col) = row * 3 + col`, with land at indices `0`, `1`, `3`, `8`. `components` starts at `9`, and the scan visits cells in row-major order:
 
 ```text
 (0,0) idx 0   land: right (0,1) land -> union(0, 1), components 9 -> 8
@@ -603,18 +511,11 @@ arithmetic small: 9 cells indexed `0` to `8` by
 (2,2) idx 8   land: right and down out of bounds -> no unions
 ```
 
-Inside the first union, `find(0)` and `find(1)` return distinct roots of equal
-rank, so `parent[1] = 0` and `rank[0]` rises to `1`; the second union then hangs
-index `3` under the higher-ranked root `0`. After the scan, the surviving
-components are `{0, 1, 3}` (the merged top-left island), `{8}` (the lone
-corner), and five water singletons: `7` components in all. Returning
-`uf.get_components() - water_cells = 7 - 5 = 2` counts exactly the two islands,
-matching the DFS result on the same grid.
+Inside the first union, `find(0)` and `find(1)` return distinct roots of equal rank, so `parent[1] = 0` and `rank[0]` rises to `1`; the second union then hangs index `3` under the higher-ranked root `0`. After the scan, the surviving components are `{0, 1, 3}` (the merged top-left island), `{8}` (the lone corner), and five water singletons: `7` components in all. Returning `uf.get_components() - water_cells = 7 - 5 = 2` counts exactly the two islands, matching the DFS result on the same grid.
 
 #### Solution
 
-The code is the single scan from the walkthrough, with the `UnionFind` helper
-carrying the component count.
+The code is the single scan from the walkthrough, with the `UnionFind` helper carrying the component count.
 
 ```python
 from typing import List

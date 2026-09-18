@@ -38,34 +38,20 @@ Given an array `nums` of distinct integers, return all the possible permutations
 
 ## Deriving the Solution
 
-A permutation is built one position at a time: each position takes some element
-that no earlier position has taken. Every solution below enumerates the same
-decision tree of `n!` leaves; they differ in how "already taken" is tracked and
-in whether the tree is walked recursively or grown generation by generation.
+A permutation is built one position at a time: each position takes some element that no earlier position has taken. Every solution below enumerates the same decision tree of `n!` leaves; they differ in how "already taken" is tracked and in whether the tree is walked recursively or grown generation by generation.
 
 1. **Start literal.** Fill positions left to right, trying every number not yet
-   in the partial result and undoing each choice after exploring it. Checking
-   "not yet used" by scanning the partial list costs `O(n)` per choice: see
-   [Backtracking with Path Building](#backtracking-with-path-building).
+   in the partial result and undoing each choice after exploring it. Checking "not yet used" by scanning the partial list costs `O(n)` per choice: see [Backtracking with Path Building](#backtracking-with-path-building).
 2. **Spot the waste.** The scan re-derives information the recursion already
-   had in hand. Recording it in a boolean array turns the check into an `O(1)`
-   lookup: see [Backtracking with Used Array](#backtracking-with-used-array).
+   had in hand. Recording it in a boolean array turns the check into an `O(1)` lookup: see [Backtracking with Used Array](#backtracking-with-used-array).
 3. **Fold the bookkeeping into the array.** Even the flags are redundant: swap
-   each chosen element to the front of `nums`, and the split between a fixed
-   prefix and a free suffix does the used-tracking with no extra structure at
-   all: see [Backtracking with Index Swapping](#backtracking-with-index-swapping).
+   each chosen element to the front of `nums`, and the split between a fixed prefix and a free suffix does the used-tracking with no extra structure at all: see [Backtracking with Index Swapping](#backtracking-with-index-swapping).
 4. **Build up instead of backtracking.** Recursion is not required: the
-   permutations of `k` numbers arise by inserting the `k`-th number into every
-   slot of every permutation of the first `k - 1`, at the price of holding each
-   full generation in memory: see [Iterative Build-Up](#iterative-build-up).
+   permutations of `k` numbers arise by inserting the `k`-th number into every slot of every permutation of the first `k - 1`, at the price of holding each full generation in memory: see [Iterative Build-Up](#iterative-build-up).
 5. **Minimize the change between outputs.** All the above rebuild a path prefix
-   between outputs. Heap's algorithm arranges the recursion so consecutive
-   permutations differ by a single swap, the minimal-change classic: see
-   [Heap's Algorithm](#heaps-algorithm).
+   between outputs. Heap's algorithm arranges the recursion so consecutive permutations differ by a single swap, the minimal-change classic: see [Heap's Algorithm](#heaps-algorithm).
 6. **Or let the library enumerate.** `itertools.permutations` implements the
-   whole enumeration in C; it goes last because it hides the algorithm being
-   taught: see
-   [Built-in itertools.permutations](#built-in-itertoolspermutations).
+   whole enumeration in C; it goes last because it hides the algorithm being taught: see [Built-in itertools.permutations](#built-in-itertoolspermutations).
 
 ## Solutions
 
@@ -73,14 +59,7 @@ in whether the tree is walked recursively or grown generation by generation.
 
 #### Derivation
 
-Ask how a single permutation would be written down by hand: pick some element
-first, then some element not yet picked, and so on until every element is
-placed. To produce *all* permutations, each such choice point must try every
-remaining candidate in turn, which is exactly the classic
-[backtracking](https://en.wikipedia.org/wiki/Backtracking) template: extend one
-partial result, recurse, then undo the extension, the choose, explore, unchoose
-pattern. The resulting decision tree has `n!` leaves, one per permutation; each
-root-to-leaf path corresponds to one ordering of the input:
+Ask how a single permutation would be written down by hand: pick some element first, then some element not yet picked, and so on until every element is placed. To produce *all* permutations, each such choice point must try every remaining candidate in turn, which is exactly the classic [backtracking](https://en.wikipedia.org/wiki/Backtracking) template: extend one partial result, recurse, then undo the extension, the choose, explore, unchoose pattern. The resulting decision tree has `n!` leaves, one per permutation; each root-to-leaf path corresponds to one ordering of the input:
 
 1. Maintain a `current` list holding the partial permutation under
    construction.
@@ -89,29 +68,21 @@ root-to-leaf path corresponds to one ordering of the input:
 3. Otherwise, iterate over `nums` and skip any number already present in
    `current` (the `num not in current` scan).
 4. Choose a number by appending it, explore by recursing with
-   `backtrack(current)`, then unchoose by popping it so the next iteration
-   starts from a clean slate.
+   `backtrack(current)`, then unchoose by popping it so the next iteration starts from a clean slate.
 
 #### Formula
 
-Each position consumes one unused number, so the branching factor shrinks by one
-at every depth. The leaf count is the [factorial](https://en.wikipedia.org/wiki/Factorial):
+Each position consumes one unused number, so the branching factor shrinks by one at every depth. The leaf count is the [factorial](https://en.wikipedia.org/wiki/Factorial):
 
-$$
-n \times (n-1) \times \dots \times 1 = n!
-$$
+$$ n \times (n-1) \times \dots \times 1 = n! $$
 
 ```text
 n * (n - 1) * ... * 1 = n!
 ```
 
-The recursion tree is wider than its leaf count suggests. At depth `k` there is
-one node per ordered arrangement of `k` distinct elements, so the total node
-count is:
+The recursion tree is wider than its leaf count suggests. At depth `k` there is one node per ordered arrangement of `k` distinct elements, so the total node count is:
 
-$$
-\sum_{k=0}^{n} \frac{n!}{(n-k)!} \ = \ n! \sum_{j=0}^{n} \frac{1}{j!} \ \approx \ e \cdot n!
-$$
+$$ \sum_{k=0}^{n} \frac{n!}{(n-k)!} \ = \ n! \sum_{j=0}^{n} \frac{1}{j!} \ \approx \ e \cdot n! $$
 
 ```text
 sum over k = 0 to n of n! / (n - k)!
@@ -119,10 +90,7 @@ sum over k = 0 to n of n! / (n - k)!
     approximately e * n!
 ```
 
-The interior nodes only add a constant factor of about \(e \approx 2.718\) over
-the \(n!\) leaves, which is why the bound is quoted as \(O(n! \times n)\): the
-tree's shape contributes nothing asymptotically, and the \(n\) comes from copying
-each finished permutation.
+The interior nodes only add a constant factor of about \(e \approx 2.718\) over the \(n!\) leaves, which is why the bound is quoted as \(O(n! \times n)\): the tree's shape contributes nothing asymptotically, and the \(n\) comes from copying each finished permutation.
 
 #### Walkthrough
 
@@ -153,8 +121,7 @@ Appending in iteration order, `result` fills as `[1,2,3]`, then `[1,3,2]`, `[2,1
 
 #### Solution
 
-The code is the choose, explore, unchoose cycle from the walkthrough, with the
-length test as the leaf check.
+The code is the choose, explore, unchoose cycle from the walkthrough, with the length test as the leaf check.
 
 ```python
 from typing import List
@@ -198,13 +165,7 @@ The recursion depth is at most `n`, and `current` holds at most `n` elements. Th
 
 #### Derivation
 
-The path-building recursion pays an `O(n)` toll at every choice point: the
-`num not in current` scan re-reads the whole partial permutation to answer a
-yes/no question the recursion could simply remember. Record the answer instead.
-A boolean array `used`, parallel to `nums`, marks by index which elements are
-already placed, turning the check into an `O(1)` lookup. Indexing by position
-rather than value also keeps the approach correct if the problem were later
-relaxed to allow duplicate values:
+The path-building recursion pays an `O(n)` toll at every choice point: the `num not in current` scan re-reads the whole partial permutation to answer a yes/no question the recursion could simply remember. Record the answer instead. A boolean array `used`, parallel to `nums`, marks by index which elements are already placed, turning the check into an `O(1)` lookup. Indexing by position rather than value also keeps the approach correct if the problem were later relaxed to allow duplicate values:
 
 1. Keep a `path` list for the partial permutation and a `used` boolean array
    parallel to `nums`.
@@ -216,9 +177,7 @@ relaxed to allow duplicate values:
 
 #### Walkthrough
 
-Let us run the first branch on Example 1, `nums = [1,2,3]`, watching `path` and
-`used` move in lockstep (`T`/`F` abbreviate `True`/`False`). Each line is one
-event; indentation marks recursion depth:
+Let us run the first branch on Example 1, `nums = [1,2,3]`, watching `path` and `used` move in lockstep (`T`/`F` abbreviate `True`/`False`). Each line is one event; indentation marks recursion depth:
 
 ```text
 backtrack()                    path = []       used = [F,F,F]
@@ -236,18 +195,11 @@ backtrack()                    path = []       used = [F,F,F]
   pop, used[0] = False         path = []       used = [F,F,F]
 ```
 
-Every pop restores `used` along with `path`, so when the top level moves on to
-`i=1` the state is exactly as it started, and the `2`-first and `3`-first
-branches unfold the same way. The tree is the same one drawn in the
-[Backtracking with Path Building](#backtracking-with-path-building)
-walkthrough, and `result` fills in the same order, ending as
-`[[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]`, the expected Output for
-Example 1.
+Every pop restores `used` along with `path`, so when the top level moves on to `i=1` the state is exactly as it started, and the `2`-first and `3`-first branches unfold the same way. The tree is the same one drawn in the [Backtracking with Path Building](#backtracking-with-path-building) walkthrough, and `result` fills in the same order, ending as `[[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]`, the expected Output for Example 1.
 
 #### Solution
 
-The code is the same tree walk with the membership scan replaced by `used` flag
-flips.
+The code is the same tree walk with the membership scan replaced by `used` flag flips.
 
 ```python
 from typing import List
@@ -297,14 +249,7 @@ The recursion stack, the `path`, and the `used` array are each `O(n)`. Output sp
 
 #### Derivation
 
-The used array is still a second structure to keep synchronized, and `path` is
-a third copy of information the input array could carry itself. Both disappear
-under one observation: if the chosen elements are kept at the *front* of
-`nums`, the array splits into a fixed prefix `nums[0..start-1]` of placed
-elements and a free suffix `nums[start..n-1]` of remaining candidates. Choosing
-a candidate is then just a swap into position `start`, and the partition itself
-plays the role of the `used` array, which is why no auxiliary tracking
-structure is needed:
+The used array is still a second structure to keep synchronized, and `path` is a third copy of information the input array could carry itself. Both disappear under one observation: if the chosen elements are kept at the *front* of `nums`, the array splits into a fixed prefix `nums[0..start-1]` of placed elements and a free suffix `nums[start..n-1]` of remaining candidates. Choosing a candidate is then just a swap into position `start`, and the partition itself plays the role of the `used` array, which is why no auxiliary tracking structure is needed:
 
 1. When `start` reaches `n`, every position is fixed, so append a copy of
    `nums`.
@@ -314,8 +259,7 @@ structure is needed:
 
 #### Walkthrough
 
-Let us follow `nums` itself mutate on Example 1, `nums = [1,2,3]`. Each line
-shows the array after a swap, with the fixed prefix left of the `|` bar:
+Let us follow `nums` itself mutate on Example 1, `nums = [1,2,3]`. Each line shows the array after a swap, with the fixed prefix left of the `|` bar:
 
 ```text
 backtrack(0)
@@ -342,12 +286,7 @@ backtrack(0)
   swap back          -> [|1,2,3]
 ```
 
-The `3`-first branch shows why the emission order differs from the other
-backtracking variants: swapping `3` to the front leaves the suffix as `[2, 1]`,
-not `[1, 2]`, so `[3,2,1]` is emitted before `[3,1,2]`. The final `result` is
-`[[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,2,1],[3,1,2]]`: the same six permutations
-as Example 1's expected Output in a different order, which the problem allows.
-Every swap has a matching swap-back, so `nums` ends restored to `[1,2,3]`.
+The `3`-first branch shows why the emission order differs from the other backtracking variants: swapping `3` to the front leaves the suffix as `[2, 1]`, not `[1, 2]`, so `[3,2,1]` is emitted before `[3,1,2]`. The final `result` is `[[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,2,1],[3,1,2]]`: the same six permutations as Example 1's expected Output in a different order, which the problem allows. Every swap has a matching swap-back, so `nums` ends restored to `[1,2,3]`.
 
 #### Solution
 
@@ -395,14 +334,7 @@ Only the recursion stack, bounded by `n`, is used beyond the output. There is no
 
 #### Derivation
 
-All three backtracking variants lean on recursion. To remove it, change what is
-grown: instead of extending one partial
-[permutation](https://en.wikipedia.org/wiki/Permutation) at a time, hold the
-complete set of permutations of the numbers processed so far and extend the
-whole generation at once. A permutation of `k` numbers arises from exactly one
-permutation of the first `k - 1` numbers by inserting the `k`-th number into
-one of its `k` slots, so inserting the new number everywhere in everything
-enumerates each longer permutation exactly once:
+All three backtracking variants lean on recursion. To remove it, change what is grown: instead of extending one partial [permutation](https://en.wikipedia.org/wiki/Permutation) at a time, hold the complete set of permutations of the numbers processed so far and extend the whole generation at once. A permutation of `k` numbers arises from exactly one permutation of the first `k - 1` numbers by inserting the `k`-th number into one of its `k` slots, so inserting the new number everywhere in everything enumerates each longer permutation exactly once:
 
 1. Seed `result` with one empty permutation, `[[]]`.
 2. For each `num` in `nums`, create an empty `new_result`.
@@ -413,9 +345,7 @@ enumerates each longer permutation exactly once:
 
 #### Walkthrough
 
-Let us grow the generations on Example 1, `nums = [1,2,3]`. Each round takes
-every existing `perm` and sprouts `len(perm) + 1` children, one per insertion
-slot:
+Let us grow the generations on Example 1, `nums = [1,2,3]`. Each round takes every existing `perm` and sprouts `len(perm) + 1` children, one per insertion slot:
 
 ```text
 start      result = [[]]
@@ -426,16 +356,11 @@ num = 3    [2,1] -> [3,2,1] [2,3,1] [2,1,3]
            result = [[3,2,1], [2,3,1], [2,1,3], [3,1,2], [1,3,2], [1,2,3]]
 ```
 
-Reading the `num = 3` round: `[2,1]` has three slots (before the `2`, between
-the two, after the `1`), and inserting `3` into each yields `[3,2,1]`,
-`[2,3,1]`, `[2,1,3]`. The final generation holds all `3! = 6` permutations of
-Example 1's expected Output, in insertion order rather than backtracking order;
-the problem accepts any order.
+Reading the `num = 3` round: `[2,1]` has three slots (before the `2`, between the two, after the `1`), and inserting `3` into each yields `[3,2,1]`, `[2,3,1]`, `[2,1,3]`. The final generation holds all `3! = 6` permutations of Example 1's expected Output, in insertion order rather than backtracking order; the problem accepts any order.
 
 #### Solution
 
-The code is the round structure from the walkthrough: one generation per
-number.
+The code is the round structure from the walkthrough: one generation per number.
 
 ```python
 from typing import List
@@ -473,38 +398,22 @@ Each round holds the full set of permutations built so far, and the final round 
 
 #### Derivation
 
-Every earlier approach rebuilds a path prefix between outputs. The classic
-[minimal-change permutation generator](https://en.wikipedia.org/wiki/Heap%27s_algorithm)
-published by B. R. Heap in 1963 asks for something stronger: produce each
-permutation from the previous one by a single swap of two elements. (The name
-refers to its author and has nothing to do with the heap data structure: no
-priority queue or heap property appears anywhere in the algorithm.)
+Every earlier approach rebuilds a path prefix between outputs. The classic [minimal-change permutation generator](https://en.wikipedia.org/wiki/Heap%27s_algorithm) published by B. R. Heap in 1963 asks for something stronger: produce each permutation from the previous one by a single swap of two elements. (The name refers to its author and has nothing to do with the heap data structure: no priority queue or heap property appears anywhere in the algorithm.)
 
 1. `generate(k)` emits every permutation of the first `k` positions of `nums`
    while leaving `nums[k..n-1]` untouched.
 2. When `k == 1`, the arrangement is fully determined, so snapshot `nums[:]`
    into `result`.
 3. Otherwise run `k` rounds: each round recurses with `generate(k - 1)`, then
-   performs exactly one swap to move a fresh element into position `k - 1`
-   before the next round. No swap follows the final round.
+   performs exactly one swap to move a fresh element into position `k - 1` before the next round. No swap follows the final round.
 4. The swap is parity-dependent: when `k` is even, swap `nums[i]` (the loop
-   index) with `nums[k - 1]`; when `k` is odd, always swap `nums[0]` with
-   `nums[k - 1]`.
+   index) with `nums[k - 1]`; when `k` is odd, always swap `nums[0]` with `nums[k - 1]`.
 
-The parity rule is the subtle heart of the algorithm. The recursive calls leave
-the first `k - 1` elements rearranged in a way that depends on whether `k - 1`
-is even or odd, and the two swap choices are calibrated to that behavior: an
-inductive argument shows each choice moves an element that has not yet occupied
-position `k - 1` into that slot, so every element takes the last position
-exactly once across the `k` rounds.
+The parity rule is the subtle heart of the algorithm. The recursive calls leave the first `k - 1` elements rearranged in a way that depends on whether `k - 1` is even or odd, and the two swap choices are calibrated to that behavior: an inductive argument shows each choice moves an element that has not yet occupied position `k - 1` into that slot, so every element takes the last position exactly once across the `k` rounds.
 
 #### Walkthrough
 
-Let us run `generate(3)` on Example 1, `nums = [1,2,3]`. Each line is one
-event: either a snapshot at `k == 1` or the single swap that follows a round.
-The `k = 2` calls swap with the even rule (`nums[i]` with `nums[k - 1]`, and
-`i` is always `0` there); the top-level `k = 3` call swaps with the odd rule
-(`nums[0]` with `nums[2]`):
+Let us run `generate(3)` on Example 1, `nums = [1,2,3]`. Each line is one event: either a snapshot at `k == 1` or the single swap that follows a round. The `k = 2` calls swap with the even rule (`nums[i]` with `nums[k - 1]`, and `i` is always `0` there); the top-level `k = 3` call swaps with the odd rule (`nums[0]` with `nums[2]`):
 
 ```text
 emit [1,2,3]                          first leaf: nums untouched
@@ -520,16 +429,11 @@ k=2, i=0: swap nums[0], nums[1]       nums = [3,2,1]
 emit [3,2,1]                          last leaf: no swap follows
 ```
 
-Every adjacent pair of emissions differs by exactly one transposition, the
-minimal-change property. The six snapshots are the six permutations of Example
-1's expected Output, in Heap's order rather than backtracking order; the
-problem accepts any order. Note that `nums` finishes as `[3,2,1]`: the
-algorithm does not restore the input.
+Every adjacent pair of emissions differs by exactly one transposition, the minimal-change property. The six snapshots are the six permutations of Example 1's expected Output, in Heap's order rather than backtracking order; the problem accepts any order. Note that `nums` finishes as `[3,2,1]`: the algorithm does not restore the input.
 
 #### Solution
 
-The code is the walkthrough's emit-then-swap cadence, with the parity test
-choosing each swap's left operand.
+The code is the walkthrough's emit-then-swap cadence, with the parity test choosing each swap's left operand.
 
 ```python
 from typing import List
@@ -576,13 +480,7 @@ The recursion depth is `n`, and the algorithm permutes `nums` in place with no a
 
 #### Derivation
 
-When demonstrating the algorithm is not the point, the standard library already
-ships the enumeration:
-[`itertools.permutations`](https://docs.python.org/3/library/itertools.html)
-generates every ordering of the input in C. Each yielded item is a tuple, so a
-comprehension converts them to lists to match the expected return type. This is
-the most concise option but is generally not acceptable in interviews, since it
-hides the algorithm the question is asking you to demonstrate:
+When demonstrating the algorithm is not the point, the standard library already ships the enumeration: [`itertools.permutations`](https://docs.python.org/3/library/itertools.html) generates every ordering of the input in C. Each yielded item is a tuple, so a comprehension converts them to lists to match the expected return type. This is the most concise option but is generally not acceptable in interviews, since it hides the algorithm the question is asking you to demonstrate:
 
 1. Call `permutations(nums)` to obtain an iterator over all orderings as
    tuples.
@@ -590,19 +488,14 @@ hides the algorithm the question is asking you to demonstrate:
 
 #### Walkthrough
 
-Here the library is the technique, so the trace is of its documented behavior:
-`permutations` fills positions left to right, taking the candidates for each
-position in input order, exactly like the path-building tree walked earlier. On
-Example 1, `nums = [1,2,3]`:
+Here the library is the technique, so the trace is of its documented behavior: `permutations` fills positions left to right, taking the candidates for each position in input order, exactly like the path-building tree walked earlier. On Example 1, `nums = [1,2,3]`:
 
 ```text
 permutations(nums) yields   (1,2,3)  (1,3,2)  (2,1,3)  (2,3,1)  (3,1,2)  (3,2,1)
 list(perm) converts to      [1,2,3]  [1,3,2]  [2,1,3]  [2,3,1]  [3,1,2]  [3,2,1]
 ```
 
-Because the input is already sorted, this is lexicographic order, and the
-collected result `[[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]` matches
-Example 1's expected Output exactly.
+Because the input is already sorted, this is lexicographic order, and the collected result `[[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]` matches Example 1's expected Output exactly.
 
 #### Solution
 

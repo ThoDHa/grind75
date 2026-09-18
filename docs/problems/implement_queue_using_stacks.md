@@ -62,23 +62,14 @@ Can you implement the queue such that each operation is amortized `O(1)` time co
 
 ## Deriving the Solution
 
-A stack hands elements back newest-first; a queue must hand them back oldest-first.
-Draining one stack into another reverses its order, and two reversals cancel, so
-both solutions move elements between two stacks until the queue's front sits on top
-of the stack that `pop` and `peek` read. They differ only in *when* they pay for
-that reversal.
+A stack hands elements back newest-first; a queue must hand them back oldest-first. Draining one stack into another reverses its order, and two reversals cancel, so both solutions move elements between two stacks until the queue's front sits on top of the stack that `pop` and `peek` read. They differ only in *when* they pay for that reversal.
 
 1. **Start literal.** Keep the whole queue in one stack, front on top, at all
-   times. Then `pop`, `peek`, and `empty` are single stack operations, but every
-   `push` must place the new element at the *bottom*, which costs a full drain into
-   a helper stack and back: `O(n)` per push: see [Eager Push](#eager-push).
+   times. Then `pop`, `peek`, and `empty` are single stack operations, but every `push` must place the new element at the *bottom*, which costs a full drain into a helper stack and back: `O(n)` per push: see [Eager Push](#eager-push).
 2. **Spot the waste.** Eager Push re-shuffles every element on every push, even
-   when no pop is coming. A burst of pushes pays the full reversal each time, and
-   each reversal undoes the previous one's work.
+   when no pop is coming. A burst of pushes pays the full reversal each time, and each reversal undoes the previous one's work.
 3. **Pay lazily.** Let pushes pile up untouched in an input stack, and reverse them
-   into an output stack only when a `pop` or `peek` finds that output stack empty.
-   Each element then crosses over at most once in its lifetime, which makes every
-   operation amortized `O(1)` and answers the Follow-up: see [Lazy Pop](#lazy-pop).
+   into an output stack only when a `pop` or `peek` finds that output stack empty. Each element then crosses over at most once in its lifetime, which makes every operation amortized `O(1)` and answers the Follow-up: see [Lazy Pop](#lazy-pop).
 
 ## Solutions
 
@@ -86,19 +77,10 @@ that reversal.
 
 #### Derivation
 
-Start from the operations that must be fast to feel like a queue: `pop` and `peek`
-read the front. If the main stack `queue` always holds the elements in queue order
-with the oldest on top, both are single
-[stack](https://en.wikipedia.org/wiki/Stack_(abstract_data_type)) operations. The
-question becomes: how does `push` insert a new element at the *bottom* of that
-stack using only stack operations? By clearing the way: drain everything into a
-helper stack, drop the new element into the empty main stack, and pour the helper
-back on top. The two transfers reverse the order twice, so the old elements come
-back in their original order, now sitting above the newcomer. The steps:
+Start from the operations that must be fast to feel like a queue: `pop` and `peek` read the front. If the main stack `queue` always holds the elements in queue order with the oldest on top, both are single [stack](https://en.wikipedia.org/wiki/Stack_(abstract_data_type)) operations. The question becomes: how does `push` insert a new element at the *bottom* of that stack using only stack operations? By clearing the way: drain everything into a helper stack, drop the new element into the empty main stack, and pour the helper back on top. The two transfers reverse the order twice, so the old elements come back in their original order, now sitting above the newcomer. The steps:
 
 1. `push(x)`: pop every element off `queue` onto `stack`, append `x` to the
-   now-empty `queue`, then pop everything off `stack` back onto `queue`. The new
-   element ends at the bottom; the older elements return above it, oldest on top.
+   now-empty `queue`, then pop everything off `stack` back onto `queue`. The new element ends at the bottom; the older elements return above it, oldest on top.
 2. `pop()`: return `self.queue.pop()`, the top of the stack, which is the front of
    the queue.
 3. `peek()`: return `self.queue[-1]` without removing it.
@@ -130,8 +112,7 @@ The three non-`null` calls return `1`, `1`, and `false`, so the full output sequ
 
 #### Solution
 
-The code is the drain-drop-restore cycle from the walkthrough, run inside `push`;
-the other three methods read the top of `queue` directly.
+The code is the drain-drop-restore cycle from the walkthrough, run inside `push`; the other three methods read the top of `queue` directly.
 
 ```python
 class MyQueue:
@@ -188,25 +169,13 @@ We need space proportional to the number of elements in the queue.
 
 #### Derivation
 
-The Eager Push pays its `O(n)` reversal on every single push, even when no pop ever
-looks at the result, and each push's reversal undoes the previous one's. The repair
-is to defer the work until it is actually needed. Give the
-[two stacks](https://en.wikipedia.org/wiki/Stack_(abstract_data_type)) different
-jobs: `stack_input` receives every `push` untouched, and `stack_output` serves
-every `pop` and `peek`. When the output stack runs dry, one transfer drains
-`stack_input` into it, and that single reversal puts the oldest element on top,
-exactly where the front belongs.
+The Eager Push pays its `O(n)` reversal on every single push, even when no pop ever looks at the result, and each push's reversal undoes the previous one's. The repair is to defer the work until it is actually needed. Give the [two stacks](https://en.wikipedia.org/wiki/Stack_(abstract_data_type)) different jobs: `stack_input` receives every `push` untouched, and `stack_output` serves every `pop` and `peek`. When the output stack runs dry, one transfer drains `stack_input` into it, and that single reversal puts the oldest element on top, exactly where the front belongs.
 
-The condition on the transfer is the heart of the approach: refill *only when
-`stack_output` is empty*. Refilling any earlier would drop newer elements on top of
-older ones still waiting in the output stack, letting them jump the line. The
-[Invariant](#invariant) below states this precisely and derives the amortized bound
-from it. The steps:
+The condition on the transfer is the heart of the approach: refill *only when `stack_output` is empty*. Refilling any earlier would drop newer elements on top of older ones still waiting in the output stack, letting them jump the line. The [Invariant](#invariant) below states this precisely and derives the amortized bound from it. The steps:
 
 1. `push(x)`: append `x` to `stack_input`. Nothing else moves.
 2. `_ensure_output_has_values()`: when `stack_output` is empty, pop every element
-   off `stack_input` and append it to `stack_output`, reversing the order so the
-   oldest element lands on top.
+   off `stack_input` and append it to `stack_output`, reversing the order so the oldest element lands on top.
 3. `pop()` and `peek()`: call `_ensure_output_has_values()`, then pop or read the
    top of `stack_output`.
 4. `empty()`: the queue is empty only when *both* stacks are empty, since elements
@@ -214,52 +183,26 @@ from it. The steps:
 
 #### Invariant
 
-List `stack_output` bottom to top as \(o_1, \ldots, o_p\) and `stack_input`
-bottom to top as \(i_1, \ldots, i_q\). The queue those two stacks represent, read
-front to back, is:
+List `stack_output` bottom to top as \(o_1, \ldots, o_p\) and `stack_input` bottom to top as \(i_1, \ldots, i_q\). The queue those two stacks represent, read front to back, is:
 
-$$
-\underbrace{o_p,\, o_{p-1},\, \ldots,\, o_1}_{\text{reversed}(\textit{stack\_output})}
-\;,\;\;
-\underbrace{i_1,\, i_2,\, \ldots,\, i_q}_{\textit{stack\_input}}
-$$
+$$ \underbrace{o_p,\, o_{p-1},\, \ldots,\, o_1}_{\text{reversed}(\textit{stack\_output})} \;,\;\; \underbrace{i_1,\, i_2,\, \ldots,\, i_q}_{\textit{stack\_input}} $$
 
 ```text
 queue front to back = reversed(stack_output), then stack_input
                       (both stacks listed bottom to top)
 ```
 
-The front of the queue is therefore the *top* of `stack_output` whenever \(p > 0\),
-which is what lets `pop` and `peek` be plain stack operations.
+The front of the queue is therefore the *top* of `stack_output` whenever \(p > 0\), which is what lets `pop` and `peek` be plain stack operations.
 
-Every method preserves this. `push` appends to the top of `stack_input`, adding
-\(i_{q+1}\) at the back, where a newly pushed element belongs. `pop` and `peek`
-read the top of `stack_output`, which is the front. A refill moves all of
-`stack_input` across, and because it runs only when \(p = 0\) the queue at that
-moment is exactly \(i_1, \ldots, i_q\); popping those top to bottom and appending
-leaves `stack_output` \(= i_q, \ldots, i_1\), whose reverse is \(i_1, \ldots,
-i_q\) again. The order is unchanged.
+Every method preserves this. `push` appends to the top of `stack_input`, adding \(i_{q+1}\) at the back, where a newly pushed element belongs. `pop` and `peek` read the top of `stack_output`, which is the front. A refill moves all of `stack_input` across, and because it runs only when \(p = 0\) the queue at that moment is exactly \(i_1, \ldots, i_q\); popping those top to bottom and appending leaves `stack_output` \(= i_q, \ldots, i_1\), whose reverse is \(i_1, \ldots, i_q\) again. The order is unchanged.
 
-This is why `if not self.stack_output:` is the correctness condition and not an
-optimization. Refilling while \(p > 0\) would leave `stack_output`
-\(= o_1, \ldots, o_p, i_q, \ldots, i_1\), which reads front to back as
-\(i_1, \ldots, i_q, o_p, \ldots, o_1\): every newly pushed element jumps ahead of
-elements that were already waiting, and the structure stops being FIFO.
+This is why `if not self.stack_output:` is the correctness condition and not an optimization. Refilling while \(p > 0\) would leave `stack_output` \(= o_1, \ldots, o_p, i_q, \ldots, i_1\), which reads front to back as \(i_1, \ldots, i_q, o_p, \ldots, o_1\): every newly pushed element jumps ahead of elements that were already waiting, and the structure stops being FIFO.
 
-The same guard carries the amortized bound. A refill drains `stack_input`
-completely, and an element enters `stack_input` exactly once (on its `push`), so
-each element takes part in at most one refill. Its entire lifetime is a fixed
-number of stack operations: one append to `stack_input`, at most one
-pop-and-append across, and one pop from `stack_output`. Across \(n\) operations
-the total work is \(O(n)\), which is amortized \(O(1)\) each even though a single
-refill can cost \(O(n)\) on its own.
+The same guard carries the amortized bound. A refill drains `stack_input` completely, and an element enters `stack_input` exactly once (on its `push`), so each element takes part in at most one refill. Its entire lifetime is a fixed number of stack operations: one append to `stack_input`, at most one pop-and-append across, and one pop from `stack_output`. Across \(n\) operations the total work is \(O(n)\), which is amortized \(O(1)\) each even though a single refill can cost \(O(n)\) on its own.
 
 #### Walkthrough
 
-Let us run the Lazy Pop solution on Example 1, the call sequence `push(1)`,
-`push(2)`, `peek()`, `pop()`, `empty()`. Both stacks are written bottom to top, so
-the rightmost element is the top. Watch where the reversal happens: not during the
-pushes, but inside the first `peek()`.
+Let us run the Lazy Pop solution on Example 1, the call sequence `push(1)`, `push(2)`, `peek()`, `pop()`, `empty()`. Both stacks are written bottom to top, so the rightmost element is the top. Watch where the reversal happens: not during the pushes, but inside the first `peek()`.
 
 ```text
 push(1)   stack_input = [1]      stack_output = []      queue front to back: 1
@@ -272,16 +215,11 @@ pop()     stack_output is not empty -> no refill
 empty()   stack_input = [] but stack_output = [2] -> returns false
 ```
 
-The refill inside `peek()` reverses `[1, 2]` into `[2, 1]`, landing the oldest
-element `1` on top; the subsequent `pop()` finds `stack_output` already populated
-and touches nothing else, which is the laziness paying off. The three non-`null`
-calls return `1`, `1`, and `false`, so the full output sequence is
-`[null, null, null, 1, 1, false]`, matching the expected Output.
+The refill inside `peek()` reverses `[1, 2]` into `[2, 1]`, landing the oldest element `1` on top; the subsequent `pop()` finds `stack_output` already populated and touches nothing else, which is the laziness paying off. The three non-`null` calls return `1`, `1`, and `false`, so the full output sequence is `[null, null, null, 1, 1, false]`, matching the expected Output.
 
 #### Solution
 
-The code is the walkthrough's two stacks written down, with the refill guard
-isolated in `_ensure_output_has_values`.
+The code is the walkthrough's two stacks written down, with the refill guard isolated in `_ensure_output_has_values`.
 
 ```python
 class MyQueue:
